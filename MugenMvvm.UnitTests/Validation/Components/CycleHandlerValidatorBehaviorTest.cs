@@ -1,8 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Validation.Internal;
-using MugenMvvm.Validation;
+using MugenMvvm.Tests.Validation;
 using MugenMvvm.Validation.Components;
 using Should;
 using Xunit;
@@ -12,12 +11,9 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class CycleHandlerValidatorBehaviorTest : UnitTestBase
     {
-        private readonly Validator _validator;
-
         public CycleHandlerValidatorBehaviorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _validator = new Validator(null, ComponentCollectionManager);
-            _validator.AddComponent(new CycleHandlerValidatorBehavior());
+            Validator.AddComponent(new CycleHandlerValidatorBehavior());
         }
 
         [Fact]
@@ -27,17 +23,19 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var invokeCount = 0;
 
             var tcs = new TaskCompletionSource<object>();
-            _validator.AddComponent(new TestValidationHandlerComponent(_validator)
+            Validator.AddComponent(new TestValidationHandlerComponent
             {
-                TryValidateAsync = (s, token, m) =>
+                TryValidateAsync = (v, s, token, m) =>
                 {
                     ++invokeCount;
-                    _validator.ValidateAsync(expectedMember, token, m).IsCompleted.ShouldBeTrue();
+                    s.ShouldEqual(expectedMember);
+                    v.ShouldEqual(Validator);
+                    Validator.ValidateAsync(expectedMember, token, m).IsCompleted.ShouldBeTrue();
                     return tcs.Task;
                 }
             });
 
-            var task = _validator.ValidateAsync(expectedMember, CancellationToken.None);
+            var task = Validator.ValidateAsync(expectedMember, CancellationToken.None);
             task!.IsCompleted.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
         }

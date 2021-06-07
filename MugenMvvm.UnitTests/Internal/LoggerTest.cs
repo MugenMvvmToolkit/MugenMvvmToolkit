@@ -2,10 +2,11 @@
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
+using MugenMvvm.Tests.Internal;
 using MugenMvvm.UnitTests.Components;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -14,10 +15,10 @@ namespace MugenMvvm.UnitTests.Internal
     public class LoggerTest : ComponentOwnerTestBase<Logger>
     {
         [Fact]
-        public void CanLogShouldReturnFalseNoComponents() => new Logger().CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
+        public void CanLogShouldReturnFalseNoComponents() => Logger.CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
 
         [Fact]
-        public void LogShouldNotThrowNoComponents() => new Logger().Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
+        public void LogShouldNotThrowNoComponents() => Logger.Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
 
         [Theory]
         [InlineData(1, "Info", true)]
@@ -29,7 +30,6 @@ namespace MugenMvvm.UnitTests.Internal
         public void CanLogShouldBeHandledByComponents(int count, string l, bool withMetadata)
         {
             var logLevel = LogLevel.Get(l);
-            var logger = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -45,10 +45,10 @@ namespace MugenMvvm.UnitTests.Internal
                     return canLog;
                 });
                 component.Priority = -i;
-                logger.AddComponent(component);
+                Logger.AddComponent(component);
             }
 
-            logger.CanLog(logLevel, withMetadata ? DefaultMetadata : null).ShouldEqual(true);
+            Logger.CanLog(logLevel, withMetadata ? DefaultMetadata : null).ShouldEqual(true);
             invokeCount.ShouldEqual(count);
         }
 
@@ -64,7 +64,6 @@ namespace MugenMvvm.UnitTests.Internal
             var logLevel = LogLevel.Get(l);
             var message = l;
             var exception = withMetadata ? new Exception() : null;
-            var logger = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -80,10 +79,10 @@ namespace MugenMvvm.UnitTests.Internal
                         metadata.ShouldBeNull();
                 }, (level, context) => true);
                 component.Priority = -i;
-                logger.AddComponent(component);
+                Logger.AddComponent(component);
             }
 
-            logger.Log(logLevel, message, exception, withMetadata ? DefaultMetadata : null);
+            Logger.Log(logLevel, message, exception, withMetadata ? DefaultMetadata : null);
             invokeCount.ShouldEqual(count);
         }
 
@@ -92,21 +91,21 @@ namespace MugenMvvm.UnitTests.Internal
         [InlineData(10)]
         public void GetLoggerShouldBeHandledByComponents(int count)
         {
-            var logger = GetComponentOwner(ComponentCollectionManager);
             var request = new object();
-            var result = new Logger();
+            var result = new Logger(ComponentCollectionManager);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
                 var isLast = count - 1 == i;
-                logger.AddComponent(new TestLoggerProviderComponent(logger)
+                Logger.AddComponent(new TestLoggerProviderComponent
                 {
                     Priority = -i,
-                    TryGetLogger = (o, context) =>
+                    TryGetLogger = (l, o, context) =>
                     {
-                        ++invokeCount;
+                        l.ShouldEqual(Logger);
                         o.ShouldEqual(request);
                         context.ShouldEqual(DefaultMetadata);
+                        ++invokeCount;
                         if (isLast)
                             return result;
                         return null;
@@ -114,9 +113,11 @@ namespace MugenMvvm.UnitTests.Internal
                 });
             }
 
-            logger.GetLogger(request, DefaultMetadata).ShouldEqual(result);
+            Logger.GetLogger(request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
+
+        protected override ILogger GetLogger() => GetComponentOwner(ComponentCollectionManager);
 
         protected override Logger GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

@@ -2,11 +2,12 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Tests.Threading;
+using MugenMvvm.Tests.ViewModels;
+using MugenMvvm.Tests.Views;
 using MugenMvvm.Threading;
-using MugenMvvm.UnitTests.Threading.Internal;
-using MugenMvvm.UnitTests.ViewModels.Internal;
-using MugenMvvm.UnitTests.Views.Internal;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;
@@ -19,18 +20,14 @@ namespace MugenMvvm.UnitTests.Views.Components
     {
         private readonly View _view;
         private readonly TestViewModel _viewModel;
-        private readonly ViewManager _viewManager;
-        private readonly ThreadDispatcher _threadDispatcher;
         private readonly ExecutionModeViewManagerDecorator _decorator;
 
         public ExecutionModeViewManagerDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _viewModel = new TestViewModel();
             _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, _viewModel);
-            _viewManager = new ViewManager(ComponentCollectionManager);
-            _threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
-            _decorator = new ExecutionModeViewManagerDecorator(_threadDispatcher);
-            _viewManager.AddComponent(_decorator);
+            _decorator = new ExecutionModeViewManagerDecorator(ThreadDispatcher);
+            ViewManager.AddComponent(_decorator);
         }
 
         [Fact]
@@ -38,24 +35,25 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var result = true;
             Action? action = null;
-            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (mode, context) =>
+                CanExecuteInline = (_, mode, _) =>
                 {
                     mode.ShouldEqual(_decorator.CleanupExecutionMode);
                     return true;
                 },
-                Execute = (a, mode, arg3, arg4) =>
+                Execute = (_, a, _, arg3, _) =>
                 {
                     action += () => a(arg3);
                     return true;
                 }
             });
 
-            _viewManager.AddComponent(new TestViewManagerComponent(_viewManager)
+            ViewManager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (v, r, meta, token) =>
+                TryCleanupAsync = (m, v, r, meta, token) =>
                 {
+                    m.ShouldEqual(ViewManager);
                     v.ShouldEqual(_view);
                     r.ShouldEqual(_viewModel);
                     meta.ShouldEqual(DefaultMetadata);
@@ -64,7 +62,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            var r = await _viewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, DefaultMetadata);
+            var r = await ViewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, DefaultMetadata);
             r.ShouldEqual(result);
             action.ShouldBeNull();
         }
@@ -74,24 +72,25 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var result = new ValueTask<IView?>(_view);
             Action? action = null;
-            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (mode, context) =>
+                CanExecuteInline = (_, mode, _) =>
                 {
                     mode.ShouldEqual(_decorator.InitializeExecutionMode);
                     return true;
                 },
-                Execute = (a, mode, arg3, arg4) =>
+                Execute = (_, a, _, arg3, _) =>
                 {
                     action += () => a(arg3);
                     return true;
                 }
             });
 
-            _viewManager.AddComponent(new TestViewManagerComponent(_viewManager)
+            ViewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, meta, token) =>
+                TryInitializeAsync = (m, viewMapping, r, meta, token) =>
                 {
+                    m.ShouldEqual(ViewManager);
                     viewMapping.ShouldEqual(_view.Mapping);
                     r.ShouldEqual(_viewModel);
                     meta.ShouldEqual(DefaultMetadata);
@@ -100,9 +99,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            (await _viewManager.InitializeAsync(_view.Mapping, _viewModel, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.InitializeAsync(_view.Mapping, _viewModel, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             action.ShouldBeNull();
         }
+
+        protected override IThreadDispatcher GetThreadDispatcher() => new ThreadDispatcher(ComponentCollectionManager);
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(0)] //success
@@ -115,14 +118,14 @@ namespace MugenMvvm.UnitTests.Views.Components
             var cancellationToken = cancellationTokenSource.Token;
             var ex = new Exception();
             Action? action = null;
-            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (mode, context) =>
+                CanExecuteInline = (_, mode, _) =>
                 {
                     mode.ShouldEqual(_decorator.InitializeExecutionMode);
                     return false;
                 },
-                Execute = (a, mode, arg3, arg4) =>
+                Execute = (_, a, mode, arg3, _) =>
                 {
                     mode.ShouldEqual(_decorator.InitializeExecutionMode);
                     action += () => a(arg3);
@@ -130,10 +133,11 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            _viewManager.AddComponent(new TestViewManagerComponent
+            ViewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, meta, token) =>
+                TryInitializeAsync = (m, viewMapping, r, meta, token) =>
                 {
+                    m.ShouldEqual(ViewManager);
                     viewMapping.ShouldEqual(_view.Mapping);
                     r.ShouldEqual(_viewModel);
                     meta.ShouldEqual(DefaultMetadata);
@@ -144,7 +148,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            var task = _viewManager.InitializeAsync(_view.Mapping, _viewModel, cancellationToken, DefaultMetadata);
+            var task = ViewManager.InitializeAsync(_view.Mapping, _viewModel, cancellationToken, DefaultMetadata);
             if (state == 1)
                 cancellationTokenSource.Cancel();
             task.IsCompleted.ShouldBeFalse();
@@ -177,14 +181,14 @@ namespace MugenMvvm.UnitTests.Views.Components
             var cancellationToken = cancellationTokenSource.Token;
             var ex = new Exception();
             Action? action = null;
-            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (mode, context) =>
+                CanExecuteInline = (_, mode, _) =>
                 {
                     mode.ShouldEqual(_decorator.CleanupExecutionMode);
                     return false;
                 },
-                Execute = (a, mode, arg3, arg4) =>
+                Execute = (_, a, mode, arg3, _) =>
                 {
                     mode.ShouldEqual(_decorator.CleanupExecutionMode);
                     action += () => a(arg3);
@@ -192,10 +196,11 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            _viewManager.AddComponent(new TestViewManagerComponent(_viewManager)
+            ViewManager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (v, r, meta, token) =>
+                TryCleanupAsync = (m, v, r, meta, token) =>
                 {
+                    m.ShouldEqual(ViewManager);
                     v.ShouldEqual(_view);
                     r.ShouldEqual(_viewModel);
                     meta.ShouldEqual(DefaultMetadata);
@@ -208,7 +213,7 @@ namespace MugenMvvm.UnitTests.Views.Components
 
             if (state == 1)
                 cancellationTokenSource.Cancel();
-            var task = _viewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, DefaultMetadata);
+            var task = ViewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldEqual(state == 1);
             action?.Invoke();
             await task.WaitSafeAsync();

@@ -6,7 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Enums;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.Tests.Bindings.Members;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,10 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
     {
         public DelegateMethodMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IObservationManager>(ObservationManager);
         }
-
-        public override void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
 
         [Fact]
         public void GetParametersShouldUseDelegate()
@@ -32,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.GetParameters().IsEmpty.ShouldBeTrue();
 
             var invokeCount = 0;
-            var parameters = new List<IParameterInfo> {null!};
+            var parameters = new List<IParameterInfo> { null! };
             memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null,
                 (member, target, args, metadata) => "", info =>
                 {
@@ -41,6 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     return parameters;
                 }, null, null, null);
             memberInfo.GetParameters().ShouldEqual(parameters);
+            invokeCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -49,7 +47,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             IMemberInfo? m = null;
             var invokeCount = 0;
             string t = "";
-            var objects = new object?[] {"t", 1};
+            var objects = new object?[] { "t", 1 };
             var result = "test";
             var memberInfo = new DelegateMethodMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null,
                 (member, target, args, metadata) =>
@@ -74,7 +72,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.IsGenericMethod.ShouldBeFalse();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
             ShouldThrow<NotSupportedException>(() => memberInfo.GetGenericMethodDefinition());
-            ShouldThrow<NotSupportedException>(() => memberInfo.MakeGenericMethod(new Type[0]));
+            ShouldThrow<NotSupportedException>(() => memberInfo.MakeGenericMethod(Type.EmptyTypes));
             ShouldThrow<NotSupportedException>(() => memberInfo.GetGenericArguments());
         }
 
@@ -82,7 +80,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void TryGetAccessorShouldUseDelegate()
         {
             var flags = ArgumentFlags.Metadata;
-            var values = new object[] {this};
+            var values = new object[] { this };
             var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null,
                 (member, target, args, metadata) => "", null, null, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldBeNull();
@@ -101,6 +99,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     return accessor;
                 }, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
+            invokeCount.ShouldEqual(1);
         }
 
         protected override MemberType MemberType => MemberType.Method;

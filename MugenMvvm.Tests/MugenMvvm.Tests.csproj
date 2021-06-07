@@ -1,0 +1,22 @@
+<Project Sdk="MSBuild.Sdk.Extras">
+
+  <PropertyGroup>
+    <TargetFrameworks>monoandroid10.0;xamarin.ios10;net461;net5.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RootNamespace>MugenMvvm.Tests</RootNamespace>
+    <Nullable>enable</Nullable>
+    <LangVersion>9.0</LangVersion>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('netcoreapp')) or $(TargetFramework.StartsWith('net5'))">
+    <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
+  </ItemGroup>
+
+</Project>

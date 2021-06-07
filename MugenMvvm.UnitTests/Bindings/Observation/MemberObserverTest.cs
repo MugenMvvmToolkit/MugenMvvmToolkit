@@ -3,7 +3,7 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 

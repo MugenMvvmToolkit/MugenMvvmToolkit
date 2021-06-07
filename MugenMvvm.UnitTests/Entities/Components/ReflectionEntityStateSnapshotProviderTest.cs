@@ -4,6 +4,7 @@ using System.Reflection;
 using MugenMvvm.Entities;
 using MugenMvvm.Entities.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Entities;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,33 +17,31 @@ namespace MugenMvvm.UnitTests.Entities.Components
         private const string StringValue = "test";
         private static readonly Guid GuidValue = Guid.NewGuid();
 
-        private readonly EntityManager _entityManager;
         private readonly ReflectionEntityStateSnapshotProvider _entityStateSnapshotProvider;
 
         public ReflectionEntityStateSnapshotProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _entityManager = new EntityManager(ComponentCollectionManager);
             _entityStateSnapshotProvider = new ReflectionEntityStateSnapshotProvider(ReflectionManager);
-            _entityManager.AddComponent(_entityStateSnapshotProvider);
+            EntityManager.AddComponent(_entityStateSnapshotProvider);
         }
 
         [Fact]
         public void ShouldDumpValues()
         {
             var stateModel = GetModel();
-            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
             values.Count.ShouldEqual(3);
-            var v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.Guid));
+            var v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
 
-            v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.Int));
+            v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Int));
             v.OldValue.ShouldEqual(IntValue);
             v.NewValue.ShouldEqual(IntValue);
 
-            v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.String));
+            v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.String));
             v.OldValue.ShouldEqual(StringValue);
             v.NewValue.ShouldEqual(StringValue);
 
@@ -52,15 +51,15 @@ namespace MugenMvvm.UnitTests.Entities.Components
 
             values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
             values.Count.ShouldEqual(3);
-            v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.Guid));
+            v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(Guid.Empty);
 
-            v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.Int));
+            v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Int));
             v.OldValue.ShouldEqual(IntValue);
             v.NewValue.ShouldEqual(int.MaxValue);
 
-            v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.String));
+            v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.String));
             v.OldValue.ShouldEqual(StringValue);
             v.NewValue.ShouldEqual(null);
         }
@@ -69,7 +68,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldSaveAndRestoreState()
         {
             var stateModel = GetModel();
-            var entitySnapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var entitySnapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             stateModel.Int = int.MaxValue;
             stateModel.Int.ShouldEqual(int.MaxValue);
@@ -86,7 +85,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldTrackEntityChanges()
         {
             var stateModel = GetModel();
-            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel).ShouldBeFalse();
 
@@ -110,7 +109,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldTrackPropertyChanges()
         {
             var stateModel = GetModel();
-            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
             snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
@@ -146,16 +145,18 @@ namespace MugenMvvm.UnitTests.Entities.Components
             var stateModel = GetModel();
             _entityStateSnapshotProvider.MemberFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
             _entityStateSnapshotProvider.MemberFilter = info => info.Name == nameof(stateModel.Guid);
-            var snapshot = _entityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
             values.Count.ShouldEqual(1);
-            var v = values.Single(value => ((PropertyInfo) value.Member!).Name == nameof(stateModel.Guid));
+            var v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
         }
 
-        private static EntityStateModel GetModel() => new() {Guid = GuidValue, Int = IntValue, String = StringValue};
+        protected override IEntityManager GetEntityManager() => new EntityManager(ComponentCollectionManager);
+
+        private static EntityStateModel GetModel() => new() { Guid = GuidValue, Int = IntValue, String = StringValue };
 
         private static void AssertModel(EntityStateModel model)
         {

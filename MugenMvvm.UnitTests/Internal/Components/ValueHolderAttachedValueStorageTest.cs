@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.UnitTests.Internal.Internal;
+using MugenMvvm.Tests.Internal;
 
 namespace MugenMvvm.UnitTests.Internal.Components
 {

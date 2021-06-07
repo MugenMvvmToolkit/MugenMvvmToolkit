@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
 using Should;
@@ -15,19 +16,15 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class CacheViewModelProviderTest : UnitTestBase
     {
-        private readonly ViewModelManager _viewModelManager;
-
         public CacheViewModelProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _viewModelManager.AddComponent(new CacheViewModelProvider());
+            ViewModelManager.AddComponent(new CacheViewModelProvider(true, WeakReferenceManager));
         }
 
         [Fact]
-        public void ShouldIgnoreNonStringRequest()
-        {
-            _viewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
-        }
+        public void ShouldIgnoreNonStringRequest() => ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1, true)]
@@ -36,9 +33,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [InlineData(10, false)]
         public void ShouldTrackCreatedViewModels(int count, bool isWeak)
         {
-            _viewModelManager.RemoveComponents<CacheViewModelProvider>();
-            var component = new CacheViewModelProvider(isWeak);
-            _viewModelManager.AddComponent(component);
+            ViewModelManager.RemoveComponents<CacheViewModelProvider>();
+            var component = new CacheViewModelProvider(isWeak, WeakReferenceManager);
+            ViewModelManager.AddComponent(component);
 
             var vms = new List<TestViewModel>();
             //created
@@ -46,9 +43,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             {
                 var testViewModel = new TestViewModel();
                 vms.Add(testViewModel);
-                _viewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
-                _viewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
-                _viewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
+                ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
+                ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
             }
 
             //restored
@@ -58,17 +55,17 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 var newId = Guid.NewGuid().ToString("N");
                 var oldId = testViewModel.Metadata.Get(ViewModelMetadata.Id);
                 testViewModel.Metadata.Set(ViewModelMetadata.Id, newId);
-                _viewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Restored, i, DefaultMetadata);
-                _viewModelManager.TryGetViewModel(oldId!).ShouldBeNull();
-                _viewModelManager.TryGetViewModel(newId).ShouldEqual(testViewModel);
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Restored, i, DefaultMetadata);
+                ViewModelManager.TryGetViewModel(oldId!).ShouldBeNull();
+                ViewModelManager.TryGetViewModel(newId).ShouldEqual(testViewModel);
             }
 
             //disposed
             for (var i = 0; i < count; i++)
             {
                 var testViewModel = vms[i];
-                _viewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, null, DefaultMetadata);
-                _viewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, null, DefaultMetadata);
+                ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
             }
 
             if (!isWeak)
@@ -77,15 +74,15 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             {
                 var testViewModel = new TestViewModel();
                 vms.Add(testViewModel);
-                _viewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
-                _viewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
+                ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
             }
 
             var array = vms.Select(model => model.Metadata.Get(ViewModelMetadata.Id)).ToArray();
             vms.Clear();
             GcCollect();
             for (var i = 0; i < count; i++)
-                _viewModelManager.TryGetViewModel(array[i]!).ShouldBeNull();
+                ViewModelManager.TryGetViewModel(array[i]!).ShouldBeNull();
         }
     }
 }

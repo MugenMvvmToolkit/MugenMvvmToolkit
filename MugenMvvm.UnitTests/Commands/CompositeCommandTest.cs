@@ -4,26 +4,19 @@ using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Commands.Internal;
+using MugenMvvm.Tests.Commands;
+using MugenMvvm.Tests.Internal;
 using MugenMvvm.UnitTests.Internal;
-using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Commands
 {
-    [Collection(SharedContext)]
     public class CompositeCommandTest : SuspendableComponentOwnerTestBase<CompositeCommand>
     {
-        public CompositeCommandTest()
-        {
-            MugenService.Configuration.InitializeInstance<ICommandManager>(new CommandManager());
-        }
-
         private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
         {
             if (value)
@@ -45,12 +38,6 @@ namespace MugenMvvm.UnitTests.Commands
             return null;
         }
 
-        public override void Dispose()
-        {
-            MugenService.Configuration.Clear<ICommandManager>();
-            base.Dispose();
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -58,28 +45,26 @@ namespace MugenMvvm.UnitTests.Commands
         {
             var count = 0;
             var canExecute = false;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
-            compositeCommand.CanExecute(compositeCommand).ShouldBeTrue();
+            Command.CanExecute(Command).ShouldBeTrue();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandConditionComponent
+                Command.AddComponent(new TestCommandConditionComponent
                 {
                     CanExecute = (c, item) =>
                     {
-                        c.ShouldEqual(compositeCommand);
-                        item.ShouldEqual(compositeCommand);
+                        c.ShouldEqual(Command);
+                        item.ShouldEqual(Command);
                         ++count;
                         return canExecute;
                     }
-                };
-                compositeCommand.AddComponent(component);
+                });
             }
 
-            compositeCommand.CanExecute(compositeCommand).ShouldBeFalse();
+            Command.CanExecute(Command).ShouldBeFalse();
             count.ShouldEqual(1);
             count = 0;
             canExecute = true;
-            compositeCommand.CanExecute(compositeCommand).ShouldBeTrue();
+            Command.CanExecute(Command).ShouldBeTrue();
             count.ShouldEqual(componentCount);
         }
 
@@ -89,23 +74,21 @@ namespace MugenMvvm.UnitTests.Commands
         public void AddCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandEventHandlerComponent
+                Command.AddComponent(new TestCommandEventHandlerComponent
                 {
                     AddCanExecuteChanged = (c, handler) =>
                     {
                         ++count;
-                        c.ShouldEqual(compositeCommand);
+                        c.ShouldEqual(Command);
                         handler.ShouldEqual(eventHandler);
                     }
-                };
-                compositeCommand.AddComponent(component);
+                });
             }
 
-            compositeCommand.CanExecuteChanged += eventHandler;
+            Command.CanExecuteChanged += eventHandler;
             count.ShouldEqual(componentCount);
         }
 
@@ -115,23 +98,21 @@ namespace MugenMvvm.UnitTests.Commands
         public void RemoveCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandEventHandlerComponent
+                Command.AddComponent(new TestCommandEventHandlerComponent
                 {
                     RemoveCanExecuteChanged = (c, handler) =>
                     {
                         ++count;
-                        c.ShouldEqual(compositeCommand);
+                        c.ShouldEqual(Command);
                         handler.ShouldEqual(eventHandler);
                     }
-                };
-                compositeCommand.AddComponent(component);
+                });
             }
 
-            compositeCommand.CanExecuteChanged -= eventHandler;
+            Command.CanExecuteChanged -= eventHandler;
             count.ShouldEqual(componentCount);
         }
 
@@ -141,21 +122,19 @@ namespace MugenMvvm.UnitTests.Commands
         public void RaiseCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandEventHandlerComponent
+                Command.AddComponent(new TestCommandEventHandlerComponent
                 {
                     RaiseCanExecuteChanged = c =>
                     {
-                        c.ShouldEqual(compositeCommand);
+                        c.ShouldEqual(Command);
                         ++count;
                     }
-                };
-                compositeCommand.AddComponent(component);
+                });
             }
 
-            compositeCommand.RaiseCanExecuteChanged();
+            Command.RaiseCanExecuteChanged();
             count.ShouldEqual(componentCount);
         }
 
@@ -167,29 +146,28 @@ namespace MugenMvvm.UnitTests.Commands
         public void DisposeShouldBeHandledByComponents(int componentCount, bool canDispose)
         {
             var count = 0;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
-            compositeCommand.IsDisposable = canDispose;
+            Command.IsDisposable = canDispose;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestDisposable {Dispose = () => ++count};
-                compositeCommand.Components.TryAdd(component);
+                var component = new TestDisposable { Dispose = () => ++count };
+                Command.Components.TryAdd(component);
             }
 
-            compositeCommand.IsDisposed.ShouldBeFalse();
-            compositeCommand.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
-            compositeCommand.Dispose();
+            Command.IsDisposed.ShouldBeFalse();
+            Command.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
+            Command.Dispose();
             if (canDispose)
             {
-                compositeCommand.IsDisposed.ShouldBeTrue();
+                Command.IsDisposed.ShouldBeTrue();
                 count.ShouldEqual(componentCount);
-                compositeCommand.Components.Count.ShouldEqual(0);
-                compositeCommand.Metadata.Count.ShouldEqual(0);
+                Command.Components.Count.ShouldEqual(0);
+                Command.Metadata.Count.ShouldEqual(0);
             }
             else
             {
-                compositeCommand.IsDisposed.ShouldBeFalse();
+                Command.IsDisposed.ShouldBeFalse();
                 count.ShouldEqual(0);
-                compositeCommand.Components.Count.ShouldEqual(componentCount);
+                Command.Components.Count.ShouldEqual(componentCount);
             }
         }
 
@@ -199,29 +177,27 @@ namespace MugenMvvm.UnitTests.Commands
         public async Task ExecuteShouldBeHandledByComponents(int componentCount)
         {
             var invokeCount = 0;
-            var cts = new CancellationTokenSource().Token;
-            var compositeCommand = GetComponentOwner(ComponentCollectionManager);
             var tcs = new TaskCompletionSource<bool>[componentCount];
             for (var i = 0; i < componentCount; i++)
             {
                 var tc = new TaskCompletionSource<bool>();
                 tcs[i] = tc;
-                var component = new TestCommandExecutorComponent(compositeCommand)
+                Command.AddComponent(new TestCommandExecutorComponent
                 {
-                    ExecuteAsync = (p, c, m) =>
+                    ExecuteAsync = (cmd, p, c, m) =>
                     {
-                        p.ShouldEqual(compositeCommand);
-                        c.ShouldEqual(cts);
+                        cmd.ShouldEqual(Command);
+                        p.ShouldEqual(this);
+                        c.ShouldEqual(DefaultCancellationToken);
                         m.ShouldEqual(DefaultMetadata);
                         ++invokeCount;
                         return tc.Task.AsValueTask();
                     },
                     Priority = -i
-                };
-                compositeCommand.AddComponent(component);
+                });
             }
 
-            var task = compositeCommand.ExecuteAsync(compositeCommand, cts, DefaultMetadata);
+            var task = Command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
             for (var i = 0; i < tcs.Length; i++)
                 tcs[i].SetResult(i == componentCount - 1);
 
@@ -240,15 +216,16 @@ namespace MugenMvvm.UnitTests.Commands
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            MugenService.AddComponent(new TestCommandProviderComponent
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                TryGetCommand = (s, o, m) =>
+                TryGetCommand = (manager, s, o, m) =>
                 {
+                    manager.ShouldEqual(CommandManager);
                     s.ShouldEqual(owner);
                     r = o;
                     m.ShouldEqual(metadata);
@@ -256,7 +233,7 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
+            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -282,15 +259,16 @@ namespace MugenMvvm.UnitTests.Commands
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            MugenService.AddComponent(new TestCommandProviderComponent
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                TryGetCommand = (s, o, m) =>
+                TryGetCommand = (manager, s, o, m) =>
                 {
+                    manager.ShouldEqual(CommandManager);
                     s.ShouldEqual(owner);
                     r = o;
                     m.ShouldEqual(metadata);
@@ -298,7 +276,7 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
+            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -324,15 +302,16 @@ namespace MugenMvvm.UnitTests.Commands
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            MugenService.AddComponent(new TestCommandProviderComponent
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                TryGetCommand = (s, o, arg3) =>
+                TryGetCommand = (manager, s, o, arg3) =>
                 {
+                    manager.ShouldEqual(CommandManager);
                     s.ShouldEqual(owner);
                     r = o;
                     arg3.ShouldEqual(metadata);
@@ -340,7 +319,7 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -366,15 +345,16 @@ namespace MugenMvvm.UnitTests.Commands
             var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             object? r = null;
-            MugenService.AddComponent(new TestCommandProviderComponent
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                TryGetCommand = (s, o, arg3) =>
+                TryGetCommand = (manager, s, o, arg3) =>
                 {
+                    manager.ShouldEqual(CommandManager);
                     s.ShouldEqual(owner);
                     r = o;
                     arg3.ShouldEqual(metadata);
@@ -382,7 +362,7 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);

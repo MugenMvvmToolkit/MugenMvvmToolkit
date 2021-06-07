@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Bindings.Interfaces.Convert;
-using MugenMvvm.Bindings.Interfaces.Convert.Components;
+using MugenMvvm.Bindings.Interfaces.Converting;
+using MugenMvvm.Bindings.Interfaces.Converting.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 

@@ -6,15 +6,14 @@ using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Messaging;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Messaging.Internal;
-using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Messaging;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;
@@ -24,12 +23,11 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Views.Components
 {
     [Collection(SharedContext)]
-    public class ViewInitializerTest : UnitTestBase, IDisposable
+    public class ViewInitializerTest : UnitTestBase
     {
         private readonly View _view;
         private readonly TestInitializableView _rawView;
         private readonly TestInitializableViewModel _viewModel;
-        private readonly ViewManager _viewManager;
         private readonly ViewInitializer _viewInitializer;
 
         public ViewInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
@@ -37,17 +35,10 @@ namespace MugenMvvm.UnitTests.Views.Components
             _viewModel = new TestInitializableViewModel();
             _rawView = new TestInitializableView();
             _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestInitializableView), DefaultMetadata), _rawView, _viewModel, null, ComponentCollectionManager);
-            _viewManager = new ViewManager(ComponentCollectionManager);
-            _viewInitializer = new ViewInitializer {SetDataContext = false};
-            _viewManager.AddComponent(_viewInitializer);
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IMemberManager>();
-            MugenService.Configuration.Clear<IAttachedValueManager>();
+            _viewInitializer = new ViewInitializer { SetDataContext = false };
+            ViewManager.AddComponent(_viewInitializer);
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(AttachedValueManager));
         }
 
         [Fact]
@@ -76,7 +67,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             };
 
             _view.Components.TryAdd(componentView);
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
 
@@ -86,7 +77,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(2);
 
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Clearing, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Clearing, state, DefaultMetadata);
             _view.Components.Remove(componentView);
             _view.Components.TryAdd(componentView, DefaultMetadata);
             invokeCount.ShouldEqual(1);
@@ -97,13 +88,13 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldSetDataContext()
         {
             var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
+                TryGetMembers = (_, type, memberType, arg3, arg4, arg5) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
             });
 
             _viewInitializer.SetDataContext = true;
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, DefaultMetadata);
             _view.Target.BindableMembers().DataContext().ShouldEqual(_viewModel);
         }
 
@@ -114,7 +105,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             _viewModel.Service = new Messenger(ComponentCollectionManager);
             _viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
             {
-                TrySubscribe = (o, m, arg3) =>
+                TrySubscribe = (_, o, m, arg3) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(_view.Target);
@@ -124,9 +115,11 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         private sealed class TestInitializableViewModel : TestViewModel, IHasService<IMessenger>
         {

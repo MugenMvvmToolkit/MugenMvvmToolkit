@@ -9,9 +9,10 @@ using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
+using MugenMvvm.Tests.Bindings.Parsing;
+using MugenMvvm.Tests.Bindings.Resources;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
-using MugenMvvm.UnitTests.Bindings.Resources.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -21,15 +22,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
     [Collection(SharedContext)]
     public class BindingResourceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest<BindingResourceMemberExpressionNode>
     {
+        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
+
         public BindingResourceMemberExpressionNodeTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IResourceManager>(new ResourceManager(ComponentCollectionManager));
-        }
-
-        public override void Dispose()
-        {
-            MugenService.Configuration.Clear<IResourceManager>();
-            base.Dispose();
+            RegisterDisposeToken(WithGlobalService(ResourceManager));
         }
 
         [Fact]
@@ -59,9 +56,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var src = new object();
             var resource = new object();
 
-            MugenService.AddComponent(new TestResourceResolverComponent
+            ResourceManager.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResource = (s, o, arg4) =>
+                TryGetResource = (_, s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
@@ -69,9 +66,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     return new ResourceResolverResult(resource);
                 }
             });
-            MugenService.AddComponent(new TestMemberPathProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) =>
+                TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual("");
                     arg3.ShouldEqual(DefaultMetadata);
@@ -95,9 +92,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var resource = new object();
 
 
-            MugenService.AddComponent(new TestResourceResolverComponent
+            ResourceManager.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResource = (s, o, arg4) =>
+                TryGetResource = (_, s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
@@ -105,9 +102,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     return new ResourceResolverResult(resource);
                 }
             });
-            MugenService.AddComponent(new TestMemberPathProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) =>
+                TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(Path);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -120,12 +117,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 BindingMemberExpressionFlags.ObservableMethods,
                 MemberFlags.All, "M");
 
-            MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathObserverProviderComponent
             {
-                TryGetMemberPathObserver = (target, req, arg4) =>
+                TryGetMemberPathObserver = (_, target, req, arg4) =>
                 {
                     target.ShouldEqual(resource);
-                    var request = (MemberPathObserverRequest) req;
+                    var request = (MemberPathObserverRequest)req;
                     request.Expression.ShouldEqual(exp);
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
@@ -148,11 +145,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var observer = EmptyPathObserver.Empty;
             var t = "r";
             var src = new object();
-            var resource = new TestDynamicResource {Value = new object()};
+            var resource = new TestDynamicResource { Value = new object() };
 
-            MugenService.AddComponent(new TestResourceResolverComponent
+            ResourceManager.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResource = (s, o, arg4) =>
+                TryGetResource = (_, s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
@@ -166,21 +163,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 BindingMemberExpressionFlags.ObservableMethods,
                 MemberFlags.All, "M");
 
-            MugenService.AddComponent(new TestMemberPathProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) =>
+                TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(nameof(IDynamicResource.Value) + "." + Path);
                     arg3.ShouldEqual(DefaultMetadata);
                     return path;
                 }
             });
-            MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathObserverProviderComponent
             {
-                TryGetMemberPathObserver = (target, req, arg4) =>
+                TryGetMemberPathObserver = (_, target, req, arg4) =>
                 {
                     target.ShouldEqual(resource);
-                    var request = (MemberPathObserverRequest) req;
+                    var request = (MemberPathObserverRequest)req;
                     request.Expression.ShouldEqual(exp);
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
@@ -205,9 +202,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var resource = new object();
 
 
-            MugenService.AddComponent(new TestResourceResolverComponent
+            ResourceManager.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResource = (s, o, arg4) =>
+                TryGetResource = (_, s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
@@ -216,9 +213,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 }
             });
 
-            MugenService.AddComponent(new TestMemberPathProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) =>
+                TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(Path);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -241,15 +238,15 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         {
             var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
             var exp1 = new BindingResourceMemberExpressionNode("R", "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new Dictionary<string, object?> {{"k", null}});
+                new Dictionary<string, object?> { { "k", null } });
             var exp2 = new BindingResourceMemberExpressionNode("R", "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new Dictionary<string, object?> {{"k", null}});
+                new Dictionary<string, object?> { { "k", null } });
             if (hasTarget)
             {
                 HashCode.Combine((GetBaseHashCode(exp1) * 397) ^ exp1.ResourceName.GetHashCode(), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(),
                             exp1.ObservableMethodName, 1)
                         .ShouldEqual(exp1.GetHashCode(comparer));
-                ((TestExpressionNode) exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
+                ((TestExpressionNode)exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
             }
             else
             {
@@ -259,18 +256,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             }
 
             exp1.Equals(exp2, comparer).ShouldBeTrue();
-            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode?)exp1.Expression)?.EqualsCount.ShouldEqual(1);
 
             exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
             exp1.Equals(
                     new BindingResourceMemberExpressionNode("RR", "P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                        new Dictionary<string, object?> {{"k", null}}), comparer)
+                        new Dictionary<string, object?> { { "k", null } }), comparer)
                 .ShouldBeFalse();
             exp1.Equals(exp2.Update(int.MaxValue, exp2.Flags, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(exp2.Index, BindingMemberExpressionFlags.Target, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, MemberFlags.Instance, exp2.ObservableMethodName), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, exp2.MemberFlags, null), comparer).ShouldBeFalse();
-            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode?)exp1.Expression)?.EqualsCount.ShouldEqual(1);
 
             if (comparer == null || !hasTarget)
                 return;
@@ -287,7 +284,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             };
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
-            ((TestExpressionNode) exp1.Expression!).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode)exp1.Expression!).EqualsCount.ShouldEqual(1);
         }
 
         protected override BindingResourceMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) =>

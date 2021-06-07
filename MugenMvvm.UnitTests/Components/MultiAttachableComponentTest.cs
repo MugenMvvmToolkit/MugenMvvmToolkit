@@ -3,28 +3,33 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Components
 {
     public class MultiAttachableComponentTest : UnitTestBase
     {
+        private readonly TestMultiAttachableComponent<object> _component;
+
+        public MultiAttachableComponentTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _component = new TestMultiAttachableComponent<object>();
+        }
+
         [Fact]
         public void OnAttachingShouldCallInternalMethod()
         {
             var methodCallCount = 0;
             var canAttach = false;
-            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>
+            _component.OnAttachingHandler = (test, context) =>
             {
-                OnAttachingHandler = (test, context) =>
-                {
-                    ++methodCallCount;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                    return canAttach;
-                }
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canAttach;
             };
 
-            IAttachableComponent attachable = testAttachableComponent;
+            IAttachableComponent attachable = _component;
             attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
             methodCallCount.ShouldEqual(1);
 
@@ -38,12 +43,11 @@ namespace MugenMvvm.UnitTests.Components
         {
             var methodCallCount = 0;
             var canDetach = false;
-            var testAttachableComponent = new TestMultiAttachableComponent<MultiAttachableComponentTest>();
 
-            IDetachableComponent attachable = testAttachableComponent;
+            IDetachableComponent attachable = _component;
             attachable.OnDetaching(this, DefaultMetadata).ShouldBeTrue();
 
-            testAttachableComponent.OnDetachingHandler = (test, context) =>
+            _component.OnDetachingHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
@@ -69,23 +73,20 @@ namespace MugenMvvm.UnitTests.Components
 
             object? currentOwner = null;
             var methodCallCount = 0;
-            var testAttachableComponent = new TestMultiAttachableComponent<object>
+            _component.OnAttachedHandler = (test, context) =>
             {
-                OnAttachedHandler = (test, context) =>
-                {
-                    ++methodCallCount;
-                    test.ShouldEqual(currentOwner);
-                    context.ShouldEqual(DefaultMetadata);
-                }
+                ++methodCallCount;
+                test.ShouldEqual(currentOwner);
+                context.ShouldEqual(DefaultMetadata);
             };
-            IAttachableComponent attachable = testAttachableComponent;
-            testAttachableComponent.Owners.IsEmpty.ShouldBeTrue();
+            IAttachableComponent attachable = _component;
+            _component.Owners.IsEmpty.ShouldBeTrue();
 
             for (var i = 0; i < owners.Length; i++)
             {
                 currentOwner = owners[i];
                 attachable.OnAttached(currentOwner, DefaultMetadata);
-                testAttachableComponent.Owners.AsList().ShouldEqual(owners.Take(i + 1).ToArray());
+                _component.Owners.AsList().ShouldEqual(owners.Take(i + 1).ToArray());
                 methodCallCount.ShouldEqual(i + 1);
             }
         }
@@ -101,32 +102,29 @@ namespace MugenMvvm.UnitTests.Components
 
             var methodCallCount = 0;
             object? currentOwner = null;
-            var testAttachableComponent = new TestMultiAttachableComponent<object>
+            _component.OnDetachedHandler = (test, context) =>
             {
-                OnDetachedHandler = (test, context) =>
-                {
-                    ++methodCallCount;
-                    test.ShouldEqual(currentOwner);
-                    context.ShouldEqual(DefaultMetadata);
-                }
+                ++methodCallCount;
+                test.ShouldEqual(currentOwner);
+                context.ShouldEqual(DefaultMetadata);
             };
-            IAttachableComponent attachable = testAttachableComponent;
-            IDetachableComponent detachable = testAttachableComponent;
+            IAttachableComponent attachable = _component;
+            IDetachableComponent detachable = _component;
             for (var i = 0; i < owners.Length; i++)
                 attachable.OnAttached(owners[i], DefaultMetadata);
 
-            testAttachableComponent.Owners.AsList().ShouldEqual(owners);
+            _component.Owners.AsList().ShouldEqual(owners);
             methodCallCount.ShouldEqual(0);
 
             for (var i = 0; i < owners.Length; i++)
             {
                 currentOwner = owners[i];
                 detachable.OnDetached(currentOwner, DefaultMetadata);
-                testAttachableComponent.Owners.AsList().ShouldEqual(owners.Skip(i + 1).ToArray());
+                _component.Owners.AsList().ShouldEqual(owners.Skip(i + 1).ToArray());
                 methodCallCount.ShouldEqual(i + 1);
             }
 
-            testAttachableComponent.Owners.IsEmpty.ShouldBeTrue();
+            _component.Owners.IsEmpty.ShouldBeTrue();
         }
     }
 }

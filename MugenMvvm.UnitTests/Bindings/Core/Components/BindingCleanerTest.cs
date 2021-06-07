@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
@@ -8,9 +7,9 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Tests.Bindings.Core;
+using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
@@ -19,15 +18,13 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     [Collection(SharedContext)]
-    public class BindingCleanerTest : UnitTestBase, IDisposable
+    public class BindingCleanerTest : UnitTestBase
     {
         public BindingCleanerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IBindingManager>(new BindingManager(ComponentCollectionManager));
-            MugenService.AddComponent(new BindingCleaner());
+            RegisterDisposeToken(WithGlobalService(BindingManager));
+            BindingManager.AddComponent(new BindingCleaner());
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IBindingManager>();
 
         [Fact]
         public void ShouldClearExpressionBinding()
@@ -66,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
+            var components = new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() };
             var binding = new ExpressionBinding(target, new ItemOrArray<object?>(source, true), expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
@@ -74,17 +71,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceListener.ShouldEqual(binding);
 
             var disposeCount = 0;
-            var testLifecycleListener = new TestBindingLifecycleListener
+            BindingManager.AddComponent(new TestBindingLifecycleListener
             {
-                OnLifecycleChanged = (b, state, _, m) =>
+                OnLifecycleChanged = (_, b, state, _, m) =>
                 {
                     ++disposeCount;
                     b.ShouldEqual(binding);
                     state.ShouldEqual(BindingLifecycleState.Disposed);
                     m.ShouldBeNull();
                 }
-            };
-            MugenService.AddComponent(testLifecycleListener);
+            });
 
             binding.Dispose();
             binding.State.ShouldEqual(BindingState.Disposed);
@@ -98,6 +94,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
             binding.GetComponents<object>().AsList().ShouldBeEmpty();
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -140,9 +138,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var disposeComponentCount = 0;
             var components = Enumerable
                              .Range(0, count)
-                             .Select(i => new TestComponent<IBinding> {Dispose = () => ++disposeComponentCount})
-                             .OfType<IComponent<IBinding>>()
-                             .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
+                             .Select(i => new TestComponent<IBinding> { Dispose = () => ++disposeComponentCount })
+                             .Concat(new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() })
                              .ToArray();
 
             var binding = new Binding(target, source);
@@ -152,17 +149,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             sourceListener.ShouldEqual(binding);
 
             var disposeCount = 0;
-            var testLifecycleListener = new TestBindingLifecycleListener
+            BindingManager.AddComponent(new TestBindingLifecycleListener
             {
-                OnLifecycleChanged = (b, state, _, m) =>
+                OnLifecycleChanged = (_, b, state, _, m) =>
                 {
                     ++disposeCount;
                     b.ShouldEqual(binding);
                     state.ShouldEqual(BindingLifecycleState.Disposed);
                     m.ShouldBeNull();
                 }
-            };
-            MugenService.AddComponent(testLifecycleListener);
+            });
 
             binding.Dispose();
             disposeComponentCount.ShouldEqual(count);

@@ -2,8 +2,9 @@
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Tests.Validation;
 using MugenMvvm.UnitTests.Components;
-using MugenMvvm.UnitTests.Validation.Internal;
 using MugenMvvm.Validation;
 using Should;
 using Xunit;
@@ -13,52 +14,49 @@ namespace MugenMvvm.UnitTests.Validation
     public class ValidationManagerTest : ComponentOwnerTestBase<ValidationManager>
     {
         [Fact]
-        public void GetAggregatorValidatorShouldThrowNoComponents()
-        {
-            var provider = GetComponentOwner(ComponentCollectionManager);
-            ShouldThrow<InvalidOperationException>(() => provider.GetValidator(this, DefaultMetadata));
-        }
+        public void GetAggregatorValidatorShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => ValidationManager.GetValidator(this, DefaultMetadata));
+
+        protected override IValidationManager GetValidationManager() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
         public void GetValidatorShouldBeHandledByComponents(int componentCount)
         {
-            var provider = GetComponentOwner(ComponentCollectionManager);
-            var validator = new Validator(null, ComponentCollectionManager);
             ItemOrIReadOnlyList<object> requests = this;
             var count = 0;
             var listenerCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestValidatorProviderComponent(provider)
+                ValidationManager.AddComponent(new TestValidatorProviderComponent
                 {
-                    TryGetValidator = (o, meta) =>
+                    TryGetValidator = (m, o, meta) =>
                     {
                         ++count;
+                        m.ShouldEqual(ValidationManager);
                         o.ShouldEqual(requests);
                         meta.ShouldEqual(DefaultMetadata);
                         if (isLast)
-                            return validator;
+                            return Validator;
                         return null;
                     },
                     Priority = -i
-                };
-                provider.AddComponent(component);
-                provider.AddComponent(new TestValidationManagerListener(provider)
+                });
+                ValidationManager.AddComponent(new TestValidationManagerListener
                 {
-                    OnValidatorCreated = (v, o, meta) =>
+                    OnValidatorCreated = (m, v, o, meta) =>
                     {
                         ++listenerCount;
-                        v.ShouldEqual(validator);
+                        m.ShouldEqual(ValidationManager);
+                        v.ShouldEqual(Validator);
                         o.ShouldEqual(requests);
                         meta.ShouldEqual(DefaultMetadata);
                     }
                 });
             }
 
-            provider.GetValidator(requests, DefaultMetadata).ShouldEqual(validator);
+            ValidationManager.GetValidator(requests, DefaultMetadata).ShouldEqual(Validator);
             componentCount.ShouldEqual(count);
             listenerCount.ShouldEqual(count);
         }

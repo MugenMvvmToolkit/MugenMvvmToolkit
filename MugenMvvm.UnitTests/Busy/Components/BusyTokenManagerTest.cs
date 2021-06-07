@@ -4,7 +4,7 @@ using MugenMvvm.Busy.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Busy.Internal;
+using MugenMvvm.Tests.Busy;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,27 +15,25 @@ namespace MugenMvvm.UnitTests.Busy.Components
     {
         private const int DefaultDelay = 150;
 
-        private readonly BusyManager _busyManager;
         private readonly TestBusyManagerListener _listener;
         private readonly BusyTokenManager _busyTokenManager;
 
         public BusyTokenManagerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _busyManager = new BusyManager(ComponentCollectionManager);
-            _listener = new TestBusyManagerListener(_busyManager);
+            _listener = new TestBusyManagerListener();
             _busyTokenManager = new BusyTokenManager();
-            _busyManager.AddComponent(_busyTokenManager);
-            _busyManager.AddComponent(_listener);
+            BusyManager.AddComponent(_busyTokenManager);
+            BusyManager.AddComponent(_listener);
         }
 
         [Fact]
         public void DisposeTokenShouldNotifyListeners()
         {
             var count = 0;
-            var busyToken = _busyManager.TryBeginBusy(this)!;
-            busyToken.Owner.ShouldEqual(_busyManager);
+            var busyToken = BusyManager.TryBeginBusy(this)!;
+            busyToken.Owner.ShouldEqual(BusyManager);
 
-            _listener.OnBusyChanged = metadata => { ++count; };
+            _listener.OnBusyChanged = (_, _) => { ++count; };
             count.ShouldEqual(0);
             busyToken.Dispose();
             count.ShouldEqual(1);
@@ -45,11 +43,11 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void OnAttachShouldNotifyListeners()
         {
             var count = 0;
-            _busyManager.RemoveComponent(_busyTokenManager);
-            _listener.OnBusyChanged = metadata => { ++count; };
+            BusyManager.RemoveComponent(_busyTokenManager);
+            _listener.OnBusyChanged = (_, _) => { ++count; };
 
             count.ShouldEqual(0);
-            _busyManager.AddComponent(_busyTokenManager);
+            BusyManager.AddComponent(_busyTokenManager);
             count.ShouldEqual(1);
         }
 
@@ -57,20 +55,20 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void OnDetachShouldNotifyListeners()
         {
             var count = 0;
-            _listener.OnBusyChanged = metadata => { ++count; };
+            _listener.OnBusyChanged = (_, _) => { ++count; };
             count.ShouldEqual(0);
-            _busyManager.RemoveComponent(_busyTokenManager);
+            BusyManager.RemoveComponent(_busyTokenManager);
             count.ShouldEqual(1);
-            _busyManager.AddComponent(_busyTokenManager);
+            BusyManager.AddComponent(_busyTokenManager);
         }
 
         [Fact]
         public void SuspendTokenShouldNotifyListeners()
         {
             var count = 0;
-            var busyToken = _busyManager.TryBeginBusy(this)!;
+            var busyToken = BusyManager.TryBeginBusy(this)!;
 
-            _listener.OnBusyChanged = metadata => { ++count; };
+            _listener.OnBusyChanged = (_, _) => { ++count; };
             count.ShouldEqual(0);
             var actionToken = busyToken.Suspend(this, DefaultMetadata);
             count.ShouldEqual(1);
@@ -81,7 +79,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TokenShouldUpdateCompletedState()
         {
-            var token = _busyManager.TryBeginBusy(this)!;
+            var token = BusyManager.TryBeginBusy(this)!;
             var callback = new TestBusyTokenCallback();
             var count = 0;
             callback.OnCompleted += busyToken =>
@@ -102,8 +100,8 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TokenShouldUpdateCompletedStateParentToken()
         {
-            var parentToken = _busyManager.TryBeginBusy(this)!;
-            var token = _busyManager.TryBeginBusy(parentToken)!;
+            var parentToken = BusyManager.TryBeginBusy(this)!;
+            var token = BusyManager.TryBeginBusy(parentToken)!;
             var callback = new TestBusyTokenCallback();
             var count = 0;
             callback.OnCompleted += busyToken =>
@@ -126,8 +124,8 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TokenShouldUpdateCompletedStateParentTokenDisposed()
         {
-            var parentToken = _busyManager.TryBeginBusy(this)!;
-            var token = _busyManager.TryBeginBusy(parentToken)!;
+            var parentToken = BusyManager.TryBeginBusy(this)!;
+            var token = BusyManager.TryBeginBusy(parentToken)!;
             var callback = new TestBusyTokenCallback();
             var count = 0;
             callback.OnCompleted += busyToken =>
@@ -150,7 +148,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TokenShouldUpdateSuspendedState()
         {
-            var token = _busyManager.TryBeginBusy(this)!;
+            var token = BusyManager.TryBeginBusy(this)!;
             var callback = new TestBusyTokenCallback();
             var count = 0;
             var suspendValue = false;
@@ -178,8 +176,8 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TokenShouldUpdateSuspendedStateParentToken()
         {
-            var parentToken = _busyManager.TryBeginBusy(this)!;
-            var token = _busyManager.TryBeginBusy(parentToken)!;
+            var parentToken = BusyManager.TryBeginBusy(this)!;
+            var token = BusyManager.TryBeginBusy(parentToken)!;
             var callback = new TestBusyTokenCallback();
             var count = 0;
             var suspendValue = false;
@@ -210,8 +208,8 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TokenShouldUpdateSuspendedStateParentTokenSuspended()
         {
-            var parentToken = _busyManager.TryBeginBusy(this)!;
-            var token = _busyManager.TryBeginBusy(parentToken)!;
+            var parentToken = BusyManager.TryBeginBusy(this)!;
+            var token = BusyManager.TryBeginBusy(parentToken)!;
             var callback = new TestBusyTokenCallback();
             var count = 0;
             var suspendValue = false;
@@ -243,20 +241,20 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void TryBeginBusyShouldNotifyListeners()
         {
             var count = 0;
-            _listener.OnBusyChanged = metadata => { ++count; };
+            _listener.OnBusyChanged = (_, _) => { ++count; };
             count.ShouldEqual(0);
-            _busyManager.TryBeginBusy(this);
+            BusyManager.TryBeginBusy(this);
             count.ShouldEqual(1);
         }
 
         [Fact]
         public void TryGetTokenShouldReturnAllTokens()
         {
-            var token1 = _busyManager.TryBeginBusy("Test1")!;
-            var token2 = _busyManager.TryBeginBusy("Test2")!;
+            var token1 = BusyManager.TryBeginBusy("Test1")!;
+            var token2 = BusyManager.TryBeginBusy("Test2")!;
             var tokens = new List<IBusyToken>();
 
-            _busyManager.TryGetToken(this, (component, token, arg3) =>
+            BusyManager.TryGetToken(this, (component, token, arg3) =>
             {
                 this.ShouldEqual(component);
                 tokens.Add(token);
@@ -271,40 +269,42 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [Fact]
         public void TryGetTokenShouldReturnCorrectToken()
         {
-            var token1 = _busyManager.TryBeginBusy("Test1")!;
-            var token2 = _busyManager.TryBeginBusy("Test2")!;
+            var token1 = BusyManager.TryBeginBusy("Test1")!;
+            var token2 = BusyManager.TryBeginBusy("Test2")!;
 
-            _busyManager
-                .TryGetToken(_busyManager, (component, token, arg3) => ReferenceEquals(token, token1), DefaultMetadata)
+            BusyManager
+                .TryGetToken(BusyManager, (component, token, arg3) => ReferenceEquals(token, token1), DefaultMetadata)
                 .ShouldEqual(token1);
-            _busyManager
-                .TryGetToken(_busyManager, (component, token, arg3) => ReferenceEquals(token, token2), DefaultMetadata)
+            BusyManager
+                .TryGetToken(BusyManager, (component, token, arg3) => ReferenceEquals(token, token2), DefaultMetadata)
                 .ShouldEqual(token2);
-            _busyManager
-                .TryGetToken(_busyManager, (component, token, arg3) => false, DefaultMetadata)
+            BusyManager
+                .TryGetToken(BusyManager, (component, token, arg3) => false, DefaultMetadata)
                 .ShouldBeNull();
         }
 
         [Fact]
         public void TryGetTokensShouldReturnAllTokens()
         {
-            var token1 = _busyManager.TryBeginBusy("Test1")!;
-            var token2 = _busyManager.TryBeginBusy("Test2")!;
+            var token1 = BusyManager.TryBeginBusy("Test1")!;
+            var token2 = BusyManager.TryBeginBusy("Test2")!;
 
-            var tokens = _busyManager.GetTokens(DefaultMetadata)!.AsList();
+            var tokens = BusyManager.GetTokens(DefaultMetadata)!.AsList();
             tokens.Count.ShouldEqual(2);
             tokens.ShouldContain(token1);
             tokens.ShouldContain(token2);
 
             token1.Dispose();
-            tokens = _busyManager.GetTokens(DefaultMetadata)!.AsList();
+            tokens = BusyManager.GetTokens(DefaultMetadata)!.AsList();
             tokens.Count.ShouldEqual(1);
             tokens.ShouldContain(token2);
 
             token2.Dispose();
-            tokens = _busyManager.GetTokens(DefaultMetadata)!.AsList();
+            tokens = BusyManager.GetTokens(DefaultMetadata)!.AsList();
             (tokens == null || tokens.Count == 0).ShouldBeTrue();
         }
+
+        protected override IBusyManager GetBusyManager() => new BusyManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(null, 0, true)]
@@ -321,16 +321,17 @@ namespace MugenMvvm.UnitTests.Busy.Components
             IBusyToken? busyToken = null;
             var meta = includeMetadata ? DefaultMetadata : null;
 
-            _listener.OnBeginBusy = (token, metadata) =>
+            _listener.OnBeginBusy = (o, token, metadata) =>
             {
                 ++count;
+                o.ShouldEqual(BusyManager);
                 metadata.ShouldEqual(meta);
                 busyToken = token;
             };
 
             var beginBusy = delay == 0
-                ? _busyManager.TryBeginBusy(message, meta)!
-                : _busyManager.TryBeginBusy(new DelayBusyRequest(message, delay), meta)!;
+                ? BusyManager.TryBeginBusy(message, meta)!
+                : BusyManager.TryBeginBusy(new DelayBusyRequest(message, delay), meta)!;
             beginBusy.Message.ShouldEqual(message);
 
             if (delay == 0)
@@ -358,20 +359,21 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void ShouldTryBeginBusyWithParentToken(object? message, int delay, bool includeMetadata)
         {
             var count = 0;
-            var parentToken = _busyManager.TryBeginBusy(message);
+            var parentToken = BusyManager.TryBeginBusy(message);
             IBusyToken? busyToken = null;
             var meta = includeMetadata ? DefaultMetadata : null;
 
-            _listener.OnBeginBusy = (token, metadata) =>
+            _listener.OnBeginBusy = (o, token, metadata) =>
             {
                 ++count;
+                o.ShouldEqual(BusyManager);
                 metadata.ShouldEqual(meta);
                 busyToken = token;
             };
 
             var beginBusy = delay == 0
-                ? _busyManager.TryBeginBusy(parentToken, meta)!
-                : _busyManager.TryBeginBusy(new DelayBusyRequest(parentToken, delay), meta)!;
+                ? BusyManager.TryBeginBusy(parentToken, meta)!
+                : BusyManager.TryBeginBusy(new DelayBusyRequest(parentToken, delay), meta)!;
             beginBusy.Message.ShouldEqual(message);
 
             if (delay == 0)
@@ -393,9 +395,9 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void TryBeginBusyShouldIgnoreListenersDisposeBeforeDelay(object? message, int delay)
         {
             var count = 0;
-            _listener.OnBeginBusy = (token, metadata) => { ++count; };
+            _listener.OnBeginBusy = (_, _, _) => { ++count; };
 
-            var beginBusy = _busyManager.TryBeginBusy(new DelayBusyRequest(message, delay))!;
+            var beginBusy = BusyManager.TryBeginBusy(new DelayBusyRequest(message, delay))!;
             beginBusy.Dispose();
 
             count.ShouldEqual(0);
@@ -409,10 +411,10 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void TryBeginBusyShouldIgnoreListenersDisposeBeforeDelayParentToken(object? message, int delay)
         {
             var count = 0;
-            var parentToken = _busyManager.TryBeginBusy(message);
-            _listener.OnBeginBusy = (token, metadata) => { ++count; };
+            var parentToken = BusyManager.TryBeginBusy(message);
+            _listener.OnBeginBusy = (_, _, _) => { ++count; };
 
-            var beginBusy = _busyManager.TryBeginBusy(new DelayBusyRequest(parentToken, delay))!;
+            var beginBusy = BusyManager.TryBeginBusy(new DelayBusyRequest(parentToken, delay))!;
             beginBusy.Dispose();
 
             count.ShouldEqual(0);
@@ -427,7 +429,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [InlineData(10, true)]
         public void TokenShouldRegisterCallbacks(int callbackCount, bool unsubscribe)
         {
-            var token = _busyManager.TryBeginBusy("Test")!;
+            var token = BusyManager.TryBeginBusy("Test")!;
             var completedCount = 0;
             var suspendedCount = 0;
             var callbacks = new ActionToken[callbackCount];
@@ -465,7 +467,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [InlineData(10)]
         public void TokenShouldInvokeCallbackCompleted(int callbackCount)
         {
-            var token = _busyManager.TryBeginBusy("Test")!;
+            var token = BusyManager.TryBeginBusy("Test")!;
             token.Dispose();
             var completedCount = 0;
 
@@ -486,7 +488,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
         [InlineData(10)]
         public void TokenShouldInvokeCallbackSuspended(int callbackCount)
         {
-            var token = _busyManager.TryBeginBusy("Test")!;
+            var token = BusyManager.TryBeginBusy("Test")!;
             token.Suspend(this, DefaultMetadata);
             var suspendedCount = 0;
 

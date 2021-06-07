@@ -8,15 +8,22 @@ using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
+using MugenMvvm.Tests.Bindings.Parsing;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
     public class BindingMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest<BindingMemberExpressionNode>
     {
+        public BindingMemberExpressionNodeTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
+        }
+
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -50,21 +57,21 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                                                                BindingMemberExpressionFlags.ObservableMethods |
                                                                BindingMemberExpressionFlags.Target, MemberFlags.All, "M");
 
-            MugenService.AddComponent(new TestMemberPathProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) =>
+                TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(expectedPath);
                     arg3.ShouldEqual(DefaultMetadata);
                     return path;
                 }
             });
-            MugenService.AddComponent(new TestMemberPathObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathObserverProviderComponent
             {
-                TryGetMemberPathObserver = (target, req, arg4) =>
+                TryGetMemberPathObserver = (_, target, req, arg4) =>
                 {
-                    ((IWeakReference) target).Target.ShouldEqual(expectedTarget);
-                    var request = (MemberPathObserverRequest) req;
+                    ((IWeakReference)target).Target.ShouldEqual(expectedTarget);
+                    var request = (MemberPathObserverRequest)req;
                     request.Expression.ShouldEqual(exp);
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
@@ -109,9 +116,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var expectedPath = inputPath;
             var path = MemberPath.Get(Path);
 
-            MugenService.AddComponent(new TestMemberPathProviderComponent
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, arg3) =>
+                TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(expectedPath);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -148,14 +155,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         {
             var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
             var exp1 = new BindingMemberExpressionNode("P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new Dictionary<string, object?> {{"k", null}});
+                new Dictionary<string, object?> { { "k", null } });
             var exp2 = new BindingMemberExpressionNode("P", 0, default, default, "M", hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new Dictionary<string, object?> {{"k", null}});
+                new Dictionary<string, object?> { { "k", null } });
             if (hasTarget)
             {
                 HashCode.Combine(GetBaseHashCode(exp1), exp1.Index, exp1.Path, exp1.Flags.Value(), exp1.MemberFlags.Value(), exp1.ObservableMethodName, 1)
                         .ShouldEqual(exp1.GetHashCode(comparer));
-                ((TestExpressionNode) exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
+                ((TestExpressionNode)exp1.Expression!).GetHashCodeCount.ShouldEqual(1);
             }
             else
             {
@@ -164,14 +171,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             }
 
             exp1.Equals(exp2, comparer).ShouldBeTrue();
-            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode?)exp1.Expression)?.EqualsCount.ShouldEqual(1);
 
             exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(int.MaxValue, exp2.Flags, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(exp2.Index, BindingMemberExpressionFlags.Target, exp2.MemberFlags, exp2.ObservableMethodName), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, MemberFlags.Instance, exp2.ObservableMethodName), comparer).ShouldBeFalse();
             exp1.Equals(exp2.Update(exp2.Index, exp2.Flags, exp2.MemberFlags, null), comparer).ShouldBeFalse();
-            ((TestExpressionNode?) exp1.Expression)?.EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode?)exp1.Expression)?.EqualsCount.ShouldEqual(1);
 
             if (comparer == null || !hasTarget)
                 return;
@@ -188,7 +195,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             };
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
-            ((TestExpressionNode) exp1.Expression!).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode)exp1.Expression!).EqualsCount.ShouldEqual(1);
         }
 
         protected override BindingMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) => new(Path, 0, default, default, metadata: metadata);

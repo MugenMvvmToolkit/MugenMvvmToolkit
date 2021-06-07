@@ -2,7 +2,7 @@
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Navigation;
-using MugenMvvm.UnitTests.Models.Internal;
+using MugenMvvm.Tests.Internal;
 using Should;
 using Xunit;
 

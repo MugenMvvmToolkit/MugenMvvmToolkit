@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -16,13 +17,14 @@ using MugenMvvm.Models;
 namespace MugenMvvm.ViewModels
 {
     public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IHasService<IMessenger>,
-        IBusyManagerListener, IHasDisposeCallback
+        IBusyManagerListener, IHasDisposeCallback, IValueHolder<IServiceProvider>, IServiceProvider
     {
         private readonly IViewModelManager? _viewModelManager;
         private IBusyManager? _busyManager;
-        private List<ActionToken>? _disposeTokens;
+        private ListInternal<ActionToken>? _disposeTokens;
         private IMetadataContext? _metadata;
         private IMessenger? _messenger;
+        private IServiceProvider? _serviceProvider;
 
         protected ViewModelBase(IViewModelManager? viewModelManager = null, IReadOnlyMetadataContext? metadata = null)
         {
@@ -48,10 +50,16 @@ namespace MugenMvvm.ViewModels
 
         internal bool IsInitialized { get; set; }
 
+        IServiceProvider? IValueHolder<IServiceProvider>.Value
+        {
+            get => _serviceProvider;
+            set => _serviceProvider = value;
+        }
+
         public virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
             ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
 
-        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
+        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T)GetViewModel(typeof(T), metadata);
 
         public void Dispose()
         {
@@ -82,7 +90,7 @@ namespace MugenMvvm.ViewModels
                     inline = true;
                 else
                 {
-                    _disposeTokens ??= new List<ActionToken>(2);
+                    _disposeTokens ??= new ListInternal<ActionToken>(2);
                     _disposeTokens.Add(token);
                 }
             }
@@ -115,7 +123,7 @@ namespace MugenMvvm.ViewModels
             if (_disposeTokens != null)
             {
                 for (var i = 0; i < _disposeTokens.Count; i++)
-                    _disposeTokens[i].Dispose();
+                    _disposeTokens.Items[i].Dispose();
                 _disposeTokens = null;
             }
 
@@ -138,5 +146,7 @@ namespace MugenMvvm.ViewModels
         IMessenger? IHasService<IMessenger>.GetService(bool optional) => optional ? _messenger : Messenger;
 
         IViewModelManager IHasService<IViewModelManager>.GetService(bool optional) => ViewModelManager;
+
+        object? IServiceProvider.GetService(Type serviceType) => _serviceProvider?.GetService(serviceType);
     }
 }

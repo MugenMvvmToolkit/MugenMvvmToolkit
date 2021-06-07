@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.UnitTests.Metadata.Internal;
+using MugenMvvm.Tests.Metadata;
 using Should;
 using Xunit;
 

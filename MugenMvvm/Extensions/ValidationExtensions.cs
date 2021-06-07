@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
@@ -44,10 +45,11 @@ namespace MugenMvvm.Extensions
             return false;
         }
 
-        public static ValidationRuleMemberBuilder<T, TMember> For<T, TMember>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TMember>> member) where T : class
+        public static ValidationRuleMemberBuilder<T, TMember> For<T, TMember>(this ValidationRuleBuilder<T> builder, Expression<Func<T, TMember>> member,
+            IReflectionManager? reflectionManager = null) where T : class
         {
             var memberInfo = member.GetMemberInfo();
-            return new ValidationRuleMemberBuilder<T, TMember>(memberInfo.Name, memberInfo.GetMemberGetter<T, TMember>(), builder);
+            return new ValidationRuleMemberBuilder<T, TMember>(memberInfo.Name, memberInfo.GetMemberGetter<T, TMember>(reflectionManager), builder);
         }
 
         public static ValidationRuleMemberBuilder<T, TMember> For<T, TMember>(this ValidationRuleBuilder<T> builder, string memberName, Func<T, TMember> memberAccessor)
@@ -184,7 +186,7 @@ namespace MugenMvvm.Extensions
                     },
                     condition == null
                         ? (Func<T, (Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>? condition),
-                            IReadOnlyMetadataContext?, bool>?) null
+                            IReadOnlyMetadataContext?, bool>?)null
                         : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }
@@ -210,7 +212,7 @@ namespace MugenMvvm.Extensions
                         TaskScheduler.Current),
                     condition == null
                         ? (Func<T, (Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>?
-                            condition), IReadOnlyMetadataContext?, bool>?) null
+                            condition), IReadOnlyMetadataContext?, bool>?)null
                         : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }

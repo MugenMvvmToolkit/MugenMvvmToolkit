@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Compiling;
-using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Converting;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -36,6 +36,12 @@ namespace MugenMvvm
             get => Instance<IMugenApplication>();
         }
 
+        public static IAttachedValueManager AttachedValueManager
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => Instance<IAttachedValueManager>();
+        }
+
         public static ICommandManager CommandManager
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,12 +52,6 @@ namespace MugenMvvm
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Instance<IComponentCollectionManager>();
-        }
-
-        public static IAttachedValueManager AttachedValueManager
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => Instance<IAttachedValueManager>();
         }
 
         public static IEntityManager EntityManager

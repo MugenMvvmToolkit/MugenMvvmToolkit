@@ -1,6 +1,6 @@
 ﻿using System;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
+using MugenMvvm.Tests.Internal;
 using Should;
 using Xunit;
 

@@ -7,8 +7,9 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,14 +17,13 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
     [Collection(SharedContext)]
-    public class MethodMemberInfoTest : UnitTestBase, IDisposable
+    public class MethodMemberInfoTest : UnitTestBase
     {
         public MethodMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
+            RegisterDisposeToken(WithGlobalService(ReflectionManager));
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
 
         [Fact]
         public void ConstructorShouldInitializeMember2()
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
 
-            memberInfo = (MethodMemberInfo) memberInfo.MakeGenericMethod(new[] {typeof(int)});
+            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(int) });
             memberInfo.Name.ShouldEqual(methodInfo.Name);
             memberInfo.Type.ShouldEqual(typeof(int));
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var parameters = memberInfo.GetParameters();
             parameters.Count.ShouldEqual(1);
 
-            memberInfo.Invoke(this, new object[] {int.MaxValue}, DefaultMetadata).ShouldEqual(int.MaxValue);
+            memberInfo.Invoke(this, new object[] { int.MaxValue }, DefaultMetadata).ShouldEqual(int.MaxValue);
         }
 
         [Fact]
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
 
-            memberInfo = (MethodMemberInfo) memberInfo.MakeGenericMethod(new[] {typeof(char)});
+            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(char) });
             memberInfo.Name.ShouldEqual(methodInfo.Name);
             memberInfo.Type.ShouldEqual(typeof(char));
             memberInfo.DeclaringType.ShouldEqual(typeof(IEnumerable<char>));
@@ -81,6 +81,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
             memberInfo.Invoke("st", Array.Empty<object?>(), DefaultMetadata).ShouldEqual('s');
         }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(nameof(Method1), false)]
@@ -105,9 +107,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, this);
 
             var observerRequestCount = 0;
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg4) =>
+                TryGetMemberObserver = (_, type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -142,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
-            memberInfo.Invoke(this, new object[] {name}, DefaultMetadata).ShouldEqual(name);
+            memberInfo.Invoke(this, new object[] { name }, DefaultMetadata).ShouldEqual(name);
         }
 
         public string Method1([Obfuscation] string v) => v;

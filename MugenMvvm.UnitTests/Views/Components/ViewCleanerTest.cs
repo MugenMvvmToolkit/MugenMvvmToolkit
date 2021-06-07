@@ -6,16 +6,15 @@ using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Messaging.Internal;
-using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Messaging;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;
@@ -25,12 +24,11 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Views.Components
 {
     [Collection(SharedContext)]
-    public class ViewCleanerTest : UnitTestBase, IDisposable
+    public class ViewCleanerTest : UnitTestBase
     {
         private readonly View _view;
         private readonly TestCleanableView _rawView;
         private readonly TestCleanableViewModel _viewModel;
-        private readonly ViewManager _viewManager;
         private readonly ViewCleaner _viewCleaner;
 
         public ViewCleanerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
@@ -38,17 +36,10 @@ namespace MugenMvvm.UnitTests.Views.Components
             _viewModel = new TestCleanableViewModel();
             _rawView = new TestCleanableView();
             _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestCleanableView), DefaultMetadata), _rawView, _viewModel, null, ComponentCollectionManager);
-            _viewManager = new ViewManager(ComponentCollectionManager);
             _viewCleaner = new ViewCleaner(AttachedValueManager);
-            _viewManager.AddComponent(_viewCleaner);
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IMemberManager>();
-            MugenService.Configuration.Clear<IAttachedValueManager>();
+            ViewManager.AddComponent(_viewCleaner);
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(AttachedValueManager));
         }
 
         [Fact]
@@ -78,7 +69,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             _view.Components.Components.TryAdd(this);
 
             state = null;
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
             _view.Components.Remove(componentView, DefaultMetadata);
             invokeCount.ShouldEqual(0);
             componentInvokeCount.ShouldEqual(1);
@@ -86,7 +77,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             componentInvokeCount = 0;
             state = "t";
 
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
             _view.Components.Count.ShouldEqual(0);
@@ -97,16 +88,16 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldClearDataContext()
         {
             var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
+                TryGetMembers = (_, type, memberType, arg3, arg4, arg6) => ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(accessorMemberInfo)
             });
 
             _viewCleaner.ClearDataContext = true;
             _viewModel.ServiceOptional = new Messenger(ComponentCollectionManager);
             _view.Target.BindableMembers().SetDataContext(_viewModel);
             _view.Target.BindableMembers().DataContext().ShouldEqual(_viewModel);
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
             _view.Target.BindableMembers().DataContext().ShouldBeNull();
         }
 
@@ -114,7 +105,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldClearMetadata()
         {
             _view.Metadata.Set(ViewModelMetadata.Id, "");
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
             _view.Metadata.Count.ShouldEqual(0);
         }
 
@@ -125,7 +116,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             _viewModel.ServiceOptional = new Messenger(ComponentCollectionManager);
             _viewModel.ServiceOptional.AddComponent(new TestMessengerSubscriberComponent
             {
-                TryUnsubscribe = (o, arg3) =>
+                TryUnsubscribe = (_, o, arg3) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(_view.Target);
@@ -134,9 +125,11 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            _viewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         private sealed class TestCleanableViewModel : TestViewModel, IHasService<IMessenger>
         {

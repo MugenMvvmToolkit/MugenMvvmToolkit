@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Globalization;
-using MugenMvvm.Bindings.Interfaces.Convert;
+using MugenMvvm.Bindings.Interfaces.Converting;
 using MugenMvvm.Interfaces.Metadata;
 #if AVALONIA
 using Avalonia.Data.Converters;

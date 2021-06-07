@@ -4,14 +4,21 @@ using System.ComponentModel;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation
 {
+    [Collection(SharedContext)]
     public class MemberListenerCollectionTest : UnitTestBase
     {
+        public MemberListenerCollectionTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
+        }
+
         [Fact]
         public void ShouldInvokeVirtualMethods()
         {

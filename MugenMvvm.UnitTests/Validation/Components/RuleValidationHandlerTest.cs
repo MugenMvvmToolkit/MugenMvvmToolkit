@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Validation.Internal;
+using MugenMvvm.Tests.Validation;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
 using Should;
@@ -12,12 +12,9 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class RuleValidationHandlerTest : UnitTestBase
     {
-        private readonly Validator _validator;
-
         public RuleValidationHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _validator = new Validator(null, ComponentCollectionManager);
-            _validator.AddComponent(new ValidatorErrorManager());
+            Validator.AddComponent(new ValidatorErrorManager());
         }
 
         [Theory]
@@ -45,13 +42,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             var component = new RuleValidationHandler(this, rules, useCache);
             component.UseCache.ShouldEqual(useCache);
-            _validator.AddComponent(component);
+            Validator.AddComponent(component);
 
             ItemOrListEditor<ValidationErrorInfo> errors = default;
-            var validateAsync = _validator.ValidateAsync(member);
+            var validateAsync = Validator.ValidateAsync(member);
             validateAsync.IsCompleted.ShouldBeTrue();
             await validateAsync;
-            _validator.GetErrors(member, ref errors);
+            Validator.GetErrors(member, ref errors);
             errors.Count.ShouldEqual(1);
             errors[0].ShouldEqual(new ValidationErrorInfo(this, member, member));
         }
@@ -74,7 +71,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         t.ShouldEqual(this);
                         ct.CanBeCanceled.ShouldBeTrue();
                         if (v == memberName1)
-                            return tcs.Task.ContinueWith(t => (ItemOrIReadOnlyList<ValidationErrorInfo>) new ValidationErrorInfo(this, memberName1, memberName1), ct).AsValueTask();
+                            return tcs.Task.ContinueWith(t => (ItemOrIReadOnlyList<ValidationErrorInfo>)new ValidationErrorInfo(this, memberName1, memberName1), ct).AsValueTask();
 
                         return default;
                     }
@@ -95,24 +92,24 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             var component = new RuleValidationHandler(this, rules, useCache);
             component.UseCache.ShouldEqual(useCache);
-            _validator.AddComponent(component);
+            Validator.AddComponent(component);
 
             ItemOrListEditor<ValidationErrorInfo> errors = default;
-            var validateAsync = _validator.ValidateAsync(memberName2);
+            var validateAsync = Validator.ValidateAsync(memberName2);
             validateAsync.IsCompleted.ShouldBeTrue();
             await validateAsync;
-            _validator.GetErrors(memberName2, ref errors);
+            Validator.GetErrors(memberName2, ref errors);
             errors.Count.ShouldEqual(1);
             errors[0].ShouldEqual(new ValidationErrorInfo(this, memberName2, memberName2));
 
-            var task = _validator.ValidateAsync(memberName1);
+            var task = Validator.ValidateAsync(memberName1);
             task.IsCompleted.ShouldBeFalse();
 
             tcs.TrySetResult(null);
             await task;
             task.IsCompleted.ShouldBeTrue();
             errors.Clear();
-            _validator.GetErrors(memberName1, ref errors);
+            Validator.GetErrors(memberName1, ref errors);
             errors[0].ShouldEqual(new ValidationErrorInfo(this, memberName1, memberName1));
         }
     }

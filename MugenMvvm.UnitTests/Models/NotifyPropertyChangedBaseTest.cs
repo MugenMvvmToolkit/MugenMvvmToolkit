@@ -4,10 +4,10 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
+using MugenMvvm.Tests.Threading;
 using MugenMvvm.Threading;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
-using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,8 +23,8 @@ namespace MugenMvvm.UnitTests.Models
         public NotifyPropertyChangedBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
-            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent(_threadDispatcher));
-            _model = new TestNotifyPropertyChangedModel {ThreadDispatcher = _threadDispatcher};
+            _threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            _model = new TestNotifyPropertyChangedModel { ThreadDispatcher = _threadDispatcher };
         }
 
         [Fact]
@@ -37,10 +37,11 @@ namespace MugenMvvm.UnitTests.Models
             holder.Value = new MemberListenerCollection();
             holder.Value.Add(new TestWeakEventListener
             {
+                IsWeak = true,
                 TryHandle = (sender, args, _) =>
                 {
                     sender.ShouldEqual(_model);
-                    ((PropertyChangedEventArgs) args!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs)args!).PropertyName.ShouldEqual(propertyName);
                     ++invokeCountEvent;
                     return true;
                 }
@@ -110,8 +111,8 @@ namespace MugenMvvm.UnitTests.Models
             _threadDispatcher.RemoveComponents<TestThreadDispatcherComponent>();
             _threadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (mode, context) => false,
-                Execute = (action, mode, arg3, arg4) =>
+                CanExecuteInline = (_, mode, context) => false,
+                Execute = (_, action, mode, arg3, arg4) =>
                 {
                     invokeAction = action;
                     state = arg3;

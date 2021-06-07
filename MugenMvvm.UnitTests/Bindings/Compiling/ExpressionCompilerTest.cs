@@ -5,17 +5,18 @@ using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Compiling;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Bindings.Metadata;
-using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
+using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Components;
 using Should;
@@ -53,8 +54,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [Fact]
         public void CompileShouldThrowNoComponents()
         {
-            var compiler = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => compiler.Compile(ConstantExpressionNode.False));
+            ShouldThrow<InvalidOperationException>(() => ExpressionCompiler.Compile(ConstantExpressionNode.False));
         }
 
         protected new IMetadataContext DefaultMetadata { get; set; }
@@ -64,26 +64,26 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [InlineData(10)]
         public void CompileShouldBeHandledByComponents(int componentCount)
         {
-            var compiler = GetComponentOwner();
             var expressionNode = ConstantExpressionNode.EmptyString;
             var compiledExpression = new TestCompiledExpression();
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestExpressionCompilerComponent(compiler)
+                var component = new TestExpressionCompilerComponent
                 {
-                    TryCompile = (node, metadata) =>
+                    TryCompile = (c,node, metadata) =>
                     {
                         ++count;
+                        c.ShouldEqual(ExpressionCompiler);
                         node.ShouldEqual(expressionNode);
                         metadata.ShouldEqual(DefaultMetadata);
                         return compiledExpression;
                     }
                 };
-                compiler.AddComponent(component);
+                ExpressionCompiler.AddComponent(component);
             }
 
-            compiler.Compile(expressionNode, DefaultMetadata).ShouldEqual(compiledExpression);
+            ExpressionCompiler.Compile(expressionNode, DefaultMetadata).ShouldEqual(compiledExpression);
             count.ShouldEqual(1);
         }
 
@@ -96,11 +96,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             var result = value1.IndexOf("1") == 0 ? $"{value2} - {value3}" : value3 >= 10 ? "test" : null ?? "value";
             var node = new ConditionExpressionNode(
                 new BinaryExpressionNode(BinaryTokenType.Equality,
-                    new MethodCallExpressionNode(ConstantExpressionNode.Get(value1), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))},
+                    new MethodCallExpressionNode(ConstantExpressionNode.Get(value1), "IndexOf", new IExpressionNode[] { ConstantExpressionNode.Get("1", typeof(string)) },
                         new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
                 new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
-                    new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3)},
+                    new IExpressionNode[] { ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(value2), ConstantExpressionNode.Get(value3) },
                     new string[0]),
                 new ConditionExpressionNode(
                     new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(value3), ConstantExpressionNode.Get(10, typeof(int))),
@@ -136,7 +136,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [InlineData("test")]
         public void CompileShouldCompileComplexExpression3(string value)
         {
-            var value1 = new[] {value};
+            var value1 = new[] { value };
             var result = value1.Select(s => s == null ? 10 + 4 : 3 + 10).FirstOrDefault() == 0 ? false : true || true;
             var parameterExpressionNode = new ParameterExpressionNode("s");
             var node = new ConditionExpressionNode(
@@ -151,7 +151,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                                         new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(10, typeof(int)), ConstantExpressionNode.Get(4, typeof(int))),
                                         new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(3, typeof(int)),
                                             ConstantExpressionNode.Get(10, typeof(int)))),
-                                    new IParameterExpressionNode[] {parameterExpressionNode})
+                                    new IParameterExpressionNode[] { parameterExpressionNode })
                             }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]), ConstantExpressionNode.Get(0, typeof(int))),
                 ConstantExpressionNode.Get(false, typeof(bool)),
                 new BinaryExpressionNode(BinaryTokenType.ConditionalOr, ConstantExpressionNode.Get(true, typeof(bool)), ConstantExpressionNode.Get(true, typeof(bool))));
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [InlineData("test")]
         public void CompileShouldCompileComplexExpression4(string value)
         {
-            var value1 = new[] {value};
+            var value1 = new[] { value };
             var result = value1.Where(x => x == "test").Aggregate("seed", (s1, s2) => s1 + s2, s1 => s1.Length);
             var p1 = new ParameterExpressionNode("x");
             var p2 = new ParameterExpressionNode("s1");
@@ -174,14 +174,14 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                     new IExpressionNode[]
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, p1, ConstantExpressionNode.Get("test", typeof(string))),
-                            new IParameterExpressionNode[] {p1})
+                            new IParameterExpressionNode[] { p1 })
                     }, new string[0]), "Aggregate",
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("seed", typeof(string)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, p2, p3),
-                        new IParameterExpressionNode[] {p2, p3}),
-                    new LambdaExpressionNode(new MemberExpressionNode(p2, "Length"), new IParameterExpressionNode[] {p2})
+                        new IParameterExpressionNode[] { p2, p3 }),
+                    new LambdaExpressionNode(new MemberExpressionNode(p2, "Length"), new IParameterExpressionNode[] { p2 })
                 }, new string[0]);
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
@@ -192,7 +192,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [InlineData("test")]
         public void CompileShouldCompileComplexExpression5(string value)
         {
-            var value1 = new[] {value};
+            var value1 = new[] { value };
             var result = value1.Where(x => x == "test").Aggregate("seed", (s1, s2) => s1 + s2, s1 => s1.Length);
             var p1 = new ParameterExpressionNode("x");
             var p2 = new ParameterExpressionNode("s1");
@@ -202,15 +202,15 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                     new IExpressionNode[]
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, p1, ConstantExpressionNode.Get("test", typeof(string))),
-                            new IParameterExpressionNode[] {p1})
-                    }, new[] {"string"}), "Aggregate",
+                            new IParameterExpressionNode[] { p1 })
+                    }, new[] { "string" }), "Aggregate",
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("seed", typeof(string)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, p2, p3),
-                        new IParameterExpressionNode[] {p2, p3}),
-                    new LambdaExpressionNode(new MemberExpressionNode(p2, "Length"), new IParameterExpressionNode[] {p2})
-                }, new[] {"string", "string", "int"});
+                        new IParameterExpressionNode[] { p2, p3 }),
+                    new LambdaExpressionNode(new MemberExpressionNode(p2, "Length"), new IParameterExpressionNode[] { p2 })
+                }, new[] { "string", "string", "int" });
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
@@ -224,7 +224,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         [InlineData(null, "xx", "test")]
         public void CompileShouldCompileComplexExpression7(string? s, string? value2, string value3)
         {
-            var value1 = new[] {s};
+            var value1 = new[] { s };
             var result = value1?.Where(x => x?[0] == "n"[0]).FirstOrDefault() + value2?[1] + value3?[1].ToString()?.Length + (value2 == "xx" ? null : value2);
             var parameterExp = new ParameterExpressionNode("x");
             var node = new BinaryExpressionNode(BinaryTokenType.Addition,
@@ -237,19 +237,19 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                                     new LambdaExpressionNode(
                                         new BinaryExpressionNode(BinaryTokenType.Equality,
                                             new IndexExpressionNode(new NullConditionalMemberExpressionNode(parameterExp),
-                                                new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(int))}),
+                                                new IExpressionNode[] { ConstantExpressionNode.Get(0, typeof(int)) }),
                                             new IndexExpressionNode(ConstantExpressionNode.Get("n", typeof(string)),
-                                                new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(int))})),
-                                        new IParameterExpressionNode[] {parameterExp})
+                                                new IExpressionNode[] { ConstantExpressionNode.Get(0, typeof(int)) })),
+                                        new IParameterExpressionNode[] { parameterExp })
                                 }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]),
                         new MethodCallExpressionNode(
                             new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value2)),
-                                new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
+                                new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(int)) }), "ToString",
                             new IExpressionNode[0], new string[0])),
                     new MemberExpressionNode(
                         new NullConditionalMemberExpressionNode(new MethodCallExpressionNode(
                             new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value3)),
-                                new IExpressionNode[] {ConstantExpressionNode.Get(1, typeof(int))}), "ToString",
+                                new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(int)) }), "ToString",
                             new IExpressionNode[0], new string[0])), "Length")),
                 new MethodCallExpressionNode(
                     new NullConditionalMemberExpressionNode(new ConditionExpressionNode(
@@ -260,25 +260,27 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
 
-        private static ExpressionCompiler GetInitializedCompiler()
-        {
-            var memberManager = new MemberManager(ComponentCollectionManager);
-            memberManager.AddComponent(new MemberSelector());
-            memberManager.AddComponent(new NameRequestMemberManagerDecorator());
-            memberManager.AddComponent(new ReflectionMemberProvider(ObservationManager));
-            memberManager.AddComponent(new ExtensionMethodMemberProvider());
+        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
 
-            var expressionCompiler = new ExpressionCompiler(ComponentCollectionManager);
-            expressionCompiler.AddComponent(new BinaryExpressionBuilder());
-            expressionCompiler.AddComponent(new ConditionExpressionBuilder());
-            expressionCompiler.AddComponent(new ConstantExpressionBuilder());
-            expressionCompiler.AddComponent(new LambdaExpressionBuilder());
-            expressionCompiler.AddComponent(new MemberExpressionBuilder(memberManager));
-            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilder(memberManager, ResourceManager, GlobalValueConverter));
-            expressionCompiler.AddComponent(new NullConditionalExpressionBuilder());
-            expressionCompiler.AddComponent(new UnaryExpressionBuilder());
-            expressionCompiler.AddComponent(new CompiledExpressionCompiler());
-            return expressionCompiler;
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
+
+        private IExpressionCompiler GetInitializedCompiler()
+        {
+            MemberManager.AddComponent(new MemberSelector());
+            MemberManager.AddComponent(new NameRequestMemberManagerDecorator());
+            MemberManager.AddComponent(new ReflectionMemberProvider(ObservationManager));
+            MemberManager.AddComponent(new ExtensionMethodMemberProvider());
+
+            ExpressionCompiler.AddComponent(new BinaryExpressionBuilder());
+            ExpressionCompiler.AddComponent(new ConditionExpressionBuilder());
+            ExpressionCompiler.AddComponent(new ConstantExpressionBuilder());
+            ExpressionCompiler.AddComponent(new LambdaExpressionBuilder());
+            ExpressionCompiler.AddComponent(new MemberExpressionBuilder(MemberManager));
+            ExpressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilder(MemberManager, ResourceManager, GlobalValueConverter));
+            ExpressionCompiler.AddComponent(new NullConditionalExpressionBuilder());
+            ExpressionCompiler.AddComponent(new UnaryExpressionBuilder());
+            ExpressionCompiler.AddComponent(new CompiledExpressionCompiler());
+            return ExpressionCompiler;
         }
 
         protected override ExpressionCompiler GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);

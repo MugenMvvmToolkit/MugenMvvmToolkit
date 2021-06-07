@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.UnitTests.Components;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.Views;

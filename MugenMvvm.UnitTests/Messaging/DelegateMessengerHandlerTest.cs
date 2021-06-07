@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTests.Messaging
         [Fact]
         public void ShouldHandleOnlySupportedTypes()
         {
-            var subscriber = new DelegateMessengerHandler<UnitTestBase>((o, s, arg3) => { });
+            var subscriber = new DelegateMessengerHandler<UnitTestBase>((_, _, _) => { });
             subscriber.CanHandle(typeof(object)).ShouldBeFalse();
             subscriber.CanHandle(typeof(UnitTestBase)).ShouldBeTrue();
             subscriber.CanHandle(typeof(DelegateMessengerHandlerTest)).ShouldBeTrue();

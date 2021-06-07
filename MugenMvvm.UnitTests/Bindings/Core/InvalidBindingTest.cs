@@ -3,7 +3,7 @@ using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.Tests.Bindings.Core;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,10 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         }
 
         [Fact]
-        public void BuildShouldReturnSelf()
-        {
-            ((IBindingBuilder) _binding).Build(this, null, DefaultMetadata).ShouldEqual(_binding);
-        }
+        public void BuildShouldReturnSelf() => ((IBindingBuilder)_binding).Build(this, null, DefaultMetadata).ShouldEqual(_binding);
 
         [Fact]
         public void StateShouldBeInvalid()

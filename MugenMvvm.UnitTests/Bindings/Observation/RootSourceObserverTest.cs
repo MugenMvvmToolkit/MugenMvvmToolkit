@@ -1,13 +1,12 @@
 ﻿using System;
-using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,20 +14,14 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     [Collection(SharedContext)]
-    public class RootSourceObserverTest : UnitTestBase, IDisposable
+    public class RootSourceObserverTest : UnitTestBase
     {
         public RootSourceObserverTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(GlobalValueConverter);
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IMemberManager>();
-            MugenService.Configuration.Clear<IGlobalValueConverter>();
-            MugenService.Configuration.Clear<IAttachedValueManager>();
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(GlobalValueConverter));
+            RegisterDisposeToken(WithGlobalService(AttachedValueManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
@@ -61,9 +54,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                     return default;
                 }
             };
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
+                TryGetMembers = (_, type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;
@@ -137,9 +130,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 GetValue = (o, context) => null,
                 TryObserve = (o, listener, arg3) => default
             };
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
+                TryGetMembers = (_, type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;
@@ -152,5 +145,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             observer.Get(DefaultMetadata).ShouldEqual(target);
             observer.Get(target, DefaultMetadata).ShouldEqual(target);
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

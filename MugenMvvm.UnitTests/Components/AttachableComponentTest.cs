@@ -3,49 +3,50 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Components
 {
     public class AttachableComponentTest : UnitTestBase
     {
+        private readonly TestAttachableComponent<AttachableComponentTest> _component;
+
+        public AttachableComponentTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            _component = new TestAttachableComponent<AttachableComponentTest>();
+        }
+
         [Fact]
         public void OnAttachedShouldAttachOwner()
         {
             var methodCallCount = 0;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>
+            _component.OnAttachedHandler = (test, context) =>
             {
-                OnAttachedHandler = (test, context) =>
-                {
-                    ++methodCallCount;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                }
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
             };
-            IAttachableComponent attachable = testAttachableComponent;
-            testAttachableComponent.IsAttached.ShouldBeFalse();
+            IAttachableComponent attachable = _component;
+            _component.IsAttached.ShouldBeFalse();
 
             attachable.OnAttached(this, DefaultMetadata);
-            testAttachableComponent.IsAttached.ShouldBeTrue();
-            testAttachableComponent.Owner.ShouldEqual(this);
+            _component.IsAttached.ShouldBeTrue();
+            _component.Owner.ShouldEqual(this);
             methodCallCount.ShouldEqual(1);
         }
 
         [Fact]
         public void OnAttachedShouldIgnoreWrongOwner()
         {
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            IAttachableComponent attachable = testAttachableComponent;
-
+            IAttachableComponent attachable = _component;
             attachable.OnAttached(new object(), DefaultMetadata);
-            testAttachableComponent.IsAttached.ShouldBeFalse();
+            _component.IsAttached.ShouldBeFalse();
         }
 
         [Fact]
         public void OnAttachedShouldThrowIfOwnerInitialized()
         {
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            IAttachableComponent attachable = testAttachableComponent;
-
+            IAttachableComponent attachable = _component;
             attachable.OnAttached(this, DefaultMetadata);
             ShouldThrow<InvalidOperationException>(() => { attachable.OnAttached(this, DefaultMetadata); });
         }
@@ -55,18 +56,15 @@ namespace MugenMvvm.UnitTests.Components
         {
             var methodCallCount = 0;
             var canAttach = false;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>
+            _component.OnAttachingHandler = (test, context) =>
             {
-                OnAttachingHandler = (test, context) =>
-                {
-                    ++methodCallCount;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                    return canAttach;
-                }
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canAttach;
             };
 
-            IAttachableComponent attachable = testAttachableComponent;
+            IAttachableComponent attachable = _component;
             attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
             methodCallCount.ShouldEqual(1);
 
@@ -79,26 +77,23 @@ namespace MugenMvvm.UnitTests.Components
         public void OnDetachedShouldDetachOwner()
         {
             var methodCallCount = 0;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>
+            _component.OnDetachedHandler = (test, context) =>
             {
-                OnDetachedHandler = (test, context) =>
-                {
-                    ++methodCallCount;
-                    test.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                }
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
             };
-            IAttachableComponent attachable = testAttachableComponent;
-            IDetachableComponent detachable = testAttachableComponent;
+            IAttachableComponent attachable = _component;
+            IDetachableComponent detachable = _component;
             attachable.OnAttached(this, DefaultMetadata);
 
-            testAttachableComponent.IsAttached.ShouldBeTrue();
-            testAttachableComponent.Owner.ShouldEqual(this);
+            _component.IsAttached.ShouldBeTrue();
+            _component.Owner.ShouldEqual(this);
             methodCallCount.ShouldEqual(0);
 
             detachable.OnDetached(this, DefaultMetadata);
             methodCallCount.ShouldEqual(1);
-            testAttachableComponent.IsAttached.ShouldBeFalse();
+            _component.IsAttached.ShouldBeFalse();
         }
 
         [Fact]
@@ -106,12 +101,11 @@ namespace MugenMvvm.UnitTests.Components
         {
             var methodCallCount = 0;
             var canDetach = false;
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
 
-            IDetachableComponent attachable = testAttachableComponent;
+            IDetachableComponent attachable = _component;
             attachable.OnDetaching(this, DefaultMetadata).ShouldBeTrue();
 
-            testAttachableComponent.OnDetachingHandler = (test, context) =>
+            _component.OnDetachingHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
@@ -127,13 +121,10 @@ namespace MugenMvvm.UnitTests.Components
         }
 
         [Fact]
-        public void OwnerShouldThrowNotAttached()
-        {
-            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+        public void OwnerShouldThrowNotAttached() =>
             ShouldThrow<InvalidOperationException>(() =>
             {
-                var v = testAttachableComponent.Owner;
+                var v = _component.Owner;
             });
-        }
     }
 }

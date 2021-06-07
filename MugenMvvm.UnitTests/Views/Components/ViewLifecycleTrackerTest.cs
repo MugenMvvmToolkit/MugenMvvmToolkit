@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using Should;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -9,7 +8,7 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Enums;
-using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
+using MugenMvvm.Tests.Bindings.Parsing;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,7 +16,7 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 {
     [Collection(SharedContext)]
-    public abstract class BindingMemberExpressionNodeBaseTest<T> : UnitTestBase, IDisposable
+    public abstract class BindingMemberExpressionNodeBaseTest<T> : UnitTestBase
         where T : BindingMemberExpressionNodeBase<T>
     {
         protected const string Path = "Path";
@@ -25,14 +24,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 
         protected BindingMemberExpressionNodeBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
-        }
-
-        public virtual void Dispose()
-        {
-            MugenService.Configuration.Clear<IMemberManager>();
-            MugenService.Configuration.Clear<IObservationManager>();
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
         }
 
         [Fact]
@@ -68,6 +61,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             newExp.ObservableMethodName.ShouldEqual(observableMethodName);
         }
 
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
+
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -87,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             };
 
             var exp = GetExpression();
-            var result = new IExpressionNode[] {exp};
+            var result = new IExpressionNode[] { exp };
             exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
@@ -102,8 +99,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
             else
             {
-                var metadata = new Dictionary<string, object?> {{"k", null}};
-                var updated = (T) node.UpdateMetadata(metadata);
+                var metadata = new Dictionary<string, object?> { { "k", null } };
+                var updated = (T)node.UpdateMetadata(metadata);
                 updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
                 updated.ShouldEqual(GetExpression(metadata));
             }

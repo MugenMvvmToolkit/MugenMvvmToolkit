@@ -2,8 +2,9 @@
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
-using MugenMvvm.UnitTests.Validation.Internal;
+using MugenMvvm.Tests.Validation;
 using MugenMvvm.Validation;
 using Should;
 using Xunit;
@@ -13,13 +14,11 @@ namespace MugenMvvm.UnitTests.Validation
 {
     public class NotifyDataErrorInfoValidatorAdapterTest : UnitTestBase
     {
-        private readonly Validator _validator;
         private readonly NotifyDataErrorInfoValidatorAdapter _adapter;
 
         public NotifyDataErrorInfoValidatorAdapterTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _validator = new Validator(null, ComponentCollectionManager);
-            _adapter = new NotifyDataErrorInfoValidatorAdapter(_validator, this);
+            _adapter = new NotifyDataErrorInfoValidatorAdapter(Validator, this);
         }
 
         [Fact]
@@ -35,11 +34,11 @@ namespace MugenMvvm.UnitTests.Validation
                 ++invokeCount;
             };
 
-            _validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(_validator, propertyName, DefaultMetadata);
+            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
-            _validator.Dispose();
-            _validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(_validator, propertyName, DefaultMetadata);
+            Validator.Dispose();
+            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -47,12 +46,13 @@ namespace MugenMvvm.UnitTests.Validation
         public void GetErrorsShouldUseValidator()
         {
             var propertyName = "Test";
-            var errors = new[] {"1", "2"};
+            var errors = new[] { "1", "2" };
 
-            _validator.AddComponent(new TestValidatorErrorManagerComponent(_validator)
+            Validator.AddComponent(new TestValidatorErrorManagerComponent
             {
-                GetErrorsRaw = (ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<object> editor, object? source, IReadOnlyMetadataContext? metadata) =>
+                GetErrorsRaw = (IValidator v, ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<object> editor, object? source, IReadOnlyMetadataContext? metadata) =>
                 {
+                    v.ShouldEqual(Validator);
                     members.Item.ShouldEqual(propertyName);
                     source.ShouldBeNull();
                     editor.AddRange(value: errors);
@@ -65,10 +65,11 @@ namespace MugenMvvm.UnitTests.Validation
         public void HasErrorsShouldUseValidator()
         {
             var hasErrors = false;
-            _validator.AddComponent(new TestValidatorErrorManagerComponent(_validator)
+            Validator.AddComponent(new TestValidatorErrorManagerComponent
             {
-                HasErrors = (v, s, _) =>
+                HasErrors = (vv, v, s, _) =>
                 {
+                    vv.ShouldEqual(Validator);
                     v.IsEmpty.ShouldBeTrue();
                     s.ShouldBeNull();
                     return hasErrors;

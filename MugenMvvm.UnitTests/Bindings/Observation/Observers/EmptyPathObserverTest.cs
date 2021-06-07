@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation.Observers;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
+using MugenMvvm.Tests.Internal;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;

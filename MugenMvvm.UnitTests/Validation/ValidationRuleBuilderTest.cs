@@ -18,13 +18,12 @@ namespace MugenMvvm.UnitTests.Validation
             var error = "error";
             var errorTcs = new TaskCompletionSource<object?>();
             var invokeCount = 0;
-            var cts = new CancellationTokenSource();
             var rule = new ValidationRuleBuilder<object>().AddAsyncValidator(memberName, o => value, this, (o, s, state, ct, m) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(target);
                 s.ShouldEqual(value);
-                ct.ShouldEqual(cts.Token);
+                ct.ShouldEqual(DefaultCancellationToken);
                 state.ShouldEqual(this);
                 m.ShouldEqual(DefaultMetadata);
                 return errorTcs.Task;
@@ -32,7 +31,7 @@ namespace MugenMvvm.UnitTests.Validation
             rule.IsAsync.ShouldBeTrue();
 
 
-            var task = rule.ValidateAsync(target, memberName, cts.Token, DefaultMetadata);
+            var task = rule.ValidateAsync(target, memberName, DefaultCancellationToken, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
@@ -43,7 +42,7 @@ namespace MugenMvvm.UnitTests.Validation
 
             errorTcs = new TaskCompletionSource<object?>();
             error = null;
-            task = rule.ValidateAsync(target, memberName, cts.Token, DefaultMetadata);
+            task = rule.ValidateAsync(target, memberName, DefaultCancellationToken, DefaultMetadata);
             invokeCount.ShouldEqual(2);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
@@ -89,7 +88,7 @@ namespace MugenMvvm.UnitTests.Validation
         {
             var validationModel = new ValidationModel {Property = "G"};
             var builder = new ValidationRuleBuilder<ValidationModel>();
-            var memberBuilder = builder.For(model => model.Property);
+            var memberBuilder = builder.For(model => model.Property, ReflectionManager);
             memberBuilder.MemberName.ShouldEqual(nameof(ValidationModel.Property));
             memberBuilder.Accessor(validationModel).ShouldEqual(validationModel.Property);
         }
@@ -113,14 +112,13 @@ namespace MugenMvvm.UnitTests.Validation
             var propertyName = nameof(ValidationModel.Property);
             var validationModel = new ValidationModel();
             var tcs = new TaskCompletionSource<bool>();
-            var cts = new CancellationTokenSource();
             var rule = new ValidationRuleBuilder<ValidationModel>()
                        .For(propertyName, model => model.Property).MustAsync((model, s, c, m) =>
                        {
                            model.ShouldEqual(validationModel);
                            s.ShouldEqual(validationModel.Property);
                            m.ShouldEqual(DefaultMetadata);
-                           c.ShouldEqual(cts.Token);
+                           c.ShouldEqual(DefaultCancellationToken);
                            return tcs.Task;
                        }, () => error, (model, context) =>
                        {
@@ -129,7 +127,7 @@ namespace MugenMvvm.UnitTests.Validation
                            return canValidate;
                        }, new[] {dpMember}).Build().Item!;
 
-            var task = rule.ValidateAsync(validationModel, propertyName, cts.Token, DefaultMetadata);
+            var task = rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
             var errors = await task;
@@ -138,7 +136,7 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, error)).ShouldBeTrue();
 
             tcs = new TaskCompletionSource<bool>();
-            task = rule.ValidateAsync(validationModel, dpMember, cts.Token, DefaultMetadata);
+            task = rule.ValidateAsync(validationModel, dpMember, DefaultCancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
             await task;
@@ -148,13 +146,13 @@ namespace MugenMvvm.UnitTests.Validation
 
             canValidate = false;
             tcs = new TaskCompletionSource<bool>();
-            errors = await rule.ValidateAsync(validationModel, propertyName, cts.Token, DefaultMetadata);
+            errors = await rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, DefaultMetadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
 
             canValidate = true;
             validationModel.Property = "test";
-            task = rule.ValidateAsync(validationModel, propertyName, cts.Token, DefaultMetadata);
+            task = rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(true);
             errors = await task;

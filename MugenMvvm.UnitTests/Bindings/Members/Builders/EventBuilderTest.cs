@@ -2,9 +2,8 @@
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Builders;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -12,14 +11,13 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     [Collection(SharedContext)]
-    public class EventBuilderTest : UnitTestBase, IDisposable
+    public class EventBuilderTest : UnitTestBase
     {
         public EventBuilderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
+            RegisterDisposeToken(WithGlobalService(AttachedValueManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IAttachedValueManager>();
 
         [Theory]
         [InlineData(true)]

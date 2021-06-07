@@ -1,13 +1,20 @@
 ﻿using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation
 {
+    [Collection(SharedContext)]
     public class WeakEventListenerTest : UnitTestBase
     {
+        public WeakEventListenerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        {
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
+        }
+
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
@@ -35,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 IsAlive = true
             };
             var listener = new WeakEventListener(target);
-            ((IWeakReference) listener.Target!).Target.ShouldEqual(target);
+            ((IWeakReference)listener.Target!).Target.ShouldEqual(target);
             listener.IsAlive.ShouldEqual(true);
             listener.Listener.ShouldEqual(target);
             listener.IsEmpty.ShouldBeFalse();

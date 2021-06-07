@@ -3,7 +3,7 @@ using System.Linq;
 using MugenMvvm.Entities;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Entities.Internal;
+using MugenMvvm.Tests.Entities;
 using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
@@ -81,13 +81,13 @@ namespace MugenMvvm.UnitTests.Entities
         {
             var comparer = new TestEqualityComparer<object>
             {
-                GetHashCode = model => ((TestModel) model).IntProperty,
-                Equals = (model, testModel) => ((TestModel) model).IntProperty == ((TestModel) testModel).IntProperty
+                GetHashCode = model => ((TestModel)model).IntProperty,
+                Equals = (model, testModel) => ((TestModel)model).IntProperty == ((TestModel)testModel).IntProperty
             };
             var collection = new EntityTrackingCollection(comparer, ComponentCollectionManager);
 
-            var item1 = new TestModel {IntProperty = 1};
-            var item2 = new TestModel {IntProperty = 1};
+            var item1 = new TestModel { IntProperty = 1 };
+            var item2 = new TestModel { IntProperty = 1 };
             collection.SetState(item1, EntityState.Added);
             collection.Count.ShouldEqual(1);
 

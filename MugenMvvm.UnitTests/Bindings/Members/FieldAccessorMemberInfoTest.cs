@@ -5,8 +5,9 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,7 +15,7 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
     [Collection(SharedContext)]
-    public class FieldAccessorMemberInfoTest : UnitTestBase, IDisposable
+    public class FieldAccessorMemberInfoTest : UnitTestBase
     {
         public static readonly string? InitOnlyStaticField = "";
 
@@ -34,14 +35,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
         public FieldAccessorMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IObservationManager>();
-            MugenService.Configuration.Clear<IMemberManager>();
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(ReflectionManager));
         }
 
         [Theory]
@@ -71,9 +67,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, fieldInfo);
 
             var observerRequestCount = 0;
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg4) =>
+                TryGetMemberObserver = (_, type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -143,9 +139,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, fieldInfo);
 
             var observerRequestCount = 0;
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg4) =>
+                TryGetMemberObserver = (_, type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -187,5 +183,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", DefaultMetadata));
             }
         }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

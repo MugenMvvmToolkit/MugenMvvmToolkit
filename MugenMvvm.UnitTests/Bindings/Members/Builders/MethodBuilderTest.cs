@@ -5,10 +5,9 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,25 +16,20 @@ using IParameterInfo = MugenMvvm.Bindings.Interfaces.Members.IParameterInfo;
 namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     [Collection(SharedContext)]
-    public class MethodBuilderTest : UnitTestBase, IDisposable
+    public class MethodBuilderTest : UnitTestBase
     {
         public MethodBuilderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IAttachedValueManager>();
-            MugenService.Configuration.Clear<IObservationManager>();
+            RegisterDisposeToken(WithGlobalService(AttachedValueManager));
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
         public void TryGetAccessorHandlerShouldUseDelegate()
         {
             var flags = ArgumentFlags.Metadata;
-            var values = new object[] {this};
+            var values = new object[] { this };
             IMethodMemberInfo? memberInfo = null;
 
             var invokeCount = 0;
@@ -59,7 +53,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         [Fact]
         public void WithParametersShouldInitializeParameters1()
         {
-            var parameterInfos = new IParameterInfo[1] {new TestParameterInfo()};
+            var parameterInfos = new IParameterInfo[1] { new TestParameterInfo() };
             var memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
                              .WithParameters(parameterInfos)
                              .InvokeHandler((info, target, args, metadata) => "")
@@ -72,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         {
             var invokeCount = 0;
             IMethodMemberInfo? method = null;
-            var parameterInfos = new IParameterInfo[] {new TestParameterInfo()};
+            var parameterInfos = new IParameterInfo[] { new TestParameterInfo() };
             method = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
                      .GetParametersHandler(info =>
                      {
@@ -85,6 +79,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             method.GetParameters().ShouldEqual(parameterInfos);
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true, true)]
@@ -163,7 +159,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             memberInfo.TryObserve(target, testEventHandler, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(0);
-            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
@@ -188,9 +184,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 b.NonObservable();
             var memberInfo = b.Build();
             memberInfo.MemberFlags.HasFlag(MemberFlags.NonObservable).ShouldEqual(!observable);
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3) =>
+                TryGetMemberObserver = (_, type, o, arg3) =>
                 {
                     ++invokeCount;
                     type.ShouldEqual(memberInfo.DeclaringType);
@@ -242,13 +238,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 }
             };
             var actionToken = memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
-            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
                 attachedInvokeCount.ShouldEqual(1);
 
             actionToken.Dispose();
-            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
             {
@@ -293,7 +289,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         {
             var target = isStatic ? null : new object();
             var resultValue = new object();
-            var parameters = new object[] {""};
+            var parameters = new object[] { "" };
             var invokeCount = 0;
             IMethodMemberInfo? memberInfo = null;
             var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))

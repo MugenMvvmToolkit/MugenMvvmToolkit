@@ -2,11 +2,10 @@
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Tests.Bindings.Converting;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
-using MugenMvvm.UnitTests.Bindings.Convert.Internal;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,11 +14,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingParameterHandlerTest : UnitTestBase
     {
-        private readonly TestBinding _binding;
-
         public BindingParameterHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _binding = new TestBinding(ComponentCollectionManager);
         }
 
         [Fact]
@@ -31,8 +27,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             var expression = new TestCompiledExpression();
             var converter = new TestBindingValueConverter();
-            var converterParameter = new TestMemberPathObserver {Dispose = () => observer1Disposed = true};
-            var fallback = new[] {new TestMemberPathObserver {Dispose = () => observer2Disposed = true}, new TestMemberPathObserver {Dispose = () => observer3Disposed = true}};
+            var converterParameter = new TestMemberPathObserver { Dispose = () => observer1Disposed = true };
+            var fallback = new[]
+                { new TestMemberPathObserver { Dispose = () => observer2Disposed = true }, new TestMemberPathObserver { Dispose = () => observer3Disposed = true } };
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null),
                 new BindingParameterValue(fallback, expression),
@@ -70,10 +67,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
-            handler.InterceptSourceValue(_binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldBeNull();
+            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldBeNull();
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptSourceValue(_binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldEqual(targetNullValue);
+            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldEqual(targetNullValue);
         }
 
         [Fact]
@@ -98,7 +95,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
-            handler.InterceptSourceValue(_binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
+            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
         }
 
         [Fact]
@@ -110,10 +107,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var fallback = new object();
             var handler = new BindingParameterHandler(default, default, new BindingParameterValue(fallback, null), default);
-            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(fallback);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(fallback);
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(0);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(0);
         }
 
         [Fact]
@@ -125,10 +122,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
-            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(targetNullValue);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(targetNullValue);
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(null);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(null);
         }
 
         [Fact]
@@ -153,7 +150,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
-            handler.InterceptTargetValue(_binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
         }
     }
 }

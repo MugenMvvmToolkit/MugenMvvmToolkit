@@ -3,9 +3,8 @@ using System.Linq;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
-using MugenMvvm.Interfaces.Models;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
+using MugenMvvm.Tests.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,18 +12,15 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
 {
     [Collection(SharedContext)]
-    public abstract class ObserverBaseTest<TObserver> : UnitTestBase, IDisposable where TObserver : IMemberPathObserver
+    public abstract class ObserverBaseTest<TObserver> : UnitTestBase where TObserver : IMemberPathObserver
     {
         protected const string MethodName = "MM";
-        protected readonly MemberManager LocalMemberManager;
 
         protected ObserverBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            LocalMemberManager = new MemberManager(ComponentCollectionManager);
-            MugenService.Configuration.InitializeInstance<IMemberManager>(LocalMemberManager);
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IMemberManager>();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()
@@ -38,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var o = new TestWeakReference {IsAlive = true, Target = new object()};
+            var o = new TestWeakReference { IsAlive = true, Target = new object() };
             var observer = GetObserver(o);
             observer.IsAlive.ShouldBeTrue();
             observer.Target.ShouldEqual(o.Target);
@@ -49,6 +45,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             observer.Target.ShouldBeNull();
         }
 
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -57,7 +55,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             var memberPathObserver = GetObserver(this);
             memberPathObserver.IsAlive.ShouldBeTrue();
             memberPathObserver.Target.ShouldEqual(this);
-            ((IHasDisposeCondition) memberPathObserver).IsDisposable = canDispose;
+            memberPathObserver.IsDisposable = canDispose;
 
             memberPathObserver.Dispose();
             if (canDispose)

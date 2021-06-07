@@ -4,7 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.Tests.Bindings.Members;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,21 +13,19 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class NameRequestMemberManagerDecoratorTest : UnitTestBase
     {
-        private readonly MemberManager _memberManager;
         private readonly NameRequestMemberManagerDecorator _provider;
 
         public NameRequestMemberManagerDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _memberManager = new MemberManager(ComponentCollectionManager);
             _provider = new NameRequestMemberManagerDecorator();
-            _memberManager.AddComponent(_provider);
+            MemberManager.AddComponent(_provider);
         }
 
         [Fact]
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
-            _provider.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _provider.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -39,14 +37,15 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var request = "";
             var selectorCount = 0;
             var providerCount = 0;
-            var members = new[] {new TestAccessorMemberInfo(), new TestAccessorMemberInfo()};
+            var members = new[] { new TestAccessorMemberInfo(), new TestAccessorMemberInfo() };
 
-            _memberManager.AddComponent(new TestMemberManagerComponent(_memberManager)
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) =>
+                TryGetMembers = (mm, t, m, f, r, meta) =>
                 {
                     ++selectorCount;
-                    ((IEnumerable<IMemberInfo>) r).ShouldEqual(members);
+                    mm.ShouldEqual(MemberManager);
+                    ((IEnumerable<IMemberInfo>)r).ShouldEqual(members);
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
@@ -54,11 +53,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return members;
                 }
             });
-            _memberManager.AddComponent(new TestMemberProviderComponent(_memberManager)
+            MemberManager.AddComponent(new TestMemberProviderComponent
             {
-                TryGetMembers = (t, s, types, arg3) =>
+                TryGetMembers = (mm, t, s, types, arg3) =>
                 {
                     ++providerCount;
+                    mm.ShouldEqual(MemberManager);
                     types.ShouldEqual(memberType);
                     type.ShouldEqual(t);
                     s.ShouldEqual(request);
@@ -67,9 +67,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 }
             });
 
-            _memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList().ShouldEqual(members);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList().ShouldEqual(members);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

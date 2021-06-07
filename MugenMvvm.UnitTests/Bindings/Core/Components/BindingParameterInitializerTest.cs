@@ -3,12 +3,14 @@ using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Visitors;
 using MugenMvvm.Extensions;
+using MugenMvvm.Tests.Bindings.Compiling;
+using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
@@ -18,14 +20,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingParameterInitializerTest : UnitTestBase
     {
-        private readonly ExpressionCompiler _compiler;
         private readonly BindingParameterInitializer _initializer;
         private readonly BindingExpressionInitializerContext _context;
 
         public BindingParameterInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _compiler = new ExpressionCompiler(ComponentCollectionManager);
-            _initializer = new BindingParameterInitializer(_compiler);
+            _initializer = new BindingParameterInitializer(ExpressionCompiler);
             _context = new BindingExpressionInitializerContext(this);
         }
 
@@ -36,6 +36,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _initializer.Initialize(null!, _context);
             _context.Components.ShouldBeEmpty();
         }
+
+        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true)]
@@ -94,9 +96,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     ConstantExpressionNode.Get(nullValue))
             };
             var exp = new TestCompiledExpression();
-            _compiler.AddComponent(new TestExpressionCompilerComponent
+            ExpressionCompiler.AddComponent(new TestExpressionCompilerComponent
             {
-                TryCompile = (node, m) =>
+                TryCompile = (_, node, m) =>
                 {
                     node.ShouldEqual(parameters[2].Right);
                     m.ShouldEqual(_context.GetMetadataOrDefault());
@@ -116,8 +118,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
 
             parameterVisitCount.ShouldEqual(1);
-            var bindingComponentProvider = (IBindingComponentProvider) _context.Components[BindingParameterNameConstant.ParameterHandler]!;
-            var component = (BindingParameterHandler) bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
+            var bindingComponentProvider = (IBindingComponentProvider)_context.Components[BindingParameterNameConstant.ParameterHandler]!;
+            var component = (BindingParameterHandler)bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
 
             component.Converter.Parameter.ShouldEqual(converter);
             component.Converter.Expression.ShouldBeNull();

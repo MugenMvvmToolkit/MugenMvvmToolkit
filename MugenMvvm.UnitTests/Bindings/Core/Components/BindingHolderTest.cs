@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Extensions;
+using MugenMvvm.Tests.Bindings.Core;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -18,6 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public BindingHolderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _bindingHolder = new BindingHolder(AttachedValueManager);
+            BindingManager.AddComponent(_bindingHolder);
         }
 
         [Fact]
@@ -27,23 +30,25 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var b2Disposed = false;
             var b1 = new TestBinding(ComponentCollectionManager)
             {
-                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
+                Target = new TestMemberPathObserver { Path = MemberPath.Get("T") },
                 Dispose = () => b1Disposed = true
             };
             var b2 = new TestBinding(ComponentCollectionManager)
             {
-                Target = new TestMemberPathObserver {Path = MemberPath.Get("T")},
+                Target = new TestMemberPathObserver { Path = MemberPath.Get("T") },
                 Dispose = () => b2Disposed = true
             };
 
-            _bindingHolder.TryRegister(null!, this, b1, DefaultMetadata).ShouldBeTrue();
+            _bindingHolder.TryRegister(BindingManager, this, b1, DefaultMetadata).ShouldBeTrue();
             b1Disposed.ShouldBeFalse();
             b2Disposed.ShouldBeFalse();
 
-            _bindingHolder.TryRegister(null!, this, b2, DefaultMetadata).ShouldBeTrue();
+            _bindingHolder.TryRegister(BindingManager, this, b2, DefaultMetadata).ShouldBeTrue();
             b1Disposed.ShouldBeTrue();
             b2Disposed.ShouldBeFalse();
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -55,21 +60,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var bindings = new List<IBinding>();
             for (var i = 0; i < count; i++)
             {
-                var testBinding = new TestBinding(ComponentCollectionManager) {Target = new TestMemberPathObserver {Path = MemberPath.Get(defaultPath + i)}};
+                var testBinding = new TestBinding(ComponentCollectionManager) { Target = new TestMemberPathObserver { Path = MemberPath.Get(defaultPath + i) } };
                 bindings.Add(testBinding);
 
-                _bindingHolder.TryRegister(null!, this, testBinding, DefaultMetadata).ShouldBeTrue();
-                _bindingHolder.TryGetBindings(null!, this, defaultPath + i, DefaultMetadata).AsList().Single().ShouldEqual(testBinding);
-                var array = _bindingHolder.TryGetBindings(null!, this, null, DefaultMetadata).AsList();
+                _bindingHolder.TryRegister(BindingManager, this, testBinding, DefaultMetadata).ShouldBeTrue();
+                BindingManager.GetBindings(this, defaultPath + i, DefaultMetadata).AsList().Single().ShouldEqual(testBinding);
+                var array = BindingManager.GetBindings(this, null, DefaultMetadata).AsList();
                 array.Count.ShouldEqual(bindings.Count);
                 array.ShouldContain(bindings);
             }
 
             for (var i = 0; i < count; i++)
             {
-                _bindingHolder.TryUnregister(null!, this, bindings[i], DefaultMetadata).ShouldBeTrue();
-                _bindingHolder.TryGetBindings(null!, this, defaultPath + i, DefaultMetadata).AsList().ShouldBeEmpty();
-                var array = _bindingHolder.TryGetBindings(null!, this, null, DefaultMetadata).AsList();
+                _bindingHolder.TryUnregister(BindingManager, this, bindings[i], DefaultMetadata).ShouldBeTrue();
+                _bindingHolder.TryGetBindings(BindingManager, this, defaultPath + i, DefaultMetadata).AsList().ShouldBeEmpty();
+                var array = BindingManager.GetBindings(this, null, DefaultMetadata).AsList();
                 array.Count.ShouldEqual(bindings.Count - i - 1);
                 array.ShouldContain(bindings.Skip(i + 1));
             }

@@ -4,8 +4,9 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,11 +14,12 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
     [Collection(SharedContext)]
-    public class PropertyAccessorMemberInfoTest : UnitTestBase, IDisposable
+    public class PropertyAccessorMemberInfoTest : UnitTestBase
     {
         public PropertyAccessorMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
+            RegisterDisposeToken(WithGlobalService(ReflectionManager));
         }
 
         public static string? Property1Static { get; set; }
@@ -81,9 +83,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, propertyInfo);
 
             var observerRequestCount = 0;
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg4) =>
+                TryGetMemberObserver = (_, type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -174,9 +176,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }, propertyInfo);
 
             var observerRequestCount = 0;
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg4) =>
+                TryGetMemberObserver = (_, type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -238,6 +240,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             }
         }
 
-        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
     }
 }

@@ -1,23 +1,21 @@
 ﻿using System;
-using MugenMvvm.Bindings.Interfaces.Convert;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.Tests.Bindings.Members;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation
 {
-    public class MemberPathLastMemberTest : UnitTestBase, IDisposable
+    [Collection(SharedContext)]
+    public class MemberPathLastMemberTest : UnitTestBase
     {
         public MemberPathLastMemberTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(GlobalValueConverter);
+            WithGlobalService(GlobalValueConverter);
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IGlobalValueConverter>();
 
         [Fact]
         public void ConstructorShouldInitializeValues1()

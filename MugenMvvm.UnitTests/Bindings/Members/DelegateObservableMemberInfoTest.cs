@@ -6,8 +6,9 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -15,18 +16,12 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
     [Collection(SharedContext)]
-    public class DelegateObservableMemberInfoTest : UnitTestBase, IDisposable
+    public class DelegateObservableMemberInfoTest : UnitTestBase
     {
         public DelegateObservableMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-        }
-
-        public virtual void Dispose()
-        {
-            MugenService.Configuration.Clear<IObservationManager>();
-            MugenService.Configuration.Clear<IMemberManager>();
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
+            RegisterDisposeToken(WithGlobalService(MemberManager));
         }
 
         [Fact]
@@ -100,9 +95,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var invokeCount = 0;
             var actionToken = ActionToken.FromDelegate((o, o1) => { });
             var memberInfo = Create<string, object?>("n", typeof(object), typeof(string), MemberFlags.All, null, null, null, null);
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3) =>
+                TryGetMemberObserver = (_, type, o, arg3) =>
                 {
                     ++invokeCount;
                     type.ShouldEqual(memberInfo.DeclaringType);
@@ -116,6 +111,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             invokeCount.ShouldEqual(1);
             token.ShouldEqual(actionToken);
         }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         protected virtual MemberType MemberType => MemberType.Event;
 

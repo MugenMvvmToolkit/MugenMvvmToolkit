@@ -39,6 +39,9 @@
     <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
       <_Parameter1>MugenMvvm.Avalonia</_Parameter1>
     </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MugenMvvm.Tests</_Parameter1>
+    </AssemblyAttribute>
     <AssemblyAttribute Include="MugenMvvm.Attributes.LinkerSafeAttribute" />
   </ItemGroup>
 

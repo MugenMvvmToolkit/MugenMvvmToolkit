@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTests.Messaging
         [Fact]
         public void ShouldHandleOnlySupportedTypes()
         {
-            var subscriber = new WeakDelegateMessengerHandler<object, UnitTestBase>(Handler);
+            var subscriber = new WeakDelegateMessengerHandler<object, UnitTestBase>(Handler, WeakReferenceManager, ReflectionManager);
             subscriber.CanHandle(typeof(object)).ShouldBeFalse();
             subscriber.CanHandle(typeof(UnitTestBase)).ShouldBeTrue();
             subscriber.CanHandle(typeof(WeakDelegateMessengerHandlerTest)).ShouldBeTrue();
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Messaging
                 }
             };
 
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(handler.Handle);
+            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(handler.Handle, WeakReferenceManager, ReflectionManager);
             subscriber.Handle(messageContext1).ShouldEqual(MessengerResult.Ignored);
             subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Handled);
             count.ShouldEqual(1);
@@ -92,25 +92,26 @@ namespace MugenMvvm.UnitTests.Messaging
                 }
             };
 
-            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(handler, (impl, o, arg3, arg4) => impl.Handle(o, arg3, arg4));
+            var subscriber = new WeakDelegateMessengerHandler<HandlerImpl, string>(handler, (impl, o, arg3, arg4) => impl.Handle(o, arg3, arg4), WeakReferenceManager);
             subscriber.Handle(messageContext1).ShouldEqual(MessengerResult.Ignored);
             subscriber.Handle(messageContext2).ShouldEqual(MessengerResult.Handled);
             count.ShouldEqual(1);
         }
 
         [Fact]
-        public void ShouldValidateAnonymousMethod() => ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>((o, o1, arg3) => { }));
+        public void ShouldValidateAnonymousMethod() =>
+            ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>((_, _, _) => { }, WeakReferenceManager));
 
         [Fact]
         public void ShouldValidateArgs()
         {
-            ShouldThrow<ArgumentNullException>(() => new WeakDelegateMessengerHandler<object, object>(null!));
-            ShouldThrow<ArgumentNullException>(() => new WeakDelegateMessengerHandler<object, object>(new object(), null!));
-            ShouldThrow<ArgumentNullException>(() => new WeakDelegateMessengerHandler<object, object>(null!, (o, o1, arg3, arg4) => { }));
+            ShouldThrow<ArgumentNullException>(() => new WeakDelegateMessengerHandler<object, object>(null!, WeakReferenceManager));
+            ShouldThrow<ArgumentNullException>(() => new WeakDelegateMessengerHandler<object, object>(new object(), null!, WeakReferenceManager));
+            ShouldThrow<ArgumentNullException>(() => new WeakDelegateMessengerHandler<object, object>(null!, (_, _, _, _) => { }, WeakReferenceManager));
         }
 
         [Fact]
-        public void ShouldValidateStaticMethod() => ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>(StaticMethod));
+        public void ShouldValidateStaticMethod() => ShouldThrow<NotSupportedException>(() => new WeakDelegateMessengerHandler<object, object>(StaticMethod, WeakReferenceManager));
 
         private void Handler(object? arg1, object arg2, IMessageContext arg3)
         {
@@ -120,9 +121,9 @@ namespace MugenMvvm.UnitTests.Messaging
         {
         }
 
-        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl1() => new(new HandlerImpl().Handle);
+        private WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl1() => new(new HandlerImpl().Handle, WeakReferenceManager, ReflectionManager);
 
-        private static WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl2() => new(new HandlerImpl(), (impl, o, arg3, arg4) => { });
+        private WeakDelegateMessengerHandler<HandlerImpl, string> ShouldBeWeekImpl2() => new(new HandlerImpl(), (_, _, _, _) => { }, WeakReferenceManager);
 
         private sealed class HandlerImpl
         {

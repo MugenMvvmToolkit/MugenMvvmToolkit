@@ -2,9 +2,10 @@
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.Tests.Bindings.Core;
 using Should;
 using Xunit;
 
@@ -13,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
     public class BindingBuilderDelegateExpressionParserTest : UnitTestBase
     {
         private static readonly BindingExpressionRequest ConverterRequest = new("", "", default);
-        private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
+        private static readonly BindingBuilderDelegate<object, object> Delegate = _ => ConverterRequest;
 
         [Fact]
         public void TryParseBindingExpressionShouldCacheRequest()
@@ -21,11 +22,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var invokeCount = 0;
             var testExp = new TestBindingBuilder();
 
-            var bindingManager = new BindingManager(ComponentCollectionManager);
+
             var cache = new BindingBuilderDelegateExpressionParser();
             var component = new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, arg3) =>
+                TryParseBindingExpression = (_, o, arg3) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(ConverterRequest);
@@ -33,26 +34,28 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return testExp;
                 }
             };
-            bindingManager.AddComponent(cache);
-            bindingManager.AddComponent(component);
+            BindingManager.AddComponent(cache);
+            BindingManager.AddComponent(component);
 
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
 
             //invalidate
             cache.Invalidate(this, this, DefaultMetadata);
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(2);
 
             //add new component
-            bindingManager.RemoveComponent(component);
-            bindingManager.AddComponent(component);
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
-            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.RemoveComponent(component);
+            BindingManager.AddComponent(component);
+            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(3);
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
     }
 }

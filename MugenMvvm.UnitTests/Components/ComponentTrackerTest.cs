@@ -2,7 +2,6 @@
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
@@ -10,7 +9,8 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Components
 {
-    public class ComponentTrackerTest : UnitTestBase, IDisposable
+    [Collection(SharedContext)]
+    public class ComponentTrackerTest : UnitTestBase
     {
         private readonly ComponentCollection _componentCollection;
         private readonly ComponentTracker _componentTracker;
@@ -19,7 +19,6 @@ namespace MugenMvvm.UnitTests.Components
         {
             _componentCollection = new ComponentCollection(this, ComponentCollectionManager);
             _componentTracker = new ComponentTracker();
-            MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
         }
 
         [Theory]
@@ -121,7 +120,5 @@ namespace MugenMvvm.UnitTests.Components
                 executed.ShouldEqual(listenersCount);
             }
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IComponentCollectionManager>();
     }
 }

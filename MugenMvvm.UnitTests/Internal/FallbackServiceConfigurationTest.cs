@@ -1,6 +1,6 @@
 ﻿using System;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
+using MugenMvvm.Tests.Internal;
 using Should;
 using Xunit;
 
@@ -20,12 +20,14 @@ namespace MugenMvvm.UnitTests.Internal
         public void InstanceShouldReturnValueFromServiceProvider()
         {
             var count = 0;
-            var serviceProvider = new TestServiceProvider();
-            serviceProvider.GetService = type =>
+            var serviceProvider = new TestServiceProvider
             {
-                ++count;
-                type.ShouldEqual(typeof(FallbackServiceConfigurationTest));
-                return this;
+                GetService = type =>
+                {
+                    ++count;
+                    type.ShouldEqual(typeof(FallbackServiceConfigurationTest));
+                    return this;
+                }
             };
             var fallbackServiceConfiguration = new FallbackServiceConfiguration(serviceProvider);
             fallbackServiceConfiguration.Instance<FallbackServiceConfigurationTest>().ShouldEqual(this);

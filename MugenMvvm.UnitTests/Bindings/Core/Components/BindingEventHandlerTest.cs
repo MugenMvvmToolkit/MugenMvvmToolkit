@@ -8,11 +8,12 @@ using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Core;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.UnitTests.Commands.Internal;
 using Should;
 using Xunit;
@@ -21,21 +22,13 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     [Collection(SharedContext)]
-    public class BindingEventHandlerTest : UnitTestBase, IDisposable
+    public class BindingEventHandlerTest : UnitTestBase
     {
-        private readonly TestBinding _binding;
-
         public BindingEventHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _binding = new TestBinding(ComponentCollectionManager);
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IBindingManager>(new BindingManager(ComponentCollectionManager));
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IMemberManager>();
-            MugenService.Configuration.Clear<IBindingManager>();
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(BindingManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
@@ -43,7 +36,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var target = new object();
             IMemberInfo member = new TestAccessorMemberInfo();
-            _binding.Target = new TestMemberPathObserver
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata =>
                 {
@@ -52,10 +45,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
             IAttachableComponent component = BindingEventHandler.Get(default, false, true);
-            component.OnAttaching(_binding, DefaultMetadata).ShouldBeFalse();
+            component.OnAttaching(Binding, DefaultMetadata).ShouldBeFalse();
 
             member = new TestEventInfo();
-            component.OnAttaching(_binding, DefaultMetadata).ShouldBeFalse();
+            component.OnAttaching(Binding, DefaultMetadata).ShouldBeFalse();
 
             IEventListener? eventListener = null;
             member = new TestEventInfo
@@ -68,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
-            component.OnAttaching(_binding, DefaultMetadata).ShouldBeTrue();
+            component.OnAttaching(Binding, DefaultMetadata).ShouldBeTrue();
             eventListener.ShouldNotBeNull();
         }
 
@@ -82,14 +75,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 SetValue = (o, o1, arg3) => { }
             };
 
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) => enabledMember
+                TryGetMembers = (_, t, m, f, r, meta) => enabledMember
             });
 
             IEventListener? listener = null;
             var component = BindingEventHandler.Get(new BindingParameterValue(cmdParameter, null), true, true);
-            _binding.Target = new TestMemberPathObserver
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata =>
                 {
@@ -111,13 +104,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 RemoveCanExecuteChanged = handler => { canExecuteHandler = null; }
             };
 
-            ((IAttachableComponent) component).OnAttaching(_binding, DefaultMetadata).ShouldBeTrue();
-            component.TrySetTargetValue(_binding, new MemberPathLastMember(this, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
+            ((IAttachableComponent)component).OnAttaching(Binding, DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(Binding, new MemberPathLastMember(this, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
             listener.ShouldNotBeNull();
             canExecuteHandler.ShouldNotBeNull();
             component.CommandParameter.IsEmpty.ShouldBeFalse();
 
-            ((IDetachableComponent) component).OnDetached(_binding, DefaultMetadata);
+            ((IDetachableComponent)component).OnDetached(Binding, DefaultMetadata);
             listener.ShouldBeNull();
             canExecuteHandler.ShouldBeNull();
             component.CommandParameter.IsEmpty.ShouldBeTrue();
@@ -127,13 +120,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void ShouldHandleOneWayMode()
         {
             var invokeCount = 0;
-            _binding.UpdateSource = () => throw new NotSupportedException();
-            _binding.UpdateTarget = () => ++invokeCount;
-            var eventHandlerBindingComponent = (BindingEventHandler.OneWay) BindingEventHandler.Get(default, true, false);
-            eventHandlerBindingComponent.OnSourceLastMemberChanged(_binding, null!, DefaultMetadata);
+            Binding.UpdateSource = () => throw new NotSupportedException();
+            Binding.UpdateTarget = () => ++invokeCount;
+            var eventHandlerBindingComponent = (BindingEventHandler.OneWay)BindingEventHandler.Get(default, true, false);
+            eventHandlerBindingComponent.OnSourceLastMemberChanged(Binding, null!, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
-            eventHandlerBindingComponent.OnSourcePathMembersChanged(_binding, null!, DefaultMetadata);
+            eventHandlerBindingComponent.OnSourcePathMembersChanged(Binding, null!, DefaultMetadata);
             invokeCount.ShouldEqual(2);
         }
 
@@ -151,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
-            _binding.Target = new TestMemberPathObserver
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata => new MemberPathLastMember(this, member)
             };
@@ -169,8 +162,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            ((IAttachableComponent) component).OnAttaching(_binding, DefaultMetadata).ShouldBeTrue();
-            component.TrySetTargetValue(_binding, default, value, DefaultMetadata);
+            ((IAttachableComponent)component).OnAttaching(Binding, DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(Binding, default, value, DefaultMetadata);
             eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
         }
@@ -189,7 +182,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
-            _binding.Target = new TestMemberPathObserver
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata => new MemberPathLastMember(this, member)
             };
@@ -207,8 +200,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            ((IAttachableComponent) component).OnAttaching(_binding, DefaultMetadata).ShouldBeTrue();
-            component.TrySetTargetValue(_binding, default, value, DefaultMetadata);
+            ((IAttachableComponent)component).OnAttaching(Binding, DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(Binding, default, value, DefaultMetadata);
             eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
         }
@@ -228,12 +221,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     o.ShouldEqual(target);
                     arg3.ShouldEqual(DefaultMetadata);
-                    enabledValue = (bool) o1!;
+                    enabledValue = (bool)o1!;
                 }
             };
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) =>
+                TryGetMembers = (_, t, m, f, r, meta) =>
                 {
                     meta.ShouldEqual(DefaultMetadata);
                     r.ShouldEqual(BindableMembers.For<object>().Enabled().Name);
@@ -266,7 +259,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
 
             enabledValue.ShouldNotEqual(canExecute);
-            component.TrySetTargetValue(_binding, new MemberPathLastMember(target, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(Binding, new MemberPathLastMember(target, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
             enabledValue.ShouldEqual(canExecute);
             canExecuteHandler.ShouldNotBeNull();
 
@@ -274,10 +267,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             canExecuteHandler!.Invoke(this, EventArgs.Empty);
             enabledValue.ShouldEqual(canExecute);
 
-            component.TrySetTargetValue(_binding, default, new TestValueExpression(), DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(Binding, default, new TestValueExpression(), DefaultMetadata).ShouldBeTrue();
             enabledValue.ShouldBeTrue();
             canExecuteHandler.ShouldBeNull();
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true)]
@@ -300,20 +297,20 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void OnAttachedShouldUpdateTargetAddOneTimeModeIfNeed(bool addOneTimeMode)
         {
             var updateCount = 0;
-            _binding.UpdateTarget = () => ++updateCount;
-            _binding.Target = new TestMemberPathObserver
+            Binding.UpdateTarget = () => ++updateCount;
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
             };
             if (addOneTimeMode)
-                _binding.Source = ItemOrArray.FromItem<object?>(new TestMemberPathObserver {GetLastMember = metadata => default});
+                Binding.Source = ItemOrArray.FromItem<object?>(new TestMemberPathObserver { GetLastMember = metadata => default });
             IAttachableComponent component = BindingEventHandler.Get(default, false, true);
-            component.OnAttached(_binding, DefaultMetadata);
+            component.OnAttached(Binding, DefaultMetadata);
             updateCount.ShouldEqual(1);
             if (addOneTimeMode)
             {
-                _binding.Components.Count.ShouldEqual(1);
-                _binding.Components.Get<object>().Single().ShouldEqual(OneTimeBindingMode.NonDisposeInstance);
+                Binding.Components.Count.ShouldEqual(1);
+                Binding.Components.Get<object>().Single().ShouldEqual(OneTimeBindingMode.NonDisposeInstance);
             }
         }
 
@@ -335,7 +332,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
-            _binding.Target = new TestMemberPathObserver
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata => new MemberPathLastMember(this, member)
             };
@@ -347,9 +344,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             for (var i = 0; i < count; i++)
             {
-                MugenService.AddComponent(new TestBindingEventHandlerComponent
+                BindingManager.AddComponent(new TestBindingEventHandlerComponent
                 {
-                    OnBeginEvent = (s, msg, metadata) =>
+                    OnBeginEvent = (_, s, msg, metadata) =>
                     {
                         if (isError)
                             throw exception;
@@ -358,14 +355,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                         msg.ShouldEqual(message);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
-                    OnEndEvent = (s, msg, metadata) =>
+                    OnEndEvent = (_, s, msg, metadata) =>
                     {
                         ++endEventCount;
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
-                    OnEventError = (e, s, msg, metadata) =>
+                    OnEventError = (_, e, s, msg, metadata) =>
                     {
                         ++errorEventCount;
                         e.ShouldEqual(exception);
@@ -377,9 +374,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
 
             var component = BindingEventHandler.Get(default, false, true);
-            ((IAttachableComponent) component).OnAttaching(_binding, DefaultMetadata).ShouldBeTrue();
+            ((IAttachableComponent)component).OnAttaching(Binding, DefaultMetadata).ShouldBeTrue();
 
-            component.TrySetTargetValue(_binding, default, new TestValueExpression(), DefaultMetadata);
+            component.TrySetTargetValue(Binding, default, new TestValueExpression(), DefaultMetadata);
             eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             if (isError)
                 errorEventCount.ShouldEqual(count);

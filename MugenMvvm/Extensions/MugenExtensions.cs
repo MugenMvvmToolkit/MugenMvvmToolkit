@@ -331,6 +331,10 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item) => MugenService.WeakReferenceManager.GetWeakReference(item);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static IWeakReference ToWeakReference(this object? item, IWeakReferenceManager? weakReferenceManager) =>
+            weakReferenceManager.DefaultIfNull(item).GetWeakReference(item);
+
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
         {
             if (exception == null)

@@ -9,9 +9,8 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
-using MugenMvvm.Threading;
+using MugenMvvm.Tests.Threading;
 using MugenMvvm.UnitTests.Components.Internal;
-using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
 
@@ -22,16 +21,16 @@ namespace MugenMvvm.UnitTests.Components
         [Fact]
         public void AttachDetachShouldAddRemoveDecorator()
         {
-            var threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
             var decorator = new TestThreadDispatcherDecorator();
-            threadDispatcher.AddComponent(decorator);
+            ThreadDispatcher.ClearComponents();
+            ThreadDispatcher.AddComponent(decorator);
 
-            threadDispatcher.Components.Get<object>().Single().ShouldEqual(decorator);
-            threadDispatcher.Components.Components.Get<object>().Single().ShouldEqual(decorator);
+            ThreadDispatcher.Components.Get<object>().Single().ShouldEqual(decorator);
+            ThreadDispatcher.Components.Components.Get<object>().Single().ShouldEqual(decorator);
 
-            threadDispatcher.RemoveComponent(decorator);
-            threadDispatcher.Components.Get<object>().ShouldBeEmpty();
-            threadDispatcher.Components.Components.Get<object>().ShouldBeEmpty();
+            ThreadDispatcher.RemoveComponent(decorator);
+            ThreadDispatcher.Components.Get<object>().ShouldBeEmpty();
+            ThreadDispatcher.Components.Components.Get<object>().ShouldBeEmpty();
         }
 
         [Fact]
@@ -42,14 +41,14 @@ namespace MugenMvvm.UnitTests.Components
             var decorator2 = new TestThreadDispatcherDecorator();
             var component1 = new TestThreadDispatcherComponent();
             var component2 = new TestThreadDispatcherComponent();
-            var components = new ItemOrListEditor<IThreadDispatcherComponent>(new List<IThreadDispatcherComponent> {decorator1, decorator2, component1, component2});
+            var components = new ItemOrListEditor<IThreadDispatcherComponent>(new List<IThreadDispatcherComponent> { decorator1, decorator2, component1, component2 });
 
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator2).Decorate(collection, ref components, DefaultMetadata);
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator1).Decorate(collection, ref components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator2).Decorate(collection, ref components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator1).Decorate(collection, ref components, DefaultMetadata);
 
             components.AsList().Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);
-            decorator2.Components.ShouldEqual(new[] {component1, component2});
+            decorator2.Components.ShouldEqual(new[] { component1, component2 });
         }
 
         private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent

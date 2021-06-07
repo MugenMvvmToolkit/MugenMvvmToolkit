@@ -11,8 +11,8 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -20,20 +20,14 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 {
     [Collection(SharedContext)]
-    public class PropertyBuilderTest : UnitTestBase, IDisposable
+    public class PropertyBuilderTest : UnitTestBase
     {
         public PropertyBuilderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(AttachedValueManager);
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
-            MugenService.Configuration.InitializeInstance<IMemberManager>(new MemberManager(ComponentCollectionManager));
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.Clear<IAttachedValueManager>();
-            MugenService.Configuration.Clear<IObservationManager>();
-            MugenService.Configuration.Clear<IMemberManager>();
+            RegisterDisposeToken(WithGlobalService(AttachedValueManager));
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
+            RegisterDisposeToken(WithGlobalService(MemberManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
@@ -112,9 +106,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                     return default;
                 }
             };
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
+                TryGetMembers = (_, _, _, _, arg4, _) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return ItemOrIReadOnlyList.FromItem<IMemberInfo>(parentMember);
@@ -168,9 +162,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             var invokeCount = 0;
             var memberInfo = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).NonObservable().Build();
             memberInfo.MemberFlags.HasFlag(MemberFlags.NonObservable).ShouldBeTrue();
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3) =>
+                TryGetMemberObserver = (_, type, o, arg3) =>
                 {
                     ++invokeCount;
                     type.ShouldEqual(memberInfo.DeclaringType);
@@ -183,6 +177,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true, true)]
@@ -403,7 +401,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             memberInfo.TryObserve(target, testEventHandler, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(0);
-            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
@@ -454,13 +452,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 }
             };
             var actionToken = memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
-            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
                 attachedInvokeCount.ShouldEqual(1);
 
             actionToken.Dispose();
-            ((INotifiableMemberInfo) memberInfo).Raise(target, message, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
             {
@@ -551,9 +549,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 b.NonObservable();
             var memberInfo = b.Build();
             memberInfo.MemberFlags.HasFlag(MemberFlags.NonObservable).ShouldEqual(!observable);
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3) =>
+                TryGetMemberObserver = (_, type, o, arg3) =>
                 {
                     ++invokeCount;
                     type.ShouldEqual(memberInfo.DeclaringType);
@@ -665,9 +663,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 
             var wrappedMember = wrappedBuilder.Build();
             var invokeCount = 0;
-            MugenService.AddComponent(new TestMemberManagerComponent
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
+                TryGetMembers = (_, type, memberType, arg3, arg4, arg6) =>
                 {
                     ++invokeCount;
                     type.ShouldEqual(isStatic ? typeof(object) : target!.GetType());

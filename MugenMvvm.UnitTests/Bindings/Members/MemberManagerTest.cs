@@ -3,7 +3,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
@@ -21,18 +21,18 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
             var request = "test";
-            var memberManager = GetComponentOwner(ComponentCollectionManager);
             var member = new TestAccessorMemberInfo();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestMemberManagerComponent(memberManager)
+                var component = new TestMemberManagerComponent
                 {
                     Priority = -i,
-                    TryGetMembers = (t, m, f, r, meta) =>
+                    TryGetMembers = (mm, t, m, f, r, meta) =>
                     {
                         ++invokeCount;
+                        mm.ShouldEqual(MemberManager);
                         t.ShouldEqual(type);
                         m.ShouldEqual(memberType);
                         f.ShouldEqual(memberFlags);
@@ -43,14 +43,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         return default;
                     }
                 };
-                memberManager.AddComponent(component);
+                MemberManager.AddComponent(component);
             }
 
-            var result = memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
+            var result = MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
             result.Count.ShouldEqual(1);
             result.Item.ShouldEqual(member);
             invokeCount.ShouldEqual(count);
         }
+
+        protected override IMemberManager GetMemberManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override IMemberManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new MemberManager(componentCollectionManager);
     }

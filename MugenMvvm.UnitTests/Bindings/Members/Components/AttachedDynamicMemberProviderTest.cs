@@ -7,8 +7,8 @@ using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,19 +17,19 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class AttachedDynamicMemberProviderTest : UnitTestBase
     {
-        private readonly MemberManager _memberManager;
         private readonly AttachedDynamicMemberProvider _provider;
 
         public AttachedDynamicMemberProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _memberManager = new MemberManager(ComponentCollectionManager);
             _provider = new AttachedDynamicMemberProvider();
-            _memberManager.AddComponent(_provider);
+            MemberManager.AddComponent(_provider);
         }
 
         [Fact]
         public void TryGetMembersShouldReturnNullResult() =>
-            _provider.TryGetMembers(_memberManager, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1, true)]
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 Invalidate = (s, o, arg3) => ++invalidateCount
             };
 
-            _memberManager.Components.TryAdd(hasCache);
+            MemberManager.Components.TryAdd(hasCache);
             var list = new List<IMemberInfo>();
             var delegates = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
             for (var i = 0; i < count; i++)
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             }
 
             invalidateCount.ShouldEqual(count);
-            _provider.TryGetMembers(_memberManager, requestType, name, memberType, DefaultMetadata).AsList().ShouldEqual(list);
+            _provider.TryGetMembers(MemberManager, requestType, name, memberType, DefaultMetadata).AsList().ShouldEqual(list);
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     _provider.Unregister(@delegate);
             }
 
-            _provider.TryGetMembers(_memberManager, typeof(object), string.Empty, memberType, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, memberType, DefaultMetadata).IsEmpty.ShouldBeTrue();
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
     }

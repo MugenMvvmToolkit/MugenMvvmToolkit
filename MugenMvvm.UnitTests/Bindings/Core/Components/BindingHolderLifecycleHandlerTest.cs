@@ -3,8 +3,8 @@ using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Core;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 
@@ -15,48 +15,47 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [Fact]
         public void OnLifecycleChangedShouldBeHandledByBindingHolderComponent()
         {
-            var binding = new TestBinding(ComponentCollectionManager);
             var target = new object();
-            var manager = new BindingManager(ComponentCollectionManager);
-
             var registerCount = 0;
             var unregisterCount = 0;
 
-            manager.AddComponent(new TestBindingHolderComponent(manager)
+            BindingManager.AddComponent(new TestBindingHolderComponent
             {
-                TryRegister = (o, b, arg3) =>
+                TryRegister = (m, o, b, arg3) =>
                 {
                     ++registerCount;
+                    m.ShouldEqual(BindingManager);
                     o.ShouldEqual(target);
-                    b.ShouldEqual(binding);
+                    b.ShouldEqual(Binding);
                     arg3.ShouldEqual(DefaultMetadata);
                     return true;
                 },
-                TryUnregister = (o, b, arg3) =>
+                TryUnregister = (m, o, b, arg3) =>
                 {
                     ++unregisterCount;
+                    m.ShouldEqual(BindingManager);
                     o.ShouldEqual(target);
-                    b.ShouldEqual(binding);
+                    b.ShouldEqual(Binding);
                     arg3.ShouldEqual(DefaultMetadata);
                     return true;
                 }
             });
-            manager.AddComponent(new BindingHolderLifecycleHandler());
+            BindingManager.AddComponent(new BindingHolderLifecycleHandler());
 
-            binding.Target = new TestMemberPathObserver {Target = target};
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
+            Binding.Target = new TestMemberPathObserver { Target = target };
+            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(0);
 
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Disposed, this, DefaultMetadata);
+            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Disposed, this, DefaultMetadata);
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, BindingMetadata.SuppressHolderRegistration.ToContext(true));
+            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Initialized, this, BindingMetadata.SuppressHolderRegistration.ToContext(true));
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Disposed, this, BindingMetadata.SuppressHolderRegistration.ToContext(true));
+            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Disposed, this, BindingMetadata.SuppressHolderRegistration.ToContext(true));
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
         }

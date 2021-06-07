@@ -1,11 +1,11 @@
 ﻿using System;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Tests.Threading;
 using MugenMvvm.Threading;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,17 +13,12 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     [Collection(SharedContext)]
-    public class DelayBindingHandlerTest : UnitTestBase, IDisposable
+    public class DelayBindingHandlerTest : UnitTestBase
     {
-        private readonly TestBinding _binding;
-
         public DelayBindingHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _binding = new TestBinding(ComponentCollectionManager);
-            MugenService.Configuration.InitializeInstance<IThreadDispatcher>(new ThreadDispatcher(ComponentCollectionManager));
+            RegisterDisposeToken(WithGlobalService(ThreadDispatcher));
         }
-
-        public void Dispose() => MugenService.Configuration.Clear<IThreadDispatcher>();
 
         [Fact]
         public void ShouldDelaySourceValue()
@@ -32,11 +27,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             const int wait = 10 * 3;
             Action? invokeAction = null;
 
-            var component = (DelayBindingHandler.Source) DelayBindingHandler.GetSource(delay);
+            var component = (DelayBindingHandler.Source)DelayBindingHandler.GetSource(delay);
             var sourceUpdateCount = 0;
-            MugenService.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                Execute = (action, mode, arg3, arg4) =>
+                Execute = (_, action, mode, arg3, _) =>
                 {
                     invokeAction.ShouldBeNull();
                     mode.ShouldEqual(DelayBindingHandler.ExecutionMode);
@@ -44,16 +39,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return true;
                 }
             });
-            _binding.UpdateTarget = () => throw new NotSupportedException();
-            _binding.UpdateSource = () =>
+            Binding.UpdateTarget = () => throw new NotSupportedException();
+            Binding.UpdateSource = () =>
             {
                 component.InterceptSourceValue(null!, default, this, DefaultMetadata).ShouldEqual(this);
                 ++sourceUpdateCount;
             };
-            component.Delay.ShouldEqual((ushort) delay);
-            ((IAttachableComponent) component).OnAttached(_binding, DefaultMetadata);
+            component.Delay.ShouldEqual((ushort)delay);
+            ((IAttachableComponent)component).OnAttached(Binding, DefaultMetadata);
 
-            component.InterceptSourceValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion();
             WaitCompletion(wait);
@@ -64,8 +59,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptSourceValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            component.InterceptSourceValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
@@ -75,8 +70,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptSourceValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            ((IDetachableComponent) component).OnDetached(_binding, DefaultMetadata);
+            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            ((IDetachableComponent)component).OnDetached(Binding, DefaultMetadata);
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldBeNull();
@@ -89,11 +84,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             const int wait = 10 * 4;
             Action? invokeAction = null;
 
-            var component = (DelayBindingHandler.Target) DelayBindingHandler.GetTarget(delay);
+            var component = (DelayBindingHandler.Target)DelayBindingHandler.GetTarget(delay);
             var sourceUpdateCount = 0;
-            MugenService.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
-                Execute = (action, mode, arg3, arg4) =>
+                Execute = (_, action, mode, arg3, _) =>
                 {
                     invokeAction.ShouldBeNull();
                     mode.ShouldEqual(DelayBindingHandler.ExecutionMode);
@@ -101,16 +96,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return true;
                 }
             });
-            _binding.UpdateSource = () => throw new NotSupportedException();
-            _binding.UpdateTarget = () =>
+            Binding.UpdateSource = () => throw new NotSupportedException();
+            Binding.UpdateTarget = () =>
             {
                 component.InterceptTargetValue(null!, default, this, DefaultMetadata).ShouldEqual(this);
                 ++sourceUpdateCount;
             };
-            component.Delay.ShouldEqual((ushort) delay);
-            ((IAttachableComponent) component).OnAttached(_binding, DefaultMetadata);
+            component.Delay.ShouldEqual((ushort)delay);
+            ((IAttachableComponent)component).OnAttached(Binding, DefaultMetadata);
 
-            component.InterceptTargetValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
@@ -120,8 +115,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptTargetValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            component.InterceptTargetValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
@@ -131,11 +126,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptTargetValue(_binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            ((IDetachableComponent) component).OnDetached(_binding, DefaultMetadata);
+            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            ((IDetachableComponent)component).OnDetached(Binding, DefaultMetadata);
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldBeNull();
         }
+
+        protected override IThreadDispatcher GetThreadDispatcher() => new ThreadDispatcher(ComponentCollectionManager);
     }
 }

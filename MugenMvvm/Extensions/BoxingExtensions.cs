@@ -84,7 +84,7 @@ namespace MugenMvvm.Extensions
             {
                 if (!CanBoxCache.TryGetValue(type, out value))
                 {
-                    value = CanBoxMethodInfo!.MakeGenericMethod(type).GetMethodInvoker<Func<bool>>();
+                    value = (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), null, CanBoxMethodInfo!.MakeGenericMethod(type));
                     CanBoxCache[type] = value;
                 }
             }

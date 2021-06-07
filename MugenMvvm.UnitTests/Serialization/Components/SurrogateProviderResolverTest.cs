@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
         [Fact]
         public void TryGetSurrogateProviderShouldAddRemoveResolve()
         {
-            var provider = new DelegateSurrogateProvider<string, object>((s, context) => null, (o, context) => null);
+            var provider = new DelegateSurrogateProvider<string, object>((_, _) => null, (_, _) => null);
 
             _resolver.Add(provider);
             _resolver.TryGetSurrogateProvider(null!, typeof(string), null).ShouldEqual(provider);

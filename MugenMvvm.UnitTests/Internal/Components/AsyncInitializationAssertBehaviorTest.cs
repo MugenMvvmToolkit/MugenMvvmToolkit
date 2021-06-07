@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using MugenMvvm.Bindings.Interfaces.Members.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
@@ -11,7 +10,7 @@ using Xunit;
 namespace MugenMvvm.UnitTests.Internal.Components
 {
     [Collection(SharedContext)]
-    public class AsyncInitializationAssertBehaviorTest : UnitTestBase, IDisposable
+    public class AsyncInitializationAssertBehaviorTest : UnitTestBase
     {
         private readonly AsyncInitializationAssertBehavior _behavior;
         private bool _isInitializing;
@@ -20,29 +19,22 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             _isInitializing = true;
             _behavior = new AsyncInitializationAssertBehavior(() => _isInitializing, null, false);
-            MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
-        }
-
-        public void Dispose()
-        {
-            MugenService.Configuration.FallbackConfiguration = null;
-            MugenService.Configuration.Clear<IComponentCollectionManager>();
+            RegisterDisposeToken(WithGlobalService(ComponentCollectionManager));
         }
 
         [Fact]
         public void ShouldAddListenerIfInitializing()
         {
-            var collectionManager = new ComponentCollectionManager();
-            collectionManager.AddComponent(_behavior);
+            ComponentCollectionManager.AddComponent(_behavior);
 
             _isInitializing = true;
-            var collection = collectionManager.TryGetComponentCollection(this);
+            var collection = ComponentCollectionManager.TryGetComponentCollection(this)!;
             collection.GetComponent<AsyncInitializationAssertBehavior>().ShouldEqual(_behavior);
 
             _isInitializing = false;
-            collection = collectionManager.TryGetComponentCollection(this);
+            collection = ComponentCollectionManager.TryGetComponentCollection(this)!;
             collection.GetComponentOptional<AsyncInitializationAssertBehavior>().ShouldBeNull();
-            collectionManager.GetComponentOptional<AsyncInitializationAssertBehavior>().ShouldBeNull();
+            ComponentCollectionManager.GetComponentOptional<AsyncInitializationAssertBehavior>().ShouldBeNull();
         }
 
         [Fact]
@@ -91,5 +83,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             _isInitializing = false;
             await Task.Run(() => _behavior.Optional<string>());
         }
+
+        protected override void OnDispose() => MugenService.Configuration.FallbackConfiguration = null;
     }
 }

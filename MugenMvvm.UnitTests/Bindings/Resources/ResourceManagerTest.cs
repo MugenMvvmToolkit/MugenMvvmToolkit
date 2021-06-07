@@ -1,7 +1,8 @@
-﻿using MugenMvvm.Bindings.Resources;
+﻿using MugenMvvm.Bindings.Interfaces.Resources;
+using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Bindings.Resources.Internal;
+using MugenMvvm.Tests.Bindings.Resources;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
@@ -15,7 +16,6 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
         [InlineData(10)]
         public void TryGetResourceValueShouldBeHandledByComponents(int componentCount)
         {
-            var resolver = GetComponentOwner(ComponentCollectionManager);
             var name = "name";
             var request = this;
             var result = new ResourceResolverResult(this);
@@ -23,12 +23,13 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestResourceResolverComponent(resolver)
+                ResourceManager.AddComponent(new TestResourceResolverComponent
                 {
                     Priority = -i,
-                    TryGetResource = (s, o, arg4) =>
+                    TryGetResource = (rm, s, o, arg4) =>
                     {
                         ++invokeCount;
+                        rm.ShouldEqual(ResourceManager);
                         s.ShouldEqual(name);
                         o.ShouldEqual(request);
                         arg4.ShouldEqual(DefaultMetadata);
@@ -36,11 +37,10 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
                             return result;
                         return default;
                     }
-                };
-                resolver.AddComponent(component);
+                });
             }
 
-            resolver.TryGetResource(name, request, DefaultMetadata).ShouldEqual(result);
+            ResourceManager.TryGetResource(name, request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -49,7 +49,6 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
         [InlineData(10)]
         public void TryGetTypeShouldBeHandledByComponents(int componentCount)
         {
-            var resolver = GetComponentOwner(ComponentCollectionManager);
             var name = "name";
             var request = this;
             var result = typeof(string);
@@ -57,12 +56,13 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestTypeResolverComponent(resolver)
+                ResourceManager.AddComponent(new TestTypeResolverComponent
                 {
                     Priority = -i,
-                    TryGetType = (s, o, arg4) =>
+                    TryGetType = (rm, s, o, arg4) =>
                     {
                         ++invokeCount;
+                        rm.ShouldEqual(ResourceManager);
                         s.ShouldEqual(name);
                         o.ShouldEqual(request);
                         arg4.ShouldEqual(DefaultMetadata);
@@ -70,13 +70,14 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
                             return result;
                         return null;
                     }
-                };
-                resolver.AddComponent(component);
+                });
             }
 
-            resolver.TryGetType(name, request, DefaultMetadata).ShouldEqual(result);
+            ResourceManager.TryGetType(name, request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
+
+        protected override IResourceManager GetResourceManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override ResourceManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

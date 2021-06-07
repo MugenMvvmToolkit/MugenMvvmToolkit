@@ -11,7 +11,8 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Messaging.Internal;
+using MugenMvvm.Tests.Messaging;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using Should;
@@ -20,21 +21,21 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.ViewModels
 {
+    [Collection(SharedContext)]
     public class ViewModelBaseTest : UnitTestBase
     {
         private TestViewModelBase _viewModel;
-        private readonly ViewModelManager _viewModelManager;
 
         public ViewModelBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _viewModel = new TestViewModelBase(_viewModelManager) {ThreadDispatcher = ThreadDispatcher};
+            _viewModel = new TestViewModelBase(ViewModelManager) { ThreadDispatcher = ThreadDispatcher };
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
         public void BusyManagerShouldBeOptional()
         {
-            var hasService = (IHasService<IBusyManager>) _viewModel;
+            var hasService = (IHasService<IBusyManager>)_viewModel;
             hasService.GetService(true).ShouldBeNull();
             _viewModel.TryGetService<IBusyManager>(true).ShouldBeNull();
         }
@@ -45,11 +46,12 @@ namespace MugenMvvm.UnitTests.ViewModels
             var type = typeof(TestViewModel);
             var invokeCount = 0;
             var result = new TestViewModel();
-            _viewModelManager.AddComponent(new TestViewModelProviderComponent
+            ViewModelManager.AddComponent(new TestViewModelProviderComponent
             {
-                TryGetViewModel = (o, context) =>
+                TryGetViewModel = (v, o, context) =>
                 {
                     ++invokeCount;
+                    v.ShouldEqual(ViewModelManager);
                     o.ShouldEqual(type);
                     context!.Get(ViewModelMetadata.ParentViewModel).ShouldEqual(_viewModel);
                     return result;
@@ -67,7 +69,7 @@ namespace MugenMvvm.UnitTests.ViewModels
         [Fact]
         public void MessengerShouldBeOptional()
         {
-            var hasService = (IHasService<IMessenger>) _viewModel;
+            var hasService = (IHasService<IMessenger>)_viewModel;
             hasService.GetService(true).ShouldBeNull();
             _viewModel.TryGetService<IMessenger>(true).ShouldBeNull();
         }
@@ -78,9 +80,9 @@ namespace MugenMvvm.UnitTests.ViewModels
             var propertyChangedMessage = new PropertyChangedEventArgs("test");
             var messenger = new Messenger(ComponentCollectionManager);
             var invokeCount = 0;
-            messenger.AddComponent(new TestMessagePublisherComponent(messenger)
+            messenger.AddComponent(new TestMessagePublisherComponent
             {
-                TryPublish = ctx =>
+                TryPublish = (_, ctx) =>
                 {
                     ++invokeCount;
                     ctx.Sender.ShouldEqual(_viewModel);
@@ -88,10 +90,11 @@ namespace MugenMvvm.UnitTests.ViewModels
                     return true;
                 }
             });
-            using var t = _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
+            using var t = ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
-                TryGetService = (vm, o, _) =>
+                TryGetService = (v, vm, o, _) =>
                 {
+                    v.ShouldEqual(ViewModelManager);
                     _viewModel.ShouldEqual(vm);
                     o.ShouldEqual(typeof(IMessenger));
                     return messenger;
@@ -111,10 +114,11 @@ namespace MugenMvvm.UnitTests.ViewModels
             var disposingState = 0;
             var disposedState = 0;
             IViewModelBase? viewModel = null;
-            using var t = _viewModelManager.AddComponent(new TestViewModelLifecycleListener
+            using var t = ViewModelManager.AddComponent(new TestViewModelLifecycleListener
             {
-                OnLifecycleChanged = (vm, state, arg3, arg4) =>
+                OnLifecycleChanged = (v, vm, state, arg3, arg4) =>
                 {
+                    v.ShouldEqual(ViewModelManager);
                     if (viewModel == null)
                         viewModel = vm;
                     else
@@ -131,7 +135,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             });
 
 
-            _viewModel = new TestViewModelBase(_viewModelManager) {ThreadDispatcher = ThreadDispatcher};
+            _viewModel = new TestViewModelBase(ViewModelManager) { ThreadDispatcher = ThreadDispatcher };
             _viewModel.ShouldEqual(viewModel);
 
             createdState.ShouldEqual(1);
@@ -156,17 +160,18 @@ namespace MugenMvvm.UnitTests.ViewModels
             var stateChangedCount = 0;
             var isBusyCount = 0;
             var busyTokenCount = 0;
-            var busyManager = new BusyManager(ComponentCollectionManager);
-            busyManager.AddComponent(new BusyTokenManager());
+            
+            BusyManager.ClearComponents();
+            BusyManager.AddComponent(new BusyTokenManager());
 
             _viewModel.OnBusyStateChangedHandler = (manager, context) =>
             {
-                manager.ShouldEqual(busyManager);
+                manager.ShouldEqual(BusyManager);
                 ++stateChangedCount;
             };
             _viewModel.OnBeginBusyHandler = (manager, token, arg3) =>
             {
-                manager.ShouldEqual(busyManager);
+                manager.ShouldEqual(BusyManager);
                 ++beginBusyCount;
             };
             _viewModel.PropertyChanged += (sender, args) =>
@@ -178,17 +183,18 @@ namespace MugenMvvm.UnitTests.ViewModels
             };
             _viewModel.IsBusy.ShouldBeFalse();
             _viewModel.BusyToken.ShouldBeNull();
-            _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
+            ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
-                TryGetService = (vm, o, arg3) =>
+                TryGetService = (v, vm, o, arg3) =>
                 {
+                    v.ShouldEqual(ViewModelManager);
                     _viewModel.ShouldEqual(vm);
                     o.ShouldEqual(typeof(IBusyManager));
-                    return busyManager;
+                    return BusyManager;
                 }
             });
 
-            _viewModel.BusyManager.ShouldEqual(busyManager);
+            _viewModel.BusyManager.ShouldEqual(BusyManager);
             _viewModel.IsBusy.ShouldBeFalse();
             _viewModel.BusyToken.ShouldBeNull();
 
@@ -204,6 +210,8 @@ namespace MugenMvvm.UnitTests.ViewModels
             stateChangedCount.ShouldEqual(2);
             beginBusyCount.ShouldEqual(1);
         }
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]

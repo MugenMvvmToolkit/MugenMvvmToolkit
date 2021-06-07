@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
 using Should;
 using Xunit;
 
@@ -11,7 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void GetComponentShouldCallDelegate()
         {
-            var binding = new TestBinding(ComponentCollectionManager);
             var state = "s";
             var target = new object();
             var source = new object();
@@ -20,13 +18,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var provider = new DelegateBindingComponentProvider<string>((s, b, arg3, arg4, arg5) =>
             {
                 s.ShouldEqual(state);
-                b.ShouldEqual(binding);
+                b.ShouldEqual(Binding);
                 arg3.ShouldEqual(target);
                 arg4.ShouldEqual(source);
                 arg5.ShouldEqual(DefaultMetadata);
                 return result;
             }, state);
-            provider.TryGetComponent(binding, target, source, DefaultMetadata).ShouldEqual(result);
+            provider.TryGetComponent(Binding, target, source, DefaultMetadata).ShouldEqual(result);
         }
     }
 }

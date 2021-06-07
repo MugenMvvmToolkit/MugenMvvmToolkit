@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Internal.Internal;
-using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Tests.Internal;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
 using Should;
@@ -14,28 +15,26 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelProviderTest : UnitTestBase
     {
-        private readonly ViewModelManager _viewModelManager;
         private readonly TestServiceProvider _serviceProvider;
 
         public ViewModelProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _serviceProvider = new TestServiceProvider();
-            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _viewModelManager.AddComponent(new ViewModelProvider(_serviceProvider));
+            ViewModelManager.AddComponent(new ViewModelProvider(_serviceProvider));
         }
 
         [Fact]
-        public void ShouldIgnoreNonGuidRequest() => _viewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+        public void ShouldIgnoreNonGuidRequest() => ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
 
         [Fact]
         public void ShouldUseServiceResolverAndCheckInitializedState()
         {
             var viewModel = new TestViewModel();
-            _viewModelManager.AddComponent(new TestViewModelLifecycleListener
+            ViewModelManager.AddComponent(new TestViewModelLifecycleListener
             {
-                OnLifecycleChanged = (_, _, _, _) => throw new NotSupportedException()
+                OnLifecycleChanged = (_, _, _, _, _) => throw new NotSupportedException()
             });
-            _viewModelManager.Components.Add(new TestLifecycleTrackerComponent<ViewModelLifecycleState>
+            ViewModelManager.Components.Add(new TestLifecycleTrackerComponent<ViewModelLifecycleState>
             {
                 IsInState = (_, vm, st, m) =>
                 {
@@ -50,7 +49,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 return viewModel;
             };
 
-            _viewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
+            ViewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
         }
 
         [Fact]
@@ -59,9 +58,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var viewModel = new TestViewModel();
             var lifecycleStates = new List<ViewModelLifecycleState>();
 
-            _viewModelManager.AddComponent(new TestViewModelLifecycleListener
+            ViewModelManager.AddComponent(new TestViewModelLifecycleListener
             {
-                OnLifecycleChanged = (vm, state, _, m) =>
+                OnLifecycleChanged = (_, vm, state, _, m) =>
                 {
                     vm.ShouldEqual(viewModel);
                     m.ShouldEqual(DefaultMetadata);
@@ -74,10 +73,12 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 return viewModel;
             };
 
-            _viewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
+            ViewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
             lifecycleStates.Count.ShouldEqual(2);
             lifecycleStates[0].ShouldEqual(ViewModelLifecycleState.Initializing);
             lifecycleStates[1].ShouldEqual(ViewModelLifecycleState.Initialized);
         }
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
     }
 }

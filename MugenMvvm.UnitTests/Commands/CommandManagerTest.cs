@@ -3,7 +3,7 @@ using MugenMvvm.Commands;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Commands.Internal;
+using MugenMvvm.Tests.Commands;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
@@ -13,11 +13,10 @@ namespace MugenMvvm.UnitTests.Commands
     public class CommandManagerTest : ComponentOwnerTestBase<ICommandManager>
     {
         [Fact]
-        public void GetCommandShouldThrowNoComponents()
-        {
-            var commandManager = GetComponentOwner(ComponentCollectionManager);
-            ShouldThrow<InvalidOperationException>(() => commandManager.GetCommand<string>(commandManager, commandManager, DefaultMetadata));
-        }
+        public void GetCommandShouldThrowNoComponents() =>
+            ShouldThrow<InvalidOperationException>(() => CommandManager.GetCommand<string>(CommandManager, CommandManager, DefaultMetadata));
+
+        protected override ICommandManager GetCommandManager() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -25,26 +24,25 @@ namespace MugenMvvm.UnitTests.Commands
         public void GetCommandShouldBeHandledByComponents(int componentCount)
         {
             var owner = new object();
-            var commandManager = GetComponentOwner(ComponentCollectionManager);
             ICompositeCommand command = new CompositeCommand();
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandProviderComponent(commandManager)
+                CommandManager.AddComponent(new TestCommandProviderComponent
                 {
-                    TryGetCommand = (o, r, m) =>
+                    TryGetCommand = (c, o, r, m) =>
                     {
                         ++count;
+                        c.ShouldEqual(CommandManager);
                         o.ShouldEqual(owner);
-                        r.ShouldEqual(commandManager);
+                        r.ShouldEqual(CommandManager);
                         m.ShouldEqual(DefaultMetadata);
                         return command;
                     }
-                };
-                commandManager.AddComponent(component);
+                });
             }
 
-            var compositeCommand = commandManager.GetCommand<int>(owner, commandManager, DefaultMetadata);
+            var compositeCommand = CommandManager.GetCommand<int>(owner, CommandManager, DefaultMetadata);
             compositeCommand.ShouldEqual(command);
             count.ShouldEqual(1);
         }
@@ -55,32 +53,29 @@ namespace MugenMvvm.UnitTests.Commands
         public void GetCommandShouldNotifyListeners(int componentCount)
         {
             var owner = new object();
-            var commandManager = GetComponentOwner(ComponentCollectionManager);
-            ICompositeCommand command = new CompositeCommand();
-            var component = new TestCommandProviderComponent(commandManager)
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                TryGetCommand = (_, _, _) => command
-            };
-            commandManager.AddComponent(component);
+                TryGetCommand = (_, _, _, _) => Command
+            });
 
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestCommandManagerListener(commandManager)
+                CommandManager.AddComponent(new TestCommandManagerListener
                 {
-                    OnCommandCreated = (o, r, c, m) =>
+                    OnCommandCreated = (manager, o, r, c, m) =>
                     {
-                        o.ShouldEqual(owner);
-                        r.ShouldEqual(commandManager);
-                        c.ShouldEqual(command);
+                        manager.ShouldEqual(CommandManager);
+                        CommandManager.ShouldEqual(manager);
+                        r.ShouldEqual(CommandManager);
+                        c.ShouldEqual(Command);
                         m.ShouldEqual(DefaultMetadata);
                         ++count;
                     }
-                };
-                commandManager.AddComponent(listener);
+                });
             }
 
-            commandManager.GetCommand<string>(owner, commandManager, DefaultMetadata);
+            CommandManager.GetCommand<string>(owner, CommandManager, DefaultMetadata);
             count.ShouldEqual(componentCount);
         }
 

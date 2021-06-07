@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Serialization;
 using MugenMvvm.Serialization.Components;
-using MugenMvvm.UnitTests.Serialization.Internal;
+using MugenMvvm.Tests.Serialization;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,14 +15,12 @@ namespace MugenMvvm.UnitTests.Serialization.Components
     {
         private readonly SerializationFormat<string, Stream?> _serializationFormat;
         private readonly DeserializationFormat<string, Stream?> _deserializationFormat;
-        private readonly Serializer _serializer;
 
         public SerializationManagerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _serializationFormat = new SerializationFormat<string, Stream?>(1, "Test");
             _deserializationFormat = new DeserializationFormat<string, Stream?>(1, "Test");
-            _serializer = new Serializer(ComponentCollectionManager);
-            _serializer.AddComponent(new SerializationManager());
+            Serializer.AddComponent(new SerializationManager());
         }
 
         [Theory]
@@ -34,11 +33,12 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestSerializerComponent<string, Stream?>(_serializer)
+                var component = new TestSerializerComponent<string, Stream?>
                 {
-                    IsSupported = (t, r, context) =>
+                    IsSupported = (s, t, r, context) =>
                     {
                         ++executeCount;
+                        s.ShouldEqual(Serializer);
                         t.ShouldEqual(_serializationFormat);
                         r.ShouldEqual(request);
                         context.ShouldEqual(DefaultMetadata);
@@ -48,10 +48,10 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                     },
                     Priority = -i
                 };
-                _serializer.AddComponent(component);
+                Serializer.AddComponent(component);
             }
 
-            _serializer.IsSupported(_serializationFormat, request, DefaultMetadata).ShouldEqual(true);
+            Serializer.IsSupported(_serializationFormat, request, DefaultMetadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 
@@ -65,11 +65,12 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestDeserializerComponent<string, Stream?>(_serializer)
+                var component = new TestDeserializerComponent<string, Stream?>
                 {
-                    IsSupported = (t, r, context) =>
+                    IsSupported = (s, t, r, context) =>
                     {
                         ++executeCount;
+                        s.ShouldEqual(Serializer);
                         t.ShouldEqual(_deserializationFormat);
                         r.ShouldEqual(request);
                         context.ShouldEqual(DefaultMetadata);
@@ -79,10 +80,10 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                     },
                     Priority = -i
                 };
-                _serializer.AddComponent(component);
+                Serializer.AddComponent(component);
             }
 
-            _serializer.IsSupported(_deserializationFormat, request, DefaultMetadata).ShouldEqual(true);
+            Serializer.IsSupported(_deserializationFormat, request, DefaultMetadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 
@@ -94,10 +95,11 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             var request = "test";
             var ctx = new SerializationContext<string, Stream>(_serializationFormat, request);
             var result = Stream.Null;
-            _serializer.AddComponent(new TestSerializationContextProvider(_serializer)
+            Serializer.AddComponent(new TestSerializationContextProvider
             {
-                TryGetSerializationContext = (f, r, arg4) =>
+                TryGetSerializationContext = (s, f, r, arg4) =>
                 {
+                    s.ShouldEqual(Serializer);
                     f.ShouldEqual(_serializationFormat);
                     r.ShouldEqual(request);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -108,11 +110,12 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestSerializerComponent<string, Stream?>(_serializer)
+                var component = new TestSerializerComponent<string, Stream?>
                 {
-                    TrySerialize = (t, context) =>
+                    TrySerialize = (s, t, context) =>
                     {
                         ++executeCount;
+                        s.ShouldEqual(Serializer);
                         t.ShouldEqual(request);
                         context.ShouldEqual(ctx);
                         if (isLast)
@@ -121,10 +124,10 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                     },
                     Priority = -i
                 };
-                _serializer.AddComponent(component);
+                Serializer.AddComponent(component);
             }
 
-            _serializer.Serialize(_serializationFormat, request, null, DefaultMetadata).ShouldEqual(result);
+            Serializer.Serialize(_serializationFormat, request, null, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
 
@@ -136,10 +139,11 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             var request = "test";
             var ctx = new SerializationContext<string, Stream>(_deserializationFormat, request);
             var result = Stream.Null;
-            _serializer.AddComponent(new TestSerializationContextProvider(_serializer)
+            Serializer.AddComponent(new TestSerializationContextProvider
             {
-                TryGetSerializationContext = (f, r, arg4) =>
+                TryGetSerializationContext = (s, f, r, arg4) =>
                 {
+                    s.ShouldEqual(Serializer);
                     f.ShouldEqual(_deserializationFormat);
                     r.ShouldEqual(request);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -150,11 +154,12 @@ namespace MugenMvvm.UnitTests.Serialization.Components
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                _serializer.AddComponent(new TestDeserializerComponent<string, Stream?>(_serializer)
+                Serializer.AddComponent(new TestDeserializerComponent<string, Stream?>
                 {
-                    TryDeserialize = (t, context) =>
+                    TryDeserialize = (s, t, context) =>
                     {
                         ++executeCount;
+                        s.ShouldEqual(Serializer);
                         t.ShouldEqual(request);
                         context.ShouldEqual(ctx);
                         if (isLast)
@@ -165,8 +170,10 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 });
             }
 
-            _serializer.Deserialize(_deserializationFormat, request, null, DefaultMetadata).ShouldEqual(result);
+            Serializer.Deserialize(_deserializationFormat, request, null, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
+
+        protected override ISerializer GetSerializer() => new Serializer(ComponentCollectionManager);
     }
 }

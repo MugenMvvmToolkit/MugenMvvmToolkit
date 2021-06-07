@@ -4,8 +4,8 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
+using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
 using Should;
 using Xunit;
 
@@ -19,10 +19,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
         public MemberExpressionBuilderTest()
         {
-            IMemberManager memberManager = new MemberManager(ComponentCollectionManager); 
-            _memberManagerComponent = new TestMemberManagerComponent(memberManager);
-            memberManager.AddComponent(_memberManagerComponent);
-            _component = new MemberExpressionBuilder(memberManager);
+            _memberManagerComponent = new TestMemberManagerComponent();
+            MemberManager.AddComponent(_memberManagerComponent);
+            _component = new MemberExpressionBuilder(MemberManager);
             _context = new TestExpressionBuilderContext();
         }
 
@@ -41,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 },
                 Type = typeof(string)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -54,9 +53,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
         }
 
         [Fact]
@@ -65,7 +64,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var metadataContext = _context.Metadata;
             TestAccessorMemberInfo? result = null;
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -91,9 +90,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 Type = typeof(string)
             };
 
-            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
             invokeCount.ShouldEqual(2);
         }
 
@@ -106,7 +105,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -139,7 +138,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 },
                 Type = typeof(string)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -152,9 +151,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MemberExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
             StaticProperty = "f";
-            build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
         }
 
         [Fact]
@@ -162,7 +161,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         {
             const string memberName = nameof(StaticProperty);
             var metadataContext = _context.Metadata;
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -185,7 +184,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -212,7 +211,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var metadataContext = _context.Metadata;
             TestAccessorMemberInfo? result = null;
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -224,8 +223,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
-            ShouldThrow(() => build.Invoke(new[] {_context.MetadataExpression}, DefaultMetadata));
+            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata));
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         public static string? StaticProperty { get; set; }
 

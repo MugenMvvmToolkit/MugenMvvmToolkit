@@ -2,7 +2,7 @@
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Metadata.Internal;
+using MugenMvvm.Tests.Metadata;
 
 namespace MugenMvvm.UnitTests.Metadata
 {
@@ -12,20 +12,42 @@ namespace MugenMvvm.UnitTests.Metadata
         {
             var dict = new Dictionary<IMetadataContextKey, object?>();
             var ctx = base.GetMetadataContext();
-            ctx.AddComponent(new TestMetadataValueManagerComponent(ctx)
+            ctx.AddComponent(new TestMetadataValueManagerComponent
             {
-                GetCount = () => dict.Count,
-                Contains = key => dict.ContainsKey(key),
-                Clear = () => dict.Clear(),
-                TryClear = key => dict.Remove(key),
-                TryGetValue = (key, type) =>
+                GetCount = c =>
                 {
+                    c.ShouldEqual(ctx);
+                    return dict.Count;
+                },
+                Contains = (c, key) =>
+                {
+                    c.ShouldEqual(ctx);
+                    return dict.ContainsKey(key);
+                },
+                Clear = c =>
+                {
+                    c.ShouldEqual(ctx);
+                    dict.Clear();
+                },
+                TryClear = (c, key) =>
+                {
+                    c.ShouldEqual(ctx);
+                    return dict.Remove(key);
+                },
+                TryGetValue = (c, key, type) =>
+                {
+                    c.ShouldEqual(ctx);
                     var r = dict.TryGetValue(key, out var value);
                     return (r, value);
                 },
-                GetValues = () => dict,
-                TrySetValue = (key, o) =>
+                GetValues = c =>
                 {
+                    c.ShouldEqual(ctx);
+                    return dict;
+                },
+                TrySetValue = (c, key, o) =>
+                {
+                    c.ShouldEqual(ctx);
                     dict[key] = o;
                     return true;
                 }

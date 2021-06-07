@@ -6,7 +6,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.Tests.Bindings.Core;
 using MugenMvvm.UnitTests.Components;
 using Should;
 using Xunit;
@@ -16,19 +16,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core
     public class BindingManagerTest : ComponentOwnerTestBase<BindingManager>
     {
         [Fact]
-        public void ParseBindingExpressionShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).ParseBindingExpression(this, DefaultMetadata));
-        }
+        public void ParseBindingExpressionShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BindingManager.ParseBindingExpression(this, DefaultMetadata));
 
         [Fact]
         public void TryParseBindingExpressionShouldHandleBuildersList()
         {
-            var bindingExpressions = new List<IBindingBuilder> {new TestBindingBuilder(), new TestBindingBuilder()};
-            var bindingManager = GetComponentOwner(ComponentCollectionManager);
-            bindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
-            bindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            var bindingExpressions = new List<IBindingBuilder> { new TestBindingBuilder(), new TestBindingBuilder() };
+            BindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
+            BindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
+
+        protected override IBindingManager GetBindingManager() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -36,29 +34,28 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         public void ParseBindingExpressionShouldBeHandledByComponents(int count)
         {
             var request = "t";
-            var bindingManager = GetComponentOwner(ComponentCollectionManager);
             var expression = new TestBindingBuilder();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestBindingExpressionParserComponent(bindingManager)
+                BindingManager.AddComponent(new TestBindingExpressionParserComponent
                 {
                     Priority = -i,
-                    TryParseBindingExpression = (r, m) =>
+                    TryParseBindingExpression = (bm, r, m) =>
                     {
                         ++invokeCount;
+                        bm.ShouldEqual(BindingManager);
                         r.ShouldEqual(request);
                         m.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return expression;
                         return default;
                     }
-                };
-                bindingManager.AddComponent(component);
+                });
             }
 
-            var result = bindingManager.ParseBindingExpression(request, DefaultMetadata);
+            var result = BindingManager.ParseBindingExpression(request, DefaultMetadata);
             result.Count.ShouldEqual(1);
             result.Item.ShouldEqual(expression);
             invokeCount.ShouldEqual(count);
@@ -71,29 +68,28 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             var target = this;
             var path = "t";
-            var bindingManager = GetComponentOwner(ComponentCollectionManager);
             var list1 = new List<IBinding>();
             var list2 = new List<IBinding>();
             for (var i = 0; i < count; i++)
             {
                 var binding = new TestBinding();
                 list1.Add(binding);
-                var component = new TestBindingHolderComponent(bindingManager)
+                BindingManager.AddComponent(new TestBindingHolderComponent
                 {
                     Priority = -i,
-                    TryGetBindings = (t, p, m) =>
+                    TryGetBindings = (bm, t, p, m) =>
                     {
+                        bm.ShouldEqual(BindingManager);
                         list2.Add(binding);
                         t.ShouldEqual(target);
                         p.ShouldEqual(path);
                         m.ShouldEqual(DefaultMetadata);
                         return binding;
                     }
-                };
-                bindingManager.AddComponent(component);
+                });
             }
 
-            var result = bindingManager.GetBindings(target, path, DefaultMetadata);
+            var result = BindingManager.GetBindings(target, path, DefaultMetadata);
             list1.ShouldEqual(result.AsList());
             list1.ShouldEqual(list2);
         }
@@ -103,29 +99,27 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
-            var bindingManager = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             var state = "state";
-            var binding = new TestBinding();
             var lifecycleState = BindingLifecycleState.Disposed;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestBindingLifecycleListener(bindingManager)
+                BindingManager.AddComponent(new TestBindingLifecycleListener
                 {
-                    OnLifecycleChanged = (vm, viewModelLifecycleState, st, metadata) =>
+                    OnLifecycleChanged = (bm, vm, viewModelLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
-                        vm.ShouldEqual(binding);
+                        bm.ShouldEqual(BindingManager);
+                        vm.ShouldEqual(Binding);
                         st.ShouldEqual(state);
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
                     Priority = i
-                };
-                bindingManager.AddComponent(component);
+                });
             }
 
-            bindingManager.OnLifecycleChanged(binding, lifecycleState, state, DefaultMetadata);
+            BindingManager.OnLifecycleChanged(Binding, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
 

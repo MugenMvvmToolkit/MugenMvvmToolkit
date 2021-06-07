@@ -6,8 +6,7 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.Tests.Bindings.Members;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,24 +15,24 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
     public class MethodRequestMemberManagerDecoratorTest : UnitTestBase
     {
-        private readonly MemberManager _memberManager;
         private readonly MethodRequestMemberManagerDecorator _decorator;
 
         public MethodRequestMemberManagerDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _memberManager = new MemberManager(ComponentCollectionManager);
             _decorator = new MethodRequestMemberManagerDecorator();
-            _memberManager.AddComponent(_decorator);
+            MemberManager.AddComponent(_decorator);
         }
 
         [Fact]
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
-            _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Array.Empty<Type>()), DefaultMetadata).IsEmpty
+            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Array.Empty<Type>()), DefaultMetadata).IsEmpty
                       .ShouldBeTrue();
-            _decorator.TryGetMembers(_memberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         [Theory]
         [MemberData(nameof(GetData))]
@@ -46,12 +45,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var selectorCount = 0;
             var providerCount = 0;
 
-            _memberManager.AddComponent(new TestMemberManagerComponent(_memberManager)
+            MemberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, meta) =>
+                TryGetMembers = (mm, t, m, f, r, meta) =>
                 {
                     ++selectorCount;
-                    ((IEnumerable<IMemberInfo>) r).ShouldEqual(members);
+                    mm.ShouldEqual(MemberManager);
+                    ((IEnumerable<IMemberInfo>)r).ShouldEqual(members);
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
@@ -59,11 +59,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     return members;
                 }
             });
-            _memberManager.AddComponent(new TestMemberProviderComponent(_memberManager)
+            MemberManager.AddComponent(new TestMemberProviderComponent
             {
-                TryGetMembers = (t, s, types, arg3) =>
+                TryGetMembers = (mm, t, s, types, arg3) =>
                 {
                     ++providerCount;
+                    mm.ShouldEqual(MemberManager);
                     types.ShouldEqual(memberType);
                     type.ShouldEqual(t);
                     s.ShouldEqual(request.Name);
@@ -72,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 }
             });
 
-            var list = _memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList();
+            var list = MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList();
             list.ShouldEqual(expectedResult);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
@@ -84,44 +85,47 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             {
                 new TestMethodMemberInfo
                 {
-                    GetParameters = () => new[] {new TestParameterInfo {ParameterType = typeof(object)}}
+                    GetParameters = () => new[] { new TestParameterInfo { ParameterType = typeof(object) } }
                 },
                 new TestMethodMemberInfo
                 {
                     GetParameters = () => new[]
                     {
-                        new TestParameterInfo {ParameterType = typeof(object)},
-                        new TestParameterInfo {ParameterType = typeof(string)}
+                        new TestParameterInfo { ParameterType = typeof(object) },
+                        new TestParameterInfo { ParameterType = typeof(string) }
                     }
                 },
                 new TestMethodMemberInfo
                 {
                     GetParameters = () => new[]
                     {
-                        new TestParameterInfo {ParameterType = typeof(object)},
-                        new TestParameterInfo {ParameterType = typeof(string)},
-                        new TestParameterInfo {ParameterType = typeof(int)}
+                        new TestParameterInfo { ParameterType = typeof(object) },
+                        new TestParameterInfo { ParameterType = typeof(string) },
+                        new TestParameterInfo { ParameterType = typeof(int) }
                     }
                 },
                 new TestMethodMemberInfo
                 {
                     GetParameters = () => new[]
                     {
-                        new TestParameterInfo {ParameterType = typeof(object)},
-                        new TestParameterInfo {ParameterType = typeof(string)},
-                        new TestParameterInfo {ParameterType = typeof(int)}
+                        new TestParameterInfo { ParameterType = typeof(object) },
+                        new TestParameterInfo { ParameterType = typeof(string) },
+                        new TestParameterInfo { ParameterType = typeof(int) }
                     }
                 }
             };
-            var additionMembers = new IMemberInfo[] {new TestEventInfo(), new TestAccessorMemberInfo()};
+            var additionMembers = new IMemberInfo[] { new TestEventInfo(), new TestAccessorMemberInfo() };
             var members = methods.Concat(additionMembers).ToArray();
             return new[]
             {
-                new object[] {members, methods[0].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[0]}.Concat(additionMembers)},
-                new object[] {members, methods[1].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[1]}.Concat(additionMembers)},
-                new object[] {members, methods[2].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] {methods[2], methods[3]}.Concat(additionMembers)},
-                new object[] {members, Array.Empty<Type>(), additionMembers},
-                new object[] {members, new[] {typeof(Guid)}, additionMembers}
+                new object[] { members, methods[0].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] { methods[0] }.Concat(additionMembers) },
+                new object[] { members, methods[1].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] { methods[1] }.Concat(additionMembers) },
+                new object[]
+                {
+                    members, methods[2].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] { methods[2], methods[3] }.Concat(additionMembers)
+                },
+                new object[] { members, Array.Empty<Type>(), additionMembers },
+                new object[] { members, new[] { typeof(Guid) }, additionMembers }
             };
         }
     }

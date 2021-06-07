@@ -8,8 +8,8 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,11 +17,11 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Bindings.Members
 {
     [Collection(SharedContext)]
-    public class MethodAccessorMemberInfoTest : UnitTestBase, IDisposable
+    public class MethodAccessorMemberInfoTest : UnitTestBase
     {
         public MethodAccessorMemberInfoTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            MugenService.Configuration.InitializeInstance<IObservationManager>(new ObservationManager(ComponentCollectionManager));
+            RegisterDisposeToken(WithGlobalService(ObservationManager));
         }
 
         [Theory]
@@ -40,11 +40,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var getValueCount = 0;
             var setValueCount = 0;
             var declaringType = typeof(object);
-            var inputArgs = isLastParameterMetadata ? new object?[] {"1", 2, null} : new object[] {"1", 2};
+            var inputArgs = isLastParameterMetadata ? new object?[] { "1", 2, null } : new object[] { "1", 2 };
             var checkGetterArgs = inputArgs.ToArray();
             if (isLastParameterMetadata)
                 checkGetterArgs[checkGetterArgs.Length - 1] = DefaultMetadata;
-            var checkSetterArgs = inputArgs.Concat(new object[] {setValue}).ToArray();
+            var checkSetterArgs = inputArgs.Concat(new object[] { setValue }).ToArray();
             if (isLastParameterMetadata)
                 checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
 
@@ -103,16 +103,16 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         metadata.ShouldEqual(DefaultMetadata);
                         return null;
                     },
-                    GetParameters = () => new[] {new TestParameterInfo {ParameterType = type}}
+                    GetParameters = () => new[] { new TestParameterInfo { ParameterType = type } }
                 };
             }
 
             MethodAccessorMemberInfo? memberInfo = null;
             var reflectedType = typeof(string);
             var observerRequestCount = 0;
-            MugenService.AddComponent(new TestMemberObserverProviderComponent
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg4) =>
+                TryGetMemberObserver = (_, type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 }
             });
 
-            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>) default,
+            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : (EnumFlags<ArgumentFlags>)default,
                 reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
@@ -154,6 +154,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, setValue, DefaultMetadata));
         }
 
-        public void Dispose() => MugenService.Configuration.Clear<IObservationManager>();
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
     }
 }

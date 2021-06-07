@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var lifecycleState = ViewLifecycleState.Appeared;
             var state = new object();
-            var awareViewModel = new ViewLifecycleAwareViewModel(new ViewModelManager(ComponentCollectionManager));
+            var awareViewModel = new ViewLifecycleAwareViewModel(ViewModelManager);
             var invokeCount = 0;
             var view = new View(ViewMapping.Undefined, new object(), awareViewModel);
 
@@ -35,6 +35,8 @@ namespace MugenMvvm.UnitTests.Views.Components
             component.OnLifecycleChanged(null!, view, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
 
         private class ViewLifecycleAwareViewModel : TestViewModelBase, IViewLifecycleAwareViewModel
         {

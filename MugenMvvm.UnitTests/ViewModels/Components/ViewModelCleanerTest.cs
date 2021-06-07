@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -8,13 +7,13 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
-using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Messaging.Internal;
-using MugenMvvm.UnitTests.ViewModels.Internal;
-using MugenMvvm.UnitTests.Views.Internal;
+using MugenMvvm.Tests.Messaging;
+using MugenMvvm.Tests.ViewModels;
+using MugenMvvm.Tests.Views;
 using MugenMvvm.ViewModels;
 using MugenMvvm.ViewModels.Components;
 using MugenMvvm.Views;
@@ -26,14 +25,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
 {
     public class ViewModelCleanerTest : UnitTestBase
     {
-        private readonly ViewModelManager _viewModelManager;
-        private readonly ViewManager _viewManager;
-
         public ViewModelCleanerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _viewManager = new ViewManager(ComponentCollectionManager);
-            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _viewModelManager.AddComponent(new ViewModelCleaner(_viewManager, AttachedValueManager));
+            ViewModelManager.AddComponent(new ViewModelCleaner(ViewManager, AttachedValueManager));
         }
 
         [Fact]
@@ -42,20 +36,21 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             const string attachedPath = "t";
             var viewModel = new TestCleanerViewModel();
             AttachedValueManager.TryGetAttachedValues(viewModel).Set(attachedPath, this, out _);
-            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             AttachedValueManager.TryGetAttachedValues(viewModel).Contains(attachedPath).ShouldBeFalse();
         }
 
         [Fact]
         public void ShouldClearBusyManager()
         {
+            BusyManager.ClearComponents();
             var viewModel = new TestCleanerViewModel
             {
-                BusyManager = new BusyManager(ComponentCollectionManager)
+                BusyManager = BusyManager
             };
             viewModel.BusyManager.AddComponent(new BusyTokenManager());
             var busyToken = viewModel.BusyManager.BeginBusy(this);
-            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             busyToken.IsCompleted.ShouldBeTrue();
             viewModel.BusyManager.Components.Count.ShouldEqual(0);
         }
@@ -63,13 +58,14 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [Fact]
         public void ShouldClearMessenger()
         {
+            Messenger.ClearComponents();
             var viewModel = new TestCleanerViewModel
             {
-                Messenger = new Messenger(ComponentCollectionManager)
+                Messenger = Messenger
             };
             viewModel.Messenger.AddComponent(new MessengerHandlerSubscriber(ReflectionManager));
             viewModel.Messenger.TrySubscribe(new TestMessengerHandlerRaw()).ShouldBeTrue();
-            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Messenger.GetSubscribers().AsList().ShouldBeEmpty();
             viewModel.Messenger.Components.Count.ShouldEqual(0);
         }
@@ -79,7 +75,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         {
             var viewModel = new TestCleanerViewModel();
             viewModel.Metadata.Set(ViewModelMetadata.ViewModel, viewModel);
-            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Metadata.TryGet(ViewModelMetadata.ViewModel, out var vm).ShouldBeFalse();
         }
 
@@ -89,9 +85,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var viewModel = new TestCleanerViewModel();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), GetType()), this, viewModel);
 
-            _viewManager.AddComponent(new TestViewProviderComponent
+            ViewManager.AddComponent(new TestViewProviderComponent
             {
-                TryGetViews = (o, arg3) =>
+                TryGetViews = (_, o, arg3) =>
                 {
                     o.ShouldEqual(viewModel);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -100,9 +96,9 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             });
 
             var cleanupCount = 0;
-            _viewManager.AddComponent(new TestViewManagerComponent
+            ViewManager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (v, o, arg4, arg5) =>
+                TryCleanupAsync = (_, v, o, arg4, arg5) =>
                 {
                     ++cleanupCount;
                     v.ShouldEqual(view);
@@ -111,7 +107,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 }
             });
 
-            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
             cleanupCount.ShouldEqual(1);
         }
 
@@ -120,9 +116,13 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         {
             var viewModel = new TestCleanerViewModel();
             viewModel.Value = new WeakReferenceImpl(viewModel, false);
-            _viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Value.Target.ShouldBeNull();
         }
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
 
         private sealed class TestCleanerViewModel : TestViewModel, IHasService<IBusyManager>, IHasService<IMessenger>, IValueHolder<IWeakReference>
         {

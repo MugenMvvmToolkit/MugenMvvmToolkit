@@ -6,7 +6,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Collections.Internal;
+using MugenMvvm.Tests.Collections;
 using MugenMvvm.UnitTests.Components;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ClearItemsTest()
         {
-            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
+            var items = new[] { new TestCollectionItem(), new TestCollectionItem() };
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void CreateWithItemsTest()
         {
-            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
+            var items = new[] { new TestCollectionItem(), new TestCollectionItem() };
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ICollectionCopyToTest()
         {
             var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Add(item);
 
             var items = new TestCollectionItem[1];
@@ -129,7 +129,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void IListAddTest()
         {
             var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
@@ -138,8 +138,8 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void IListClearItemsTest()
         {
-            var items = new[] {new TestCollectionItem(), new TestCollectionItem()};
-            var collection = (IList) CreateCollection(items);
+            var items = new[] { new TestCollectionItem(), new TestCollectionItem() };
+            var collection = (IList)CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.OfType<TestCollectionItem>().Any(item => item == items[0]).ShouldBeTrue();
             collection.OfType<TestCollectionItem>().Any(item => item == items[1]).ShouldBeTrue();
@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void IListContainsTest()
         {
             var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.Contains(item).ShouldBeTrue();
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Add(item1);
 
             collection[0].ShouldEqual(item1);
@@ -177,7 +177,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
 
             collection.IndexOf(item1).ShouldBeLessThan(0);
 
@@ -194,7 +194,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Insert(0, item1);
             collection.Count.ShouldEqual(1);
 
@@ -210,7 +210,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Insert(0, item1);
             collection.Insert(0, item2);
             collection.Count.ShouldEqual(2);
@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void IListRemoveTest()
         {
             var item = new TestCollectionItem();
-            var collection = (IList) CreateCollection<TestCollectionItem>();
+            var collection = (IList)CreateCollection<TestCollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.OfType<TestCollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
@@ -325,7 +325,7 @@ namespace MugenMvvm.UnitTests.Collections
             var item2 = new TestCollectionItem();
             var collection = CreateCollection(new TestCollectionItem());
 
-            collection.Reset(new[] {item1, item2});
+            collection.Reset(new[] { item1, item2 });
             collection[0].ShouldEqual(item1);
             collection[1].ShouldEqual(item2);
             collection.Count.ShouldEqual(2);
@@ -342,14 +342,20 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var collectionListener = new TestCollectionBatchUpdateListener((IObservableCollection) collection)
+                collection.AddComponent(new TestCollectionBatchUpdateListener
                 {
                     ThrowErrorNullDelegate = true,
-                    OnBeginBatchUpdate = (t) => begin += t == BatchUpdateType.Source ? 1 : 0,
-                    OnEndBatchUpdate = (t) => end += t == BatchUpdateType.Source ? 1 : 0
-                };
-
-                collection.AddComponent(collectionListener);
+                    OnBeginBatchUpdate = (c, t) =>
+                    {
+                        c.ShouldEqual((object)collection);
+                        begin += t == BatchUpdateType.Source ? 1 : 0;
+                    },
+                    OnEndBatchUpdate = (c, t) =>
+                    {
+                        c.ShouldEqual((object)collection);
+                        end += t == BatchUpdateType.Source ? 1 : 0;
+                    }
+                });
             }
 
             var beginBatchUpdate1 = collection.BatchUpdate();
@@ -386,42 +392,42 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanAdd = (item, index) =>
+                    CanAdd = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++condition;
                         return canAdd;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>()
                 {
                     ThrowErrorNullDelegate = true,
-                    OnAdding = (item, index) =>
+                    OnAdding = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++adding;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnAdded = (item, index) =>
+                    OnAdded = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++added;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
@@ -466,42 +472,42 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanAdd = (item, index) =>
+                    CanAdd = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++condition;
                         return canAdd;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnAdding = (item, index) =>
+                    OnAdding = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++adding;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnAdded = (item, index) =>
+                    OnAdded = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++added;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
@@ -548,10 +554,11 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanReplace = (oldItem, newItem, index) =>
+                    CanReplace = (c, oldItem, newItem, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         oldItem.ShouldEqual(expectedOldItem);
                         newItem.ShouldEqual(expectedNewItem);
@@ -559,34 +566,33 @@ namespace MugenMvvm.UnitTests.Collections
                         return canReplace;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>()
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReplacing = (oldItem, newItem, index) =>
+                    OnReplacing = (c, oldItem, newItem, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         oldItem.ShouldEqual(expectedOldItem);
                         newItem.ShouldEqual(expectedNewItem);
                         ++replacing;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReplaced = (oldItem, newItem, index) =>
+                    OnReplaced = (c, oldItem, newItem, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         oldItem.ShouldEqual(expectedOldItem);
                         newItem.ShouldEqual(expectedNewItem);
                         ++replaced;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
@@ -636,10 +642,11 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanMove = (item, oldIndex, newIndex) =>
+                    CanMove = (c, item, oldIndex, newIndex) =>
                     {
+                        c.ShouldEqual(collection);
                         oldIndex.ShouldEqual(expectedOldIndex);
                         newIndex.ShouldEqual(expectedNewIndex);
                         expectedItem.ShouldEqual(item);
@@ -647,34 +654,33 @@ namespace MugenMvvm.UnitTests.Collections
                         return canMove;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnMoving = (item, oldIndex, newIndex) =>
+                    OnMoving = (c, item, oldIndex, newIndex) =>
                     {
+                        c.ShouldEqual(collection);
                         oldIndex.ShouldEqual(expectedOldIndex);
                         newIndex.ShouldEqual(expectedNewIndex);
                         expectedItem.ShouldEqual(item);
                         ++moving;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnMoved = (item, oldIndex, newIndex) =>
+                    OnMoved = (c, item, oldIndex, newIndex) =>
                     {
+                        c.ShouldEqual(collection);
                         oldIndex.ShouldEqual(expectedOldIndex);
                         newIndex.ShouldEqual(expectedNewIndex);
                         expectedItem.ShouldEqual(item);
                         ++moved;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
@@ -723,42 +729,42 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanRemove = (item, index) =>
+                    CanRemove = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++condition;
                         return canRemove;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnRemoving = (item, index) =>
+                    OnRemoving = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removing;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnRemoved = (item, index) =>
+                    OnRemoved = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removed;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
@@ -805,42 +811,42 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanRemove = (item, index) =>
+                    CanRemove = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++condition;
                         return canRemove;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnRemoving = (item, index) =>
+                    OnRemoving = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removing;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnRemoved = (item, index) =>
+                    OnRemoved = (c, item, index) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removed;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
@@ -886,44 +892,44 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanReset = enumerable =>
+                    CanReset = (c, enumerable) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedItem.ShouldEqual(enumerable);
                         ++condition;
                         return canReset;
                     },
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnResetting = enumerable =>
+                    OnResetting = (c, enumerable) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedItem.ShouldEqual(enumerable);
                         ++resetting;
                     }
-                };
-                collection.AddComponent(changingListener);
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReset = enumerable =>
+                    OnReset = (c, enumerable) =>
                     {
+                        c.ShouldEqual(collection);
                         expectedItem.ShouldEqual(enumerable);
                         ++reset;
                     }
-                };
-                collection.AddComponent(changedListener);
+                });
             }
 
             for (var i = 0; i < count; i++)
             {
-                expectedItem = new[] {new TestCollectionItem(), new TestCollectionItem()};
+                expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
                 collection.Reset(expectedItem);
             }
 
@@ -935,7 +941,7 @@ namespace MugenMvvm.UnitTests.Collections
             canReset = true;
             for (var i = 0; i < count; i++)
             {
-                expectedItem = new[] {new TestCollectionItem(), new TestCollectionItem()};
+                expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
                 collection.Reset(expectedItem);
             }
 
@@ -962,42 +968,42 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
+                collection.AddComponent(new TestConditionCollectionComponent<TestCollectionItem>
                 {
-                    CanReset = v =>
+                    CanReset = (c, v) =>
                     {
+                        c.ShouldEqual(collection);
                         v.ShouldBeNull();
                         ++condition;
                         return canClear;
                     },
-                    CanAdd = (item, arg3) => true,
+                    CanAdd = (_, _, _) => true,
                     Priority = -i
-                };
-                collection.AddComponent(conditionListener);
+                });
 
-                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangingListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnResetting = v =>
+                    OnResetting = (c, v) =>
                     {
+                        c.ShouldEqual(collection);
                         v.ShouldBeNull();
                         ++clearing;
                     },
-                    OnAdding = (item, arg3) => { }
-                };
-                collection.AddComponent(changingListener);
+                    OnAdding = (_, _, _) => { }
+                });
 
-                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
+                collection.AddComponent(new TestCollectionChangedListener<TestCollectionItem>
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReset = v =>
+                    OnReset = (c, v) =>
                     {
+                        c.ShouldEqual(collection);
                         v.ShouldBeNull();
                         ++clear;
                     },
-                    OnAdded = (item, arg3) => { }
-                };
-                collection.AddComponent(changedListener);
+                    OnAdded = (_, _, _) => { }
+                });
             }
 
             for (var i = 0; i < count; i++)

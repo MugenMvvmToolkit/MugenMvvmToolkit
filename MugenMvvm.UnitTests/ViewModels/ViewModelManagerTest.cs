@@ -2,9 +2,10 @@
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Tests.Internal;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.UnitTests.Components;
-using MugenMvvm.UnitTests.Internal.Internal;
-using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using Should;
 using Xunit;
@@ -14,10 +15,10 @@ namespace MugenMvvm.UnitTests.ViewModels
     public class ViewModelManagerTest : ComponentOwnerTestBase<ViewModelManager>
     {
         [Fact]
-        public void GetServiceShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => GetComponentOwner(ComponentCollectionManager).GetService(new TestViewModel(), typeof(object), DefaultMetadata));
-        }
+        public void GetServiceShouldThrowNoComponents() =>
+            ShouldThrow<InvalidOperationException>(() => ViewModelManager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
+
+        protected override IViewModelManager GetViewModelManager() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -25,20 +26,20 @@ namespace MugenMvvm.UnitTests.ViewModels
         public void IsInStateShouldBeHandledByComponents(int componentCount)
         {
             var count = 0;
-            var owner = GetComponentOwner(ComponentCollectionManager);
             var target = new TestViewModel();
             var state = ViewModelLifecycleState.Created;
 
-            owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            ViewModelManager.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
 
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i - 1 == componentCount;
-                var component = new TestLifecycleTrackerComponent<ViewModelLifecycleState>(owner)
+                ViewModelManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewModelLifecycleState>
                 {
                     IsInState = (o, t, s, m) =>
                     {
                         ++count;
+                        o.ShouldEqual(ViewModelManager);
                         t.ShouldEqual(target);
                         m.ShouldEqual(DefaultMetadata);
                         if (isLast)
@@ -46,11 +47,10 @@ namespace MugenMvvm.UnitTests.ViewModels
                         return false;
                     },
                     Priority = -i
-                };
-                owner.Components.TryAdd(component);
+                });
             }
 
-            owner.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            ViewModelManager.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
         }
 
@@ -59,29 +59,28 @@ namespace MugenMvvm.UnitTests.ViewModels
         [InlineData(10)]
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
-            var manager = GetComponentOwner(ComponentCollectionManager);
             var invokeCount = 0;
             var state = "state";
             var viewModel = new TestViewModel();
             var lifecycleState = ViewModelLifecycleState.Created;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestViewModelLifecycleListener(manager)
+                ViewModelManager.AddComponent(new TestViewModelLifecycleListener
                 {
-                    OnLifecycleChanged = (vm, viewModelLifecycleState, st, metadata) =>
+                    OnLifecycleChanged = (m, vm, viewModelLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(ViewModelManager);
                         vm.ShouldEqual(viewModel);
                         st.ShouldEqual(state);
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
                     Priority = i
-                };
-                manager.AddComponent(component);
+                });
             }
 
-            manager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
+            ViewModelManager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -90,7 +89,6 @@ namespace MugenMvvm.UnitTests.ViewModels
         [InlineData(10)]
         public void GetServiceShouldBeHandledByComponents(int count)
         {
-            var manager = GetComponentOwner(ComponentCollectionManager);
             var viewModel = new TestViewModel();
             var service = new object();
             var executeCount = 0;
@@ -98,11 +96,12 @@ namespace MugenMvvm.UnitTests.ViewModels
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestViewModelServiceProviderComponent(manager)
+                ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
                 {
-                    TryGetService = (vm, r, ctx) =>
+                    TryGetService = (m, vm, r, ctx) =>
                     {
                         ++executeCount;
+                        m.ShouldEqual(ViewModelManager);
                         vm.ShouldEqual(viewModel);
                         r.ShouldEqual(serviceType);
                         ctx.ShouldEqual(DefaultMetadata);
@@ -111,11 +110,10 @@ namespace MugenMvvm.UnitTests.ViewModels
                         return null;
                     },
                     Priority = -i
-                };
-                manager.AddComponent(component);
+                });
             }
 
-            manager.GetService(viewModel, serviceType, DefaultMetadata).ShouldEqual(service);
+            ViewModelManager.GetService(viewModel, serviceType, DefaultMetadata).ShouldEqual(service);
             executeCount.ShouldEqual(count);
         }
 
@@ -124,17 +122,17 @@ namespace MugenMvvm.UnitTests.ViewModels
         [InlineData(10)]
         public void TryGetViewModelShouldBeHandledByComponents(int count)
         {
-            var manager = GetComponentOwner(ComponentCollectionManager);
             var viewModel = new TestViewModel();
             var executeCount = 0;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestViewModelProviderComponent
+                ViewModelManager.AddComponent(new TestViewModelProviderComponent
                 {
-                    TryGetViewModel = (o, arg3) =>
+                    TryGetViewModel = (m, o, arg3) =>
                     {
                         ++executeCount;
+                        m.ShouldEqual(ViewModelManager);
                         o.ShouldEqual(this);
                         arg3.ShouldEqual(DefaultMetadata);
                         if (isLast)
@@ -142,11 +140,10 @@ namespace MugenMvvm.UnitTests.ViewModels
                         return null;
                     },
                     Priority = -i
-                };
-                manager.AddComponent(component);
+                });
             }
 
-            manager.TryGetViewModel(this, DefaultMetadata).ShouldEqual(viewModel);
+            ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldEqual(viewModel);
             executeCount.ShouldEqual(count);
         }
 

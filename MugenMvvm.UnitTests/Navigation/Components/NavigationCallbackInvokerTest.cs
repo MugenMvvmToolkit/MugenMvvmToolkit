@@ -5,9 +5,10 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
-using MugenMvvm.UnitTests.Navigation.Internal;
+using MugenMvvm.Tests.Navigation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,28 +17,28 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class NavigationCallbackInvokerTest : UnitTestBase
     {
-        private readonly NavigationDispatcher _navigationDispatcher;
         private readonly NavigationCallbackInvoker _callbackInvoker;
 
         public NavigationCallbackInvokerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _navigationDispatcher = new NavigationDispatcher(ComponentCollectionManager);
             _callbackInvoker = new NavigationCallbackInvoker();
-            _navigationDispatcher.AddComponent(_callbackInvoker);
+            NavigationDispatcher.AddComponent(_callbackInvoker);
         }
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void OnNavigatedShouldInvokeCallbacks(bool close)
         {
-            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, close ? NavigationMode.Close : NavigationMode.New);
+            var navigationContext = GetNavigationContext(this, close ? NavigationMode.Close : NavigationMode.New);
             var callbackTypes = new List<NavigationCallbackType>();
-            _navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryInvokeCanceledNavigationCallbacks = (callbackType, ctx, ct) => throw new NotSupportedException(),
-                TryInvokeExceptionNavigationCallbacks = (callbackType, ctx, ex) => throw new NotSupportedException(),
-                TryInvokeNavigationCallbacks = (callbackType, ctx) =>
+                TryInvokeCanceledNavigationCallbacks = (_, _, _, _) => throw new NotSupportedException(),
+                TryInvokeExceptionNavigationCallbacks = (_, _, _, _) => throw new NotSupportedException(),
+                TryInvokeNavigationCallbacks = (_, callbackType, ctx) =>
                 {
                     callbackTypes.Add(callbackType);
                     ctx.ShouldEqual(navigationContext);
@@ -46,9 +47,9 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             });
 
             _callbackInvoker.IsSuspended.ShouldBeFalse();
-            var actionToken = _navigationDispatcher.GetComponents<ISuspendable>().Suspend(this, null);
+            var actionToken = NavigationDispatcher.GetComponents<ISuspendable>().Suspend(this, null);
             _callbackInvoker.IsSuspended.ShouldBeTrue();
-            _navigationDispatcher.OnNavigated(navigationContext);
+            NavigationDispatcher.OnNavigated(navigationContext);
 
             callbackTypes.Count.ShouldEqual(0);
             actionToken.Dispose();
@@ -73,26 +74,26 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         public void OnNavigationFailedShouldInvokeCallbacks(bool close)
         {
             var exception = new Exception();
-            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, close ? NavigationMode.Close : NavigationMode.New);
+            var navigationContext = GetNavigationContext(this, close ? NavigationMode.Close : NavigationMode.New);
             var callbackTypes = new List<NavigationCallbackType>();
-            _navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryInvokeCanceledNavigationCallbacks = (callbackType, ctx, ct) => throw new NotSupportedException(),
-                TryInvokeExceptionNavigationCallbacks = (callbackType, ctx, ex) =>
+                TryInvokeCanceledNavigationCallbacks = (_, _, _, _) => throw new NotSupportedException(),
+                TryInvokeExceptionNavigationCallbacks = (_, callbackType, ctx, ex) =>
                 {
                     callbackTypes.Add(callbackType);
                     ctx.ShouldEqual(navigationContext);
                     ex.ShouldEqual(exception);
                     return true;
                 },
-                TryInvokeNavigationCallbacks = (callbackType, ctx) => throw new NotSupportedException()
+                TryInvokeNavigationCallbacks = (_, _, _) => throw new NotSupportedException()
             });
 
             _callbackInvoker.IsSuspended.ShouldBeFalse();
 
-            var actionToken = _navigationDispatcher.GetComponents<ISuspendable>().Suspend(this, null);
+            var actionToken = NavigationDispatcher.GetComponents<ISuspendable>().Suspend(this, null);
             _callbackInvoker.IsSuspended.ShouldBeTrue();
-            _navigationDispatcher.OnNavigationFailed(navigationContext, exception);
+            NavigationDispatcher.OnNavigationFailed(navigationContext, exception);
 
             callbackTypes.Count.ShouldEqual(0);
             actionToken.Dispose();
@@ -108,26 +109,25 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [InlineData(false)]
         public void OnNavigationCanceledShouldInvokeCallbacks(bool close)
         {
-            var token = new CancellationTokenSource().Token;
-            var navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, close ? NavigationMode.Close : NavigationMode.New);
+            var navigationContext = GetNavigationContext(this, close ? NavigationMode.Close : NavigationMode.New);
             var callbackTypes = new List<NavigationCallbackType>();
-            _navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryInvokeCanceledNavigationCallbacks = (callbackType, ctx, ct) =>
+                TryInvokeCanceledNavigationCallbacks = (_, callbackType, ctx, ct) =>
                 {
                     callbackTypes.Add(callbackType);
                     ctx.ShouldEqual(navigationContext);
-                    ct.ShouldEqual(token);
+                    ct.ShouldEqual(DefaultCancellationToken);
                     return true;
                 },
-                TryInvokeExceptionNavigationCallbacks = (callbackType, ctx, e) => throw new NotSupportedException(),
-                TryInvokeNavigationCallbacks = (callbackType, ctx) => throw new NotSupportedException()
+                TryInvokeExceptionNavigationCallbacks = (_, _, _, _) => throw new NotSupportedException(),
+                TryInvokeNavigationCallbacks = (_, _, _) => throw new NotSupportedException()
             });
 
             _callbackInvoker.IsSuspended.ShouldBeFalse();
-            var actionToken = _navigationDispatcher.GetComponents<ISuspendable>().Suspend(this, null);
+            var actionToken = NavigationDispatcher.GetComponents<ISuspendable>().Suspend(this, null);
             _callbackInvoker.IsSuspended.ShouldBeTrue();
-            _navigationDispatcher.OnNavigationCanceled(navigationContext, token);
+            NavigationDispatcher.OnNavigationCanceled(navigationContext, DefaultCancellationToken);
 
             callbackTypes.Count.ShouldEqual(0);
             actionToken.Dispose();

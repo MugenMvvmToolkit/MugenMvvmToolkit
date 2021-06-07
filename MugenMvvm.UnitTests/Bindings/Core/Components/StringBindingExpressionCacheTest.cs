@@ -1,8 +1,9 @@
 ﻿using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.Tests.Bindings.Core;
 using Should;
 using Xunit;
 
@@ -17,38 +18,40 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var request = "t";
             var testExp = new TestBindingBuilder();
 
-            var bindingManager = new BindingManager(ComponentCollectionManager);
             var cache = new StringBindingExpressionCache();
-            var component = new TestBindingExpressionParserComponent(bindingManager)
+            var component = new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, arg3) =>
+                TryParseBindingExpression = (m, o, arg3) =>
                 {
                     ++invokeCount;
+                    m.ShouldEqual(BindingManager);
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
                     return testExp;
                 }
             };
-            bindingManager.AddComponent(cache);
-            bindingManager.AddComponent(component);
+            BindingManager.AddComponent(cache);
+            BindingManager.AddComponent(component);
 
-            bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
-            bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
 
             //invalidate
             cache.Invalidate(this, this, DefaultMetadata);
-            bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
-            bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(2);
 
             //add new component
-            bindingManager.RemoveComponent(component);
-            bindingManager.AddComponent(component);
-            bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
-            bindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.RemoveComponent(component);
+            BindingManager.AddComponent(component);
+            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(3);
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
     }
 }

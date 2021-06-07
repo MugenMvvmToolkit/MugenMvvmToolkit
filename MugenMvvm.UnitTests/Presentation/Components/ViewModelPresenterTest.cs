@@ -4,13 +4,16 @@ using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Navigation;
 using MugenMvvm.Presentation;
 using MugenMvvm.Presentation.Components;
 using MugenMvvm.Requests;
-using MugenMvvm.UnitTests.Presentation.Internal;
+using MugenMvvm.Tests.Presentation;
+using MugenMvvm.Tests.ViewModels;
+using MugenMvvm.Tests.Views;
 using MugenMvvm.UnitTests.ViewModels.Internal;
-using MugenMvvm.UnitTests.Views.Internal;
 using MugenMvvm.Views;
 using MugenMvvm.Wrapping;
 using MugenMvvm.Wrapping.Components;
@@ -22,28 +25,22 @@ namespace MugenMvvm.UnitTests.Presentation.Components
 {
     public class ViewModelPresenterTest : UnitTestBase
     {
-        private readonly Presenter _presenter;
-        private readonly ViewManager _viewManager;
-
         public ViewModelPresenterTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _viewManager = new ViewManager(ComponentCollectionManager);
-            _presenter = new Presenter(ComponentCollectionManager);
-            _presenter.AddComponent(new ViewModelPresenter(_viewManager));
+            Presenter.AddComponent(new ViewModelPresenter(ViewManager));
         }
 
         [Fact]
         public void TryCloseShouldIgnoreNoMediators()
         {
             var vm = new TestViewModel();
-            _presenter.TryClose(vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _presenter.TryClose(this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            Presenter.TryClose(vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            Presenter.TryClose(this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
         public void TryCloseShouldUseRegisteredMediators()
         {
-            var cancellationToken = new CancellationTokenSource().Token;
             var viewModel = new TestViewModel();
             var view = new object();
             var request = new ViewModelViewRequest(viewModel, view);
@@ -55,20 +52,20 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 {
                     ++closeCount;
                     v.ShouldEqual(request.View);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     context.ShouldEqual(DefaultMetadata);
                     return result;
                 }
             };
             var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
-            _viewManager.AddComponent(new TestViewMappingProviderComponent
+            ViewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, arg3) => mapping
+                TryGetMappings = (_, _, _) => mapping
             });
 
-            _presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(object), false, (p, vm, m, meta) => mediator));
-            _presenter.TryShow(viewModel, cancellationToken, DefaultMetadata);
-            _presenter.TryClose(request, cancellationToken, DefaultMetadata).AsList().Single().ShouldEqual(result);
+            Presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(object), false, (p, vm, m, meta) => mediator));
+            Presenter.TryShow(viewModel, DefaultCancellationToken, DefaultMetadata);
+            Presenter.TryClose(request, DefaultCancellationToken, DefaultMetadata).AsList().Single().ShouldEqual(result);
             closeCount.ShouldEqual(1);
         }
 
@@ -76,9 +73,13 @@ namespace MugenMvvm.UnitTests.Presentation.Components
         public void TryShowShouldIgnoreNoMediators()
         {
             var vm = new TestViewModel();
-            _presenter.TryShow(vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _presenter.TryShow(this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            Presenter.TryShow(vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            Presenter.TryShow(this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
+
+        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true)]
@@ -87,11 +88,10 @@ namespace MugenMvvm.UnitTests.Presentation.Components
         {
             var viewModel = new TestViewModel();
             var request = new ViewModelViewRequest(viewModel, new object());
-            var cancellationToken = new CancellationTokenSource().Token;
             var mapping = new ViewMapping("t", typeof(TestViewModel), typeof(TestView1), DefaultMetadata);
-            _viewManager.AddComponent(new TestViewMappingProviderComponent
+            ViewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, m) =>
+                TryGetMappings = (_, o, m) =>
                 {
                     if (isRawRequest)
                         o.ShouldEqual(viewModel);
@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 {
                     ++showCount;
                     o.ShouldEqual(isRawRequest ? null : request!.View);
-                    token.ShouldEqual(cancellationToken);
+                    token.ShouldEqual(DefaultCancellationToken);
                     m.ShouldEqual(DefaultMetadata);
                     return new PresenterResult(viewModel!, mapping!.Id, instance, NavigationType.Popup);
                 };
@@ -121,24 +121,24 @@ namespace MugenMvvm.UnitTests.Presentation.Components
             }
 
             var wrapperManager = new WrapperManager(ComponentCollectionManager);
-            var viewModelPresenter = new ViewModelPresenter(_viewManager);
-            _presenter.AddComponent(ViewModelPresenterMediatorProvider.Get((p, vm, m, meta) =>
+            var viewModelPresenter = new ViewModelPresenter(ViewManager);
+            Presenter.AddComponent(ViewModelPresenterMediatorProvider.Get((p, vm, m, meta) =>
             {
                 meta.ShouldEqual(DefaultMetadata);
                 if (m.ViewType == typeof(TestView2))
                     return Initialize(new TestViewModelPresenterMediator<TestView2>());
                 return null;
             }));
-            _presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(ViewModelPresenterTest), false,
+            Presenter.AddComponent(ViewModelPresenterMediatorProvider.Get(typeof(ViewModelPresenterTest), false,
                 (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestView2>()), 1, wrapperManager));
             var c1 = ViewModelPresenterMediatorProvider.Get(typeof(TestViewBase), false, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestViewBase>()), 2,
                 wrapperManager);
             var c2 = ViewModelPresenterMediatorProvider.Get(typeof(TestView1), true, (p, vm, m, meta) => Initialize(new TestViewModelPresenterMediator<TestView1>()), 3,
                 wrapperManager);
-            _presenter.AddComponent(c2);
-            _presenter.AddComponent(c1);
+            Presenter.AddComponent(c2);
+            Presenter.AddComponent(c1);
 
-            var list = _presenter.TryShow(isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
+            var list = Presenter.TryShow(isRawRequest ? viewModel : (object)request, DefaultCancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -146,10 +146,10 @@ namespace MugenMvvm.UnitTests.Presentation.Components
 
             mediators.Clear();
             showCount = 0;
-            _presenter.RemoveComponent(c2);
+            Presenter.RemoveComponent(c2);
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = _presenter.TryShow(isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
+            list = Presenter.TryShow(isRawRequest ? viewModel : (object)request, DefaultCancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -157,10 +157,10 @@ namespace MugenMvvm.UnitTests.Presentation.Components
 
             mediators.Clear();
             showCount = 0;
-            _presenter.RemoveComponent(c1);
+            Presenter.RemoveComponent(c1);
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = _presenter.TryShow(isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
+            list = Presenter.TryShow(isRawRequest ? viewModel : (object)request, DefaultCancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(0);
             list.Count.ShouldEqual(0);
             showCount.ShouldEqual(0);
@@ -173,10 +173,10 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 r.ShouldEqual(mapping.ViewType);
                 m.ShouldEqual(DefaultMetadata);
                 return true;
-            }, (type, o, arg4) => null!));
+            }, (_, _, _) => null!));
             viewModel = new TestViewModel();
             request = new ViewModelViewRequest(viewModel, request.View);
-            list = _presenter.TryShow(isRawRequest ? viewModel : (object) request, cancellationToken, DefaultMetadata).AsList();
+            list = Presenter.TryShow(isRawRequest ? viewModel : (object)request, DefaultCancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);
             list.Count.ShouldEqual(1);
             showCount.ShouldEqual(1);

@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.UnitTests.Metadata;
-using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.Views;
 using Should;
 using Xunit;

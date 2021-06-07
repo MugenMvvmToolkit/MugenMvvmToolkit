@@ -2,10 +2,14 @@
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Messaging;
-using MugenMvvm.UnitTests.Messaging.Internal;
-using MugenMvvm.UnitTests.Validation.Internal;
+using MugenMvvm.Tests.Messaging;
+using MugenMvvm.Tests.Validation;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.Validation;
 using MugenMvvm.Validation.Components;
@@ -18,18 +22,12 @@ namespace MugenMvvm.UnitTests.Validation.Components
 {
     public class ObservableValidatorBehaviorTest : UnitTestBase
     {
-        private readonly Messenger _messenger;
-        private readonly Validator _validator;
-        private readonly ViewModelManager _viewModelManager;
         private readonly TestViewModelBase _vm;
 
         public ObservableValidatorBehaviorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _messenger = new Messenger(ComponentCollectionManager);
-            _validator = new Validator(null, ComponentCollectionManager);
-            _viewModelManager = new ViewModelManager(ComponentCollectionManager);
-            _vm = new TestViewModelBase(_viewModelManager) {ThreadDispatcher = ThreadDispatcher};
-            _validator.AddComponent(new ObservableValidatorBehavior(_vm));
+            _vm = new TestViewModelBase(ViewModelManager) { ThreadDispatcher = ThreadDispatcher };
+            Validator.AddComponent(new ObservableValidatorBehavior(_vm));
         }
 
         [Fact]
@@ -38,25 +36,25 @@ namespace MugenMvvm.UnitTests.Validation.Components
             string propertyName = "test";
             var invokeCount = 0;
 
-            _messenger.AddComponent(new TestMessagePublisherComponent(_messenger)
+            Messenger.AddComponent(new TestMessagePublisherComponent
             {
-                TryPublish = context =>
+                TryPublish = (_, context) =>
                 {
                     ++invokeCount;
-                    context.Sender.ShouldEqual(_validator);
+                    context.Sender.ShouldEqual(Validator);
                     context.Message.ShouldEqual(propertyName);
                     return true;
                 }
             });
 
-            _viewModelManager.AddComponent(new TestViewModelServiceProviderComponent
+            ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
-                TryGetService = (_, _, _) => _messenger
+                TryGetService = (_,_, _, _) => Messenger
             });
 
-            _vm.Messenger.ShouldEqual(_messenger);
+            _vm.Messenger.ShouldEqual(Messenger);
             invokeCount.ShouldEqual(0);
-            _validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(_validator, propertyName, DefaultMetadata);
+            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -66,11 +64,12 @@ namespace MugenMvvm.UnitTests.Validation.Components
             string propertyName = "test";
             var invokeCount = 0;
 
-            _validator.AddComponent(new TestValidationHandlerComponent(_validator)
+            Validator.AddComponent(new TestValidationHandlerComponent
             {
-                TryValidateAsync = (s, _, _) =>
+                TryValidateAsync = (v, s, _, _) =>
                 {
                     ++invokeCount;
+                    v.ShouldEqual(Validator);
                     s.ShouldEqual(propertyName);
                     return Task.CompletedTask;
                 }
@@ -80,9 +79,15 @@ namespace MugenMvvm.UnitTests.Validation.Components
             _vm.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCount.ShouldEqual(1);
 
-            _validator.Dispose();
+            Validator.Dispose();
             _vm.OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IValidationManager GetValidationManager() => new ValidationManager(ComponentCollectionManager);
+
+        protected override IMessenger GetMessenger() => new Messenger(ComponentCollectionManager);
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
     }
 }

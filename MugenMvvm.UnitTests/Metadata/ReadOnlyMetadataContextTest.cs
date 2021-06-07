@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
@@ -18,7 +19,7 @@ namespace MugenMvvm.UnitTests.Metadata
         [Fact]
         public void TryGetShouldUseDefaultValues()
         {
-            var context = new ReadOnlyMetadataContext(new KeyValuePair<IMetadataContextKey, object?>[0]);
+            var context = new ReadOnlyMetadataContext(Array.Empty<KeyValuePair<IMetadataContextKey, object?>>());
             TryGetDefaultTest(context);
         }
 

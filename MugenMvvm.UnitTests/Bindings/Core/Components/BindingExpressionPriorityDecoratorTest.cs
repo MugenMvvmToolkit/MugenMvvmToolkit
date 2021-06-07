@@ -14,7 +14,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
+using MugenMvvm.Tests.Bindings.Core;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
@@ -24,14 +24,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class BindingExpressionPriorityDecoratorTest : UnitTestBase
     {
-        private readonly BindingManager _bindingManager;
         private readonly BindingExpressionPriorityDecorator _decorator;
 
         public BindingExpressionPriorityDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _bindingManager = new BindingManager(ComponentCollectionManager);
             _decorator = new BindingExpressionPriorityDecorator();
-            _bindingManager.AddComponent(_decorator);
+            BindingManager.AddComponent(_decorator);
         }
 
         [Fact]
@@ -39,17 +37,20 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var request = "";
             var exp = new TestBindingBuilder();
-            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            BindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, arg3) =>
+                TryParseBindingExpression = (m, o, arg3) =>
                 {
+                    m.ShouldEqual(BindingManager);
                     o.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
                     return exp;
                 }
             });
-            _bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
+            BindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -64,13 +65,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var expressions = new IBindingBuilder[]
             {
                 new NoPriorityBindingBuilder(),
-                new TestBindingBuilder {TargetExpression = new MemberExpressionNode(new MemberExpressionNode(null, minPriorityName), Guid.NewGuid().ToString())},
-                new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(maxPriorityName)},
-                new HasPriorityBindingBuilder {Priority = int.MaxValue - 1},
-                new TestBindingBuilder {TargetExpression = new HasPriorityExpressionNode {Priority = 1}},
-                new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(fakePriorityName)}
+                new TestBindingBuilder { TargetExpression = new MemberExpressionNode(new MemberExpressionNode(null, minPriorityName), Guid.NewGuid().ToString()) },
+                new TestBindingBuilder { TargetExpression = new TestBindingMemberExpressionNode(maxPriorityName) },
+                new HasPriorityBindingBuilder { Priority = int.MaxValue - 1 },
+                new TestBindingBuilder { TargetExpression = new HasPriorityExpressionNode { Priority = 1 } },
+                new TestBindingBuilder { TargetExpression = new TestBindingMemberExpressionNode(fakePriorityName) }
             };
-            var expected = new[] {expressions[2], expressions[3], expressions[5], expressions[4], expressions[0], expressions[1]};
+            var expected = new[] { expressions[2], expressions[3], expressions[5], expressions[4], expressions[0], expressions[1] };
             IList<IBindingBuilder> result;
             if (inputParameterState == 1)
                 result = expressions;
@@ -83,12 +84,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _decorator.BindingMemberPriorities.Clear();
             _decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
             _decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;
-            _bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            BindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, arg3) => ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(result)
+                TryParseBindingExpression = (_, _, _) => ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(result)
             });
 
-            var bindingExpressions = _bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var bindingExpressions = BindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
             bindingExpressions.ShouldEqual(expected);
         }
 

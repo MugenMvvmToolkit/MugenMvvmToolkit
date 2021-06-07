@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.ViewModels.Internal;
+using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Views;
 using MugenMvvm.Wrapping;
 using MugenMvvm.Wrapping.Components;
@@ -12,12 +13,9 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
 {
     public class ViewWrapperManagerDecoratorTest : UnitTestBase
     {
-        private readonly WrapperManager _wrapperManager;
-
         public ViewWrapperManagerDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _wrapperManager = new WrapperManager(ComponentCollectionManager);
-            _wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
+            WrapperManager.AddComponent(new ViewWrapperManagerDecorator());
         }
 
         [Fact]
@@ -28,7 +26,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
             var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
             var invokeCount = 0;
 
-            _wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
+            WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
             {
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
@@ -37,7 +35,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 return false;
             }, (type, r, arg4) => throw new NotSupportedException()));
 
-            _wrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
+            WrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
             invokeCount.ShouldEqual(1);
         }
 
@@ -47,7 +45,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
             var wrapperType = typeof(object);
             var view = new object();
             var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
-            _wrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeTrue();
+            WrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeTrue();
         }
 
         [Fact]
@@ -57,7 +55,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
             var request = "";
             var invokeCount = 0;
 
-            _wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
+            WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
             {
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
@@ -66,7 +64,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 return false;
             }, (type, r, arg4) => throw new NotSupportedException()));
 
-            _wrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
+            WrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
             invokeCount.ShouldEqual(1);
         }
 
@@ -78,7 +76,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
             var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel(), null, ComponentCollectionManager);
             var invokeCount = 0;
 
-            _wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
+            WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
             {
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
@@ -87,10 +85,10 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 return this;
             }));
 
-            _wrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            WrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
 
-            _wrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            WrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -101,7 +99,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
             var request = "";
             var invokeCount = 0;
 
-            _wrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
+            WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
             {
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
@@ -110,8 +108,10 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 return this;
             }));
 
-            _wrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            WrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
+
+        protected override IWrapperManager GetWrapperManager() => new WrapperManager(ComponentCollectionManager);
     }
 }

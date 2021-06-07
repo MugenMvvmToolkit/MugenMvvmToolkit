@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Internal;
+using MugenMvvm.Tests.Collections;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,11 +14,8 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class DiffableBindableCollectionAdapterTest : BindableCollectionAdapterTest
     {
-        private readonly ITestOutputHelper _outputHelper;
-
-        public DiffableBindableCollectionAdapterTest(ITestOutputHelper outputHelper)
+        public DiffableBindableCollectionAdapterTest(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-            _outputHelper = outputHelper;
         }
 
         [Fact]
@@ -26,7 +23,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var comparer = new TestDiffableEqualityComparer
             {
-                AreItemsTheSame = (x1, x2) => true
+                AreItemsTheSame = (_, _) => true
             };
 
             var items = new object[] { 1, 2, 3, 4 };
@@ -34,7 +31,7 @@ namespace MugenMvvm.UnitTests.Collections
 
             var observableCollection = new SynchronizedObservableCollection<object?>(items, ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(LocalThreadDispatcher, adapterCollection);
+            var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(ThreadDispatcher, adapterCollection);
             collectionAdapter.DiffableComparer = comparer;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
@@ -56,7 +53,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(LocalThreadDispatcher, adapterCollection);
+            var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(ThreadDispatcher, adapterCollection);
             collectionAdapter.DetectMoves = detectMoves;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
@@ -72,8 +69,8 @@ namespace MugenMvvm.UnitTests.Collections
 
                 Shuffle(items, random);
 #if DEBUG
-                _outputHelper.WriteLine($"before {string.Join(",", observableCollection.Select(model => $"\"{model}\""))}");
-                _outputHelper.WriteLine($"after {string.Join(",", items.Select(model => $"\"{model}\""))}");
+                Logger.Log(LogLevel.Debug, $"before {string.Join(",", observableCollection.Select(model => $"\"{model}\""))}");
+                Logger.Log(LogLevel.Debug, $"after {string.Join(",", items.Select(model => $"\"{model}\""))}");
 #endif
 
                 observableCollection.Reset(items);
@@ -85,12 +82,12 @@ namespace MugenMvvm.UnitTests.Collections
 
         private static void Shuffle<T>(List<T> list, Random rng)
         {
-            int n = list.Count;
+            var n = list.Count;
             while (n > 1)
             {
                 n--;
-                int k = rng.Next(n + 1);
-                T value = list[k];
+                var k = rng.Next(n + 1);
+                var value = list[k];
                 list[k] = list[n];
                 list[n] = value;
             }

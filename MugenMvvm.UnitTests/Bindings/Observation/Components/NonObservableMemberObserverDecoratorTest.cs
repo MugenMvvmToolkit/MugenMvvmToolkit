@@ -3,8 +3,8 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 
@@ -16,18 +16,17 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void ShouldIgnoreNonObservableMembers()
         {
             var memberObserver = new MemberObserver((o, o1, arg3, arg4) => ActionToken.NoDo, this);
-            var observationManager = new ObservationManager(ComponentCollectionManager);
-            observationManager.AddComponent(new NonObservableMemberObserverDecorator());
-            observationManager.AddComponent(new TestMemberObserverProviderComponent(observationManager)
+            ObservationManager.AddComponent(new NonObservableMemberObserverDecorator());
+            ObservationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (_, _, _) => memberObserver
+                TryGetMemberObserver = (_, _, _, _) => memberObserver
             });
-            var member = new TestAccessorMemberInfo {MemberFlags = MemberFlags.Instance};
+            var member = new TestAccessorMemberInfo { MemberFlags = MemberFlags.Instance };
 
-            observationManager.TryGetMemberObserver(typeof(object), member, DefaultMetadata).ShouldEqual(memberObserver);
+            ObservationManager.TryGetMemberObserver(typeof(object), member, DefaultMetadata).ShouldEqual(memberObserver);
 
             member.MemberFlags |= MemberFlags.NonObservable;
-            observationManager.TryGetMemberObserver(typeof(object), member, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            ObservationManager.TryGetMemberObserver(typeof(object), member, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
     }
 }

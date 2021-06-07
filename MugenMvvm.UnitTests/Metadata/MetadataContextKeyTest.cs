@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Serialization.Internal;
+using MugenMvvm.Tests.Serialization;
 using Should;
 using Xunit;
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Metadata
         public void FromBuilderShouldSetCustomMemento()
         {
             var memento = new TestMemento();
-            var key = MetadataContextKey.Create<int>("k").WithMemento(contextKey => memento).Serializable().Build();
+            var key = MetadataContextKey.Create<int>("k").WithMemento(_ => memento).Serializable().Build();
             ((IHasMemento) key).GetMemento().ShouldEqual(memento);
         }
 

@@ -2,29 +2,71 @@
 using System.Globalization;
 using System.Linq;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
+using MugenMvvm.Tests.Bindings.Members;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Members.Components
 {
+    [Collection(SharedContext)]
     public class MethodMemberAccessorDecoratorTest : UnitTestBase
     {
-        private readonly MemberManager _memberManager;
         private readonly ReflectionMemberProvider _reflectionMemberProvider;
 
         public MethodMemberAccessorDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _reflectionMemberProvider = new ReflectionMemberProvider(ObservationManager);
-            _memberManager = new MemberManager(ComponentCollectionManager);
-            _memberManager.AddComponent(TestMemberManagerComponent.Selector);
-            _memberManager.AddComponent(new NameRequestMemberManagerDecorator());
-            _memberManager.AddComponent(new MethodMemberAccessorDecorator(GlobalValueConverter));
+            MemberManager.AddComponent(TestMemberManagerComponent.Selector);
+            MemberManager.AddComponent(new NameRequestMemberManagerDecorator());
+            MemberManager.AddComponent(new MethodMemberAccessorDecorator(GlobalValueConverter));
+            RegisterDisposeToken(WithGlobalService(ReflectionManager));
+        }
+
+        [Fact]
+        public void TryGetMembersShouldHandleCustomMethodCall()
+        {
+            const int index = 1;
+            var accessor = new TestAccessorMemberInfo();
+            var method = new TestMethodMemberInfo
+            {
+                DeclaringType = typeof(object),
+                MemberFlags = MemberFlags.InstancePublic,
+                TryGetAccessor = (flags, objects, arg3) =>
+                {
+                    flags.ShouldEqual(default);
+                    objects!.Count.ShouldEqual(1);
+                    objects![0].ShouldEqual(1);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return accessor;
+                },
+                GetParameters = () => new[] { new TestParameterInfo { ParameterType = typeof(int) } }
+            };
+
+            MemberManager.AddComponent(new TestMemberProviderComponent
+            {
+                TryGetMembers = (_, _, _, t, _) =>
+                {
+                    if (t == MemberType.Method)
+                        return method;
+                    return default;
+                }
+            });
+            MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All,
+                             $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
+                         .IsEmpty
+                         .ShouldBeTrue();
+            MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
+                             $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
+                         .AsList()
+                         .OfType<TestAccessorMemberInfo>()
+                         .Single()
+                         .ShouldEqual(accessor);
         }
 
         [Fact]
@@ -45,23 +87,23 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 GetParameters = () => default
             };
 
-            _memberManager.AddComponent(new TestMemberProviderComponent
+            MemberManager.AddComponent(new TestMemberProviderComponent
             {
-                TryGetMembers = (type, s, t, arg3) =>
+                TryGetMembers = (_, _, _, t, _) =>
                 {
                     if (t == MemberType.Method)
                         return method;
                     return default;
                 }
             });
-            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
-                          .IsEmpty
-                          .ShouldBeTrue();
-            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
-                          .AsList()
-                          .OfType<TestAccessorMemberInfo>()
-                          .Single()
-                          .ShouldEqual(accessor);
+            MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
+                         .IsEmpty
+                         .ShouldBeTrue();
+            MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
+                         .AsList()
+                         .OfType<TestAccessorMemberInfo>()
+                         .Single()
+                         .ShouldEqual(accessor);
         }
 
         [Fact]
@@ -80,80 +122,39 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     arg3.ShouldEqual(DefaultMetadata);
                     return accessor;
                 },
-                GetParameters = () => new[] {new TestParameterInfo {ParameterType = typeof(string)}}
+                GetParameters = () => new[] { new TestParameterInfo { ParameterType = typeof(string) } }
             };
 
-            _memberManager.AddComponent(new TestMemberProviderComponent
+            MemberManager.AddComponent(new TestMemberProviderComponent
             {
-                TryGetMembers = (type, s, t, arg3) =>
+                TryGetMembers = (_, _, _, t, _) =>
                 {
                     if (t == MemberType.Method)
                         return method;
                     return default;
                 }
             });
-            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
-                          .IsEmpty
-                          .ShouldBeTrue();
-            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
-                          .AsList()
-                          .OfType<TestAccessorMemberInfo>()
-                          .Single()
-                          .ShouldEqual(accessor);
-        }
-
-        [Fact]
-        public void TryGetMembersShouldHandleCustomMethodCall()
-        {
-            const int index = 1;
-            var accessor = new TestAccessorMemberInfo();
-            var method = new TestMethodMemberInfo
-            {
-                DeclaringType = typeof(object),
-                MemberFlags = MemberFlags.InstancePublic,
-                TryGetAccessor = (flags, objects, arg3) =>
-                {
-                    flags.ShouldEqual(default);
-                    objects!.Count.ShouldEqual(1);
-                    objects![0].ShouldEqual(1);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return accessor;
-                },
-                GetParameters = () => new[] {new TestParameterInfo {ParameterType = typeof(int)}}
-            };
-
-            _memberManager.AddComponent(new TestMemberProviderComponent
-            {
-                TryGetMembers = (type, s, t, arg3) =>
-                {
-                    if (t == MemberType.Method)
-                        return method;
-                    return default;
-                }
-            });
-            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All,
-                              $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
-                          .IsEmpty
-                          .ShouldBeTrue();
-            _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
-                              $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
-                          .AsList()
-                          .OfType<TestAccessorMemberInfo>()
-                          .Single()
-                          .ShouldEqual(accessor);
+            MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Event, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
+                         .IsEmpty
+                         .ShouldBeTrue();
+            MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
+                         .AsList()
+                         .OfType<TestAccessorMemberInfo>()
+                         .Single()
+                         .ShouldEqual(accessor);
         }
 
         [Fact]
         public void TryGetMembersShouldHandleMethodCall()
         {
             const int index = 1;
-            _memberManager.AddComponent(_reflectionMemberProvider);
+            MemberManager.AddComponent(_reflectionMemberProvider);
 
-            var members = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
-                                            $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
-                                        .AsList()
-                                        .OfType<MethodAccessorMemberInfo>()
-                                        .ToList();
+            var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
+                                           $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
+                                       .AsList()
+                                       .OfType<MethodAccessorMemberInfo>()
+                                       .ToList();
             members.Count.ShouldEqual(4);
             var member = members.Single(info => info.ArgumentFlags == default);
             members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray)).ShouldNotBeNull();
@@ -179,14 +180,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleMethodCallArray()
         {
             const int index1 = 2;
-            var args = new[] {2, 3, 4, 56};
-            _memberManager.AddComponent(_reflectionMemberProvider);
+            var args = new[] { 2, 3, 4, 56 };
+            MemberManager.AddComponent(_reflectionMemberProvider);
 
-            var member = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
-                                           $"{nameof(TestMethodInvoker.GetValue)}({index1}, {string.Join(",", args)})", DefaultMetadata)
-                                       .AsList()
-                                       .OfType<MethodAccessorMemberInfo>()
-                                       .Single();
+            var member = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
+                                          $"{nameof(TestMethodInvoker.GetValue)}({index1}, {string.Join(",", args)})", DefaultMetadata)
+                                      .AsList()
+                                      .OfType<MethodAccessorMemberInfo>()
+                                      .Single();
             member.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray).ShouldBeTrue();
 
             var getter = 0;
@@ -209,13 +210,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleMethodCallEmptyArray()
         {
             const int index1 = 2;
-            _memberManager.AddComponent(_reflectionMemberProvider);
+            MemberManager.AddComponent(_reflectionMemberProvider);
 
-            var members = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})",
-                                            DefaultMetadata)
-                                        .AsList()
-                                        .OfType<MethodAccessorMemberInfo>()
-                                        .ToList();
+            var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})",
+                                           DefaultMetadata)
+                                       .AsList()
+                                       .OfType<MethodAccessorMemberInfo>()
+                                       .ToList();
             members.Count.ShouldEqual(4);
             var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.EmptyParamArray));
             members.Single(info => info.ArgumentFlags == default).ShouldNotBeNull();
@@ -242,13 +243,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleMethodCallMetadata()
         {
             const string index1 = "test";
-            _memberManager.AddComponent(_reflectionMemberProvider);
+            MemberManager.AddComponent(_reflectionMemberProvider);
 
-            var members = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')",
-                                            DefaultMetadata)
-                                        .AsList()
-                                        .OfType<MethodAccessorMemberInfo>()
-                                        .ToList();
+            var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')",
+                                           DefaultMetadata)
+                                       .AsList()
+                                       .OfType<MethodAccessorMemberInfo>()
+                                       .ToList();
             members.Count.ShouldEqual(2);
             var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata));
             members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional)).ShouldNotBeNull();
@@ -273,13 +274,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleMethodCallOptional()
         {
             const string index1 = "t1";
-            _memberManager.AddComponent(_reflectionMemberProvider);
+            MemberManager.AddComponent(_reflectionMemberProvider);
 
-            var members = _memberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')",
-                                            DefaultMetadata)
-                                        .AsList()
-                                        .OfType<MethodAccessorMemberInfo>()
-                                        .ToList();
+            var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')",
+                                           DefaultMetadata)
+                                       .AsList()
+                                       .OfType<MethodAccessorMemberInfo>()
+                                       .ToList();
             members.Count.ShouldEqual(2);
             var member = members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Optional));
             members.Single(info => info.ArgumentFlags.HasFlag(ArgumentFlags.Metadata)).ShouldNotBeNull();
@@ -299,6 +300,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             getter.ShouldEqual(1);
             ShouldThrow<InvalidOperationException>(() => member.SetValue(instance, null, DefaultMetadata));
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         public class TestMethodInvoker
         {

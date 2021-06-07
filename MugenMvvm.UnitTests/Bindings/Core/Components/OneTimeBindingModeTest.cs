@@ -6,8 +6,7 @@ using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.UnitTests.Bindings.Core.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
+using MugenMvvm.Tests.Bindings.Observation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,11 +15,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class OneTimeBindingModeTest : UnitTestBase
     {
-        private readonly TestBinding _binding;
-
         public OneTimeBindingModeTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _binding = new TestBinding(ComponentCollectionManager);
         }
 
         [Theory]
@@ -30,14 +26,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             var disposeCount = 0;
             var updateCount = 0;
-            
-            _binding.UpdateSource = () => throw new NotSupportedException();
-            _binding.UpdateTarget = () => ++updateCount;
-            _binding.Target = new TestMemberPathObserver
+
+            Binding.UpdateSource = () => throw new NotSupportedException();
+            Binding.UpdateTarget = () => ++updateCount;
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
             };
-            _binding.Source = new[]
+            Binding.Source = new[]
             {
                 new TestMemberPathObserver
                 {
@@ -48,10 +44,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
                 }
             };
-            _binding.Dispose = () => ++disposeCount;
+            Binding.Dispose = () => ++disposeCount;
 
             var mode = dispose ? OneTimeBindingMode.Instance : OneTimeBindingMode.NonDisposeInstance;
-            ((IAttachableComponent) mode).OnAttaching(_binding, DefaultMetadata).ShouldBeFalse();
+            ((IAttachableComponent)mode).OnAttaching(Binding, DefaultMetadata).ShouldBeFalse();
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }
@@ -67,10 +63,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var updateCount = 0;
             var isAvailableTarget = false;
             var isAvailableSource = false;
-            
-            _binding.UpdateSource = () => throw new NotSupportedException();
-            _binding.UpdateTarget = () => ++updateCount;
-            _binding.Target = new TestMemberPathObserver
+
+            Binding.UpdateSource = () => throw new NotSupportedException();
+            Binding.UpdateTarget = () => ++updateCount;
+            Binding.Target = new TestMemberPathObserver
             {
                 GetLastMember = metadata =>
                 {
@@ -79,7 +75,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return default;
                 }
             };
-            _binding.Source = new[]
+            Binding.Source = new[]
             {
                 new TestMemberPathObserver
                 {
@@ -95,29 +91,29 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
                 }
             };
-            _binding.Dispose = () => ++disposeCount;
+            Binding.Dispose = () => ++disposeCount;
             var mode = dispose ? OneTimeBindingMode.Instance : OneTimeBindingMode.NonDisposeInstance;
-            var listener = (IBindingSourceObserverListener) mode;
-            _binding.AddComponent(mode);
-            _binding.GetComponents<object>().Single().ShouldEqual(mode);
+            var listener = (IBindingSourceObserverListener)mode;
+            Binding.AddComponent(mode);
+            Binding.GetComponents<object>().Single().ShouldEqual(mode);
 
             isAvailableSource = true;
             if (lastMemberChanged)
-                listener.OnSourceLastMemberChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
             else
-                listener.OnSourcePathMembersChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
             disposeCount.ShouldEqual(0);
             updateCount.ShouldEqual(0);
 
             isAvailableTarget = true;
-            listener.OnSourceError(_binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            listener.OnSourceError(Binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
             disposeCount.ShouldEqual(0);
             updateCount.ShouldEqual(0);
 
             if (lastMemberChanged)
-                listener.OnSourceLastMemberChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
             else
-                listener.OnSourcePathMembersChanged(_binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }

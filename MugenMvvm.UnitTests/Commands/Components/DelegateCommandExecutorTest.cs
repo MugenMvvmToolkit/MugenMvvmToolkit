@@ -2,13 +2,12 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTests.Commands.Internal;
+using MugenMvvm.Tests.Commands;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -17,11 +16,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
 {
     public class DelegateCommandExecutorTest : UnitTestBase
     {
-        private readonly CompositeCommand _command;
-
         public DelegateCommandExecutorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _command = new CompositeCommand(null, ComponentCollectionManager);
         }
 
         [Fact]
@@ -30,7 +26,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var exception = new NotSupportedException();
             Action<IReadOnlyMetadataContext?> execute = m => throw exception;
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, null, default, null).AsTask();
+            var task = component.ExecuteAsync(Command, null, default, null).AsTask();
             task.IsFaulted.ShouldBeTrue();
             task.Exception!.GetBaseException().ShouldEqual(exception);
         }
@@ -45,7 +41,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 ++executed;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, default, DefaultMetadata);
             executed.ShouldEqual(1);
         }
 
@@ -60,7 +56,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 ++executed;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            await component.ExecuteAsync(_command, this, default, DefaultMetadata);
+            await component.ExecuteAsync(Command, this, default, DefaultMetadata);
             executed.ShouldEqual(1);
         }
 
@@ -77,11 +73,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return canExecuteValue;
             };
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.None, true);
-            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
+            component.CanExecute(Command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
+            component.CanExecute(Command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
         }
 
@@ -99,11 +95,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return canExecuteValue;
             };
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.None, true);
-            component.CanExecute(_command, this, DefaultMetadata).ShouldEqual(canExecuteValue);
+            component.CanExecute(Command, this, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.CanExecute(_command, this, DefaultMetadata).ShouldEqual(canExecuteValue);
+            component.CanExecute(Command, this, DefaultMetadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
         }
 
@@ -126,14 +122,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecute, true);
-            _command.AddComponent(component);
+            Command.AddComponent(component);
 
-            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, default, DefaultMetadata);
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, default, DefaultMetadata);
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
         }
@@ -157,16 +153,16 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.CheckCanExecuteThrow, true);
-            _command.AddComponent(component);
+            Command.AddComponent(component);
 
-            var task = component.ExecuteAsync(_command, null, default, DefaultMetadata).AsTask();
+            var task = component.ExecuteAsync(Command, null, default, DefaultMetadata).AsTask();
             task.IsFaulted.ShouldBeTrue();
             task.Exception!.GetBaseException().ShouldBeType<InvalidOperationException>();
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            task = component.ExecuteAsync(_command, null, default, DefaultMetadata).AsTask();
+            task = component.ExecuteAsync(Command, null, default, DefaultMetadata).AsTask();
             (await task).ShouldBeTrue();
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
@@ -191,10 +187,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             var component = new DelegateCommandExecutor<object>(execute, canExecute, CommandExecutionBehavior.None, true);
-            _command.AddComponent(component);
+            Command.AddComponent(component);
 
-            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
-            await component.ExecuteAsync(_command, null, default, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, default, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, default, DefaultMetadata);
             executed.ShouldEqual(2);
             canExecuted.ShouldEqual(0);
         }
@@ -212,7 +208,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            var task = component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
@@ -234,7 +230,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, this, DefaultCancellationToken, DefaultMetadata);
+            var task = component.ExecuteAsync(Command, this, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
@@ -257,7 +253,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return tcs.Task.AsValueTask();
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            var task = component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(result);
@@ -281,7 +277,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return tcs.Task.AsValueTask();
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, true);
-            var task = component.ExecuteAsync(_command, this, DefaultCancellationToken, DefaultMetadata);
+            var task = component.ExecuteAsync(Command, this, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(result);
@@ -304,15 +300,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
-            var task1 = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
-            var task2 = component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            var task1 = component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
+            var task2 = component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
 
-            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(value);
+            component.CanExecute(Command, null, DefaultMetadata).ShouldEqual(value);
             tcs.SetResult(this);
             await task1;
             await task2;
             executed.ShouldEqual(value ? 2 : 1);
-            await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(value ? 3 : 2);
         }
 
@@ -332,17 +328,17 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
-            var task1 = component.ExecuteAsync(_command, null, DefaultCancellationToken, context);
-            var task2 = component.ExecuteAsync(_command, null, DefaultCancellationToken, context);
+            var task1 = component.ExecuteAsync(Command, null, DefaultCancellationToken, context);
+            var task2 = component.ExecuteAsync(Command, null, DefaultCancellationToken, context);
 
-            component.CanExecute(_command, null, context).ShouldBeTrue();
+            component.CanExecute(Command, null, context).ShouldBeTrue();
             context = DefaultMetadata;
-            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(value);
+            component.CanExecute(Command, null, DefaultMetadata).ShouldEqual(value);
             tcs.SetResult(this);
             await task1;
             await task2;
             executed.ShouldEqual(2);
-            await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            await component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(3);
         }
 
@@ -355,17 +351,17 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var tcs = new TaskCompletionSource<object>();
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => tcs.Task;
 
-            var listener = new TestCommandEventHandlerComponent {RaiseCanExecuteChanged = c => { ++executed; }};
-            _command.AddComponent(listener);
+            var listener = new TestCommandEventHandlerComponent { RaiseCanExecuteChanged = c => { ++executed; } };
+            Command.AddComponent(listener);
 
             var component = new DelegateCommandExecutor<object>(execute, null, CommandExecutionBehavior.None, value);
-            _command.AddComponent(component);
+            Command.AddComponent(component);
             executed.ShouldEqual(1);
             executed = 0;
-            var task = _command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
+            var task = Command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(value ? 0 : 1);
 
-            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(value);
+            component.CanExecute(Command, null, DefaultMetadata).ShouldEqual(value);
             tcs.SetResult(this);
             await task;
             executed.ShouldEqual(value ? 0 : 2);
@@ -383,8 +379,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
             component.IsDisposable = canDispose;
             component.Dispose();
 
-            component.CanExecute(_command, null, DefaultMetadata).ShouldEqual(!canDispose);
-            await component.ExecuteAsync(_command, null, DefaultCancellationToken, DefaultMetadata);
+            component.CanExecute(Command, null, DefaultMetadata).ShouldEqual(!canDispose);
+            await component.ExecuteAsync(Command, null, DefaultCancellationToken, DefaultMetadata);
             executed.ShouldEqual(canDispose ? 0 : 1);
         }
     }

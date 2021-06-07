@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
-using MugenMvvm.UnitTests.Navigation.Internal;
+using MugenMvvm.Tests.Navigation;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,12 +13,9 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 {
     public class ForceCloseNavigationHandlerTest : UnitTestBase
     {
-        private readonly NavigationDispatcher _dispatcher;
-
         public ForceCloseNavigationHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _dispatcher = new NavigationDispatcher(ComponentCollectionManager);
-            _dispatcher.AddComponent(new ForceCloseNavigationHandler());
+            NavigationDispatcher.AddComponent(new ForceCloseNavigationHandler());
         }
 
         [Theory]
@@ -27,11 +24,12 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         public async Task CanNavigateAsyncShouldCheckForceCloseValue(bool value)
         {
             var invokeCount = 0;
-            var ctx = new NavigationContext(this, NavigationProvider.System, "0", NavigationType.Popup, NavigationMode.Close, NavigationMetadata.ForceClose.ToContext(value));
-            _dispatcher.AddComponent(new TestNavigationConditionComponent
+            var ctx = GetNavigationContext(this, metadata: NavigationMetadata.ForceClose.ToContext(value));
+            NavigationDispatcher.AddComponent(new TestNavigationConditionComponent
             {
-                CanNavigateAsync = (context, token) =>
+                CanNavigateAsync = (d, context, token) =>
                 {
+                    d.ShouldEqual(NavigationDispatcher);
                     context.ShouldEqual(ctx);
                     token.ShouldEqual(DefaultCancellationToken);
                     ++invokeCount;
@@ -39,8 +37,10 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 }
             });
 
-            (await _dispatcher.OnNavigatingAsync(ctx, DefaultCancellationToken)).ShouldEqual(value);
+            (await NavigationDispatcher.OnNavigatingAsync(ctx, DefaultCancellationToken)).ShouldEqual(value);
             invokeCount.ShouldEqual(value ? 0 : 1);
         }
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
     }
 }

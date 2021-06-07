@@ -2,9 +2,10 @@
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Tests.Threading;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTests.Components;
-using MugenMvvm.UnitTests.Threading.Internal;
 using Should;
 using Xunit;
 
@@ -13,14 +14,14 @@ namespace MugenMvvm.UnitTests.Threading
     public class ThreadDispatcherTest : ComponentOwnerTestBase<ThreadDispatcher>
     {
         [Fact]
-        public void CanExecuteInlineShouldReturnFalseNoComponents() => GetComponentOwner(ComponentCollectionManager).CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
+        public void CanExecuteInlineShouldReturnFalseNoComponents() =>
+            ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
 
         [Fact]
         public void ExecuteShouldThrowNoComponents()
         {
-            var dispatcher = GetComponentOwner(ComponentCollectionManager);
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, t => { }, dispatcher));
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), dispatcher));
+            ShouldThrow<InvalidOperationException>(() => ThreadDispatcher.Execute(ThreadExecutionMode.Background, t => { }, ThreadDispatcher));
+            ShouldThrow<InvalidOperationException>(() => ThreadDispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), ThreadDispatcher));
         }
 
         [Theory]
@@ -28,33 +29,33 @@ namespace MugenMvvm.UnitTests.Threading
         [InlineData(10)]
         public void CanExecuteInlineShouldBeHandledByComponents(int count)
         {
-            var dispatcher = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var mode = ThreadExecutionMode.Background;
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestThreadDispatcherComponent(dispatcher)
+                var component = new TestThreadDispatcherComponent
                 {
                     Priority = -i,
-                    CanExecuteInline = (mode, m) =>
+                    CanExecuteInline = (d, mode, m) =>
                     {
-                        ++executeCount;
+                        d.ShouldEqual(ThreadDispatcher);
                         mode.ShouldEqual(mode);
                         m.ShouldEqual(DefaultMetadata);
+                        ++executeCount;
                         return result;
                     }
                 };
-                dispatcher.AddComponent(component);
+                ThreadDispatcher.AddComponent(component);
             }
 
-            dispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
+            ThreadDispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             result = true;
             mode = ThreadExecutionMode.Current;
-            dispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
+            ThreadDispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
 
@@ -63,38 +64,39 @@ namespace MugenMvvm.UnitTests.Threading
         [InlineData(10)]
         public void ExecuteShouldBeHandledByComponents(int count)
         {
-            var dispatcher = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var mode = ThreadExecutionMode.Background;
             object? handler = null;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestThreadDispatcherComponent(dispatcher)
+                ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
                 {
-                    TryExecute = (m, h, state, meta) =>
+                    TryExecute = (d, m, h, state, meta) =>
                     {
-                        ++executeCount;
+                        d.ShouldEqual(ThreadDispatcher);
                         h.ShouldEqual(handler);
                         mode.ShouldEqual(m);
-                        state.ShouldEqual(dispatcher);
+                        state.ShouldEqual(ThreadDispatcher);
                         meta.ShouldEqual(DefaultMetadata);
+                        ++executeCount;
                         return isLast;
                     },
                     Priority = -i
-                };
-                dispatcher.AddComponent(component);
+                });
             }
 
             handler = new Action<ThreadDispatcher>(t => { });
-            dispatcher.TryExecute(mode, handler, dispatcher, DefaultMetadata);
+            ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             handler = new TestThreadDispatcherHandler();
-            dispatcher.TryExecute(mode, handler, dispatcher, DefaultMetadata);
+            ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
         }
+
+        protected override IThreadDispatcher GetThreadDispatcher() => GetComponentOwner(ComponentCollectionManager);
 
         protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

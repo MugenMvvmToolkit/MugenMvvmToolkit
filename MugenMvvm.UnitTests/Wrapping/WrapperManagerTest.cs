@@ -1,8 +1,9 @@
 ﻿using System;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Tests.Wrapping;
 using MugenMvvm.UnitTests.Components;
-using MugenMvvm.UnitTests.Wrapping.Internal;
 using MugenMvvm.Wrapping;
 using MugenMvvm.Wrapping.Components;
 using Should;
@@ -13,24 +14,22 @@ namespace MugenMvvm.UnitTests.Wrapping
     public class WrapperManagerTest : ComponentOwnerTestBase<WrapperManager>
     {
         [Fact]
-        public void WrapShouldThrowNoComponents()
-        {
-            ShouldThrow<ArgumentException>(() => GetComponentOwner(ComponentCollectionManager).Wrap(typeof(IComponent), this, DefaultMetadata));
-        }
+        public void WrapShouldThrowNoComponents() => ShouldThrow<ArgumentException>(() => WrapperManager.Wrap(typeof(IComponent), this, DefaultMetadata));
+
+        protected override IWrapperManager GetWrapperManager() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
         public void CanWrapShouldBeHandledByComponents(int count)
         {
-            var manager = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var expectedTargetType = GetType();
             var expectedWrapperType = typeof(bool);
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new DelegateWrapperManager<object, object>((wrapperType, targetType, metadata) =>
+                WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((wrapperType, targetType, metadata) =>
                 {
                     ++executeCount;
                     targetType.ShouldEqual(expectedTargetType);
@@ -40,16 +39,15 @@ namespace MugenMvvm.UnitTests.Wrapping
                 }, (o, type1, arg4) => null)
                 {
                     Priority = -i
-                };
-                manager.AddComponent(component);
+                });
             }
 
-            manager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
+            WrapperManager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             result = true;
-            manager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
+            WrapperManager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
 
@@ -58,7 +56,6 @@ namespace MugenMvvm.UnitTests.Wrapping
         [InlineData(10)]
         public void WrapShouldBeHandledByComponents(int count)
         {
-            var manager = GetComponentOwner(ComponentCollectionManager);
             var executeCount = 0;
             var listenerExecuteCount = 0;
             var expectedWrapperType = typeof(bool);
@@ -66,11 +63,11 @@ namespace MugenMvvm.UnitTests.Wrapping
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new DelegateWrapperManager<object, object>((wrapperType, targetType, metadata) => true,
+                WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((wrapperType, targetType, metadata) => true,
                     (wrapperType, t, metadata) =>
                     {
                         ++executeCount;
-                        t.ShouldEqual(manager);
+                        t.ShouldEqual(WrapperManager);
                         wrapperType.ShouldEqual(expectedWrapperType);
                         metadata.ShouldEqual(DefaultMetadata);
                         if (isLast)
@@ -79,21 +76,21 @@ namespace MugenMvvm.UnitTests.Wrapping
                     })
                 {
                     Priority = -i
-                };
-                manager.AddComponent(component);
-                manager.AddComponent(new TestWrapperManagerListener(manager)
+                });
+                WrapperManager.AddComponent(new TestWrapperManagerListener
                 {
-                    OnWrapped = (wrapper, item, metadata) =>
+                    OnWrapped = (m, wrapper, item, metadata) =>
                     {
                         ++listenerExecuteCount;
+                        m.ShouldEqual(WrapperManager);
                         wrapper.ShouldEqual(result);
-                        item.ShouldEqual(manager);
+                        item.ShouldEqual(WrapperManager);
                         metadata.ShouldEqual(DefaultMetadata);
                     }
                 });
             }
 
-            manager.Wrap(expectedWrapperType, manager, DefaultMetadata).ShouldEqual(result);
+            WrapperManager.Wrap(expectedWrapperType, WrapperManager, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
             listenerExecuteCount.ShouldEqual(count);
         }

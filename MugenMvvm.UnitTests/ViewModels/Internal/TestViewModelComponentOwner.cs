@@ -2,6 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Tests.ViewModels;
 
 namespace MugenMvvm.UnitTests.ViewModels.Internal
 {

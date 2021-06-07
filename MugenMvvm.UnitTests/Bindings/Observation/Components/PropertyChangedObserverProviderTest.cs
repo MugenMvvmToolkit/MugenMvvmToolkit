@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel;
+using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTests.Bindings.Members.Internal;
-using MugenMvvm.UnitTests.Bindings.Observation.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
+using MugenMvvm.Tests.Bindings.Members;
+using MugenMvvm.Tests.Bindings.Observation;
+using MugenMvvm.Tests.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
@@ -12,34 +13,33 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 {
+    [Collection(SharedContext)]
     public class PropertyChangedObserverProviderTest : UnitTestBase
     {
-        private readonly ObservationManager _observationManager;
-
         public PropertyChangedObserverProviderTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _observationManager = new ObservationManager(ComponentCollectionManager);
-            _observationManager.AddComponent(new PropertyChangedObserverProvider(AttachedValueManager));
+            ObservationManager.AddComponent(new PropertyChangedObserverProvider(AttachedValueManager));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
         public void TryGetMemberObserverShouldObservePropertyChanged1()
         {
             const string propertyName = nameof(TestNotifyPropertyChangedModel.Property);
-            var target = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+            var target = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
             var listener = new TestWeakEventListener
             {
                 IsAlive = true,
                 TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
-                    ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
                     return true;
                 }
             };
 
             var member = target.GetType().GetProperty(propertyName);
-            var observer = _observationManager.TryGetMemberObserver(target.GetType(), member!, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member!, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -57,20 +57,20 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void TryGetMemberObserverShouldObservePropertyChanged2()
         {
             const string propertyName = "Test";
-            var target = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+            var target = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
             var listener = new TestWeakEventListener
             {
                 IsAlive = true,
                 TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
-                    ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
                     return true;
                 }
             };
 
-            var member = new TestAccessorMemberInfo {Name = propertyName};
-            var observer = _observationManager.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
+            var member = new TestAccessorMemberInfo { Name = propertyName };
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -100,8 +100,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             };
 
-            var member = new TestAccessorMemberInfo {Name = propertyName};
-            var observer = _observationManager.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
+            var member = new TestAccessorMemberInfo { Name = propertyName };
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -117,6 +117,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
         [Fact]
         public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest() =>
-            _observationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            ObservationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
     }
 }

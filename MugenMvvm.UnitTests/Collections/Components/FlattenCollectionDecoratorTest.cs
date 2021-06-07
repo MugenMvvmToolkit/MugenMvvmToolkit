@@ -8,6 +8,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
+using MugenMvvm.Tests.Collections;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
@@ -362,10 +363,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             var beginCount = 0;
             var endCount = 0;
-            _targetCollection.AddComponent(new TestCollectionBatchUpdateListener(_targetCollection)
+            _targetCollection.AddComponent(new TestCollectionBatchUpdateListener
             {
-                OnBeginBatchUpdate = t => beginCount += t == BatchUpdateType.Decorators ? 1 : 0,
-                OnEndBatchUpdate = t => endCount += t == BatchUpdateType.Decorators ? 1 : 0
+                OnBeginBatchUpdate = (_, t) => beginCount += t == BatchUpdateType.Decorators ? 1 : 0,
+                OnEndBatchUpdate = (_, t) => endCount += t == BatchUpdateType.Decorators ? 1 : 0
             });
 
             var t = _itemCollection1.GetComponent<ICollectionDecoratorManagerComponent>().BatchUpdate(_itemCollection1);
@@ -384,10 +385,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             var beginCount = 0;
             var endCount = 0;
-            _targetCollection.AddComponent(new TestCollectionBatchUpdateListener(_targetCollection)
+            _targetCollection.AddComponent(new TestCollectionBatchUpdateListener
             {
-                OnBeginBatchUpdate = t => beginCount += t == BatchUpdateType.Decorators ? 1 : 0,
-                OnEndBatchUpdate = t => endCount += t == BatchUpdateType.Decorators ? 1 : 0
+                OnBeginBatchUpdate = (_, t) => beginCount += t == BatchUpdateType.Decorators ? 1 : 0,
+                OnEndBatchUpdate = (_, t) => endCount += t == BatchUpdateType.Decorators ? 1 : 0
             });
 
             var t = _itemCollection1.BatchUpdate();
