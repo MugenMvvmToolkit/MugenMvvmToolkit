@@ -68,8 +68,23 @@ namespace MugenMvvm.Metadata
         }
 
         private static string GenerateKey(Type declaredType, string fieldOrPropertyName)
-            => declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
-               declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
+        {
+#if SPAN_API
+            var length = declaredType.Name.Length + 4 + fieldOrPropertyName.Length + 4;
+            if (length < 256)
+            {
+                Span<char> st = stackalloc char[length];
+                declaredType.Name.AsSpan().CopyTo(st);
+                declaredType.FullName!.Length.TryFormat(st.Slice(declaredType.Name.Length), out var written1, default, CultureInfo.InvariantCulture);
+                fieldOrPropertyName.AsSpan().CopyTo(st.Slice(declaredType.Name.Length + written1));
+                declaredType.AssemblyQualifiedName!.Length.TryFormat(st.Slice(declaredType.Name.Length + written1 + fieldOrPropertyName.Length), out var written2, default,
+                    CultureInfo.InvariantCulture);
+                return new string(st.Slice(0, declaredType.Name.Length + written1 + fieldOrPropertyName.Length + written2));
+            }
+#endif
+            return declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
+                   declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
+        }
 
         public sealed override bool Equals(object? obj)
         {
@@ -282,12 +297,12 @@ namespace MugenMvvm.Metadata
 
                     if (rawValue == null)
                         return default!;
-                    return (T) rawValue!;
+                    return (T)rawValue!;
                 }
 
                 if (GetValueFunc is Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, T> f)
                     return f(metadataContext, this, rawValue, value!);
-                return ((Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>) GetValueFunc).Invoke(metadataContext, this, rawValue);
+                return ((Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>)GetValueFunc).Invoke(metadataContext, this, rawValue);
             }
 
             private IMemento? GetMementoInternal()

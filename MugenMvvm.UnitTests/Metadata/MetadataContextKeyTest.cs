@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Metadata;
@@ -18,7 +19,7 @@ namespace MugenMvvm.UnitTests.Metadata
         {
             var memento = new TestMemento();
             var key = MetadataContextKey.Create<int>("k").WithMemento(_ => memento).Serializable().Build();
-            ((IHasMemento) key).GetMemento().ShouldEqual(memento);
+            ((IHasMemento)key).GetMemento().ShouldEqual(memento);
         }
 
         [Fact]
@@ -48,6 +49,7 @@ namespace MugenMvvm.UnitTests.Metadata
             var newValue = 100;
             IMetadataContextKey<int>? contextKey = null;
             var builder = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField));
+            builder.Key.ShouldEqual(GenerateKey(GetType(), nameof(ContextKeyField)));
             contextKey = builder.Setter((context, key, oldV, newV) =>
             {
                 ++setterCount;
@@ -195,7 +197,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var memento = ((IHasMemento) key).GetMemento()!;
+            var memento = ((IHasMemento)key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(EmptySerializationContext);
             ContextKeyField = MetadataContextKey.FromKey<int>("121");
@@ -222,7 +224,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var memento = ((IHasMemento) key).GetMemento()!;
+            var memento = ((IHasMemento)key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(EmptySerializationContext);
             ContextKeyProperty = MetadataContextKey.FromKey<int>("121");
@@ -251,7 +253,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var memento = ((IHasMemento) key).GetMemento()!;
+            var memento = ((IHasMemento)key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(EmptySerializationContext);
             ContextKeyField = MetadataContextKey.FromKey<int>("121");
@@ -281,7 +283,7 @@ namespace MugenMvvm.UnitTests.Metadata
                 return;
             }
 
-            var memento = ((IHasMemento) key).GetMemento()!;
+            var memento = ((IHasMemento)key).GetMemento()!;
             memento.TargetType.ShouldEqual(key.GetType());
             memento.Preserve(EmptySerializationContext);
             ContextKeyProperty = MetadataContextKey.FromKey<int>("121");
@@ -289,5 +291,9 @@ namespace MugenMvvm.UnitTests.Metadata
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyProperty);
         }
+
+        private static string GenerateKey(Type declaredType, string fieldOrPropertyName) =>
+            declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
+            declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
     }
 }
