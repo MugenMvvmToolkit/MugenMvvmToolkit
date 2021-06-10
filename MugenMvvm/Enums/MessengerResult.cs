@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class MessengerResult : EnumBase<MessengerResult, int>
     {
         public static readonly MessengerResult Handled = new(1);

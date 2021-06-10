@@ -2,6 +2,7 @@
 {
     internal static class InternalConstant
     {
+        public const string DataContractNamespace = "http://schemas.mugenmvvm.com";
         public const string ViewsValueKey = "!~@V";
         public const string CallbackMetadataKey = "!~@C";
         public const string BackgroundNavigationId = "!b!";

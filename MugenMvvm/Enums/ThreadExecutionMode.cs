@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class ThreadExecutionMode : EnumBase<ThreadExecutionMode, int>
     {
         public static readonly ThreadExecutionMode Current = new(0);

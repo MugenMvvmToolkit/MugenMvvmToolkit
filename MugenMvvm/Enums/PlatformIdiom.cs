@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class PlatformIdiom : EnumBase<PlatformIdiom, string>
     {
         public static readonly PlatformIdiom Desktop = new(nameof(Desktop));

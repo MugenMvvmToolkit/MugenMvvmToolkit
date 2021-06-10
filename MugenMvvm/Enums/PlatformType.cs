@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class PlatformType : EnumBase<PlatformType, string>
     {
         public static readonly PlatformType Android = new(nameof(Android));

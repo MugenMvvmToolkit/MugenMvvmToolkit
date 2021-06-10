@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class LogLevel : EnumBase<LogLevel, string>
     {
         public static readonly LogLevel Trace = new(nameof(Trace));

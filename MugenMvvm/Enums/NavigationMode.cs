@@ -7,7 +7,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class NavigationMode : EnumBase<NavigationMode, string>
     {
         public static readonly NavigationMode Undefined = new(nameof(Undefined));

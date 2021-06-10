@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class ExpressionNodeType : EnumBase<ExpressionNodeType, int>
     {
         public static readonly ExpressionNodeType Binary = new(1);

@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class MetadataOperationType : EnumBase<MetadataOperationType, int>
     {
         public new static readonly MetadataOperationType Get = new(1);

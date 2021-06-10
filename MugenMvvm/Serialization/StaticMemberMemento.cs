@@ -11,7 +11,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Serialization
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     public sealed class StaticMemberMemento : IMemento
     {

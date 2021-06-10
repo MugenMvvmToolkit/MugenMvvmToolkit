@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class BindingLifecycleState : EnumBase<BindingLifecycleState, string>
     {
         public static readonly BindingLifecycleState Initialized = new(nameof(Initialized));

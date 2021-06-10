@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class CommandExecutionBehavior : EnumBase<CommandExecutionBehavior, int>
     {
         public const int NoneValue = 0;

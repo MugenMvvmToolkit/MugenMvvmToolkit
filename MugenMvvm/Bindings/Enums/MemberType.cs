@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class MemberType : FlagsEnumBase<MemberType, ushort>
     {
         public static readonly MemberType Accessor = new(1 << 0, nameof(Accessor));

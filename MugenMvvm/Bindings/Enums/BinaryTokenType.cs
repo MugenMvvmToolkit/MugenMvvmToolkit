@@ -9,7 +9,7 @@ namespace MugenMvvm.Bindings.Enums
 {
     //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/index
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>
     {
         public static readonly BinaryTokenType Multiplication = new("*", 990);

@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class UnaryTokenType : EnumBase<UnaryTokenType, string>
     {
         public static readonly UnaryTokenType DynamicExpression = new("$") {IsSingleExpression = true};

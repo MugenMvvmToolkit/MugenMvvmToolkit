@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public abstract class EnumBase<TEnum, TValue> : IEnum, IHasId<TValue>, IComparable<TEnum?>, IEquatable<TEnum?>
         where TEnum : EnumBase<TEnum, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>

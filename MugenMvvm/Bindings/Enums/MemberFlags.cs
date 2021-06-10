@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class MemberFlags : FlagsEnumBase<MemberFlags, ushort>, IHasPriority
     {
         private const int AttachedPriority = 1000000;

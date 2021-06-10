@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class BindingMemberExpressionFlags : FlagsEnumBase<BindingMemberExpressionFlags, ushort>
     {
         public static readonly BindingMemberExpressionFlags StablePath = new(1 << 0, nameof(StablePath));

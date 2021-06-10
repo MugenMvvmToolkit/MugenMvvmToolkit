@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class ViewLifecycleState : EnumBase<ViewLifecycleState, string>
     {
         public static readonly ViewLifecycleState Initializing = new(nameof(Initializing));

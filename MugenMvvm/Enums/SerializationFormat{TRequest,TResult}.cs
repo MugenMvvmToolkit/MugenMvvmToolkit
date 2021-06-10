@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Serialization;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class SerializationFormat<TRequest, TResult> : EnumBase<SerializationFormat<TRequest, TResult>, int>, ISerializationFormat<TRequest, TResult>
     {
         public SerializationFormat(int value, string? name = null) : base(value, name)

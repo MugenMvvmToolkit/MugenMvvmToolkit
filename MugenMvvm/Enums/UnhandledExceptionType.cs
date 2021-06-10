@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class UnhandledExceptionType : EnumBase<UnhandledExceptionType, int>
     {
         public static readonly UnhandledExceptionType Binding = new(1);

@@ -6,7 +6,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class ApplicationFlags : FlagsEnumBase<ApplicationFlags, long>
     {
         public static readonly ApplicationFlags Initialized = new(1, nameof(Initialized));

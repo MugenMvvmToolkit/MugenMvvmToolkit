@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
+    [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class ArgumentFlags : FlagsEnumBase<ArgumentFlags, ushort>, IHasPriority
     {
         public static readonly ArgumentFlags Metadata = new(1 << 0, -1, nameof(Metadata));
