@@ -3,6 +3,7 @@ using System.ComponentModel;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -35,6 +36,8 @@ namespace MugenMvvm.ViewModels
         public bool IsBusy => BusyToken != null;
 
         public IBusyToken? BusyToken => _busyManager?.TryGetToken<object?>(null, (_, token, _) => !token.IsSuspended && !token.IsCompleted);
+
+        public IMugenApplication Application => MugenExtensions.DefaultIfNull<IMugenApplication>(null, this);
 
         public IBusyManager BusyManager => _busyManager ?? this.InitializeService(ref _busyManager, null, (vm, manager) => manager.AddComponent(vm));
 
