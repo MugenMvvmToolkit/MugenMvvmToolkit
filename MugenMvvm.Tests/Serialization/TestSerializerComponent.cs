@@ -9,9 +9,9 @@ namespace MugenMvvm.Tests.Serialization
 {
     public class TestSerializerComponent<TRequest, TResult> : ISerializerComponent<TRequest, TResult>, IHasPriority
     {
-        public Func<ISerializer, ISerializationFormatBase, object?, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
+        public Func<ISerializer, ISerializationFormat<TRequest, TResult>, TRequest?, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
-        public Func<ISerializer, object, ISerializationContext, object?>? TrySerialize { get; set; }
+        public Func<ISerializer, ISerializationFormat<TRequest, TResult>, TRequest, TResult, ISerializationContext, object?>? TrySerialize { get; set; }
 
         public int Priority { get; set; }
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.Tests.Serialization
             ISerializationContext serializationContext,
             [NotNullWhen(true)] [AllowNull] ref TResult result)
         {
-            result = (TResult)TrySerialize?.Invoke(serializer, request!, serializationContext)!;
+            result = (TResult)TrySerialize?.Invoke(serializer, format, request!, result!, serializationContext)!;
             return result != null;
         }
     }

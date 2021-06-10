@@ -222,7 +222,8 @@ namespace MugenMvvm.Tests
 
             if (_services.TryGetValue(serviceType, out var p))
                 return p.GetValue(this);
-            return null;
+
+            return ServiceProvider.GetService(serviceType);
         }
 
         protected virtual IAttachedValueManager GetAttachedValueManager()
@@ -304,7 +305,7 @@ namespace MugenMvvm.Tests
             viewModelManager.AddComponent(new ViewModelServiceProvider(ReflectionManager, ValidationManager, ThreadDispatcher, ComponentCollectionManager)
                 { Priority = ComponentPriority.Min });
             viewModelManager.AddComponent(this);
-            viewModelManager.AddComponent(new ViewModelProvider(ServiceProvider) { Priority = ComponentPriority.Min });
+            viewModelManager.AddComponent(new ViewModelProvider(this) { Priority = ComponentPriority.Min });
             return viewModelManager;
         }
 
