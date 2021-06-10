@@ -11,6 +11,7 @@
         public const int PostInitializer = -10;
         public const int LifecycleTracker = -100;
         public const int UndefinedMappingDecorator = ViewModelViewProviderDecorator + 10;
+        public const int RawViewDispatcher = ComponentPriority.Max;
 #if ANDROID
         public const int ActivityRequestDecorator = ExecutionModeDecorator + 10;
         public const int ResourceMappingDecorator = MappingProvider + 10;

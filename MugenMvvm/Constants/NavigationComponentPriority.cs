@@ -8,5 +8,6 @@
         public const int CallbackInvoker = 0;
         public const int Condition = 0;
         public const int ForceCloseHandler = ComponentPriority.Decorator;
+        public const int EntryManager = ComponentPriority.Max;
     }
 }

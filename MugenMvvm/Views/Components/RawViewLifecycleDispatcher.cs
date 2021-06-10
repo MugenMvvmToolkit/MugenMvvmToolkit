@@ -11,7 +11,7 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class RawViewLifecycleDispatcher : ComponentDecoratorBase<IViewManager, IViewLifecycleListener>, IViewLifecycleListener
     {
-        public RawViewLifecycleDispatcher(int priority = ComponentPriority.Max) : base(priority)
+        public RawViewLifecycleDispatcher(int priority = ViewComponentPriority.RawViewDispatcher) : base(priority)
         {
         }
 

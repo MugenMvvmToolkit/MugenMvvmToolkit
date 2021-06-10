@@ -23,7 +23,7 @@ namespace MugenMvvm.Navigation.Components
         private readonly NavigationEntryListener _navigationListener;
 
         [Preserve(Conditional = true)]
-        public NavigationEntryManager(int priority = ComponentPriority.Max)
+        public NavigationEntryManager(int priority = NavigationComponentPriority.EntryManager)
             : base(priority)
         {
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
@@ -114,7 +114,7 @@ namespace MugenMvvm.Navigation.Components
             }
             else if (updatedEntry != null && !isPending)
             {
-                ((NavigationEntry) updatedEntry).IsPending = false;
+                ((NavigationEntry)updatedEntry).IsPending = false;
                 navigationDispatcher
                     .GetComponents<INavigationEntryListener>(metadata)
                     .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationInfo);
