@@ -170,6 +170,9 @@ namespace MugenMvvm.Collections.Components
 
         public void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex)
         {
+            if (oldIndex == newIndex)
+                return;
+
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
@@ -177,7 +180,7 @@ namespace MugenMvvm.Collections.Components
             using var token = BatchUpdate(collection);
             for (var i = startIndex; i < decorators.Count; i++)
             {
-                if (!decorators[i].OnMoved(collection, ref item, ref oldIndex, ref newIndex))
+                if (!decorators[i].OnMoved(collection, ref item, ref oldIndex, ref newIndex) || oldIndex == newIndex)
                     return;
             }
 

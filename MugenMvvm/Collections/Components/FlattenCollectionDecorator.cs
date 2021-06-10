@@ -203,7 +203,8 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             flattenCollectionItem.Add(originalNewIndex);
-            flattenCollectionItem.OnMoved(oldIndex, newIndex);
+            if (oldIndex != newIndex)
+                flattenCollectionItem.OnMoved(oldIndex, newIndex);
             return false;
         }
 
