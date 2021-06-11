@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Busy;
-using MugenMvvm.Extensions;
+﻿using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -20,7 +19,15 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
     {
         public InheritParentViewModelServiceProviderTest()
         {
-            ViewModelManager.AddComponent(new InheritParentViewModelServiceProvider());
+            var component = new InheritParentViewModelServiceProvider
+            {
+                ServiceMapping =
+                {
+                    [typeof(IBusyManager)] = InheritParentViewModelServiceProvider.GetService<IBusyManager>,
+                    [typeof(IMessenger)] = InheritParentViewModelServiceProvider.GetService<IMessenger>
+                }
+            };
+            ViewModelManager.AddComponent(component);
             ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (v, _, o, _) =>

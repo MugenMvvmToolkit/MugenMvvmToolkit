@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Busy;
-using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -20,17 +18,13 @@ namespace MugenMvvm.ViewModels.Components
 
         public InheritParentViewModelServiceProvider()
         {
-            ServiceMapping = new Dictionary<Type, Func<IViewModelBase, object?>>(3, InternalEqualityComparer.Type)
-            {
-                {typeof(IBusyManager), GetService<IBusyManager>},
-                {typeof(IMessenger), GetService<IMessenger>}
-            };
+            ServiceMapping = new Dictionary<Type, Func<IViewModelBase, object?>>(3, InternalEqualityComparer.Type);
         }
 
         public int Priority { get; set; } = ViewModelComponentPriority.InheritParentServiceResolver;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.GetService(false);
+        public static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.GetService(false);
 
         public object? TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
