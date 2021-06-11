@@ -1,11 +1,14 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.Tests.Internal;
+using MugenMvvm.Tests.Threading;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
@@ -20,13 +23,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         {
             ObservationManager.AddComponent(new PropertyChangedObserverProvider(AttachedValueManager));
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
+            RegisterDisposeToken(WithGlobalService(ThreadDispatcher));
         }
 
         [Fact]
         public void TryGetMemberObserverShouldObservePropertyChanged1()
         {
             const string propertyName = nameof(TestNotifyPropertyChangedModel.Property);
-            var target = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
+            var target = new TestNotifyPropertyChangedModel();
             var listener = new TestWeakEventListener
             {
                 IsAlive = true,
@@ -57,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void TryGetMemberObserverShouldObservePropertyChanged2()
         {
             const string propertyName = "Test";
-            var target = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
+            var target = new TestNotifyPropertyChangedModel();
             var listener = new TestWeakEventListener
             {
                 IsAlive = true,
@@ -112,6 +116,50 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
             actionToken.Dispose();
             target.Value!.Raise(target, propertyName, propertyName, null);
+            listener.InvokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryGetMemberObserverShouldRaiseOnMainThread()
+        {
+            const string propertyName = nameof(TestNotifyPropertyChangedModel.Property);
+            var target = new TestNotifyPropertyChangedModel();
+            var listener = new TestWeakEventListener
+            {
+                IsAlive = true,
+                TryHandle = (o, o1, m) =>
+                {
+                    o.ShouldEqual(target);
+                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
+                    return true;
+                }
+            };
+
+            Action? invokeAction = null;
+            ThreadDispatcher.ClearComponents();
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            {
+                CanExecuteInline = (_, mode, _) => mode != ThreadExecutionMode.Main,
+                Execute = (_, action, m, s, _) =>
+                {
+                    m.ShouldEqual(ThreadExecutionMode.Main);
+                    invokeAction = () => action(s);
+                    return true;
+                }
+            });
+
+            var member = target.GetType().GetProperty(propertyName);
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member!, DefaultMetadata);
+            observer.IsEmpty.ShouldBeFalse();
+
+            var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
+            actionToken.IsEmpty.ShouldBeFalse();
+            listener.InvokeCount.ShouldEqual(0);
+
+            target.OnPropertyChanged(propertyName);
+            listener.InvokeCount.ShouldEqual(0);
+
+            invokeAction!();
             listener.InvokeCount.ShouldEqual(1);
         }
 

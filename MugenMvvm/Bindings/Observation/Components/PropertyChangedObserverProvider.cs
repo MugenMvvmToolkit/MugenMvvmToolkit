@@ -8,6 +8,7 @@ using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Interfaces.Observation.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -38,13 +39,13 @@ namespace MugenMvvm.Bindings.Observation.Components
             if (target == null)
                 return default;
 
-            return (((IValueHolder<MemberListenerCollection>) target).Value ??= new MemberListenerCollection()).Add(listener, (string) member);
+            return (((IValueHolder<MemberListenerCollection>)target).Value ??= new MainThreadMemberListenerCollection()).Add(listener, (string)member);
         }
 
         private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
         {
-            var listener = new MemberListenerCollection();
-            ((INotifyPropertyChanged) item).PropertyChanged += listener.RaisePropertyChanged;
+            var listener = new MainThreadMemberListenerCollection();
+            ((INotifyPropertyChanged)item).PropertyChanged += listener.RaisePropertyChanged;
             return listener;
         }
 
@@ -63,7 +64,7 @@ namespace MugenMvvm.Bindings.Observation.Components
                 return default;
             return target.AttachedValues(metadata, _attachedValueManager)
                          .GetOrAdd(BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                         .Add(listener, (string) member);
+                         .Add(listener, (string)member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)
@@ -73,6 +74,21 @@ namespace MugenMvvm.Bindings.Observation.Components
             if (typeof(IValueHolder<MemberListenerCollection>).IsAssignableFrom(type))
                 return new MemberObserver(MemberObserverHolderHandler, member);
             return default;
+        }
+
+        internal sealed class MainThreadMemberListenerCollection : MemberListenerCollection
+        {
+            public override void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
+            {
+                if (Count == 0)
+                    return;
+
+                var threadDispatcher = MugenService.ThreadDispatcher;
+                if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main, metadata))
+                    base.Raise(sender, message, memberName, metadata);
+                else
+                    threadDispatcher.Execute(ThreadExecutionMode.Main, () => base.Raise(sender, message, memberName, metadata), metadata);
+            }
         }
     }
 }

@@ -2,12 +2,14 @@
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.Tests.Internal;
+using MugenMvvm.Tests.Threading;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,6 +24,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             ReflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
             ObservationManager.AddComponent(new EventInfoObserverProvider(AttachedValueManager, ReflectionManager));
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
+            RegisterDisposeToken(WithGlobalService(ThreadDispatcher));
         }
 
         [Fact]
@@ -146,6 +149,52 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             actionToken.Dispose();
             target.OnAction();
             listener.InvokeCount.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void TryGetMemberObserverShouldRaiseOnMainThread()
+        {
+            var msg = new EventArgs();
+            var target = new TestEventClass();
+            var listener = new TestWeakEventListener
+            {
+                IsAlive = true,
+                TryHandle = (o, o1, m) =>
+                {
+                    o.ShouldEqual(target);
+                    o1.ShouldEqual(msg);
+                    return true;
+                }
+            };
+
+            Action? invokeAction = null;
+            ThreadDispatcher.ClearComponents();
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            {
+                CanExecuteInline = (_, mode, _) => mode != ThreadExecutionMode.Main,
+                Execute = (_, action, m, s, _) =>
+                {
+                    m.ShouldEqual(ThreadExecutionMode.Main);
+                    invokeAction = () => action(s);
+                    return true;
+                }
+            });
+
+            var eventInfo = typeof(TestEventClass).GetEvent(nameof(TestEventClass.EventHandler));
+            eventInfo.ShouldNotBeNull();
+
+            var observer = ObservationManager.TryGetMemberObserver(typeof(TestEventClass), eventInfo!, DefaultMetadata);
+            observer.IsEmpty.ShouldBeFalse();
+
+            var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
+            actionToken.IsEmpty.ShouldBeFalse();
+
+            listener.InvokeCount.ShouldEqual(0);
+            target.OnEventHandler(msg);
+            listener.InvokeCount.ShouldEqual(0);
+
+            invokeAction!();
+            listener.InvokeCount.ShouldEqual(1);
         }
 
         [Fact]

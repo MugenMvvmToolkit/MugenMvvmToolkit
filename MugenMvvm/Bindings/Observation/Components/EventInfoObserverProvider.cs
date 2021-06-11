@@ -43,7 +43,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            var tuple = (Tuple<EventInfo, string>) member;
+            var tuple = (Tuple<EventInfo, string>)member;
             if (target == null && !tuple.Item1.IsStatic())
                 return default;
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         private EventListenerCollection? CreateWeakListener(object? target, EventInfo eventInfo)
         {
-            var listenerInternal = new EventListenerCollection();
+            var listenerInternal = new MainThreadEventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)
                 : eventInfo.EventHandlerType!.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionManager);
@@ -80,6 +80,21 @@ namespace MugenMvvm.Bindings.Observation.Components
             else
                 addMethod.GetMethodInvoker<Action<object, Delegate>>(_reflectionManager).Invoke(target!, handler);
             return listenerInternal;
+        }
+
+        internal sealed class MainThreadEventListenerCollection : EventListenerCollection
+        {
+            public override void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
+            {
+                if (Count == 0)
+                    return;
+
+                var threadDispatcher = MugenService.ThreadDispatcher;
+                if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main, metadata))
+                    base.Raise(sender, args, metadata);
+                else
+                    threadDispatcher.Execute(ThreadExecutionMode.Main, () => base.Raise(sender, args, metadata));
+            }
         }
     }
 }

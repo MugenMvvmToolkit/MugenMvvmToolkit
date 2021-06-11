@@ -64,7 +64,7 @@ namespace MugenMvvm.Bindings.Observation
             return false;
         }
 
-        public void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
+        public virtual void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
                 return;
@@ -239,7 +239,7 @@ namespace MugenMvvm.Bindings.Observation
 
         void ActionToken.IHandler.Invoke(object? target, object? state)
         {
-            var propertyName = (string) state!;
+            var propertyName = (string)state!;
             var listeners = _listeners;
             var size = _size;
             for (var i = 0; i < size; i++)

@@ -31,7 +31,7 @@ namespace MugenMvvm.Bindings.Observation
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
             if (target.AttachedValues(metadata, attachedValueManager).TryGet(path, out var collection))
-                ((EventListenerCollection) collection!).Raise(target, message, metadata);
+                ((EventListenerCollection)collection!).Raise(target, message, metadata);
         }
 
         internal static int GetCapacity(int size)
@@ -40,10 +40,10 @@ namespace MugenMvvm.Bindings.Observation
                 ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
             if (size < 6)
                 return size + 2;
-            return Math.Min((int) (size * 1.43f), ushort.MaxValue);
+            return Math.Min((int)(size * 1.43f), ushort.MaxValue);
         }
 
-        public void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
+        public virtual void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
                 return;
@@ -119,7 +119,7 @@ namespace MugenMvvm.Bindings.Observation
                 }
                 else
                 {
-                    _listeners = new[] {_listeners, target, null};
+                    _listeners = new[] { _listeners, target, null };
                     _size = 2;
                     _removedSize = 0;
                 }
@@ -127,7 +127,7 @@ namespace MugenMvvm.Bindings.Observation
 
             if (_size - _removedSize == 1)
                 OnListenersAdded();
-            return ActionToken.FromDelegate((@this, t) => ((EventListenerCollection) @this!).Unsubscribe(t), this, target);
+            return ActionToken.FromDelegate((@this, t) => ((EventListenerCollection)@this!).Unsubscribe(t), this, target);
         }
 
         public bool Remove(IEventListener? listener)
