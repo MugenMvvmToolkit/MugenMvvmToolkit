@@ -34,7 +34,11 @@ namespace MugenMvvm.Models
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        [IgnoreDataMember]
         public bool IsSuspended => _suspendCount != 0;
+
+        [IgnoreDataMember]
+        protected virtual bool HasPropertyChangedListeners => PropertyChanged != null || _memberListeners != null && _memberListeners.Count != 0;
 
         [IgnoreDataMember]
         [field: NonSerialized]
@@ -79,9 +83,12 @@ namespace MugenMvvm.Models
 
         protected void OnPropertyChanged(PropertyChangedEventArgs args)
         {
+            if (!HasPropertyChangedListeners)
+                return;
+
             if (IsSuspended)
                 _isNotificationsDirty = true;
-            else if (PropertyChanged != null)
+            else
                 MugenExtensions.DefaultIfNull<IThreadDispatcher>(null, this).Execute(ThreadExecutionMode.Main, this, args);
         }
 
