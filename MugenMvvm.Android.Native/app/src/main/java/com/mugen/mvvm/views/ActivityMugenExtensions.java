@@ -17,11 +17,9 @@ import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.interfaces.IActivityManager;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 
-public final class ActivityMugenExtensions {
-    public static final String ViewIdIntentKey = "~v_id!";
-    public static final String ViewModelIdIntentKey = "~vm_id!";
-    public static final String RequestIdIntentKey = "~r_id!";
+import static com.mugen.mvvm.constants.ActivityIntentKey.*;
 
+public final class ActivityMugenExtensions {
     @SuppressLint("StaticFieldLeak")
     private static Activity _currentActivity;
 
@@ -37,12 +35,12 @@ public final class ActivityMugenExtensions {
 
     public static int getRequestId(@NonNull IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
-        return activity.getIntent().getIntExtra(RequestIdIntentKey, 0);
+        return activity.getIntent().getIntExtra(RequestId, 0);
     }
 
     public static String getViewModelId(@NonNull IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();
-        return activity.getIntent().getStringExtra(ViewModelIdIntentKey);
+        return activity.getIntent().getStringExtra(ViewModelId);
     }
 
     public static Object getActionBar(@NonNull IActivityView activityView) {
@@ -83,10 +81,10 @@ public final class ActivityMugenExtensions {
         if (flags != 0)
             intent.addFlags(flags);
         if (resourceId != 0)
-            intent.putExtra(ViewIdIntentKey, resourceId);
+            intent.putExtra(ViewId, resourceId);
         if (viewModelId != null)
-            intent.putExtra(ViewModelIdIntentKey, viewModelId);
-        intent.putExtra(RequestIdIntentKey, requestId);
+            intent.putExtra(ViewModelId, viewModelId);
+        intent.putExtra(RequestId, requestId);
         context.startActivity(intent);
         return true;
     }

@@ -7,9 +7,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.mugen.mvvm.constants.BindableMemberConstant;
 import com.mugen.mvvm.interfaces.IMemberListener;
 import com.mugen.mvvm.views.BindableMemberMugenExtensions;
-import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class ViewMemberListener implements IMemberListener, View.OnClickListener, TextWatcher, android.view.View.OnLongClickListener {
     protected final View View;
@@ -23,21 +23,21 @@ public class ViewMemberListener implements IMemberListener, View.OnClickListener
 
     @Override
     public void addListener(@NonNull Object target, @NonNull String memberName) {
-        if (BindableMemberMugenExtensions.ClickEventName.equals(memberName) && _clickListenerCount++ == 0)
+        if (BindableMemberConstant.Click.equals(memberName) && _clickListenerCount++ == 0)
             View.setOnClickListener(this);
-        else if (BindableMemberMugenExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount++ == 0)
+        else if (BindableMemberConstant.LongClick.equals(memberName) && _longClickListenerCount++ == 0)
             View.setOnLongClickListener(this);
-        else if (BindableMemberMugenExtensions.TextMemberName.equals(memberName) || BindableMemberMugenExtensions.TextEventName.equals(memberName) && _textChangedListenerCount++ == 0)
+        else if (BindableMemberConstant.Text.equals(memberName) || BindableMemberConstant.TextEvent.equals(memberName) && _textChangedListenerCount++ == 0)
             ((TextView) target).addTextChangedListener(this);
     }
 
     @Override
     public void removeListener(@NonNull Object target, @NonNull String memberName) {
-        if (BindableMemberMugenExtensions.ClickEventName.equals(memberName) && _clickListenerCount != 0 && --_clickListenerCount == 0)
+        if (BindableMemberConstant.Click.equals(memberName) && _clickListenerCount != 0 && --_clickListenerCount == 0)
             View.setOnClickListener(null);
-        else if (BindableMemberMugenExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount != 0 && --_longClickListenerCount == 0)
+        else if (BindableMemberConstant.LongClick.equals(memberName) && _longClickListenerCount != 0 && --_longClickListenerCount == 0)
             View.setOnLongClickListener(null);
-        else if (BindableMemberMugenExtensions.TextMemberName.equals(memberName) || BindableMemberMugenExtensions.TextEventName.equals(memberName) && _textChangedListenerCount != 0 && --_textChangedListenerCount == 0)
+        else if (BindableMemberConstant.Text.equals(memberName) || BindableMemberConstant.TextEvent.equals(memberName) && _textChangedListenerCount != 0 && --_textChangedListenerCount == 0)
             ((TextView) target).removeTextChangedListener(this);
     }
 
@@ -48,8 +48,8 @@ public class ViewMemberListener implements IMemberListener, View.OnClickListener
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        BindableMemberMugenExtensions.onMemberChanged(View, BindableMemberMugenExtensions.TextMemberName, null);
-        BindableMemberMugenExtensions.onMemberChanged(View, BindableMemberMugenExtensions.TextEventName, null);
+        BindableMemberMugenExtensions.onMemberChanged(View, BindableMemberConstant.Text, null);
+        BindableMemberMugenExtensions.onMemberChanged(View, BindableMemberConstant.TextEvent, null);
     }
 
     @Override
@@ -59,11 +59,11 @@ public class ViewMemberListener implements IMemberListener, View.OnClickListener
 
     @Override
     public void onClick(View v) {
-        BindableMemberMugenExtensions.onMemberChanged(v, BindableMemberMugenExtensions.ClickEventName, null);
+        BindableMemberMugenExtensions.onMemberChanged(v, BindableMemberConstant.Click, null);
     }
 
     @Override
     public boolean onLongClick(android.view.View v) {
-        return BindableMemberMugenExtensions.onMemberChanged(v, BindableMemberMugenExtensions.LongClickEventName, null);
+        return BindableMemberMugenExtensions.onMemberChanged(v, BindableMemberConstant.LongClick, null);
     }
 }

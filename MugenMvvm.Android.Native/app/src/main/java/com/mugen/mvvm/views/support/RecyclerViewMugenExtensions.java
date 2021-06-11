@@ -7,15 +7,15 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.ItemSourceProviderType;
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
-import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 
 public final class RecyclerViewMugenExtensions {
-    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceProviderType;
+    public static final int ItemsSourceProviderType = ItemSourceProviderType.Resource;
 
     private RecyclerViewMugenExtensions() {
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Java.Lang;
+using MugenMvvm.Android.Native.Constants;
 using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -26,18 +27,18 @@ namespace MugenMvvm.Android.Bindings
         public const string CheckedMemberName = "Checked";
         public const string CheckedEventName = "CheckedChanged";
 
-        public static readonly ICharSequence ParentMemberNameNative = NativeBindableMemberMugenExtensions.ParentMemberName;
-        public static readonly ICharSequence ParentEventNameNative = NativeBindableMemberMugenExtensions.ParentEventName;
-        public static readonly ICharSequence ClickEventNameNative = NativeBindableMemberMugenExtensions.ClickEventName;
-        public static readonly ICharSequence LongClickEventNameNative = NativeBindableMemberMugenExtensions.LongClickEventName;
-        public static readonly ICharSequence TextMemberNameNative = NativeBindableMemberMugenExtensions.TextMemberName;
-        public static readonly ICharSequence TextEventNameNative = NativeBindableMemberMugenExtensions.TextEventName;
-        public static readonly ICharSequence HomeButtonClickNative = NativeBindableMemberMugenExtensions.HomeButtonClick;
-        public static readonly ICharSequence RefreshedEventNameNative = NativeBindableMemberMugenExtensions.RefreshedEventName;
-        public static readonly ICharSequence SelectedIndexNameNative = NativeBindableMemberMugenExtensions.SelectedIndexName;
-        public static readonly ICharSequence SelectedIndexEventNameNative = NativeBindableMemberMugenExtensions.SelectedIndexEventName;
-        public static readonly ICharSequence CheckedMemberNameNative = NativeBindableMemberMugenExtensions.CheckedMemberName;
-        public static readonly ICharSequence CheckedEventNameNative = NativeBindableMemberMugenExtensions.CheckedEventName;
+        public static readonly ICharSequence ParentMemberNameNative = BindableMemberConstant.Parent!;
+        public static readonly ICharSequence ParentEventNameNative = BindableMemberConstant.ParentEvent!;
+        public static readonly ICharSequence ClickEventNameNative = BindableMemberConstant.Click!;
+        public static readonly ICharSequence LongClickEventNameNative = BindableMemberConstant.LongClick!;
+        public static readonly ICharSequence TextMemberNameNative = BindableMemberConstant.Text!;
+        public static readonly ICharSequence TextEventNameNative = BindableMemberConstant.TextEvent!;
+        public static readonly ICharSequence HomeButtonClickNative = BindableMemberConstant.HomeButtonClick!;
+        public static readonly ICharSequence RefreshedEventNameNative = BindableMemberConstant.RefreshedEvent!;
+        public static readonly ICharSequence SelectedIndexNameNative = BindableMemberConstant.SelectedIndex!;
+        public static readonly ICharSequence SelectedIndexEventNameNative = BindableMemberConstant.SelectedIndexEvent!;
+        public static readonly ICharSequence CheckedMemberNameNative = BindableMemberConstant.Checked!;
+        public static readonly ICharSequence CheckedEventNameNative = BindableMemberConstant.CheckedEvent!;
 
         private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
         private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);

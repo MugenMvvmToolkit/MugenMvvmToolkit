@@ -3,9 +3,9 @@ package com.mugen.mvvm.views.listeners;
 import androidx.annotation.NonNull;
 
 import com.google.android.material.tabs.TabLayout;
+import com.mugen.mvvm.constants.BindableMemberConstant;
 import com.mugen.mvvm.interfaces.IMemberListener;
 import com.mugen.mvvm.views.BindableMemberMugenExtensions;
-import com.mugen.mvvm.views.ViewMugenExtensions;
 
 public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedListener, IMemberListener {
     private final TabLayout _tabLayout;
@@ -17,8 +17,8 @@ public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedLi
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        BindableMemberMugenExtensions.onMemberChanged(_tabLayout, BindableMemberMugenExtensions.SelectedIndexName, tab);
-        BindableMemberMugenExtensions.onMemberChanged(_tabLayout, BindableMemberMugenExtensions.SelectedIndexEventName, tab);
+        BindableMemberMugenExtensions.onMemberChanged(_tabLayout, BindableMemberConstant.SelectedIndex, tab);
+        BindableMemberMugenExtensions.onMemberChanged(_tabLayout, BindableMemberConstant.SelectedIndexEvent, tab);
     }
 
     @Override
@@ -33,13 +33,13 @@ public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedLi
 
     @Override
     public void addListener(@NonNull Object target, @NonNull String memberName) {
-        if (BindableMemberMugenExtensions.SelectedIndexName.equals(memberName) || BindableMemberMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
+        if (BindableMemberConstant.SelectedIndex.equals(memberName) || BindableMemberConstant.SelectedIndexEvent.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _tabLayout.addOnTabSelectedListener(this);
     }
 
     @Override
     public void removeListener(@NonNull Object target, @NonNull String memberName) {
-        if (BindableMemberMugenExtensions.SelectedIndexName.equals(memberName) || BindableMemberMugenExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
+        if (BindableMemberConstant.SelectedIndex.equals(memberName) || BindableMemberConstant.SelectedIndexEvent.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _tabLayout.removeOnTabSelectedListener(this);
     }
 }

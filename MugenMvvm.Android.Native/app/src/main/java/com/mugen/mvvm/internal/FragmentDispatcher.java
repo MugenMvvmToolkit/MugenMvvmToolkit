@@ -10,7 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.constants.PriorityConstants;
+import com.mugen.mvvm.constants.PriorityConstant;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
@@ -46,7 +46,7 @@ public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher
 
     @Override
     public int getPriority() {
-        return PriorityConstants.PreInitializer;
+        return PriorityConstant.PreInitializer;
     }
 
     @Override

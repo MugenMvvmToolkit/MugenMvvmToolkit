@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.ItemSourceProviderType;
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
@@ -17,11 +18,10 @@ import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenFragmentPager2Adapter;
 import com.mugen.mvvm.internal.support.MugenPager2Adapter;
-import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.FragmentMugenExtensions;
 
 public final class ViewPager2MugenExtensions {
-    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceOrContentProviderType;
+    public static final int ItemsSourceProviderType = ItemSourceProviderType.ResourceOrContent;
 
     private ViewPager2MugenExtensions() {
     }

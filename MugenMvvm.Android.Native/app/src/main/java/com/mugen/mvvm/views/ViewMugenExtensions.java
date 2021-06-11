@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
 import com.mugen.mvvm.R;
+import com.mugen.mvvm.constants.ActivityIntentKey;
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IAttachedValueProvider;
 import com.mugen.mvvm.interfaces.IWrapperManager;
@@ -171,8 +172,8 @@ public final class ViewMugenExtensions {
                 return id;
         }
 
-        if (intent != null && intent.hasExtra(ActivityMugenExtensions.ViewIdIntentKey))
-            return intent.getIntExtra(ActivityMugenExtensions.ViewIdIntentKey, defaultValue);
+        if (intent != null && intent.hasExtra(ActivityIntentKey.ViewId))
+            return intent.getIntExtra(ActivityIntentKey.ViewId, defaultValue);
         if (viewClass == null)
             return defaultValue;
         Integer value = _viewResourceMapping.get(viewClass);

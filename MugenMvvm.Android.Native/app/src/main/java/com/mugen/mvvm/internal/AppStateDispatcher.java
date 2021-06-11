@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.constants.PriorityConstants;
+import com.mugen.mvvm.constants.PriorityConstant;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 
 public class AppStateDispatcher implements ILifecycleDispatcher {
@@ -40,7 +40,7 @@ public class AppStateDispatcher implements ILifecycleDispatcher {
 
     @Override
     public int getPriority() {
-        return PriorityConstants.AppStateDispatcher;
+        return PriorityConstant.AppStateDispatcher;
     }
 
     private boolean handle(Activity activity) {

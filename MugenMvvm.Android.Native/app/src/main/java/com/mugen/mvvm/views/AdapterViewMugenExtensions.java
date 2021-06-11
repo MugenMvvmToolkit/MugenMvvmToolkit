@@ -7,13 +7,14 @@ import android.widget.AdapterView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.mugen.mvvm.constants.ItemSourceProviderType;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.MugenListAdapter;
 
 public final class AdapterViewMugenExtensions {
-    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ResourceProviderType;
+    public static final int ItemsSourceProviderType = ItemSourceProviderType.Resource;
 
     private AdapterViewMugenExtensions() {
     }

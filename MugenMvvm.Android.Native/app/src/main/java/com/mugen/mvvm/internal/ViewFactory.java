@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.constants.PriorityConstants;
+import com.mugen.mvvm.constants.PriorityConstant;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
@@ -73,7 +73,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
     @Override
     public int getPriority() {
-        return PriorityConstants.PreInitializer;
+        return PriorityConstant.PreInitializer;
     }
 
     protected Context getContext(@Nullable Object container) {

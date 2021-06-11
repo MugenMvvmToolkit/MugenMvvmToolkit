@@ -2,6 +2,7 @@
 using Android.Views;
 using MugenMvvm.Android.Bindings;
 using MugenMvvm.Android.Interfaces;
+using MugenMvvm.Android.Native.Constants;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Collections;
@@ -41,7 +42,7 @@ namespace MugenMvvm.Android.Collections
 
             var target = (View) collectionView;
             var providerType = NativeBindableMemberMugenExtensions.GetItemSourceProviderType(target);
-            if (providerType == NativeBindableMemberMugenExtensions.NoneProviderType)
+            if (providerType == ItemSourceProviderType.None)
                 ExceptionManager.ThrowInvalidBindingMember(target, nameof(ViewBindableMembers.ItemsSource));
             var itemTemplateSelector = target.BindableMembers().ItemTemplateSelector();
             if (itemTemplateSelector == null)
@@ -49,10 +50,10 @@ namespace MugenMvvm.Android.Collections
 
             var itemsSourceProvider = NativeBindableMemberMugenExtensions.GetItemsSourceProvider(target);
             var hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
-            if (providerType == NativeBindableMemberMugenExtensions.ContentRawProviderType)
+            if (providerType == ItemSourceProviderType.ContentRaw)
                 ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
-            else if (providerType == NativeBindableMemberMugenExtensions.ContentProviderType ||
-                     providerType == NativeBindableMemberMugenExtensions.ResourceOrContentProviderType && hasFragments)
+            else if (providerType == ItemSourceProviderType.Content ||
+                     providerType == ItemSourceProviderType.ResourceOrContent && hasFragments)
             {
                 if (itemsSourceProvider is not ContentItemsSourceProvider provider)
                 {

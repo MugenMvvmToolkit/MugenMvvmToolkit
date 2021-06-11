@@ -9,7 +9,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.mugen.mvvm.R;
-import com.mugen.mvvm.constants.PriorityConstants;
+import com.mugen.mvvm.constants.BindableMemberConstant;
+import com.mugen.mvvm.constants.PriorityConstant;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.views.BindableMemberMugenExtensions;
@@ -36,8 +37,8 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public void onParentChanged(@NonNull View view) {
-        BindableMemberMugenExtensions.onMemberChanged(view, BindableMemberMugenExtensions.ParentMemberName, null);
-        BindableMemberMugenExtensions.onMemberChanged(view, BindableMemberMugenExtensions.ParentEventName, null);
+        BindableMemberMugenExtensions.onMemberChanged(view, BindableMemberConstant.Parent, null);
+        BindableMemberMugenExtensions.onMemberChanged(view, BindableMemberConstant.ParentEvent, null);
     }
 
     @Override
@@ -90,6 +91,6 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public int getPriority() {
-        return PriorityConstants.Default;
+        return PriorityConstant.Default;
     }
 }

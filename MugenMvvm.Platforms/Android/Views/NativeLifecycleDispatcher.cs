@@ -18,7 +18,7 @@ namespace MugenMvvm.Android.Views
             _viewManager = viewManager;
         }
 
-        public int Priority => PriorityConstants.PreInitializer + 1;
+        public int Priority => PriorityConstant.PreInitializer + 1;
 
         public void OnLifecycleChanged(Object target, int lifecycleState, Object? state)
         {

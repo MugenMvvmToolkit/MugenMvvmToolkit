@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Android.Native;
+using MugenMvvm.Android.Native.Constants;
 using MugenMvvm.App;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,11 +19,11 @@ namespace MugenMvvm.Android.App
         protected override PlatformIdiom GetIdiom() =>
             MugenAndroidUtils.Idiom() switch
             {
-                MugenAndroidUtils.Desktop => PlatformIdiom.Desktop,
-                MugenAndroidUtils.Phone => PlatformIdiom.Phone,
-                MugenAndroidUtils.Tablet => PlatformIdiom.Tablet,
-                MugenAndroidUtils.Tv => PlatformIdiom.TV,
-                MugenAndroidUtils.Watch => PlatformIdiom.Watch,
+                IdiomType.Desktop => PlatformIdiom.Desktop,
+                IdiomType.Phone => PlatformIdiom.Phone,
+                IdiomType.Tablet => PlatformIdiom.Tablet,
+                IdiomType.Tv => PlatformIdiom.TV,
+                IdiomType.Watch => PlatformIdiom.Watch,
                 _ => PlatformIdiom.Unknown
             };
     }

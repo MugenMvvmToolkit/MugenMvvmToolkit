@@ -9,17 +9,17 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.ItemSourceProviderType;
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.internal.support.MugenFragmentPagerAdapter;
 import com.mugen.mvvm.internal.support.MugenPagerAdapter;
-import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.FragmentMugenExtensions;
 
 public final class ViewPagerMugenExtensions {
-    public static final int ItemsSourceProviderType = BindableMemberMugenExtensions.ContentProviderType;
+    public static final int ItemsSourceProviderType = ItemSourceProviderType.Content;
 
     private ViewPagerMugenExtensions() {
     }

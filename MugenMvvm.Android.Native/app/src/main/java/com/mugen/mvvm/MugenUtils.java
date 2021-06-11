@@ -11,6 +11,7 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
+import com.mugen.mvvm.constants.IdiomType;
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IAsyncAppInitializer;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
@@ -25,12 +26,6 @@ import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
 
 public final class MugenUtils {
     public static final String LogTag = "MugenMvvm";
-    public static final int Tv = 1;
-    public static final int Desktop = 2;
-    public static final int Watch = 3;
-    public static final int Tablet = 4;
-    public static final int Phone = 5;
-
     private static final int TabletCrossover = 600;
 
     @SuppressLint("StaticFieldLeak")
@@ -151,18 +146,18 @@ public final class MugenUtils {
             if (modeManager != null) {
                 int modeType = modeManager.getCurrentModeType();
                 if (modeType == Configuration.UI_MODE_TYPE_TELEVISION)
-                    return Tv;
+                    return IdiomType.Tv;
                 if (modeType == Configuration.UI_MODE_TYPE_DESK)
-                    return Desktop;
+                    return IdiomType.Desktop;
                 if (modeType == 0x06 /*Configuration.UI_MODE_TYPE_WATCH*/)
-                    return Watch;
+                    return IdiomType.Watch;
             }
         } catch (Exception ignored) {
         }
 
         if (appContext.getResources().getConfiguration().smallestScreenWidthDp >= TabletCrossover)
-            return Tablet;
-        return Phone;
+            return IdiomType.Tablet;
+        return IdiomType.Phone;
     }
 
     public static float getDensity() {

@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
-import com.mugen.mvvm.constants.PriorityConstants;
+import com.mugen.mvvm.constants.PriorityConstant;
 import com.mugen.mvvm.interfaces.IAsyncAppInitializer;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IActivityView;
@@ -137,7 +137,7 @@ public class AsyncAppInitializer implements IAsyncAppInitializer, ILifecycleDisp
 
     @Override
     public int getPriority() {
-        return PriorityConstants.Default;
+        return PriorityConstant.Default;
     }
 
     protected static boolean isFinishing(Object view) {
