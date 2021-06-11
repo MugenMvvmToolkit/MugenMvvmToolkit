@@ -19,9 +19,9 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<List<NavigationCallback?>>? _closingCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
-        private static IMetadataContextKey<CommandNotifier>? _commandNotifier;
+        private static IMetadataContextKey<PropertyChangedCommandNotifier>? _commandNotifier;
 
-        public static IMetadataContextKey<CommandNotifier> CommandNotifier
+        public static IMetadataContextKey<PropertyChangedCommandNotifier> CommandNotifier
             => _commandNotifier ??= GetBuilder(_commandNotifier, nameof(CommandNotifier)).Build();
 
         public static IMetadataContextKey<HashSet<string>> OpenedNavigationProviders

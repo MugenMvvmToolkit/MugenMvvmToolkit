@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
@@ -36,12 +37,16 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority { get; set; } = CommandComponentPriority.CommandProvider;
 
-        private static CommandNotifier GetCommandCommandNotifierInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        private static PropertyChangedCommandNotifier GetCommandCommandNotifierInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
-            var commandNotifier = new CommandNotifier { CanNotify = commandRequest.CanNotify };
+            var commandNotifier = new PropertyChangedCommandNotifier { CanNotify = commandRequest.CanNotify };
             var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIEnumerable.FromItem(owner) : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
-                commandNotifier.AddNotifier(notifier, metadata);
+            {
+                if (notifier is INotifyPropertyChanged propertyChanged)
+                    commandNotifier.AddNotifier(propertyChanged, metadata);
+            }
+
             return commandNotifier;
         }
 
@@ -63,7 +68,7 @@ namespace MugenMvvm.Commands.Components
             return command;
         }
 
-        private CommandNotifier GetCommandCommandNotifier(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        private PropertyChangedCommandNotifier GetCommandCommandNotifier(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
             if (CacheCommandNotifier && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 && owner is IMetadataOwner<IMetadataContext> m)
             {

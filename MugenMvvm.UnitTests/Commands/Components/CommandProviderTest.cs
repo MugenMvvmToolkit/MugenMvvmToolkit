@@ -100,17 +100,17 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command1 = CommandManager.TryGetCommand<object>(metadataOwner, request)!;
             var command2 = CommandManager.TryGetCommand<object>(metadataOwner, request)!;
             if (cache)
-                command1.GetComponent<CommandNotifier>().ShouldEqual(command2.GetComponent<CommandNotifier>());
+                command1.GetComponent<PropertyChangedCommandNotifier>().ShouldEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
             else
-                command1.GetComponent<CommandNotifier>().ShouldNotEqual(command2.GetComponent<CommandNotifier>());
+                command1.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
 
             var command3 = CommandManager.TryGetCommand<object>(this, request)!;
             var command4 = CommandManager.TryGetCommand<object>(this, request)!;
-            command3.GetComponent<CommandNotifier>().ShouldNotEqual(command4.GetComponent<CommandNotifier>());
+            command3.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command4.GetComponent<PropertyChangedCommandNotifier>());
 
             command1 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null))!;
             command2 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null))!;
-            command1.GetComponent<CommandNotifier>().ShouldNotEqual(command2.GetComponent<CommandNotifier>());
+            command1.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
         }
 
         private static Func<object?, object?, bool>? GetHasCanNotify(bool value)

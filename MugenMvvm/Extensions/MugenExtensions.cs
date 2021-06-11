@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -218,11 +219,12 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static ActionToken AddNotifier(this ICompositeCommand command, object? notifier, IReadOnlyMetadataContext? metadata = null)
+        public static ActionToken AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier, IReadOnlyMetadataContext? metadata = null)
         {
-            var handler = command.GetOrAddComponent<CommandNotifier>();
+            Should.NotBeNull(command, nameof(command));
+            var handler = command.GetOrAddComponent<PropertyChangedCommandNotifier>();
             var token = handler.AddNotifier(notifier, metadata);
-            if (!token.IsEmpty && notifier is IHasDisposeCallback hasDisposeCallback)
+            if (notifier is IHasDisposeCallback hasDisposeCallback)
                 hasDisposeCallback.RegisterDisposeToken(token);
             return token;
         }
@@ -332,6 +334,18 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item, IWeakReferenceManager? weakReferenceManager) =>
             weakReferenceManager.DefaultIfNull(item).GetWeakReference(item);
+
+        internal static void CommandNotifierOnPropertyChangedHandler(this IWeakReference weakReference, object? sender, PropertyChangedEventArgs args)
+        {
+            var handler = (PropertyChangedCommandNotifier?)weakReference.Target;
+            if (handler == null)
+            {
+                if (sender is INotifyPropertyChanged propertyChanged)
+                    propertyChanged.PropertyChanged -= weakReference.CommandNotifierOnPropertyChangedHandler;
+            }
+            else
+                handler.Handle(sender, args);
+        }
 
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
         {
