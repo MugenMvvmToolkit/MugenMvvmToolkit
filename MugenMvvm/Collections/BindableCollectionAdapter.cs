@@ -211,8 +211,7 @@ namespace MugenMvvm.Collections
             if (version != Version)
                 return false;
 
-            var canExecuteInline = ThreadDispatcher.CanExecuteInline(ExecutionMode);
-            var inline = canExecuteInline;
+            var inline = ThreadDispatcher.CanExecuteInline(ExecutionMode);
             var endBatch = false;
             lock (_pendingEvents)
             {
@@ -236,12 +235,7 @@ namespace MugenMvvm.Collections
             if (inline)
                 collectionChangedEvent.Raise(this, false, version);
             else if (endBatch)
-            {
-                if (canExecuteInline)
-                    ExecutePendingEvents(version);
-                else
-                    EndBatchUpdate(version);
-            }
+                EndBatchUpdate(version);
 
             return true;
         }
@@ -257,7 +251,21 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected void EndBatchUpdate(int version) => ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
+        protected void EndBatchUpdate(int version)
+        {
+            if (Version != version)
+                return;
+            bool canEnd;
+            lock (_pendingEvents)
+            {
+                if (version != Version)
+                    return;
+                canEnd = --_suspendCount == 0;
+            }
+
+            if (canEnd)
+                ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
+        }
 
         protected void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e, int version)
         {
@@ -318,14 +326,18 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private void ExecutePendingEvents(int version)
+        private ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
+
+        void IThreadDispatcherHandler.Execute(object? state)
         {
+            var version = (int)state!;
             if (Version != version)
                 return;
+
             List<CollectionChangedEvent> events;
             lock (_pendingEvents)
             {
-                if (Version != version || _suspendCount == 0 || --_suspendCount != 0)
+                if (Version != version || _suspendCount != 0)
                     return;
 
                 events = GetPendingEvents(_pendingEvents);
@@ -338,10 +350,6 @@ namespace MugenMvvm.Collections
                 _eventsCache?.Clear();
             }
         }
-
-        private ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
-
-        void IThreadDispatcherHandler.Execute(object? state) => ExecutePendingEvents((int)state!);
 
         protected enum CollectionChangedAction
         {
