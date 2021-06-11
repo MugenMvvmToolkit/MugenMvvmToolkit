@@ -208,7 +208,7 @@ namespace MugenMvvm.Collections
 
         protected bool AddEvent(in CollectionChangedEvent collectionChangedEvent, int version)
         {
-            if (version != Version)
+            if (Version != version)
                 return false;
 
             var inline = ThreadDispatcher.CanExecuteInline(ExecutionMode);
@@ -244,9 +244,10 @@ namespace MugenMvvm.Collections
         {
             if (Version != version)
                 return;
+
             lock (_pendingEvents)
             {
-                if (version == Version)
+                if (Version == version)
                     ++_suspendCount;
             }
         }
@@ -255,16 +256,20 @@ namespace MugenMvvm.Collections
         {
             if (Version != version)
                 return;
-            bool canEnd;
+
             lock (_pendingEvents)
             {
-                if (version != Version)
+                if (Version != version)
                     return;
-                canEnd = --_suspendCount == 0;
+
+                if (_suspendCount > 1)
+                {
+                    --_suspendCount;
+                    return;
+                }
             }
 
-            if (canEnd)
-                ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
+            ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
         }
 
         protected void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e, int version)
@@ -337,7 +342,7 @@ namespace MugenMvvm.Collections
             List<CollectionChangedEvent> events;
             lock (_pendingEvents)
             {
-                if (Version != version || _suspendCount != 0)
+                if (Version != version || _suspendCount == 0 || --_suspendCount != 0)
                     return;
 
                 events = GetPendingEvents(_pendingEvents);
