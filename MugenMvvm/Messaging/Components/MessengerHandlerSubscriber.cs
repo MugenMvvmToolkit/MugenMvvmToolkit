@@ -42,7 +42,7 @@ namespace MugenMvvm.Messaging.Components
             if (subscriber == null || handler == null)
                 return MessengerResult.Invalid;
 
-            ((Action<object?, object?, IMessageContext>) handler).Invoke(subscriber, context.Message, context);
+            ((Action<object?, object?, IMessageContext>)handler).Invoke(subscriber, context.Message, context);
             return MessengerResult.Handled;
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Messaging.Components
                 subscriber = weakReference.Target!;
             if (subscriber == null)
                 return MessengerResult.Invalid;
-            return ((IMessengerHandler) subscriber).Handle(context);
+            return ((IMessengerHandler)subscriber).Handle(context);
         }
 
         private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
@@ -117,6 +117,8 @@ namespace MugenMvvm.Messaging.Components
 
             return unsubscribed;
         }
+
+        public bool HasSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata) => Count != 0;
 
         public ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {

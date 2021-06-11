@@ -90,6 +90,10 @@ namespace MugenMvvm.UnitTests.ViewModels
                     return true;
                 }
             });
+            messenger.AddComponent(new TestMessengerSubscriberComponent
+            {
+                HasSubscribers = (_, _) => true
+            });
             using var t = ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
                 TryGetService = (v, vm, o, _) =>

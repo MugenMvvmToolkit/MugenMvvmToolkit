@@ -17,6 +17,8 @@ namespace MugenMvvm.Tests.Messaging
 
         public Func<IMessenger, IReadOnlyMetadataContext?, bool>? TryUnsubscribeAll { get; set; }
 
+        public Func<IMessenger, IReadOnlyMetadataContext?, bool>? HasSubscribers { get; set; }
+
         public Func<IMessenger, Type, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<MessengerHandler>>? TryGetMessengerHandlers { get; set; }
 
         public Func<IMessenger, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<MessengerSubscriberInfo>>? TryGetSubscribers { get; set; }
@@ -30,6 +32,8 @@ namespace MugenMvvm.Tests.Messaging
             TryUnsubscribe?.Invoke(messenger, subscriber, metadata) ?? false;
 
         bool IMessengerSubscriberComponent.TryUnsubscribeAll(IMessenger messenger, IReadOnlyMetadataContext? metadata) => TryUnsubscribeAll?.Invoke(messenger, metadata) ?? false;
+
+        bool IMessengerSubscriberComponent.HasSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata) => HasSubscribers?.Invoke(messenger, metadata) ?? false;
 
         ItemOrIReadOnlyList<MessengerHandler> IMessengerSubscriberComponent.TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata) =>
             TryGetMessengerHandlers?.Invoke(messenger, messageType, metadata) ?? default;

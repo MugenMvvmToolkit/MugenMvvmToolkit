@@ -32,6 +32,7 @@ using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
 #if ANDROID
 using Android.Util;
+
 #else
 using System.Diagnostics;
 
@@ -308,6 +309,8 @@ namespace MugenMvvm.Internal
 
             public bool TryUnsubscribeAll(IMessenger messenger, IReadOnlyMetadataContext? metadata)
                 => Components.TryUnsubscribeAll(messenger, metadata);
+
+            public bool HasSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata) => Components.HasSubscribers(messenger, metadata);
 
             public ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
             {

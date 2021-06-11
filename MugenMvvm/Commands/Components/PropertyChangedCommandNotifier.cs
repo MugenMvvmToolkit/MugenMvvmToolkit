@@ -6,7 +6,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
@@ -29,7 +28,7 @@ namespace MugenMvvm.Commands.Components
 
         private PropertyChangedEventHandler PropertyChangedEventHandler => _handler ??= this.ToWeakReference().CommandNotifierOnPropertyChangedHandler;
 
-        public ActionToken AddNotifier(INotifyPropertyChanged notifier, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken AddNotifier(INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(notifier, nameof(notifier));
             notifier.PropertyChanged += PropertyChangedEventHandler;

@@ -44,7 +44,7 @@ namespace MugenMvvm.Commands.Components
             foreach (var notifier in notifiers)
             {
                 if (notifier is INotifyPropertyChanged propertyChanged)
-                    commandNotifier.AddNotifier(propertyChanged, metadata);
+                    commandNotifier.AddNotifier(propertyChanged);
             }
 
             return commandNotifier;

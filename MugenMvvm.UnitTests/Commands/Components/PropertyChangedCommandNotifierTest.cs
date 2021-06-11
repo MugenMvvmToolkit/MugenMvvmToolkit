@@ -108,6 +108,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             propertyChangedModel.OnPropertyChanged("test");
             executed.ShouldEqual(1);
 
+            Command.ClearComponents();
             return new WeakReference(commandNotifier);
         }
     }

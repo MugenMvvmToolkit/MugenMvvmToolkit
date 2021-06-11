@@ -84,6 +84,18 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
+        public static bool HasSubscribers(this ItemOrArray<IMessengerSubscriberComponent> components, IMessenger messenger, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(messenger, nameof(messenger));
+            foreach (var component in components)
+            {
+                if (component.HasSubscribers(messenger, metadata))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(this ItemOrArray<IMessengerSubscriberComponent> components, IMessenger messenger,
             IReadOnlyMetadataContext? metadata)
         {

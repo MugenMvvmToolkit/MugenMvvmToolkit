@@ -219,11 +219,11 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static ActionToken AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier, IReadOnlyMetadataContext? metadata = null)
+        public static ActionToken AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
             var handler = command.GetOrAddComponent<PropertyChangedCommandNotifier>();
-            var token = handler.AddNotifier(notifier, metadata);
+            var token = handler.AddNotifier(notifier);
             if (notifier is IHasDisposeCallback hasDisposeCallback)
                 hasDisposeCallback.RegisterDisposeToken(token);
             return token;

@@ -15,6 +15,8 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 
         bool TryUnsubscribeAll(IMessenger messenger, IReadOnlyMetadataContext? metadata);
 
+        bool HasSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata);
+
         ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata);
 
         ItemOrIReadOnlyList<MessengerSubscriberInfo> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata);

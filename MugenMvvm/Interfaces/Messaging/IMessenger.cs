@@ -14,6 +14,8 @@ namespace MugenMvvm.Interfaces.Messaging
 
         bool UnsubscribeAll(IReadOnlyMetadataContext? metadata = null);
 
+        bool HasSubscribers(IReadOnlyMetadataContext? metadata = null);
+
         ItemOrIReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null);
     }
 }

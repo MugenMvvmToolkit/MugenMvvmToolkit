@@ -214,6 +214,34 @@ namespace MugenMvvm.UnitTests.Messaging
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
+        public void HasSubscribersShouldBeHandledByComponents(int count)
+        {
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                Messenger.AddComponent(new TestMessengerSubscriberComponent
+                {
+                    Priority = -i,
+                    HasSubscribers = (m, meta) =>
+                    {
+                        ++invokeCount;
+                        m.ShouldEqual(Messenger);
+                        meta.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return true;
+                        return false;
+                    }
+                });
+            }
+
+            Messenger.HasSubscribers(DefaultMetadata).ShouldEqual(true);
+            invokeCount.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
         public void GetSubscribersShouldBeHandledByComponents(int count)
         {
             var subscribers = new HashSet<MessengerSubscriberInfo>();

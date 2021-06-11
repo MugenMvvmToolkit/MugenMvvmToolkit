@@ -49,6 +49,8 @@ namespace MugenMvvm.ViewModels
 
         public IMetadataContext Metadata => _metadata ?? this.InitializeService(ref _metadata);
 
+        protected override bool HasPropertyChangedListeners => base.HasPropertyChangedListeners || _messenger != null && _messenger.HasSubscribers();
+
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
         internal bool IsInitialized { get; set; }

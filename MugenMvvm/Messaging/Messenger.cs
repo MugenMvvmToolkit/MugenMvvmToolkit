@@ -46,6 +46,8 @@ namespace MugenMvvm.Messaging
             return result;
         }
 
+        public bool HasSubscribers(IReadOnlyMetadataContext? metadata = null) => GetComponents<IMessengerSubscriberComponent>().HasSubscribers(this, metadata);
+
         public ItemOrIReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IMessengerSubscriberComponent>(metadata).TryGetSubscribers(this, metadata);
     }
