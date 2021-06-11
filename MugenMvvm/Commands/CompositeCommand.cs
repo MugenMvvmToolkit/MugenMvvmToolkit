@@ -13,6 +13,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands
 {
@@ -58,7 +59,7 @@ namespace MugenMvvm.Commands
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 
         public static ICompositeCommand Create(object? owner, IReadOnlyMetadataContext? metadata = null) =>
-            MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, RawCommandRequest.Instance, metadata);
+            MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, CommandMetadata.RawCommandRequest, metadata);
 
         public static ICompositeCommand Create(object? owner, object request, IReadOnlyMetadataContext? metadata = null) =>
             MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, request, metadata);

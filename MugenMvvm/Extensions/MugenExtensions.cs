@@ -220,9 +220,7 @@ namespace MugenMvvm.Extensions
 
         public static ActionToken AddNotifier(this ICompositeCommand command, object? notifier, IReadOnlyMetadataContext? metadata = null)
         {
-            var handler = command.GetComponentOptional<CommandEventHandler>(metadata);
-            if (handler == null)
-                return default;
+            var handler = command.GetOrAddComponent<CommandNotifier>();
             var token = handler.AddNotifier(notifier, metadata);
             if (!token.IsEmpty && notifier is IHasDisposeCallback hasDisposeCallback)
                 hasDisposeCallback.RegisterDisposeToken(token);

@@ -5,6 +5,8 @@ namespace MugenMvvm.Metadata
 {
     public static class CommandMetadata
     {
+        public static readonly object RawCommandRequest = new();
+
         private static IMetadataContextKey<bool>? _forceExecute;
 
         [AllowNull]

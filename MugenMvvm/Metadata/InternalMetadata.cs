@@ -19,10 +19,10 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<List<NavigationCallback?>>? _closingCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
-        private static IMetadataContextKey<CommandEventHandler>? _commandEventHandler;
+        private static IMetadataContextKey<CommandNotifier>? _commandNotifier;
 
-        public static IMetadataContextKey<CommandEventHandler> CommandEventHandler
-            => _commandEventHandler ??= GetBuilder(_commandEventHandler, nameof(CommandEventHandler)).Build();
+        public static IMetadataContextKey<CommandNotifier> CommandNotifier
+            => _commandNotifier ??= GetBuilder(_commandNotifier, nameof(CommandNotifier)).Build();
 
         public static IMetadataContextKey<HashSet<string>> OpenedNavigationProviders
             => _openedNavigationProviders ??= GetBuilder(_openedNavigationProviders, nameof(OpenedNavigationProviders)).Serializable().Build();
