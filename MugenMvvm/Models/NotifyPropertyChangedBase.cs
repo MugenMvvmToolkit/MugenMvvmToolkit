@@ -59,7 +59,7 @@ namespace MugenMvvm.Models
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);
+            return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase)m!).EndSuspend(), this);
         }
 
         protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
@@ -81,7 +81,7 @@ namespace MugenMvvm.Models
         {
             if (IsSuspended)
                 _isNotificationsDirty = true;
-            else
+            else if (PropertyChanged != null)
                 MugenExtensions.DefaultIfNull<IThreadDispatcher>(null, this).Execute(ThreadExecutionMode.Main, this, args);
         }
 
@@ -101,6 +101,6 @@ namespace MugenMvvm.Models
             }
         }
 
-        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs) state!);
+        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs)state!);
     }
 }
