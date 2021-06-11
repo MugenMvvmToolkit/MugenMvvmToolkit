@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Fact]
         public void ShouldListenPropertyChangedEventCanNotify()
         {
-            var propertyChangedModel = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
+            var propertyChangedModel = new TestNotifyPropertyChangedModel();
             var canNotifyValue = false;
             var propertyName = "test";
             Func<object?, object?, bool> canNotify = (s, o) =>
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Fact(Skip = ReleaseTest)]
         public void ShouldListenPropertyChangedWeak()
         {
-            var propertyChangedModel = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
+            var propertyChangedModel = new TestNotifyPropertyChangedModel();
             var reference = ShouldListenPropertyChangedWeakImpl(propertyChangedModel);
             GcCollect();
             propertyChangedModel.OnPropertyChanged("test");
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var tokens = new List<ActionToken>();
             for (var i = 0; i < listenersCount; i++)
             {
-                var notifier = new TestNotifyPropertyChangedModel { ThreadDispatcher = ThreadDispatcher };
+                var notifier = new TestNotifyPropertyChangedModel();
                 models.Add(notifier);
                 var token = commandNotifier.AddNotifier(notifier);
                 token.IsEmpty.ShouldBeFalse();

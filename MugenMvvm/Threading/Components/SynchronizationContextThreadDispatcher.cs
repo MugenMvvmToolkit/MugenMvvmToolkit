@@ -2,6 +2,7 @@
 using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -21,10 +22,17 @@ namespace MugenMvvm.Threading.Components
             if (synchronizationContext == SynchronizationContext.Current)
                 _mainThreadId = Thread.CurrentThread.ManagedThreadId;
             else
-                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
         public int Priority { get; set; } = ThreadingComponentPriority.Dispatcher;
+
+        private static SendOrPostCallback GetSendOrPostCallback(IThreadDispatcherHandler handler)
+        {
+            if (handler is IValueHolder<Delegate> holder)
+                return (SendOrPostCallback)(holder.Value ??= new SendOrPostCallback(handler.Execute));
+            return handler.Execute;
+        }
 
         public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
             => executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread() ||
@@ -46,7 +54,7 @@ namespace MugenMvvm.Threading.Components
             if (handler is IThreadDispatcherHandler h)
             {
                 if (state == null)
-                    ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler) o!).Execute(null), handler);
+                    ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler)o!).Execute(null), handler);
                 else
                     ThreadPool.QueueUserWorkItem(h.Execute, state);
                 return true;
@@ -60,7 +68,7 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                ThreadPool.QueueUserWorkItem(o => ((Action) o!).Invoke(), handler);
+                ThreadPool.QueueUserWorkItem(o => ((Action)o!).Invoke(), handler);
                 return true;
             }
 
@@ -83,16 +91,16 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                _synchronizationContext.Post(o => ((Action) o!).Invoke(), handler);
+                _synchronizationContext.Post(o => ((Action)o!).Invoke(), handler);
                 return true;
             }
 
             if (handler is IThreadDispatcherHandler h)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o!).Execute(null), handler);
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o!).Execute(null), handler);
                 else
-                    _synchronizationContext.Post(h.Execute, state);
+                    _synchronizationContext.Post(GetSendOrPostCallback(h), state);
                 return true;
             }
 

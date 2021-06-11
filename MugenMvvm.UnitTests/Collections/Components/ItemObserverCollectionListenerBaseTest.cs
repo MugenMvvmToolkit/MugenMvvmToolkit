@@ -41,8 +41,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void AttachShouldTrackChanges()
         {
             _collection.Components.Remove(_listener);
-            var item1 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
-            var item2 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+            var item1 = new TestNotifyPropertyChangedModel();
+            var item2 = new TestNotifyPropertyChangedModel();
 
             _collection.Add(item1);
             _collection.Add(item2);
@@ -77,8 +77,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact]
         public void ReplaceShouldTrackChanges()
         {
-            var item1 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
-            var item2 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+            var item1 = new TestNotifyPropertyChangedModel();
+            var item2 = new TestNotifyPropertyChangedModel();
 
             _collection.Add(item1);
             _collectionChangedCount.ShouldEqual(1);
@@ -106,8 +106,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact]
         public void ResetShouldTrackChanges()
         {
-            var item1 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
-            var item2 = new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher};
+            var item1 = new TestNotifyPropertyChangedModel();
+            var item2 = new TestNotifyPropertyChangedModel();
 
             _collection.Add(item1);
             _collection.Add(item2);
@@ -160,7 +160,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }, delay);
 
             for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher});
+                _collection.Add(new TestNotifyPropertyChangedModel());
             _collectionChangedCount.ShouldEqual(0);
             _itemChangedCount.ShouldEqual(0);
 
@@ -186,7 +186,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void AddRemoveShouldTrackChanges(int count)
         {
             for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher});
+                _collection.Add(new TestNotifyPropertyChangedModel());
             _collectionChangedCount.ShouldEqual(count);
             _itemChangedCount.ShouldEqual(0);
 
@@ -223,7 +223,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void AddClearShouldTrackChanges(int count)
         {
             for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher});
+                _collection.Add(new TestNotifyPropertyChangedModel());
             _collectionChangedCount.ShouldEqual(count);
             _itemChangedCount.ShouldEqual(0);
 
@@ -258,7 +258,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void AddDetachShouldTrackChanges(int count)
         {
             for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher});
+                _collection.Add(new TestNotifyPropertyChangedModel());
             _collectionChangedCount.ShouldEqual(count);
             _itemChangedCount.ShouldEqual(0);
 
@@ -293,7 +293,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void MoveShouldTrackChanges(int count)
         {
             for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel {ThreadDispatcher = ThreadDispatcher});
+                _collection.Add(new TestNotifyPropertyChangedModel());
             _collectionChangedCount.ShouldEqual(count);
             _itemChangedCount.ShouldEqual(0);
 

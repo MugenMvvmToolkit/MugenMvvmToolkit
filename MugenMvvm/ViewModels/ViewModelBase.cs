@@ -49,8 +49,6 @@ namespace MugenMvvm.ViewModels
 
         public IMetadataContext Metadata => _metadata ?? this.InitializeService(ref _metadata);
 
-        protected override bool HasPropertyChangedListeners => base.HasPropertyChangedListeners || _messenger != null && _messenger.HasSubscribers();
-
         protected IViewModelManager ViewModelManager => _viewModelManager.DefaultIfNull();
 
         internal bool IsInitialized { get; set; }
@@ -136,10 +134,11 @@ namespace MugenMvvm.ViewModels
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed, manager: _viewModelManager);
         }
 
-        protected override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
         {
-            base.OnPropertyChangedInternal(args);
-            _messenger?.Publish(this, args);
+            base.OnPropertyChanged(args);
+            if (!IsSuspended)
+                _messenger?.Publish(this, args);
         }
 
         void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata) => OnBeginBusy(busyManager, busyToken, metadata);

@@ -7,18 +7,15 @@ using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Observation;
-using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Models
 {
-    public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, IThreadDispatcherHandler, ISuspendable,
-        IValueHolder<IWeakReference>, IValueHolder<Delegate>, IValueHolder<IDictionary<string, object?>>, IValueHolder<MemberListenerCollection>
+    public abstract class NotifyPropertyChangedBase : INotifyPropertyChanged, ISuspendable, IValueHolder<IWeakReference>, IValueHolder<IDictionary<string, object?>>,
+        IValueHolder<MemberListenerCollection>
     {
         [NonSerialized]
         [IgnoreDataMember]
@@ -36,13 +33,6 @@ namespace MugenMvvm.Models
 
         [IgnoreDataMember]
         public bool IsSuspended => _suspendCount != 0;
-
-        [IgnoreDataMember]
-        protected virtual bool HasPropertyChangedListeners => PropertyChanged != null || _memberListeners != null && _memberListeners.Count != 0;
-
-        [IgnoreDataMember]
-        [field: NonSerialized]
-        Delegate? IValueHolder<Delegate>.Value { get; set; }
 
         [IgnoreDataMember]
         [field: NonSerialized]
@@ -66,31 +56,25 @@ namespace MugenMvvm.Models
             return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase)m!).EndSuspend(), this);
         }
 
-        protected virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
-        {
-            _memberListeners?.RaisePropertyChanged(this, args);
-            PropertyChanged?.Invoke(this, args);
-        }
-
         protected virtual void OnEndSuspend(bool isDirty)
         {
             if (isDirty)
                 InvalidateProperties();
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) => OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-
-        protected void OnPropertyChanged(PropertyChangedEventArgs args)
+        protected virtual void OnPropertyChanged(PropertyChangedEventArgs args)
         {
-            if (!HasPropertyChangedListeners)
-                return;
-
             if (IsSuspended)
                 _isNotificationsDirty = true;
             else
-                MugenExtensions.DefaultIfNull<IThreadDispatcher>(null, this).Execute(ThreadExecutionMode.Main, this, args);
+            {
+                _memberListeners?.RaisePropertyChanged(this, args);
+                PropertyChanged?.Invoke(this, args);
+            }
         }
+
+        [NotifyPropertyChangedInvocator]
+        protected void OnPropertyChanged([CallerMemberName] string? propertyName = null) => OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
 
         protected void ClearPropertyChangedSubscribers()
         {
@@ -107,7 +91,5 @@ namespace MugenMvvm.Models
                     _isNotificationsDirty = false;
             }
         }
-
-        void IThreadDispatcherHandler.Execute(object? state) => OnPropertyChangedInternal((PropertyChangedEventArgs)state!);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
@@ -34,9 +35,11 @@ namespace MugenMvvm.Tests.Threading
             if (handler is Action action)
                 del = o => action();
             else if (handler is Action<object?> actionState)
-                del = actionState.Invoke!;
+                del = actionState;
             else if (handler is IThreadDispatcherHandler h)
                 del = h.Execute;
+            else if (handler is SendOrPostCallback callback)
+                del = callback.Invoke;
             else
                 return false;
             return Execute(threadDispatcher, del, executionMode, state, metadata);

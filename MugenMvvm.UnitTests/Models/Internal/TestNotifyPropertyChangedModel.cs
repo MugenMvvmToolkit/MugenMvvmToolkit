@@ -1,13 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.UnitTests.Models.Internal
 {
-    public class TestNotifyPropertyChangedModel : NotifyPropertyChangedBase, IHasService<IThreadDispatcher>
+    public class TestNotifyPropertyChangedModel : NotifyPropertyChangedBase
     {
         private string? _property;
 
@@ -23,24 +21,21 @@ namespace MugenMvvm.UnitTests.Models.Internal
             }
         }
 
-        public IThreadDispatcher? ThreadDispatcher { get; set; }
-
         public Action<PropertyChangedEventArgs>? OnPropertyChangedInternalHandler { get; set; }
 
         public Action<bool>? OnEndSuspendHandler { get; set; }
 
         public new void OnPropertyChanged([CallerMemberName] string? propertyName = null) => base.OnPropertyChanged(propertyName);
 
-        public new void OnPropertyChanged(PropertyChangedEventArgs args) => base.OnPropertyChanged(args);
+        public void OnPropertyChangedRaw(PropertyChangedEventArgs args) => OnPropertyChanged(args);
 
         public new void ClearPropertyChangedSubscribers() => base.ClearPropertyChangedSubscribers();
 
-        public IThreadDispatcher? GetService(bool optional) => ThreadDispatcher;
-
-        protected override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
         {
-            OnPropertyChangedInternalHandler?.Invoke(args);
-            base.OnPropertyChangedInternal(args);
+            if (!IsSuspended)
+                OnPropertyChangedInternalHandler?.Invoke(args);
+            base.OnPropertyChanged(args);
         }
 
         protected override void OnEndSuspend(bool isDirty)

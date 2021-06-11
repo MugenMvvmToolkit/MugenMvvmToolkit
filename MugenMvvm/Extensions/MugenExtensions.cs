@@ -140,7 +140,7 @@ namespace MugenMvvm.Extensions
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, action, null, metadata);
 
-        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action<object?> action, object? state,
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, SendOrPostCallback action, object? state,
             IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, action, state, metadata);
 
