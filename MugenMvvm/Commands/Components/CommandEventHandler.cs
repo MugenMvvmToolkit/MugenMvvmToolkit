@@ -21,12 +21,14 @@ namespace MugenMvvm.Commands.Components
         private EventHandler? _canExecuteChanged;
         private bool _isNotificationsDirty;
         private int _suspendCount;
+        private int _version;
 
         public CommandEventHandler(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode)
         {
             Should.NotBeNull(eventExecutionMode, nameof(eventExecutionMode));
             _threadDispatcher = threadDispatcher;
             EventExecutionMode = eventExecutionMode;
+            _version = -BoxingExtensions.CacheSize;
         }
 
         public ThreadExecutionMode EventExecutionMode { get; }
@@ -49,7 +51,13 @@ namespace MugenMvvm.Commands.Components
             if (IsSuspended)
                 _isNotificationsDirty = true;
             else
-                _threadDispatcher.DefaultIfNull().Execute(EventExecutionMode, this, null);
+            {
+                var dispatcher = _threadDispatcher.DefaultIfNull();
+                if (dispatcher.CanExecuteInline(EventExecutionMode))
+                    Raise();
+                else
+                    dispatcher.Execute(EventExecutionMode, this, BoxingExtensions.Box(Interlocked.Increment(ref _version)));
+            }
         }
 
         public void Dispose() => _canExecuteChanged = null;
@@ -63,13 +71,22 @@ namespace MugenMvvm.Commands.Components
         private void EndSuspendNotifications()
         {
             if (Interlocked.Decrement(ref _suspendCount) == 0 && _isNotificationsDirty)
+            {
+                _isNotificationsDirty = false;
                 RaiseCanExecuteChanged();
+            }
         }
 
-        void IThreadDispatcherHandler.Execute(object? _)
+        private void Raise()
         {
             foreach (var owner in Owners)
                 _canExecuteChanged?.Invoke(owner, EventArgs.Empty);
+        }
+
+        void IThreadDispatcherHandler.Execute(object? v)
+        {
+            if (_version == (int)v!)
+                Raise();
         }
     }
 }

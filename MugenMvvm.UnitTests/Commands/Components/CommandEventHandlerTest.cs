@@ -88,9 +88,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executionMode = ThreadExecutionMode.Get(mode);
             Action? invoke = null;
-            var threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            ThreadDispatcher.ClearComponents();
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
+                CanExecuteInline = (_, _, _) => false,
                 Execute = (_, action, mode, arg3, _) =>
                 {
                     mode.ShouldEqual(executionMode);
@@ -99,7 +100,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 }
             });
 
-            var conditionEventCommandComponent = new CommandEventHandler(threadDispatcher, executionMode);
+            var conditionEventCommandComponent = new CommandEventHandler(ThreadDispatcher, executionMode);
             Command.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
