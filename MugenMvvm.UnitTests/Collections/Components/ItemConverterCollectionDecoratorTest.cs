@@ -82,6 +82,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Move(i, i + 1);
                 Assert();
             }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i + 1, i);
+                Assert();
+            }
         }
 
         [Fact]
@@ -94,6 +100,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + 1);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i * 2 + 1, i);
                 Assert();
             }
         }
@@ -161,7 +173,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
         }
 
@@ -188,7 +200,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.RemoveAt(0);
                 Assert();
 
-                _collection.Reset(new object[] {1, 2, 3, 4, 5, i});
+                _collection.Reset(new object[] { 1, 2, 3, 4, 5, i });
                 Assert();
 
                 _collection[0] = 200;

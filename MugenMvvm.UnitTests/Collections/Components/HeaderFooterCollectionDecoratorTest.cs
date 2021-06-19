@@ -28,15 +28,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private static IEnumerable<object?[]> GetData() =>
             new[]
             {
-                new object?[] {null, null},
-                new object?[] {new[] {"header"}, null},
-                new object?[] {new[] {"header1", "header2"}, null},
-                new object?[] {null, new[] {"footer"}},
-                new object?[] {null, new[] {"footer1", "footer2"}},
-                new object?[] {new[] {"header"}, new[] {"footer"}},
-                new object?[] {new[] {"header1", "header2"}, new[] {"footer"}},
-                new object?[] {new[] {"header"}, new[] {"footer1", "footer2"}},
-                new object?[] {new[] {"header1", "header2"}, new[] {"footer1", "footer2"}}
+                new object?[] { null, null },
+                new object?[] { new[] { "header" }, null },
+                new object?[] { new[] { "header1", "header2" }, null },
+                new object?[] { null, new[] { "footer" } },
+                new object?[] { null, new[] { "footer1", "footer2" } },
+                new object?[] { new[] { "header" }, new[] { "footer" } },
+                new object?[] { new[] { "header1", "header2" }, new[] { "footer" } },
+                new object?[] { new[] { "header" }, new[] { "footer1", "footer2" } },
+                new object?[] { new[] { "header1", "header2" }, new[] { "footer1", "footer2" } }
             };
 
         [Theory]
@@ -113,6 +113,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Move(i, i + 1);
                 Assert();
             }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i + 1, i);
+                Assert();
+            }
         }
 
         [Theory]
@@ -130,6 +136,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + 1);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i * 2 + 1, i);
                 Assert();
             }
         }
@@ -207,7 +219,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
         }
 
@@ -233,7 +245,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _collection[0] = 200;

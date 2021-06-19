@@ -23,6 +23,12 @@ namespace MugenMvvm.UnitTests
     {
         protected const string SharedContext = nameof(SharedContext);
 
+#if LONGRUNNINGTEST
+        protected const string? LongRunningTest = null;
+#else
+        protected const string LongRunningTest = "LongRunningTest";
+#endif
+
 #if DEBUG
         protected const string ReleaseTest = "NOT SUPPORTED IN DEBUG";
 #else

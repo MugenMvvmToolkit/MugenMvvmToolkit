@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -12,11 +11,13 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public abstract class ItemObserverCollectionListenerBase<T> : IAttachableComponent, IDetachableComponent, IHasPriority where T : class?
+    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendable, IAttachableComponent, IDetachableComponent, IHasPriority where T : class?
     {
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
         private readonly ListInternal<Observer> _observers;
+        private int _suspendCount;
+        private bool _isNotificationsDirty;
 #if !NET5_0
         private List<T>? _oldItems;
 #endif
@@ -30,23 +31,51 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; set; }
 
+        public bool IsSuspended => _suspendCount != 0;
+
         public ActionToken AddObserver<TState>(TState state, Func<TState, ChangedEventInfo, bool> canInvoke, Action<TState, T?> invokeAction, int delay = 0)
         {
             Should.NotBeNull(invokeAction, nameof(invokeAction));
             Should.NotBeNull(canInvoke, nameof(canInvoke));
-            var listener = new Observer<TState>(state, canInvoke, invokeAction, delay);
-            _observers.Add(listener);
-            return ActionToken.FromDelegate((l, item) => ((List<Observer>)l!).Remove((Observer)item!), _observers, listener);
+            var observer = new Observer<TState>(state, canInvoke, invokeAction, delay);
+            lock (_observers)
+            {
+                _observers.Add(observer);
+            }
+
+            return ActionToken.FromDelegate((l, item) => ((ItemObserverCollectionListenerBase<T>)l!).RemoveObserver((Observer)item!), this, observer);
         }
 
-        public void ClearObservers() => _observers.Clear();
+        public void ClearObservers()
+        {
+            lock (_observers)
+            {
+                for (var i = 0; i < _observers.Count; i++)
+                    _observers.Items[i].Dispose();
+                _observers.Clear();
+            }
+        }
+
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Interlocked.Increment(ref _suspendCount);
+            return ActionToken.FromDelegate(this, t => t.EndSuspend());
+        }
 
         protected virtual void OnChanged(T? item, string? member)
         {
+            if (IsSuspended)
+            {
+                _isNotificationsDirty = true;
+                return;
+            }
+
+            // ReSharper disable InconsistentlySynchronizedField
             var items = _observers.Items;
-            var count = _observers.Count;
+            var count = Math.Min(_observers.Count, items.Length);
+            // ReSharper restore InconsistentlySynchronizedField
             for (var i = 0; i < count; i++)
-                items[i].OnChanged(item, member);
+                items[i]?.OnChanged(item, member);
         }
 
         protected virtual bool TrySubscribe(T item)
@@ -114,7 +143,7 @@ namespace MugenMvvm.Collections.Components
                 _oldItems.Clear();
                 foreach (var item in _items)
                 {
-                    for (int i = 0; i < item.Value; i++)
+                    for (var i = 0; i < item.Value; i++)
                         _oldItems.Add(item.Key);
                 }
 
@@ -145,6 +174,27 @@ namespace MugenMvvm.Collections.Components
             _oldItems?.Clear();
 #endif
             OnCollectionChanged();
+        }
+
+        private void EndSuspend()
+        {
+            if (Interlocked.Decrement(ref _suspendCount) == 0 && _isNotificationsDirty)
+            {
+                _isNotificationsDirty = false;
+                OnChanged(null, null);
+            }
+        }
+
+        private void RemoveObserver(Observer observer)
+        {
+            bool removed;
+            lock (_observers)
+            {
+                removed = _observers.Remove(observer);
+            }
+
+            if (removed)
+                observer.Dispose();
         }
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnChanged((T?)sender, args.PropertyName ?? "");
@@ -214,9 +264,11 @@ namespace MugenMvvm.Collections.Components
             public bool IsMemberOrCollectionChanged(string member, bool emptyMemberResult = true) => Item == null || member == Member || Member == "" && emptyMemberResult;
         }
 
-        private abstract class Observer
+        private abstract class Observer : IDisposable
         {
             public abstract void OnChanged(T? item, string? member);
+
+            public abstract void Dispose();
         }
 
         private sealed class Observer<TState> : Observer
@@ -225,7 +277,8 @@ namespace MugenMvvm.Collections.Components
             private readonly Action<TState, T?> _invokeAction;
             private readonly Func<TState, ChangedEventInfo, bool> _canInvoke;
             private readonly int _delay;
-            private int _id;
+            private Timer? _timer;
+            private T? _item;
 
             public Observer(TState state, Func<TState, ChangedEventInfo, bool> canInvoke, Action<TState, T?> invokeAction, int delay)
             {
@@ -233,9 +286,11 @@ namespace MugenMvvm.Collections.Components
                 _invokeAction = invokeAction;
                 _canInvoke = canInvoke;
                 _delay = delay;
+                if (delay != 0)
+                    _timer = new Timer(o => ((Observer<TState>)o).Raise(), this, Timeout.Infinite, Timeout.Infinite);
             }
 
-            public override async void OnChanged(T? item, string? member)
+            public override void OnChanged(T? item, string? member)
             {
                 if (!_canInvoke(_state, new ChangedEventInfo(item, member)))
                     return;
@@ -244,11 +299,21 @@ namespace MugenMvvm.Collections.Components
                     _invokeAction(_state, item);
                 else
                 {
-                    var id = Interlocked.Increment(ref _id);
-                    await Task.Delay(_delay).ConfigureAwait(false);
-                    if (_id == id)
-                        _invokeAction(_state, item);
+                    _item = item;
+                    _timer?.Change(_delay, Timeout.Infinite);
                 }
+            }
+
+            public override void Dispose()
+            {
+                _timer?.Dispose();
+                _timer = null;
+            }
+
+            private void Raise()
+            {
+                _invokeAction(_state, _item);
+                _item = null;
             }
         }
     }

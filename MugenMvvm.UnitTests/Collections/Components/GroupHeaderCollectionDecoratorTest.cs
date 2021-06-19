@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _headers = new Dictionary<int, object>();
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
-            _getHeader = o => _headers.GetOrAdd((int) o! % 4, i => _headers.GetOrAdd(i, k => k.ToString()));
+            _getHeader = o => _headers.GetOrAdd((int)o! % 4, i => _headers.GetOrAdd(i, k => k.ToString()));
             _decorator = new GroupHeaderCollectionDecorator(_getHeader);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
@@ -88,6 +88,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Move(i, i + 1);
                 Assert();
             }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i + 1, i);
+                Assert();
+            }
         }
 
         [Fact]
@@ -100,6 +106,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + i);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i * 2 + i, i);
                 Assert();
             }
         }
@@ -168,7 +180,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
 
             _headers.Clear();
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
         }
 
@@ -207,7 +219,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _collection[0] = 200;
@@ -223,16 +235,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var header = new List<int>();
             var changedItems = new List<int>();
             _collection.RemoveComponent(_decorator);
-            _getHeader = o => ((int) o!) % 2 == 0 ? header : null;
+            _getHeader = o => ((int)o!) % 2 == 0 ? header : null;
             _decorator = new GroupHeaderCollectionDecorator(_getHeader, (h, action, item) =>
             {
-                var ints = ((List<int>) h);
+                var ints = ((List<int>)h);
                 if (action == GroupHeaderChangedAction.ItemAdded)
-                    ints.Add((int) item!);
+                    ints.Add((int)item!);
                 else if (action == GroupHeaderChangedAction.ItemRemoved)
-                    ints.Remove((int) item!);
+                    ints.Remove((int)item!);
                 else if (action == GroupHeaderChangedAction.ItemChanged)
-                    changedItems.Add((int) item!);
+                    changedItems.Add((int)item!);
                 else if (action == GroupHeaderChangedAction.Clear)
                     ints.Clear();
             });
@@ -278,7 +290,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 Assert();
             }
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             items.ShouldEqual(expectedItems);
             Assert();
 

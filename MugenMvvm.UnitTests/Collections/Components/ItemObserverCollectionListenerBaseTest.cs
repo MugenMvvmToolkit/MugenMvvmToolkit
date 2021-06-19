@@ -124,7 +124,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemChangedCount.ShouldEqual(2);
             _collectionChangedCount.ShouldEqual(2);
 
-            _collection.Reset(new[] {item2});
+            _collection.Reset(new[] { item2 });
             _itemChangedCount.ShouldEqual(2);
             _collectionChangedCount.ShouldEqual(3);
 
@@ -306,6 +306,52 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collectionChangedCount.ShouldEqual(i + 1);
                 _itemChangedCount.ShouldEqual(0);
             }
+        }
+
+        [Fact]
+        public void ShouldSuspendTrackChanges()
+        {
+            using var t = _collection.TrySuspend();
+            var item1 = new TestNotifyPropertyChangedModel();
+            var item2 = new TestNotifyPropertyChangedModel();
+
+            _collection.Add(item1);
+            _collection.Add(item2);
+            _collectionChangedCount.ShouldEqual(0);
+            _itemChangedCount.ShouldEqual(0);
+
+            _currentItem = item1;
+            item1.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            _currentItem = item2;
+            item2.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            _collection.Reset(new[] { item2 });
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            _currentItem = item1;
+            item1.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            _currentItem = item2;
+            item2.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+
+            t.Dispose();
+            _collectionChangedCount.ShouldEqual(1);
+            _itemChangedCount.ShouldEqual(0);
+
+            _currentItem = item2;
+            item2.OnPropertyChanged(nameof(item1.Property));
+            _itemChangedCount.ShouldEqual(1);
+            _collectionChangedCount.ShouldEqual(1);
         }
     }
 }

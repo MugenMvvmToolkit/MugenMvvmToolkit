@@ -22,8 +22,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _filter1 = i => i % 2 == 0;
             _filter2 = i => i.Id % 2 == 0;
-            _collection.AddComponent(new FilterCollectionDecorator<int> {Filter = _filter1});
-            _collection.AddComponent(new FilterCollectionDecorator<TestCollectionItem> {Filter = _filter2});
+            _collection.AddComponent(new FilterCollectionDecorator<int> { Filter = _filter1 });
+            _collection.AddComponent(new FilterCollectionDecorator<TestCollectionItem> { Filter = _filter2 });
 
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
@@ -50,12 +50,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ChangeShouldTrackChanges()
         {
             for (var i = 0; i < 100; i++)
-                _collection.Add(new TestCollectionItem {Id = i});
+                _collection.Add(new TestCollectionItem { Id = i });
             Assert();
 
             for (var i = 0; i < 100; i++)
             {
-                ((TestCollectionItem) _collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                ((TestCollectionItem)_collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
                 _collection.RaiseItemChanged(_collection[i], null);
                 Assert();
             }
@@ -84,6 +84,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Move(i, i + 1);
                 Assert();
             }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i + 1, i);
+                Assert();
+            }
         }
 
         [Fact]
@@ -96,6 +102,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + i);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i * 2 + i, i);
                 Assert();
             }
         }
@@ -155,7 +167,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
         }
 
@@ -177,7 +189,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _collection[0] = 200;
@@ -205,7 +217,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _collection[0] = 200;
@@ -224,7 +236,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var filter = _filter1;
             _filter1 = i => true;
             _collection.RemoveComponents<FilterCollectionDecorator<int>>();
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
 
             var decorator = new FilterCollectionDecorator<int>();
             _collection.AddComponent(decorator);

@@ -152,6 +152,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Move(i, i + 1);
                 Assert();
             }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i + 1, i);
+                Assert();
+            }
         }
 
         [Theory]
@@ -168,6 +174,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + 1);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i * 2 + 1, i);
                 Assert();
             }
         }
