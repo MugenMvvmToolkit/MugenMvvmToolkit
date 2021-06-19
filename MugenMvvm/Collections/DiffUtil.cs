@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Collections
 {
@@ -33,8 +35,21 @@ namespace MugenMvvm.Collections
             void OnChanged(int position, int finalPosition, int count, bool isMove);
         }
 
+        public static ValueTask<DiffResult> CalculateDiffAsync(ICallback cb, bool isAsync, bool detectMoves = true)
+        {
+            if (isAsync)
+            {
+                return detectMoves
+                    ? Task.Factory.StartNew(o => CalculateDiff((ICallback)o!, true), cb).AsValueTask()
+                    : Task.Factory.StartNew(o => CalculateDiff((ICallback)o!, false), cb).AsValueTask();
+            }
+
+            return new ValueTask<DiffResult>(CalculateDiff(cb, detectMoves));
+        }
+
         public static DiffResult CalculateDiff(ICallback cb, bool detectMoves = true)
         {
+            Should.NotBeNull(cb, nameof(cb));
             var oldSize = cb.GetOldListSize();
             var newSize = cb.GetNewListSize();
 
@@ -419,9 +434,10 @@ namespace MugenMvvm.Collections
                 return status >> FlagOffset;
             }
 
-            public void DispatchUpdatesTo(IListUpdateCallback updateCallback)
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void DispatchUpdatesTo(IListUpdateCallback updateCallback, bool ignoreFinalPosition = false)
             {
-                var callback = new BatchingListUpdateCallback(updateCallback);
+                var callback = new BatchingListUpdateCallback(updateCallback, ignoreFinalPosition);
                 DispatchUpdatesTo(ref callback);
             }
 

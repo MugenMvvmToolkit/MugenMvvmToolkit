@@ -1,40 +1,57 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Foundation;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Ios.Interfaces;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Ios.Collections
 {
     public class ItemsSourceBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
     {
-        private readonly List<object?> _beforeResetList;
         private readonly HashSet<int> _reloadIndexes;
-        private readonly IDiffableEqualityComparer? _diffableComparer;
+        private IReadOnlyList<object?>? _resetItems;
         private Closure? _closure;
         private DiffUtil.DiffResult _diffResult;
         private bool _isInitialized;
         private int _pendingReloadCount;
         private List<(int position, int count)>? _pendingReloads;
+        private int? _diffUtilAsyncLimit;
+        private int? _diffUtilMaxLimit;
 
         public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter,
             IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
             Should.NotBeNull(collectionViewAdapter, nameof(collectionViewAdapter));
-            _diffableComparer = diffableComparer;
+            DiffableComparer = diffableComparer;
             CollectionViewAdapter = collectionViewAdapter;
-            BatchSize = 2;
-            _beforeResetList = new List<object?>();
+            BatchLimit = 2;
             _reloadIndexes = new HashSet<int>();
         }
 
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
-        public IDiffableEqualityComparer? DiffableComparer => _diffableComparer ?? TryGetCollectionComponent<IDiffableEqualityComparer>();
+        public IDiffableEqualityComparer? DiffableComparer { get; set; }
+
+        public bool DetectMoves { get; set; } = true;
+
+        public int DiffUtilAsyncLimit
+        {
+            get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
+            set => _diffUtilAsyncLimit = value;
+        }
+
+        public int DiffUtilMaxLimit
+        {
+            get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
+            set => _diffUtilMaxLimit = value;
+        }
 
         protected override bool IsAlive => CollectionViewAdapter.IsAlive;
 
@@ -59,6 +76,16 @@ namespace MugenMvvm.Ios.Collections
         }
 
         protected virtual NSIndexPath GetIndexPath(int index) => NSIndexPath.FromRowSection(index, 0);
+
+        protected override void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue, int version)
+        {
+            _pendingReloads?.Clear();
+            _reloadIndexes.Clear();
+            _diffResult = default;
+            _resetItems = null;
+            _pendingReloadCount = 0;
+            base.OnCollectionChanged(oldValue, newValue, version);
+        }
 
         protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
@@ -90,23 +117,52 @@ namespace MugenMvvm.Ios.Collections
             _reloadIndexes.Remove(index);
         }
 
-        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected override async void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
             BeginBatchUpdate(version);
             var closure = Closure.GetClosure(this, version);
-            if (items == null || !_isInitialized)
+            if (items == null || !_isInitialized || Items.Count > DiffUtilMaxLimit)
             {
                 _isInitialized = true;
-                base.OnReset(items, batchUpdate, version);
-                CollectionViewAdapter.ReloadData(closure.EndBatchUpdate);
+                Reload(closure, items, batchUpdate, version);
                 return;
             }
 
-            _beforeResetList.AddRange(this);
-            base.OnReset(items, batchUpdate, version);
+            if (items is IReadOnlyList<object?> list)
+                _resetItems = list;
+            else
+            {
+                MugenExtensions.Reset(ref ResetCache, items);
+                _resetItems = ResetCache;
+            }
 
-            _diffResult = DiffUtil.CalculateDiff(this);
-            CollectionViewAdapter.PerformUpdates(closure.PerformUpdates, closure.EndPerformUpdates);
+            if (Items.Count + _resetItems.Count > DiffUtilMaxLimit)
+            {
+                Reload(closure, _resetItems, batchUpdate, version);
+                return;
+            }
+
+            var isAsync = Items.Count > DiffUtilAsyncLimit && _resetItems.Count > DiffUtilAsyncLimit;
+            if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
+            {
+                MugenExtensions.Reset(ref ResetCache, _resetItems);
+                _resetItems = ResetCache;
+            }
+
+            try
+            {
+                var diffResult = await DiffUtil.CalculateDiffAsync(this, isAsync, DetectMoves);
+                if (Version == version)
+                {
+                    _diffResult = diffResult;
+                    CollectionViewAdapter.PerformUpdates(closure.PerformUpdates, closure.EndPerformUpdates);
+                }
+            }
+            catch
+            {
+                if (Version == version)
+                    throw;
+            }
         }
 
         protected NSIndexPath[] GetIndexPaths(int startingPosition, int count)
@@ -147,18 +203,32 @@ namespace MugenMvvm.Ios.Collections
             DisposeIndexPaths(indexPaths);
         }
 
-        int DiffUtil.ICallback.GetOldListSize() => _beforeResetList.Count;
+        private void ResetBase(IEnumerable<object?>? items, bool batchUpdate, int version) => base.OnReset(items, batchUpdate, version);
 
-        int DiffUtil.ICallback.GetNewListSize() => Count;
+        private void Reload(Closure closure, IEnumerable<object?>? items, bool batchUpdate, int version)
+        {
+            base.OnReset(items, batchUpdate, version);
+            ResetCache?.Clear();
+            _resetItems = null;
+            CollectionViewAdapter.ReloadData(closure.EndBatchUpdate);
+        }
+
+        int DiffUtil.ICallback.GetOldListSize() => Items.Count;
+
+        int DiffUtil.ICallback.GetNewListSize() => _resetItems!.Count;
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {
+            if (_closure == null || _closure.Version != Version)
+                return true;
+
             if (DiffableComparer == null)
-                return Equals(_beforeResetList[oldItemPosition], this[newItemPosition]);
-            return DiffableComparer.AreItemsTheSame(_beforeResetList[oldItemPosition], this[newItemPosition]);
+                return Equals(Items[oldItemPosition], _resetItems![newItemPosition]);
+            return DiffableComparer.AreItemsTheSame(Items[oldItemPosition], _resetItems![newItemPosition]);
         }
 
-        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => !_reloadIndexes.Contains(oldItemPosition);
+        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) =>
+            _closure == null || _closure.Version != Version || !_reloadIndexes.Contains(oldItemPosition);
 
         void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count) => NotifyInserted(finalPosition, count);
 
@@ -179,8 +249,8 @@ namespace MugenMvvm.Ios.Collections
 
         protected sealed class Closure
         {
+            public readonly int Version;
             private readonly ItemsSourceBindableCollectionAdapter _adapter;
-            private readonly int _version;
 
             private Action? _endBatchUpdate;
             private Action<bool>? _endPerformUpdates;
@@ -189,7 +259,7 @@ namespace MugenMvvm.Ios.Collections
             private Closure(ItemsSourceBindableCollectionAdapter adapter, int version)
             {
                 _adapter = adapter;
-                _version = version;
+                Version = version;
             }
 
             public Action EndBatchUpdate => _endBatchUpdate ??= EndBatchUpdateImpl;
@@ -198,10 +268,12 @@ namespace MugenMvvm.Ios.Collections
 
             public Action<bool> EndPerformUpdates => _endPerformUpdates ??= EndPerformUpdatesImpl;
 
+            private bool IsValidVersion => Version == _adapter.Version;
+
             public static Closure GetClosure(ItemsSourceBindableCollectionAdapter adapter, int version)
             {
                 var closure = adapter._closure;
-                if (closure == null || closure._version != version)
+                if (closure == null || closure.Version != version)
                 {
                     closure = new Closure(adapter, version);
                     adapter._closure = closure;
@@ -212,6 +284,9 @@ namespace MugenMvvm.Ios.Collections
 
             private void EndPerformUpdatesImpl(bool _)
             {
+                if (!IsValidVersion)
+                    return;
+
                 var pendingReloads = _adapter._pendingReloads;
                 if (pendingReloads != null && pendingReloads.Count != 0)
                 {
@@ -229,16 +304,28 @@ namespace MugenMvvm.Ios.Collections
                     pendingReloads.Clear();
                 }
 
-                _adapter._beforeResetList.Clear();
+                _adapter.ResetCache?.Clear();
                 _adapter._reloadIndexes.Clear();
                 _adapter._diffResult = default;
+                _adapter._resetItems = null;
                 _adapter._pendingReloadCount = 0;
-                _adapter.EndBatchUpdate(_version);
+                _adapter.EndBatchUpdate(Version);
             }
 
-            private void PerformUpdatesIml() => _adapter._diffResult.DispatchUpdatesTo(_adapter);
+            private void PerformUpdatesIml()
+            {
+                if (IsValidVersion)
+                {
+                    _adapter.ResetBase(_adapter._resetItems, true, Version);
+                    _adapter._diffResult.DispatchUpdatesTo(_adapter);
+                }
+            }
 
-            private void EndBatchUpdateImpl() => _adapter.EndBatchUpdate(_version);
+            private void EndBatchUpdateImpl()
+            {
+                if (IsValidVersion)
+                    _adapter.EndBatchUpdate(Version);
+            }
         }
     }
 }

@@ -186,9 +186,10 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChangesResetLimit()
         {
             Action? action = null;
+            var canExecute = true;
             var dispatcherComponent = new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (_, _, _) => false,
+                CanExecuteInline = (_, _, _) => canExecute,
                 Execute = (_, action1, _, arg3, _) =>
                 {
                     action += () => action1(arg3);
@@ -201,11 +202,12 @@ namespace MugenMvvm.UnitTests.Collections
             var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new SuspendableObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
-            collectionAdapter.BatchSize = 3;
+            collectionAdapter.BatchLimit = 3;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
 
+            canExecute = false;
             observableCollection.Add(1);
             observableCollection.Insert(1, 2);
             observableCollection.Add(3);
@@ -221,6 +223,8 @@ namespace MugenMvvm.UnitTests.Collections
             var invokeCount = 0;
             adapterCollection.CollectionChanged += (sender, args) =>
             {
+                if (!IsSuspendSupported && invokeCount == 1)
+                    return;
                 ++invokeCount;
                 args.Action.ShouldEqual(NotifyCollectionChangedAction.Reset);
             };
@@ -234,9 +238,10 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChangesThreadDispatcher1()
         {
             Action? action = null;
+            var canExecute = true;
             var dispatcherComponent = new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (_, _, _) => false,
+                CanExecuteInline = (_, _, _) => canExecute,
                 Execute = (_, action1, mode, arg3, _) =>
                 {
                     action += () => action1(arg3);
@@ -252,6 +257,7 @@ namespace MugenMvvm.UnitTests.Collections
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
+            canExecute = false;
 
             observableCollection.Add(1);
             observableCollection.Insert(1, 2);
@@ -273,9 +279,10 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldTrackChangesThreadDispatcher2()
         {
             Action? action = null;
+            var canExecute = true;
             var dispatcherComponent = new TestThreadDispatcherComponent
             {
-                CanExecuteInline = (_, _, _) => false,
+                CanExecuteInline = (_, _, _) => canExecute,
                 Execute = (_, action1, mode, arg3, _) =>
                 {
                     action += () => action1(arg3);
@@ -291,6 +298,7 @@ namespace MugenMvvm.UnitTests.Collections
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
+            canExecute = false;
 
             observableCollection.Add(1);
             observableCollection.Insert(1, 2);
@@ -308,6 +316,9 @@ namespace MugenMvvm.UnitTests.Collections
             tracker.ChangedItems.ShouldEqual(observableCollection);
             collectionAdapter.ShouldEqual(observableCollection);
         }
+
+
+        protected virtual bool IsSuspendSupported => false;
 
         protected override IThreadDispatcher GetThreadDispatcher()
         {

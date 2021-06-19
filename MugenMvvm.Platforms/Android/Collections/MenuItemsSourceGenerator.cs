@@ -18,6 +18,7 @@ namespace MugenMvvm.Android.Collections
             Menu = menu;
             ItemTemplate = itemTemplate;
             DiffableComparer = itemTemplate as IDiffableEqualityComparer;
+            NotifyOnReload = true;
         }
 
         public IMenu Menu { get; }

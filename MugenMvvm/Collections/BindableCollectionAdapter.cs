@@ -8,7 +8,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections.Components;
-using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -18,8 +17,9 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
+
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections
 {
@@ -35,6 +35,7 @@ namespace MugenMvvm.Collections
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
         private int _suspendCount;
+        private int? _batchLimit;
 
         public BindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source ?? new List<object?>())
@@ -42,6 +43,7 @@ namespace MugenMvvm.Collections
             _threadDispatcher = threadDispatcher;
             _pendingEvents = new List<CollectionChangedEvent>();
             _executionMode = ThreadExecutionMode.Main;
+            Version = -BoxingExtensions.CacheSize;
         }
 
         public IEnumerable? Collection
@@ -49,27 +51,8 @@ namespace MugenMvvm.Collections
             get => _collection;
             set
             {
-                if (ReferenceEquals(value, _collection))
-                    return;
-
-                int version;
-                lock (_pendingEvents)
-                {
-                    version = ++Version;
-                    if (_collection != null)
-                        RemoveCollectionListener(_collection);
-                    _suspendCount = 0;
-                    _pendingEvents.Clear();
-                    _collection = value;
-                    if (value != null)
-                    {
-                        AddEvent(CollectionChangedEvent.Reset(GetCollectionItems(value)), version);
-                        AddCollectionListener(value, version);
-                        return;
-                    }
-                }
-
-                AddEvent(CollectionChangedEvent.Reset(null), version);
+                if (!ReferenceEquals(value, _collection))
+                    OnCollectionChanged(_collection, value);
             }
         }
 
@@ -85,28 +68,32 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public int BatchSize { get; set; } = 10;
+        public int BatchLimit
+        {
+            get => _batchLimit.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchLimit);
+            set => _batchLimit = value;
+        }
 
         protected virtual bool IsAlive => true;
 
-        protected int Version { get; private set; } = -1;
+        protected int Version { get; private set; }
 
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 
+        protected virtual void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue, int version) => ResetCache?.Clear();
+
         protected virtual void AddCollectionListener(IEnumerable collection, int version)
         {
             if (collection is IComponentOwner componentOwner)
             {
-                Listener = Listener ??= new WeakListener(this);
-                Listener.SetVersion(version);
+                Listener = new WeakListener(this, version, Listener);
                 componentOwner.Components.Add(Listener);
             }
             else if (collection is INotifyCollectionChanged notifyCollectionChanged)
             {
-                Listener = Listener ??= new WeakListener(this);
-                Listener.SetVersion(version);
+                Listener = new WeakListener(this, version, Listener);
                 notifyCollectionChanged.CollectionChanged += Listener.OnCollectionChanged;
             }
         }
@@ -115,11 +102,11 @@ namespace MugenMvvm.Collections
         {
             if (Listener == null)
                 return;
+
             if (collection is IComponentOwner componentOwner)
                 componentOwner.Components.Remove(Listener);
             else if (collection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged -= Listener.OnCollectionChanged;
-            Listener.SetVersion(int.MinValue);
         }
 
         protected virtual IEnumerable<object?> GetCollectionItems(IEnumerable collection) => collection.Decorate();
@@ -154,26 +141,38 @@ namespace MugenMvvm.Collections
 
         protected virtual void BatchUpdate(List<CollectionChangedEvent> events, int version)
         {
-            if (events.Count == 1 || events.Count < BatchSize)
+            if (events.Count == 0)
+                return;
+
+            var firstEvent = events[0];
+            if (events.Count == 1)
             {
-                RaiseBatchUpdate(events, version);
-                ResetCache?.Clear();
+                firstEvent.Raise(this, true, version);
                 return;
             }
 
-            ResetCache ??= new List<object?>();
-            ResetCache.Clear();
-            ResetCache.AddRange(Items);
-
-            for (var i = 0; i < events.Count; i++)
-                events[i].ApplyToSource(ResetCache);
-
-            using (SuspendItems())
+            if (events.Count < BatchLimit && firstEvent.Action != CollectionChangedAction.Reset)
             {
-                OnReset(ResetCache, true, version);
+                RaiseBatchUpdate(events, version);
+                return;
             }
 
-            ResetCache.Clear();
+            int startIndex;
+            if (firstEvent.Action == CollectionChangedAction.Reset)
+            {
+                MugenExtensions.Reset(ref ResetCache, firstEvent.ResetItems);
+                startIndex = 1;
+            }
+            else
+            {
+                startIndex = 0;
+                MugenExtensions.Reset(ref ResetCache, Items);
+            }
+
+            for (var i = startIndex; i < events.Count; i++)
+                events[i].ApplyToSource(ResetCache);
+
+            OnReset(ResetCache, true, version);
         }
 
         protected virtual void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
@@ -198,9 +197,7 @@ namespace MugenMvvm.Collections
 
         protected virtual List<CollectionChangedEvent> GetPendingEvents(List<CollectionChangedEvent> pendingEvents)
         {
-            _eventsCache ??= new List<CollectionChangedEvent>();
-            _eventsCache.Clear();
-            _eventsCache.AddRange(pendingEvents);
+            MugenExtensions.Reset(ref _eventsCache, pendingEvents);
             return _eventsCache;
         }
 
@@ -305,8 +302,44 @@ namespace MugenMvvm.Collections
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected T? TryGetCollectionComponent<T>() where T : class, IComponent => (Collection as IComponentOwner)?.GetComponentOptional<T>();
+        private async void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue)
+        {
+            await _threadDispatcher.SwitchToBackgroundAsync();
+
+            int version;
+            using var oldLock = MugenExtensions.TryLock(oldValue);
+            using var newLock = MugenExtensions.TryLock(newValue);
+            lock (_pendingEvents)
+            {
+                version = ++Version;
+                _suspendCount = 1;
+                if (oldValue != null)
+                {
+                    RemoveCollectionListener(oldValue);
+                    oldLock.Dispose();
+                }
+
+                _pendingEvents.Clear();
+                _collection = newValue;
+                if (newValue == null)
+                    AddEvent(CollectionChangedEvent.Reset(null), version);
+                else
+                {
+                    AddCollectionListener(newValue, version);
+                    AddEvent(CollectionChangedEvent.Reset(GetCollectionItems(newValue)), version);
+                }
+            }
+
+            oldLock.Dispose();
+            newLock.Dispose();
+
+            await _threadDispatcher.SwitchToAsync(ExecutionMode);
+            if (Version == version)
+            {
+                OnCollectionChanged(oldValue, newValue, version);
+                EndBatchUpdate(version);
+            }
+        }
 
         private bool IsResetEvent(object sender, NotifyCollectionChangedEventArgs e, [NotNullWhen(true)] out IEnumerable<object?>? items)
         {
@@ -331,8 +364,6 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
-
         void IThreadDispatcherHandler.Execute(object? state)
         {
             var version = (int)state!;
@@ -356,7 +387,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected enum CollectionChangedAction
+        protected enum CollectionChangedAction : byte
         {
             Add = 1,
             Move = 2,
@@ -375,6 +406,7 @@ namespace MugenMvvm.Collections
             public readonly int OldIndex;
             public readonly object? OldItem;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public CollectionChangedEvent(CollectionChangedAction action, object? oldItem, object? newItem, int oldIndex, int newIndex)
             {
                 Action = action;
@@ -386,9 +418,19 @@ namespace MugenMvvm.Collections
 
             public bool IsEmpty => Action == 0;
 
-            public IEnumerable<object?>? ResetItems => (IEnumerable<object?>?)NewItem;
+            public bool IsResetItemsFixed => OldIndex == int.MaxValue;
 
-            public object? ChangedArgs => NewItem;
+            public IEnumerable<object?>? ResetItems
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => (IEnumerable<object?>?)NewItem;
+            }
+
+            public object? ChangedArgs
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => NewItem;
+            }
 
             public void Raise(BindableCollectionAdapter adapter, bool batchUpdate, int version)
             {
@@ -469,83 +511,93 @@ namespace MugenMvvm.Collections
                 }
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static CollectionChangedEvent Changed(object? item, int index, object? args) => new(CollectionChangedAction.Changed, item, args, index, index);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static CollectionChangedEvent Add(object? item, int index) => new(CollectionChangedAction.Add, item, item, index, index);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static CollectionChangedEvent Replace(object? oldItem, object? newItem, int index) => new(CollectionChangedAction.Replace, oldItem, newItem, index, index);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static CollectionChangedEvent Move(object? item, int oldIndex, int newIndex) => new(CollectionChangedAction.Move, item, item, oldIndex, newIndex);
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static CollectionChangedEvent Remove(object? item, int index) => new(CollectionChangedAction.Remove, item, item, index, index);
 
-            public static CollectionChangedEvent Reset(IEnumerable<object?>? items) => new(CollectionChangedAction.Reset, null, items, -1, -1);
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public static CollectionChangedEvent Reset(IEnumerable<object?>? items) =>
+                new(CollectionChangedAction.Reset, null, items, -1, -1);
         }
 
-        protected class WeakListener : AttachableComponentBase<ICollection>, IHasTarget<BindableCollectionAdapter?>, ICollectionBatchUpdateListener, ICollectionDecoratorListener,
-            IHasPriority
+        protected class WeakListener : IAttachableComponent, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
         {
             private readonly IWeakReference _reference;
-            private int _version;
+            private readonly int _version;
 
-            public WeakListener(BindableCollectionAdapter adapter)
+            public WeakListener(BindableCollectionAdapter adapter, int version, WeakListener? oldListener)
             {
-                _reference = adapter.ToWeakReference();
+                _reference = oldListener?._reference ?? adapter.ToWeakReference();
+                _version = version;
             }
 
             public int Priority { get; set; } = CollectionComponentPriority.BindableAdapter;
 
-            public BindableCollectionAdapter? Target => GetAdapter();
-
-            public void SetVersion(int version) => _version = version;
+            public BindableCollectionAdapter? Target => GetAdapter(null);
 
             public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
             {
                 if (sender == null)
                     return;
 
-                var adapter = GetAdapter();
+                var adapter = GetAdapter(sender);
                 if (adapter == null || !adapter.IsAlive)
                     ((INotifyCollectionChanged)sender).CollectionChanged -= OnCollectionChanged;
                 else
                     adapter.OnCollectionChanged(sender, args, _version);
             }
 
-            public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter()?.BeginBatchUpdate(_version);
+            public bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
-            public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter()?.EndBatchUpdate(_version);
+            public void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+            {
+                if (owner is IEnumerable enumerable)
+                    CollectionDecoratorManager.GetOrAdd(enumerable);
+            }
+
+            public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter(collection)?.BeginBatchUpdate(_version);
+
+            public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter(collection)?.EndBatchUpdate(_version);
 
             public void OnChanged(ICollection collection, object? item, int index, object? args)
             {
-                var adapter = GetAdapter();
+                var adapter = GetAdapter(collection);
                 if (adapter != null && adapter.IsChangeEventSupported(item, args))
                     adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
             }
 
-            public void OnAdded(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
+            public void OnAdded(ICollection collection, object? item, int index) => GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
 
             public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) =>
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
+                GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
 
             public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) =>
-                GetAdapter()?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
+                GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
 
-            public void OnRemoved(ICollection collection, object? item, int index) => GetAdapter()?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
+            public void OnRemoved(ICollection collection, object? item, int index) => GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
 
-            public void OnReset(ICollection collection, IEnumerable<object?>? items) => GetAdapter()?.AddEvent(CollectionChangedEvent.Reset(items), _version);
+            public void OnReset(ICollection collection, IEnumerable<object?>? items) => GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Reset(items), _version);
 
-            protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd(owner);
-
-            protected BindableCollectionAdapter? GetAdapter()
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            protected BindableCollectionAdapter? GetAdapter(object? owner)
             {
                 var adapter = (BindableCollectionAdapter?)_reference.Target;
-                if (adapter == null || !adapter.IsAlive)
-                {
-                    (OwnerOptional as IComponentOwner)?.Components.Remove(this);
-                    return null;
-                }
+                if (adapter != null && adapter.IsAlive)
+                    return adapter;
 
-                return adapter;
+                (owner as IComponentOwner)?.Components.Remove(this);
+                return null;
             }
         }
     }

@@ -18,6 +18,8 @@ namespace MugenMvvm.UnitTests.Collections
         {
         }
 
+        protected override bool IsSuspendSupported => true;
+
         [Fact]
         public void ShouldUseDiffableComparer()
         {

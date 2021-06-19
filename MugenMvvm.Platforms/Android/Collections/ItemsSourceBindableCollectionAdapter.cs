@@ -2,29 +2,46 @@
 using System.Collections.Generic;
 using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Android.Collections
 {
     public class ItemsSourceBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.ICallback, DiffUtil.IListUpdateCallback
     {
         protected readonly List<IItemsSourceObserver> Observers;
-
-        private List<object?>? _beforeResetList;
+        private IReadOnlyList<object?>? _resetItems;
         private int _diffSupportedCount;
+        private int _diffVersion;
         private bool _isAlive;
-        private readonly IDiffableEqualityComparer? _diffableComparer;
+        private int? _diffUtilAsyncLimit;
+        private int? _diffUtilMaxLimit;
 
         public ItemsSourceBindableCollectionAdapter(IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
         {
-            _diffableComparer = diffableComparer;
+            DiffableComparer = diffableComparer;
             Observers = new List<IItemsSourceObserver>();
             _isAlive = true;
         }
 
-        public IDiffableEqualityComparer? DiffableComparer => _diffableComparer ?? TryGetCollectionComponent<IDiffableEqualityComparer>();
+        public IDiffableEqualityComparer? DiffableComparer { get; set; }
+
+        public bool DetectMoves { get; set; } = true;
+
+        public int DiffUtilAsyncLimit
+        {
+            get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
+            set => _diffUtilAsyncLimit = value;
+        }
+
+        public int DiffUtilMaxLimit
+        {
+            get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
+            set => _diffUtilMaxLimit = value;
+        }
 
         protected override bool IsAlive => _isAlive;
 
@@ -79,40 +96,75 @@ namespace MugenMvvm.Android.Collections
                 GetObserver(i)?.OnItemChanged(index);
         }
 
-        protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected override async void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
-            if (_diffSupportedCount > 0)
+            if (items != null && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxLimit)
             {
-                var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
-                ResetDiff(ref callback, items, batchUpdate, version);
+                if (items is IReadOnlyList<object?> list)
+                    _resetItems = list;
+                else
+                {
+                    MugenExtensions.Reset(ref ResetCache, items);
+                    _resetItems = ResetCache;
+                }
+
+                if (Items.Count + _resetItems.Count <= DiffUtilMaxLimit)
+                {
+                    var isAsync = Items.Count > DiffUtilAsyncLimit && _resetItems.Count > DiffUtilAsyncLimit;
+                    if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
+                    {
+                        MugenExtensions.Reset(ref ResetCache, _resetItems);
+                        _resetItems = ResetCache;
+                    }
+
+                    if (isAsync)
+                        BeginBatchUpdate(version);
+
+                    try
+                    {
+                        _diffVersion = version;
+                        var diffResult = await DiffUtil.CalculateDiffAsync(this, isAsync, DetectMoves);
+                        if (Version == version)
+                        {
+                            base.OnReset(_resetItems, batchUpdate, version);
+                            diffResult.DispatchUpdatesTo(this, true);
+                            _resetItems = null;
+                            ResetCache?.Clear();
+                            if (isAsync)
+                                EndBatchUpdate(version);
+                        }
+                    }
+                    catch
+                    {
+                        if (Version == version)
+                            throw;
+                    }
+
+                    return;
+                }
+
+                base.OnReset(_resetItems, batchUpdate, version);
+                _resetItems = null;
+                ResetCache?.Clear();
             }
             else
             {
                 base.OnReset(items, batchUpdate, version);
-                for (var i = 0; i < Observers.Count; i++)
-                    GetObserver(i)?.OnReset();
+                ResetCache?.Clear();
             }
+
+            for (var i = 0; i < Observers.Count; i++)
+                GetObserver(i)?.OnReset();
         }
 
         protected override void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
         {
-            if (_diffSupportedCount <= 0 || events.Count < 2)
-            {
-                base.RaiseBatchUpdate(events, version);
-                return;
-            }
-
             var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
             for (var i = 0; i < events.Count; i++)
             {
                 var e = events[i];
-                if (e.Action == CollectionChangedAction.Reset)
-                    ResetDiff(ref callback, e.ResetItems, true, version);
-                else
-                {
-                    e.ApplyToSource(Items);
-                    e.Raise(ref callback);
-                }
+                e.ApplyToSource(Items);
+                e.Raise(ref callback);
             }
 
             callback.DispatchLastEvent();
@@ -130,26 +182,17 @@ namespace MugenMvvm.Android.Collections
             return observer;
         }
 
-        private void ResetDiff(ref DiffUtil.BatchingListUpdateCallback updateCallback, IEnumerable<object?>? items, bool batchUpdate, int version)
-        {
-            if (_beforeResetList == null)
-                _beforeResetList = new List<object?>(this);
-            else
-                _beforeResetList.AddRange(this);
-            base.OnReset(items, batchUpdate, version);
-            DiffUtil.CalculateDiff(this).DispatchUpdatesTo(ref updateCallback);
-            _beforeResetList.Clear();
-        }
+        int DiffUtil.ICallback.GetOldListSize() => Items.Count;
 
-        int DiffUtil.ICallback.GetOldListSize() => _beforeResetList!.Count;
-
-        int DiffUtil.ICallback.GetNewListSize() => Count;
+        int DiffUtil.ICallback.GetNewListSize() => _resetItems!.Count;
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {
+            if (_diffVersion != Version)
+                return true;
             if (DiffableComparer == null)
-                return Equals(_beforeResetList![oldItemPosition], this[newItemPosition]);
-            return DiffableComparer.AreItemsTheSame(_beforeResetList![oldItemPosition], this[newItemPosition]);
+                return Equals(Items[oldItemPosition], _resetItems![newItemPosition]);
+            return DiffableComparer.AreItemsTheSame(Items[oldItemPosition], _resetItems![newItemPosition]);
         }
 
         bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;
