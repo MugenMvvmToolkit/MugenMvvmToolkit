@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Tests.Collections;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
+
+#pragma warning disable 4014
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
@@ -143,6 +147,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _itemCollection2.Move(i, i + 1);
                 Assert();
             }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _itemCollection1.Move(i + 1, i);
+                Assert();
+                _targetCollection.Move(i + 1, i);
+                Assert();
+                _itemCollection2.Move(i + 1, i);
+                Assert();
+            }
         }
 
         [Fact]
@@ -165,6 +179,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _targetCollection.Move(i, i * 2 + 1);
                 Assert();
                 _itemCollection2.Move(i, i * 2 + 1);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _itemCollection1.Move(i * 2 + 1, i);
+                Assert();
+                _targetCollection.Move(i * 2 + 1, i);
+                Assert();
+                _itemCollection2.Move(i * 2 + 1, i);
                 Assert();
             }
         }
@@ -269,9 +293,109 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
-        [Fact(Skip = "DEBUG ONLY")]
-        // [Fact]
-        public void ShouldBeThreadSafe()
+        [Fact(Skip = LongRunningTest)]
+        public void ShouldBeThreadSafe1()
+        {
+            var root = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            root.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+
+            var tracker = new DecoratorObservableCollectionTracker<object>();
+            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.Decorate());
+            root.AddComponent(tracker);
+
+            var child1 = new SynchronizedObservableCollection<IReadOnlyObservableCollection>(ComponentCollectionManager);
+            child1.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+
+            var child2 = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
+            child2.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+
+            var nestedChild = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
+            child1.Add(nestedChild);
+            child2.Add(nestedChild);
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(10);
+                    nestedChild.Add(Guid.NewGuid());
+                }
+            });
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(10);
+                    if (root.Contains(child1))
+                        root.Remove(child1);
+                    else
+                        root.Add(child1);
+                }
+            });
+
+            Task.Run(() =>
+            {
+                int index = 0;
+                while (true)
+                {
+                    ++index;
+                    Thread.Sleep(10);
+                    if (root.Contains(child2))
+                        root.Remove(child2);
+                    else
+                        root.Add(child2);
+                }
+            });
+
+            Task.Run(() =>
+            {
+                int index = 0;
+                while (true)
+                {
+                    if (index == 1000)
+                        return;
+
+                    Thread.Sleep(100);
+
+                    var child = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
+                    var nestedChild1 = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
+
+                    ThreadPool.QueueUserWorkItem(_ =>
+                    {
+                        while (true)
+                        {
+                            nestedChild1.Add(Guid.NewGuid());
+                            Thread.Sleep(10);
+                        }
+                    }, null);
+
+                    child.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+                    child.Add(nestedChild1);
+
+                    if (index % 2 == 0)
+                        Thread.Sleep(100);
+
+                    root.Add(child);
+
+                    ++index;
+                }
+            });
+
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    using var l = root.Lock();
+                    tracker.ChangedItems.ShouldEqual(root.Decorate());
+                }
+            }).Wait(TimeSpan.FromMinutes(1));
+            root.Lock().Dispose();
+        }
+
+        [Fact(Skip = LongRunningTest)]
+        public void ShouldBeThreadSafe2()
         {
             _targetCollection.Add("T");
             var random = new Random();
@@ -355,7 +479,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     using var l3 = _itemCollection2.TryLock();
                     Assert();
                 }
-            }).Wait();
+            }).Wait(TimeSpan.FromMinutes(1));
+            _targetCollection.Lock().Dispose();
         }
 
         [Fact]

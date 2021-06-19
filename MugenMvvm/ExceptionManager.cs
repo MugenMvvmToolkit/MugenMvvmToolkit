@@ -16,6 +16,10 @@ namespace MugenMvvm
     {
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowActionTokenDisposeNotCalled(int id, object target) => throw new InvalidOperationException(ActionDisposeNotCalledFormat2.Format(id, target));
+
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowAsyncInitializationAssert() => throw new InvalidOperationException(AsyncInitializationAssert);
 
         [DoesNotReturn]

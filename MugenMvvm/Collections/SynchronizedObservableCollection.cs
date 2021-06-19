@@ -13,18 +13,21 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(SynchronizedObservableCollection<>.DebuggerProxy))]
-    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection, ISynchronizable, ActionToken.IHandler
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<ICollection>, IObservableCollection<T>, IObservableCollection, ISynchronizable
     {
-        private readonly object _locker;
+        private readonly object _lockLocker;
+        private object? _lastTakenLocker;
+        private int _lockCount;
         private int _batchCount;
+        private ILocker _locker;
 
         public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionManager? componentCollectionManager = null)
             : this(new List<T>(items), componentCollectionManager)
@@ -41,7 +44,8 @@ namespace MugenMvvm.Collections
         {
             Should.NotBeNull(list, nameof(list));
             Items = list;
-            _locker = new object();
+            _lockLocker = new object();
+            _locker = new DecrementPriorityLocker();
         }
 
         public bool IsReadOnly => false;
@@ -61,11 +65,13 @@ namespace MugenMvvm.Collections
 
         bool ICollection.IsSynchronized => true;
 
-        object ICollection.SyncRoot => _locker;
+        object ICollection.SyncRoot => GetLocker();
 
         bool IList.IsFixedSize => false;
 
         Type IReadOnlyObservableCollection.ItemType => typeof(T);
+
+        ILocker ISynchronizable.Locker => _locker;
 
         public T this[int index]
         {
@@ -110,20 +116,6 @@ namespace MugenMvvm.Collections
                 return TypeChecker.IsNullable<T>();
 
             return false;
-        }
-
-        private static bool Equals(ItemOrArray<ISynchronizationListener> x1, ItemOrArray<ISynchronizationListener> x2)
-        {
-            if (x1.Count != x2.Count)
-                return false;
-
-            for (var i = 0; i < x1.Count; i++)
-            {
-                if (!ReferenceEquals(x1[i], x2[i]))
-                    return false;
-            }
-
-            return true;
         }
 
         public Enumerator GetEnumerator() => new(this);
@@ -230,7 +222,7 @@ namespace MugenMvvm.Collections
                     GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this, BatchUpdateType.Source);
             }
 
-            return ActionToken.FromDelegate((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
+            return ActionToken.FromDelegate((@this, _) => ((SynchronizedObservableCollection<T>)@this!).EndBatchUpdate(), this);
         }
 
         public void Move(int oldIndex, int newIndex)
@@ -244,30 +236,43 @@ namespace MugenMvvm.Collections
         public ActionToken Lock()
         {
             var lockTaken = false;
+            object? locker = null;
             try
             {
                 while (true)
                 {
-                    var listeners = GetComponents<ISynchronizationListener>();
-                    listeners.OnLocking(this, null);
-                    Monitor.Enter(_locker, ref lockTaken);
-                    listeners.OnLocked(this, null);
-                    var lockedListeners = GetComponents<ISynchronizationListener>();
-                    if (Equals(listeners, lockedListeners))
-                        return ActionToken.FromHandler(this, lockTaken ? _locker : null, listeners.GetRawValue());
+                    locker = _lastTakenLocker ?? GetLocker();
+                    Monitor.Enter(locker, ref lockTaken);
 
-                    Unlock(listeners, ref lockTaken);
+                    var currentLocker = _lastTakenLocker ?? GetLocker();
+                    if (ReferenceEquals(currentLocker, locker))
+                    {
+                        if (lockTaken)
+                        {
+                            _lastTakenLocker = locker;
+                            ++_lockCount;
+                            return ActionToken.FromDelegate((c, l) => ((SynchronizedObservableCollection<T>)c!).Unlock(l!), this, locker);
+                        }
+
+                        return default;
+                    }
+
+                    if (lockTaken)
+                    {
+                        lockTaken = false;
+                        Monitor.Exit(locker);
+                    }
                 }
             }
             catch
             {
-                if (lockTaken)
-                    Monitor.Exit(_locker);
+                if (lockTaken && locker != null)
+                    Monitor.Exit(locker);
                 throw;
             }
         }
 
-        protected virtual void CopyToInternal(Array array, int index) => ((ICollection) Items).CopyTo(array, index);
+        protected virtual void CopyToInternal(Array array, int index) => ((ICollection)Items).CopyTo(array, index);
 
         protected virtual void CopyToInternal(T[] array, int index) => Items.CopyTo(array, index);
 
@@ -341,9 +346,24 @@ namespace MugenMvvm.Collections
 
         protected bool ContainsInternal(T? item) => Items.Contains(item!);
 
+        private object GetLocker()
+        {
+            lock (_lockLocker)
+            {
+                return _locker.SyncRoot;
+            }
+        }
+
+        private void Unlock(object locker)
+        {
+            if (--_lockCount == 0)
+                _lastTakenLocker = null;
+            Monitor.Exit(locker);
+        }
+
         private object? Get(int index) => BoxingExtensions.Box(this[index]);
 
-        private void Set(int index, object? value) => this[index] = (T) value!;
+        private void Set(int index, object? value) => this[index] = (T)value!;
 
         private void EndBatchUpdate()
         {
@@ -352,18 +372,6 @@ namespace MugenMvvm.Collections
                 if (--_batchCount == 0)
                     GetComponents<ICollectionBatchUpdateListener>().OnEndBatchUpdate(this, BatchUpdateType.Source);
             }
-        }
-
-        private void Unlock(ItemOrArray<ISynchronizationListener> listeners, ref bool lockTaken)
-        {
-            listeners.OnUnlocking(this, null);
-            if (lockTaken)
-            {
-                Monitor.Exit(_locker);
-                lockTaken = false;
-            }
-
-            listeners.OnUnlocked(this, null);
         }
 
         void ICollection.CopyTo(Array array, int index)
@@ -379,17 +387,11 @@ namespace MugenMvvm.Collections
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
 
-        void ActionToken.IHandler.Invoke(object? state1, object? state2)
-        {
-            var lockTaken = state1 != null;
-            Unlock(ItemOrArray.FromRawValue<ISynchronizationListener>(state2), ref lockTaken);
-        }
-
         int IList.Add(object? value)
         {
             using (Lock())
             {
-                InsertInternal(GetCountInternal(), (T) value!, true);
+                InsertInternal(GetCountInternal(), (T)value!, true);
                 return GetCountInternal() - 1;
             }
         }
@@ -397,28 +399,45 @@ namespace MugenMvvm.Collections
         bool IList.Contains(object? value)
         {
             if (IsCompatibleObject(value))
-                return Contains((T) value!);
+                return Contains((T)value!);
             return false;
         }
 
         int IList.IndexOf(object? value)
         {
             if (IsCompatibleObject(value!))
-                return IndexOf((T) value!);
+                return IndexOf((T)value!);
             return -1;
         }
 
-        void IList.Insert(int index, object? value) => Insert(index, (T) value!);
+        void IList.Insert(int index, object? value) => Insert(index, (T)value!);
 
         void IList.Remove(object? value)
         {
             if (IsCompatibleObject(value!))
-                Remove((T) value!);
+                Remove((T)value!);
         }
 
-        void IObservableCollection.Reset(IEnumerable<object> items) => Reset((IEnumerable<T>) items);
+        void IObservableCollection.Reset(IEnumerable<object> items) => Reset((IEnumerable<T>)items);
 
-        void IObservableCollection.RaiseItemChanged(object item, object? args) => RaiseItemChanged((T) item, args);
+        void IObservableCollection.RaiseItemChanged(object item, object? args) => RaiseItemChanged((T)item, args);
+
+        void ISynchronizable.UpdateLocker(ILocker locker)
+        {
+            Should.NotBeNull(locker, nameof(locker));
+            var set = false;
+            lock (_lockLocker)
+            {
+                if (locker.Priority > _locker.Priority)
+                {
+                    _locker = locker;
+                    set = true;
+                }
+            }
+
+            if (set)
+                GetComponents<ILockerChangedListener>().OnChanged(this, locker, null);
+        }
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>
