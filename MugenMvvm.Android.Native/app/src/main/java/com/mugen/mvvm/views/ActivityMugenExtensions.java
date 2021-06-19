@@ -70,7 +70,7 @@ public final class ActivityMugenExtensions {
         if (activityManager != null && activityManager.tryStartActivity(activityView, activityClass, requestId, viewModelId, resourceId, flags))
             return true;
         if (activityClass == null)
-            activityClass = ViewMugenExtensions.tryGetClassByLayoutId(resourceId);
+            activityClass = ViewMugenExtensions.tryGetClassByLayoutId(resourceId, true);
         if (activityClass == null)
             return false;
 

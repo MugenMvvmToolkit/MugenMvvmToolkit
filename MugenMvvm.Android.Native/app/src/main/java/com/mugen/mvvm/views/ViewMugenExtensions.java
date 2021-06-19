@@ -154,10 +154,10 @@ public final class ViewMugenExtensions {
     }
 
     @Nullable
-    public static Class tryGetClassByLayoutId(int resourceId) {
+    public static Class tryGetClassByLayoutId(int resourceId, boolean isActivity) {
         IViewLayoutResourceResolver layoutResourceResolver = MugenService.getLayoutResourceResolver();
         if (layoutResourceResolver != null) {
-            Class clazz = layoutResourceResolver.tryGetClassByLayoutId(resourceId);
+            Class clazz = layoutResourceResolver.tryGetClassByLayoutId(resourceId, isActivity);
             if (clazz != null)
                 return clazz;
         }

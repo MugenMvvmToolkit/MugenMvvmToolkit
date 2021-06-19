@@ -6,7 +6,7 @@ import androidx.annotation.Nullable;
 
 public interface IViewLayoutResourceResolver {
     @Nullable
-    Class tryGetClassByLayoutId(int resourceId);
+    Class tryGetClassByLayoutId(int resourceId, boolean isActivity);
 
     int tryGetLayoutId(@Nullable Class viewClass, @Nullable Intent intent);
 }
