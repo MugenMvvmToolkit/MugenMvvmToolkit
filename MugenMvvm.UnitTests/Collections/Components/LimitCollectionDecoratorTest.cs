@@ -2,7 +2,6 @@
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
@@ -24,6 +23,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
             _tracker.Changed += Assert;
+        }
+
+        [Fact]
+        public void MoveShouldTrackChanges3()
+        {
+            _decorator.Limit = 1;
+            _decorator.Condition = null;
+
+            _collection.Add(1);
+            _collection.Add(2);
+            _collection.Add(3);
+            _collection.Add(4);
+            _collection.Add("st_1");
+            _collection.Move(4, 1);
         }
 
         [Theory]
@@ -103,8 +116,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            int countLimit = 0;
-            int count = 0;
+            var countLimit = 0;
+            var count = 0;
             for (var i = 0; i < _collection.Count; i++)
             {
                 if (IsSatisfied(i))
@@ -166,6 +179,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 Assert();
             }
 
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i + 1, i);
+                Assert();
+            }
+
             _decorator.Limit = null;
             Assert();
             _decorator.Limit = limit;
@@ -190,6 +209,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + i);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i * 2 + i, i);
                 Assert();
             }
 
@@ -309,7 +334,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _decorator.Limit = null;
@@ -369,7 +394,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _collection[0] = 200;

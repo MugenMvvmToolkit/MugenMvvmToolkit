@@ -191,7 +191,7 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        private int GetIndex(int index)
+        private int GetIndex(int index, bool isMove = false)
         {
             if (Limit!.Value > index || Limit!.Value >= _items.Count)
                 return index;
@@ -201,6 +201,8 @@ namespace MugenMvvm.Collections.Components
                 return index;
             if (lastIndex < 0)
                 lastIndex = ~lastIndex;
+            else if (isMove)
+                ++lastIndex;
             if (lastIndex <= Limit.Value)
                 return index;
             return index - (lastIndex - Limit.Value);
@@ -293,7 +295,7 @@ namespace MugenMvvm.Collections.Components
                     _items.AddOrdered(new ItemInfo((T)item!, newIndex), this);
                 }
 
-                oldIndex = GetIndex(oldIndex);
+                oldIndex = GetIndex(oldIndex, oldIndex > newIndex);
                 newIndex = GetIndex(newIndex);
                 return true;
             }
