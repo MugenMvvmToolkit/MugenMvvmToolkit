@@ -87,8 +87,7 @@ namespace MugenMvvm.Models
             if (Interlocked.Decrement(ref _suspendCount) == 0)
             {
                 OnEndSuspend(_isNotificationsDirty);
-                if (_isNotificationsDirty)
-                    _isNotificationsDirty = false;
+                _isNotificationsDirty = false;
             }
         }
     }

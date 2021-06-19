@@ -7,6 +7,7 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Components
 {

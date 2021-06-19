@@ -29,7 +29,7 @@ namespace MugenMvvm.Extensions
             if (collection == null)
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            return component == null ? collection.AsEnumerable() : component.Decorate((ICollection) collection);
+            return component == null ? collection.AsEnumerable() : component.Decorate((ICollection)collection);
         }
 
         public static void InvalidateDecorators(this IReadOnlyObservableCollection? collection)
@@ -41,7 +41,7 @@ namespace MugenMvvm.Extensions
             if (component != null)
             {
                 using var _ = collection.TryLock();
-                component.OnReset((ICollection) collection, null, collection.AsEnumerable());
+                component.OnReset((ICollection)collection, null, collection.AsEnumerable());
             }
         }
 
@@ -207,7 +207,7 @@ namespace MugenMvvm.Extensions
                 source = items;
             }
             else
-                source = new[] {(T) source, value};
+                source = new[] { (T)source, value };
         }
 
         internal static bool RemoveRaw<T>(ref object? source, T value) where T : class
@@ -302,6 +302,18 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IEnumerable<object?> AsEnumerable(this IEnumerable enumerable) => enumerable as IEnumerable<object?> ?? enumerable.Cast<object?>();
+
+        internal static void Reset<T>([NotNull] ref List<T>? list, IEnumerable<T>? items)
+        {
+            if (list == null)
+                list = items == null ? new List<T>() : new List<T>(items);
+            else
+            {
+                list.Clear();
+                if (items != null)
+                    list.AddRange(items);
+            }
+        }
 
 #if SPAN_API
         //https://github.com/dotnet/runtime/pull/295

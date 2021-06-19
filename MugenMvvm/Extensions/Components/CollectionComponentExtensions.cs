@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections.Components;
+// ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Extensions.Components
 {

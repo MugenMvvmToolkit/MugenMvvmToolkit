@@ -11,6 +11,7 @@ namespace MugenMvvm.Enums
     {
         public static readonly ApplicationFlags Initialized = new(1, nameof(Initialized));
         public static readonly ApplicationFlags DesignMode = new(1 << 1, nameof(DesignMode));
+        public static readonly ApplicationFlags Debug = new(1 << 2, nameof(Debug));
 
         [Preserve(Conditional = true)]
         public ApplicationFlags()

@@ -222,32 +222,62 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnLocking(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        public static void OnChanged(this ItemOrArray<ILockerChangedListener> listeners, object owner, ILocker locker, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(target, nameof(target));
-            foreach (var component in components)
-                component.OnLocking(target, metadata);
+            Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(locker, nameof(locker));
+            foreach (var listener in listeners)
+                listener.OnChanged(owner, locker, metadata);
         }
 
-        public static void OnLocked(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Invalidate(this ItemOrArray<IHasCache> components, object sender, object? state, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(target, nameof(target));
-            foreach (var component in components)
-                component.OnLocked(target, metadata);
+            Should.NotBeNull(sender, nameof(sender));
+            foreach (var c in components)
+                c.Invalidate(sender, state, metadata);
         }
 
-        public static void OnUnlocking(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        public static void Dispose(object? components)
         {
-            Should.NotBeNull(target, nameof(target));
-            foreach (var component in components)
-                component.OnUnlocking(target, metadata);
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IDisposable)?.Dispose();
+            }
+            else
+                (components as IDisposable)?.Dispose();
         }
 
-        public static void OnUnlocked(this ItemOrArray<ISynchronizationListener> components, object target, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Dispose(this ItemOrArray<IDisposable> components)
         {
-            Should.NotBeNull(target, nameof(target));
-            foreach (var component in components)
-                component.OnUnlocked(target, metadata);
+            foreach (var c in components)
+                c.Dispose();
+        }
+
+        public static bool IsSuspended(this ItemOrArray<ISuspendable> components)
+        {
+            foreach (var c in components)
+            {
+                if (c.IsSuspended)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static ActionToken Suspend(this ItemOrArray<ISuspendable> components, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return components[0].Suspend(state, metadata);
+
+            var tokens = new ActionToken[components.Count];
+            for (var i = 0; i < tokens.Length; i++)
+                tokens[i] = components[i].Suspend(state, metadata);
+            return ActionToken.FromTokens(tokens);
         }
     }
 }

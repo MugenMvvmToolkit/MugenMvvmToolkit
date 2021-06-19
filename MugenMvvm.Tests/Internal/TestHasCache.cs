@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Tests.Internal
 {

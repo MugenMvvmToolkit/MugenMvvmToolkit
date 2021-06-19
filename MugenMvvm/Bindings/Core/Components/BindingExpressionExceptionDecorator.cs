@@ -7,6 +7,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Wrapping;
 
 namespace MugenMvvm.Bindings.Core.Components
 {

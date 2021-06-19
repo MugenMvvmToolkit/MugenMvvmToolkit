@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.Internal
+namespace MugenMvvm.Interfaces.Models
 {
     public interface IHasCache
     {
