@@ -37,14 +37,14 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             Should.NotBeNull(type, nameof(type));
             if (_types.Add(type))
-                OwnerOptional.TryInvalidateCache();
+                OwnerOptional?.TryInvalidateCache();
         }
 
         public void Remove(Type type)
         {
             Should.NotBeNull(type, nameof(type));
             if (_types.Remove(type))
-                OwnerOptional.TryInvalidateCache();
+                OwnerOptional?.TryInvalidateCache();
         }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,

@@ -48,18 +48,22 @@ namespace MugenMvvm.Extensions
             return serviceProvider.GetService(serviceType);
         }
 
-        public static void TryInvalidateCache(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public static void TryInvalidateCache<T>(this IComponentOwner<T> owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
+            where T : class
         {
-            if (owner == null)
-                return;
-            (owner as IHasCache)?.Invalidate(owner, state, metadata);
-            owner.GetComponents<IHasCache>(metadata).Invalidate(owner, state, metadata);
+            Should.NotBeNull(owner, nameof(owner));
+            if (owner is IHasCache hasCache)
+                hasCache.Invalidate(state, metadata);
+            else
+                owner.GetComponents<IHasCacheComponent<T>>(metadata).Invalidate((T)owner, state, metadata);
         }
 
         public static bool IsSuspended<T>(this IComponentOwner<T> owner, IReadOnlyMetadataContext? metadata = null)
             where T : class
         {
             Should.NotBeNull(owner, nameof(owner));
+            if (owner is ISuspendable suspendable)
+                return suspendable.IsSuspended;
             return owner.GetComponents<ISuspendableComponent<T>>(metadata).IsSuspended((T)owner, metadata);
         }
 
@@ -67,6 +71,8 @@ namespace MugenMvvm.Extensions
             where T : class
         {
             Should.NotBeNull(owner, nameof(owner));
+            if (owner is ISuspendable suspendable)
+                return suspendable.Suspend(state, metadata);
             return owner.GetComponents<ISuspendableComponent<T>>(metadata).TrySuspend((T)owner, state, metadata);
         }
 

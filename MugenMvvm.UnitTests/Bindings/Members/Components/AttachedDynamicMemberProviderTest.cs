@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var memberType = MemberType.Method.AsFlags();
 
             var invalidateCount = 0;
-            var hasCache = new TestHasCache
+            var hasCache = new TestHasCacheComponent<IMemberManager>
             {
                 Invalidate = (s, o, arg3) => ++invalidateCount
             };

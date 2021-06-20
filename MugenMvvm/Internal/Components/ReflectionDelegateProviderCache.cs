@@ -38,8 +38,6 @@ namespace MugenMvvm.Internal.Components
             _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalEqualityComparer.TypeMember);
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => Invalidate(true, true, true);
-
         public Func<ItemOrArray<object?>, object>? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             lock (_activatorCache)
@@ -127,6 +125,8 @@ namespace MugenMvvm.Internal.Components
                 return value;
             }
         }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => Invalidate(true, true, true);
 
         protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => InvalidateComponent(component);
 

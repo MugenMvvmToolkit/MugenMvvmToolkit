@@ -1,9 +1,10 @@
 ﻿using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection : IComponentOwner<IComponentCollection>
+    public interface IComponentCollection : IComponentOwner<IComponentCollection>, IHasCache
     {
         object Owner { get; }
 
@@ -14,8 +15,6 @@ namespace MugenMvvm.Interfaces.Components
         bool Remove(object component, IReadOnlyMetadataContext? metadata = null);
 
         void Clear(IReadOnlyMetadataContext? metadata = null);
-
-        void Invalidate(object component, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrArray<T> Get<T>(IReadOnlyMetadataContext? metadata = null) where T : class;
     }

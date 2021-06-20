@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             const string memberName = "f";
             var requestType = typeof(string);
             var invalidateCount = 0;
-            var hasCache = new TestHasCache
+            var hasCache = new TestHasCacheComponent<IMemberManager>
             {
                 Invalidate = (s, o, arg3) => ++invalidateCount
             };

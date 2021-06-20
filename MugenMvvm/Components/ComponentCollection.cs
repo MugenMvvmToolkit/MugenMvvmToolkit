@@ -5,9 +5,8 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 
 namespace MugenMvvm.Components
 {
@@ -103,21 +102,6 @@ namespace MugenMvvm.Components
             }
         }
 
-        public void Invalidate(object component, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(component, nameof(component));
-            lock (_items)
-            {
-                if (!_items.Contains(component))
-                    return;
-
-                _items.Sort(this);
-                UpdateTrackers(component, null, metadata);
-            }
-
-            _components?.Get<IHasCache>(metadata).Invalidate(this, component, metadata);
-        }
-
         public ItemOrArray<T> Get<T>(IReadOnlyMetadataContext? metadata = null) where T : class
         {
             foreach (var tracker in _componentTrackers)
@@ -127,6 +111,23 @@ namespace MugenMvvm.Components
             }
 
             return AddNewTracker<T>(metadata);
+        }
+
+        public void Invalidate(object? component, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (component == null)
+                return;
+
+            lock (_items)
+            {
+                if (!_items.Contains(component))
+                    return;
+
+                _items.Sort(this);
+                UpdateTrackers(component, null, metadata);
+            }
+
+            _components?.Get<IHasCacheComponent<IComponentCollection>>(metadata).Invalidate(this, component, metadata);
         }
 
         private ItemOrArray<TComponent> AddNewTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class

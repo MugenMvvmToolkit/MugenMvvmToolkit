@@ -25,8 +25,6 @@ namespace MugenMvvm.Windows.Bindings
             _cache = new Dictionary<MugenBindingExtension, object?>(59);
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is not MugenBindingExtension ext)
@@ -40,5 +38,7 @@ namespace MugenMvvm.Windows.Bindings
 
             return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
         }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
     }
 }

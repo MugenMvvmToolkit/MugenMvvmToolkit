@@ -11,12 +11,14 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Messaging.Components
 {
-    public sealed class MessagePublisher : IMessagePublisherComponent, IHasPriority, IAttachableComponent, IDetachableComponent, IComponentCollectionChangedListener, IHasCache
+    public sealed class MessagePublisher : IMessagePublisherComponent, IHasPriority, IAttachableComponent, IDetachableComponent, IComponentCollectionChangedListener,
+        IHasCacheComponent<IMessenger>
     {
         private readonly Dictionary<Type, Dictionary<ThreadExecutionMode, MessageThreadExecutor>?> _cache;
         private readonly IThreadDispatcher? _threadDispatcher;
@@ -60,7 +62,7 @@ namespace MugenMvvm.Messaging.Components
             return dictionary;
         }
 
-        public void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public void InvalidateCache()
         {
             lock (_cache)
             {
@@ -101,20 +103,20 @@ namespace MugenMvvm.Messaging.Components
             if (_owner != null)
             {
                 _owner.Components.AddComponent(this, metadata);
-                Invalidate(this, null, metadata);
+                InvalidateCache();
             }
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IMessengerSubscriberComponent)
-                Invalidate(this, null, metadata);
+                InvalidateCache();
         }
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IMessengerSubscriberComponent)
-                Invalidate(this, null, metadata);
+                InvalidateCache();
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
@@ -125,9 +127,11 @@ namespace MugenMvvm.Messaging.Components
             {
                 _owner?.Components.RemoveComponent(this, metadata);
                 _owner = null;
-                Invalidate(this, null, metadata);
+                InvalidateCache();
             }
         }
+
+        void IHasCacheComponent<IMessenger>.Invalidate(IMessenger owner, object? state, IReadOnlyMetadataContext? metadata) => InvalidateCache();
 
         private sealed class MessageThreadExecutor : List<MessengerHandler>, IThreadDispatcherHandler, IValueHolder<Delegate>
         {
@@ -142,7 +146,7 @@ namespace MugenMvvm.Messaging.Components
 
             public void Execute(object? state)
             {
-                var messageContext = (IMessageContext) state!;
+                var messageContext = (IMessageContext)state!;
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)

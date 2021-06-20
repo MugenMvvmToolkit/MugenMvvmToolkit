@@ -44,8 +44,6 @@ namespace MugenMvvm.Android.Bindings
             }
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is not NativeStringAccessor s)
@@ -60,11 +58,13 @@ namespace MugenMvvm.Android.Bindings
             return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
         }
 
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
+
         bool IEqualityComparer<object>.Equals(object x, object y)
         {
             if (x is char[] s)
-                return ((NativeStringAccessor) y).Span.Equals(s, StringComparison.Ordinal);
-            return ((NativeStringAccessor) x).Span.Equals((char[]) y, StringComparison.Ordinal);
+                return ((NativeStringAccessor)y).Span.Equals(s, StringComparison.Ordinal);
+            return ((NativeStringAccessor)x).Span.Equals((char[])y, StringComparison.Ordinal);
         }
 
         int IEqualityComparer<object>.GetHashCode(object obj)
@@ -72,7 +72,7 @@ namespace MugenMvvm.Android.Bindings
             //todo replace to string.GetHashCode(ReadOnlySpan) when xamarin will support it
             if (obj is char[] s)
                 return ComputeHash32(s);
-            return ComputeHash32(((NativeStringAccessor) obj).Span);
+            return ComputeHash32(((NativeStringAccessor)obj).Span);
         }
     }
 }

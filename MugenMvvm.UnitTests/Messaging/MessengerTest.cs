@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Messaging
         public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
         {
             var invokedCount = 0;
-            var hasCache = new TestHasCache { Invalidate = (_, _, _) => { ++invokedCount; } };
+            var hasCache = new TestHasCacheComponent<IMessenger> { Invalidate = (_, _, _) => { ++invokedCount; } };
             Messenger.AddComponent(new MessengerHandlerSubscriber());
             Messenger.Components.TryAdd(hasCache);
 

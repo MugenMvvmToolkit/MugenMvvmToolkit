@@ -30,20 +30,20 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             Should.NotBeNull(getMember, nameof(getMember));
             _dynamicMembers.Add(getMember);
-            OwnerOptional.TryInvalidateCache();
+            OwnerOptional?.TryInvalidateCache();
         }
 
         public void Unregister(Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {
             Should.NotBeNull(getMember, nameof(getMember));
             if (_dynamicMembers.Remove(getMember))
-                OwnerOptional.TryInvalidateCache();
+                OwnerOptional?.TryInvalidateCache();
         }
 
         public void Clear()
         {
             _dynamicMembers.Clear();
-            OwnerOptional.TryInvalidateCache();
+            OwnerOptional?.TryInvalidateCache();
         }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,

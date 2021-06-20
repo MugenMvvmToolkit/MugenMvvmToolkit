@@ -30,14 +30,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsValueExpression(IExpressionNode expression) => expression.ExpressionType == ExpressionNodeType.BindingParameter;
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (state is IExpressionNode expression)
-                _cache.Remove(expression);
-            else
-                _cache.Clear();
-        }
-
         public ICompiledExpression? TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (!_cache.TryGetValue(expression, out var result))
@@ -47,6 +39,14 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
 
             return result;
+        }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state is IExpressionNode expression)
+                _cache.Remove(expression);
+            else
+                _cache.Clear();
         }
 
         int IEqualityComparer<IExpressionNode>.GetHashCode(IExpressionNode obj) => obj.GetHashCode(this);

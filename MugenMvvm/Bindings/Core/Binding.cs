@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
@@ -16,6 +15,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core
 {
@@ -471,8 +471,8 @@ namespace MugenMvvm.Bindings.Core
             else
             {
                 _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] {_components, component}
-                    : new[] {component, _components};
+                    ? new[] { _components, component }
+                    : new[] { component, _components };
             }
 
             OnComponentAdded(component, metadata);
@@ -510,9 +510,8 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
-        void IComponentCollection.Invalidate(object component, IReadOnlyMetadataContext? metadata)
+        void IHasCache.Invalidate(object? component, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(component, nameof(component));
             if (_components is object[] array)
                 Array.Sort(array, this);
         }
@@ -551,6 +550,6 @@ namespace MugenMvvm.Bindings.Core
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
 
-        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, [MaybeNullWhen(false)] out object? value) => TryGetMetadata(contextKey, out value);
+        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value) => TryGetMetadata(contextKey, out value);
     }
 }

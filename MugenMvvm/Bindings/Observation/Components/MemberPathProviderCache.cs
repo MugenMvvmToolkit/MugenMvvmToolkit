@@ -21,8 +21,6 @@ namespace MugenMvvm.Bindings.Observation.Components
             _cache = new Dictionary<string, IMemberPath?>(59, StringComparer.Ordinal);
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         public IMemberPath? TryGetMemberPath(IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {
             if (path is not string stringPath)
@@ -36,5 +34,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
             return value;
         }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
     }
 }

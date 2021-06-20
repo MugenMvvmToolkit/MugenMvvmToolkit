@@ -5,13 +5,12 @@ using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentTracker : IComponentCollectionChangedListener, IHasCache
+    public sealed class ComponentTracker : IComponentCollectionChangedListener, IHasCacheComponent<IComponentCollection>
     {
         private int _flag;
         private Listener _listener;
@@ -23,8 +22,8 @@ namespace MugenMvvm.Components
         {
             var l = new Listener(listener, state, o => o is T || o is IComponentCollectionDecorator<T>, (b, del, s, collection, metadata) =>
             {
-                var action = (Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?>) del;
-                action.Invoke(b ? collection.Get<T>() : default, (TState) s!, metadata);
+                var action = (Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?>)del;
+                action.Invoke(b ? collection.Get<T>() : default, (TState)s!, metadata);
             });
             if (_listeners != null)
             {
@@ -36,7 +35,7 @@ namespace MugenMvvm.Components
                 _listener = l;
             else
             {
-                _listeners = new List<Listener>(2) {_listener, l};
+                _listeners = new List<Listener>(2) { _listener, l };
                 _listener = default;
             }
         }
@@ -100,10 +99,10 @@ namespace MugenMvvm.Components
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
             OnComponentChanged(collection, component, metadata);
 
-        void IHasCache.Invalidate(object sender, object? state, IReadOnlyMetadataContext? metadata)
+        void IHasCacheComponent<IComponentCollection>.Invalidate(IComponentCollection owner, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (sender is IComponentCollection collection && state != null)
-                OnComponentChanged(collection, state, metadata);
+            if (state != null)
+                OnComponentChanged(owner, state, metadata);
         }
 
         [StructLayout(LayoutKind.Auto)]

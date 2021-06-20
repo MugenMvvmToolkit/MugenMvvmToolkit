@@ -46,7 +46,7 @@ namespace MugenMvvm.Bindings.Members.Components
             }
 
             list.Add(member);
-            OwnerOptional.TryInvalidateCache();
+            OwnerOptional?.TryInvalidateCache();
         }
 
         public void Unregister(IMemberInfo member)
@@ -60,13 +60,13 @@ namespace MugenMvvm.Bindings.Members.Components
             }
 
             if (removed)
-                OwnerOptional.TryInvalidateCache();
+                OwnerOptional?.TryInvalidateCache();
         }
 
         public void Clear()
         {
             _registeredMembers.Clear();
-            OwnerOptional.TryInvalidateCache();
+            OwnerOptional?.TryInvalidateCache();
         }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,

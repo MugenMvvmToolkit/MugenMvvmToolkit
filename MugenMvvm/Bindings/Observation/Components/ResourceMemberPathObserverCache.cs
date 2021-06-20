@@ -25,7 +25,25 @@ namespace MugenMvvm.Bindings.Observation.Components
             _cache = new Dictionary<string, IMemberPathObserver?>(3, StringComparer.Ordinal);
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
+        {
+            if (request is MemberPathObserverRequest { Expression: BindingResourceMemberExpressionNode exp } r && r.Path.Path == nameof(IDynamicResource.Value))
+            {
+                if (!_cache.TryGetValue(exp.ResourceName, out var v))
+                {
+                    v = Components.TryGetMemberPathObserver(observationManager, target, request, metadata);
+                    if (v != null)
+                        v.IsDisposable = false;
+                    _cache[exp.ResourceName] = v;
+                }
+
+                return v;
+            }
+
+            return Components.TryGetMemberPathObserver(observationManager, target, request, metadata);
+        }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata)
         {
             if (state is string key)
             {
@@ -43,24 +61,6 @@ namespace MugenMvvm.Bindings.Observation.Components
 
                 _cache.Clear();
             }
-        }
-
-        public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
-        {
-            if (request is MemberPathObserverRequest {Expression: BindingResourceMemberExpressionNode exp} r && r.Path.Path == nameof(IDynamicResource.Value))
-            {
-                if (!_cache.TryGetValue(exp.ResourceName, out var v))
-                {
-                    v = Components.TryGetMemberPathObserver(observationManager, target, request, metadata);
-                    if (v != null)
-                        v.IsDisposable = false;
-                    _cache[exp.ResourceName] = v;
-                }
-
-                return v;
-            }
-
-            return Components.TryGetMemberPathObserver(observationManager, target, request, metadata);
         }
     }
 }

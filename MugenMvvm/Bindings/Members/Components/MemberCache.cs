@@ -29,25 +29,6 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<CacheKey, object?>(59, this);
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (state is Type type)
-            {
-                var keys = new ItemOrListEditor<CacheKey>();
-                foreach (var pair in _cache)
-                {
-                    if (pair.Key.Type == type)
-                        keys.Add(pair.Key);
-                }
-
-                var count = keys.Count;
-                for (var i = 0; i < count; i++)
-                    _cache.Remove(keys[i]);
-            }
-            else
-                _cache.Clear();
-        }
-
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
             object request, IReadOnlyMetadataContext? metadata)
         {
@@ -74,9 +55,28 @@ namespace MugenMvvm.Bindings.Members.Components
             return ItemOrIReadOnlyList.FromRawValue<IMemberInfo>(members);
         }
 
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(this, component, metadata);
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state is Type type)
+            {
+                var keys = new ItemOrListEditor<CacheKey>();
+                foreach (var pair in _cache)
+                {
+                    if (pair.Key.Type == type)
+                        keys.Add(pair.Key);
+                }
 
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(this, component, metadata);
+                var count = keys.Count;
+                for (var i = 0; i < count; i++)
+                    _cache.Remove(keys[i]);
+            }
+            else
+                _cache.Clear();
+        }
+
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(component, metadata);
+
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(component, metadata);
 
         bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) =>
             x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type && InternalEqualityComparer.Equals(x.Types, y.Types);

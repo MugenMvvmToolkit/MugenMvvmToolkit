@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
             invokeCount.ShouldEqual(1);
 
-            decorator.Invalidate(this, this, DefaultMetadata);
+            ObservationManager.TryInvalidateCache(this, DefaultMetadata);
             invokeCount = 0;
             ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
             ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);

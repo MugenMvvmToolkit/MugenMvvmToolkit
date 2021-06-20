@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             invokeCount.ShouldEqual(1);
 
             //invalidate
-            cache.Invalidate(this, this, DefaultMetadata);
+            BindingManager.TryInvalidateCache(this, DefaultMetadata);
             BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
             BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(2);

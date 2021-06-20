@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Serialization.Components
 {
-    public sealed class SurrogateProviderResolver : ISurrogateProviderResolverComponent, IHasPriority, IHasCache
+    public sealed class SurrogateProviderResolver : ISurrogateProviderResolverComponent, IHasPriority, IHasCacheComponent<ISerializer>
     {
         private readonly Dictionary<Type, ISurrogateProvider?> _cache;
         private readonly Dictionary<Type, ISurrogateProvider> _surrogateProviders;
@@ -46,8 +46,6 @@ namespace MugenMvvm.Serialization.Components
             _cache.Clear();
         }
 
-        public void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         public ISurrogateProvider? TryGetSurrogateProvider(ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
             if (!_cache.TryGetValue(type, out var value))
@@ -72,5 +70,7 @@ namespace MugenMvvm.Serialization.Components
 
             return value;
         }
+
+        void IHasCacheComponent<ISerializer>.Invalidate(ISerializer owner, object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
     }
 }

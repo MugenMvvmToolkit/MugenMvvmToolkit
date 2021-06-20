@@ -232,14 +232,6 @@ namespace MugenMvvm.Extensions.Components
                 listener.OnChanged(owner, locker, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Invalidate(this ItemOrArray<IHasCache> components, object sender, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(sender, nameof(sender));
-            foreach (var c in components)
-                c.Invalidate(sender, state, metadata);
-        }
-
         public static void Dispose(object? components)
         {
             if (components is object[] c)
@@ -256,6 +248,14 @@ namespace MugenMvvm.Extensions.Components
         {
             foreach (var c in components)
                 c.Dispose();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Invalidate<T>(this ItemOrArray<IHasCacheComponent<T>> components, T owner, object? state, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            foreach (var c in components)
+                c.Invalidate(owner, state, metadata);
         }
 
         public static bool IsSuspended<T>(this ItemOrArray<ISuspendableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata)

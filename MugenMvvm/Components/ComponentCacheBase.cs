@@ -1,43 +1,54 @@
 ﻿using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 
 namespace MugenMvvm.Components
 {
-    public abstract class ComponentCacheBase<T, TComponent> : ComponentDecoratorBase<T, TComponent>, IComponentCollectionChangedListener, IHasCache
-        where TComponent : class
+    public abstract class ComponentCacheBase<T, TComponent> : _CInternal<T, TComponent>, IHasCacheComponent<T>
         where T : class, IComponentOwner<T>
+        where TComponent : class
     {
         protected ComponentCacheBase(int priority = ComponentPriority.Cache) : base(priority)
         {
         }
 
-        public abstract void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null);
+        void IHasCacheComponent<T>.Invalidate(T owner, object? state, IReadOnlyMetadataContext? metadata) => Invalidate(state, metadata);
+    }
+
+    // ReSharper disable once InconsistentNaming
+    public abstract class _CInternal<T, TComponent> : ComponentDecoratorBase<T, TComponent>, IComponentCollectionChangedListener
+        where T : class, IComponentOwner<T>
+        where TComponent : class
+    {
+        internal _CInternal(int priority) : base(priority)
+        {
+        }
+
+        protected abstract void Invalidate(object? state, IReadOnlyMetadataContext? metadata);
 
         protected virtual void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate(this, component, metadata);
+                Invalidate(component, metadata);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate(this, component, metadata);
+                Invalidate(component, metadata);
         }
 
         protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttached(owner, metadata);
-            Invalidate(this, owner, metadata);
+            Invalidate(owner, metadata);
         }
 
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
-            Invalidate(this, owner, metadata);
+            Invalidate(owner, metadata);
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>

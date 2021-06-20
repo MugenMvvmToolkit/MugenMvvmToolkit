@@ -34,8 +34,6 @@ namespace MugenMvvm.Bindings.Core.Components
         [Preserve(Conditional = true)]
         public static BindingExpressionRequest GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class => buildDelegate(default);
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is Delegate del)
@@ -52,6 +50,8 @@ namespace MugenMvvm.Bindings.Core.Components
 
             return Components.TryParseBindingExpression(bindingManager, expression, metadata);
         }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
 
         private object? GetExpression(Delegate del, IBindingManager bindingManager, IReadOnlyMetadataContext? metadata)
         {

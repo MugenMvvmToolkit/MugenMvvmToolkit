@@ -21,8 +21,6 @@ namespace MugenMvvm.Bindings.Core.Components
             _cache = new Dictionary<string, object?>(59, StringComparer.Ordinal);
         }
 
-        public override void Invalidate(object sender, object? state = null, IReadOnlyMetadataContext? metadata = null) => _cache.Clear();
-
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is not string s)
@@ -36,5 +34,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
             return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
         }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
     }
 }
