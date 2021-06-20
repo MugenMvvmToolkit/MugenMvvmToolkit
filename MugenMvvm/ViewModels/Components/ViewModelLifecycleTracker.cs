@@ -10,11 +10,11 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class ViewModelLifecycleTracker : IViewModelLifecycleListener, ILifecycleTrackerComponent<ViewModelLifecycleState>, IHasPriority
+    public sealed class ViewModelLifecycleTracker : IViewModelLifecycleListener, ILifecycleTrackerComponent<IViewModelManager, ViewModelLifecycleState>, IHasPriority
     {
         public int Priority { get; set; } = ViewModelComponentPriority.LifecycleTracker;
 
-        public bool IsInState(object owner, object target, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata)
+        public bool IsInState(IViewModelManager owner, object target, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
             if (state == ViewModelLifecycleState.Created)
                 return true;
@@ -22,14 +22,14 @@ namespace MugenMvvm.ViewModels.Components
             {
                 if (target is ViewModelBase vm)
                     return vm.IsInitialized;
-                return ((IViewModelBase) target).Metadata.TryGet(InternalMetadata.IsInitialized, out var v) && v;
+                return ((IViewModelBase)target).Metadata.TryGet(InternalMetadata.IsInitialized, out var v) && v;
             }
 
             if (state == ViewModelLifecycleState.Disposed)
             {
                 if (target is ViewModelBase vm)
                     return vm.IsDisposed;
-                return ((IViewModelBase) target).Metadata.TryGet(InternalMetadata.IsDisposed, out var v) && v;
+                return ((IViewModelBase)target).Metadata.TryGet(InternalMetadata.IsDisposed, out var v) && v;
             }
 
             return false;

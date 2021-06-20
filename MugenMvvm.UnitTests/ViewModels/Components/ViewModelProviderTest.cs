@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             {
                 OnLifecycleChanged = (_, _, _, _, _) => throw new NotSupportedException()
             });
-            ViewModelManager.Components.Add(new TestLifecycleTrackerComponent<ViewModelLifecycleState>
+            ViewModelManager.Components.Add(new TestLifecycleTrackerComponent<IViewModelManager, ViewModelLifecycleState>
             {
                 IsInState = (_, vm, st, m) =>
                 {

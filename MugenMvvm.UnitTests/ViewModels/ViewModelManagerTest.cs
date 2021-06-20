@@ -34,12 +34,13 @@ namespace MugenMvvm.UnitTests.ViewModels
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i - 1 == componentCount;
-                ViewModelManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewModelLifecycleState>
+                ViewModelManager.Components.TryAdd(new TestLifecycleTrackerComponent<IViewModelManager, ViewModelLifecycleState>
                 {
                     IsInState = (o, t, s, m) =>
                     {
                         ++count;
                         o.ShouldEqual(ViewModelManager);
+                        s.ShouldEqual(state);
                         t.ShouldEqual(target);
                         m.ShouldEqual(DefaultMetadata);
                         if (isLast)

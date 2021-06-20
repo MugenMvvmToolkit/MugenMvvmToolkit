@@ -22,7 +22,7 @@ namespace MugenMvvm.Views
         }
 
         public bool IsInState(object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null)
-            => GetComponents<ILifecycleTrackerComponent<ViewLifecycleState>>(metadata).IsInState(this, view, state, metadata);
+            => GetComponents<ILifecycleTrackerComponent<IViewManager, ViewLifecycleState>>(metadata).IsInState(this, view, state, metadata);
 
         public void OnLifecycleChanged(object view, ViewLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewLifecycleListener>(metadata).OnLifecycleChanged(this, view, lifecycleState, state, metadata);

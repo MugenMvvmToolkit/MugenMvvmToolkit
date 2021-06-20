@@ -44,7 +44,7 @@ namespace MugenMvvm.App
         }
 
         public bool IsInState(ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata = null) =>
-            Components.Get<ILifecycleTrackerComponent<ApplicationLifecycleState>>(metadata).IsInState(this, this, state, metadata);
+            Components.Get<ILifecycleTrackerComponent<IMugenApplication, ApplicationLifecycleState>>(metadata).IsInState(this, this, state, metadata);
 
         public void OnUnhandledException(Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata = null) =>
             Components.Get<IUnhandledExceptionHandlerComponent>().OnUnhandledException(this, exception, type, metadata);

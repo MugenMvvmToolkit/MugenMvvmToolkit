@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,7 +10,10 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public abstract class LifecycleTrackerBase<T, TTarget> : ILifecycleTrackerComponent<T> where TTarget : class where T : class, IEnum
+    public abstract class LifecycleTrackerBase<TOwner, T, TTarget> : ILifecycleTrackerComponent<TOwner, T>
+        where TOwner : class, IComponentOwner
+        where TTarget : class
+        where T : class, IEnum
     {
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly HashSet<T> _commonStates;
@@ -25,12 +29,12 @@ namespace MugenMvvm.Internal.Components
 
         protected IAttachedValueManager AttachedValueManager => _attachedValueManager.DefaultIfNull();
 
-        protected virtual bool IsInState(object owner, TTarget target, T state, IReadOnlyMetadataContext? metadata)
+        protected virtual bool IsInState(TOwner owner, TTarget target, T state, IReadOnlyMetadataContext? metadata)
         {
             lock (_commonStates)
             {
                 if (target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.LifecycleListKey, out var value))
-                    return ((HashSet<T>) value!).Contains(state);
+                    return ((HashSet<T>)value!).Contains(state);
             }
 
             return false;
@@ -65,7 +69,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        bool ILifecycleTrackerComponent<T>.IsInState(object owner, object target, T state, IReadOnlyMetadataContext? metadata) =>
-            IsInState(owner, (TTarget) target, state, metadata);
+        bool ILifecycleTrackerComponent<TOwner, T>.IsInState(TOwner owner, object target, T state, IReadOnlyMetadataContext? metadata) =>
+            IsInState(owner, (TTarget)target, state, metadata);
     }
 }

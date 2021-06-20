@@ -316,7 +316,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 OnNavigationCanceled = (_, _, _) => ++navigateCanceledCount
             });
 
-            ViewManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewLifecycleState>
+            ViewManager.Components.TryAdd(new TestLifecycleTrackerComponent<IViewManager, ViewLifecycleState>
             {
                 IsInState = (_, v, s, _) =>
                 {

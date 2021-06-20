@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class ViewLifecycleDispatcher : IViewLifecycleListener, ILifecycleTrackerComponent<ViewLifecycleState>, IHasPriority
+    public sealed class ViewLifecycleDispatcher : IViewLifecycleListener, ILifecycleTrackerComponent<IViewManager, ViewLifecycleState>, IHasPriority
     {
         private readonly IMugenApplication? _application;
         private readonly IPresenter? _presenter;
@@ -29,7 +29,7 @@ namespace MugenMvvm.Android.Views
 
         public int Priority { get; set; } = ViewComponentPriority.PostInitializer - 1;
 
-        public bool IsInState(object owner, object target, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
+        public bool IsInState(IViewManager owner, object target, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
             target = MugenExtensions.Unwrap(target);
             if (target is IActivityView activity)

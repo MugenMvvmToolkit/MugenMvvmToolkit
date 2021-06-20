@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -13,8 +14,8 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class InternalComponentExtensions
     {
-        public static bool IsInState<T>(this ItemOrArray<ILifecycleTrackerComponent<T>> components, object owner, object target, T state, IReadOnlyMetadataContext? metadata)
-            where T : class, IEnum
+        public static bool IsInState<TOwner, T>(this ItemOrArray<ILifecycleTrackerComponent<TOwner, T>> components, TOwner owner, object target, T state,
+            IReadOnlyMetadataContext? metadata) where TOwner : class, IComponentOwner where T : class, IEnum
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(target, nameof(target));

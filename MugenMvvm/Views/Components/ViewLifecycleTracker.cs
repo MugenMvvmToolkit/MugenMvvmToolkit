@@ -11,7 +11,7 @@ using MugenMvvm.Internal.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewLifecycleTracker : LifecycleTrackerBase<ViewLifecycleState, object>, IHasPriority, IViewLifecycleListener
+    public sealed class ViewLifecycleTracker : LifecycleTrackerBase<IViewManager, ViewLifecycleState, object>, IHasPriority, IViewLifecycleListener
     {
         public ViewLifecycleTracker() : this(null)
         {

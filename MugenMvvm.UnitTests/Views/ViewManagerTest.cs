@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Views
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i - 1 == componentCount;
-                ViewManager.Components.TryAdd(new TestLifecycleTrackerComponent<ViewLifecycleState>
+                ViewManager.Components.TryAdd(new TestLifecycleTrackerComponent<IViewManager, ViewLifecycleState>
                 {
                     IsInState = (o, t, s, m) =>
                     {
