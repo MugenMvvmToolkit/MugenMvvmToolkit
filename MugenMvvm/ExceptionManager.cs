@@ -16,7 +16,8 @@ namespace MugenMvvm
     {
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowActionTokenDisposeNotCalled(int id, object target) => throw new InvalidOperationException(ActionDisposeNotCalledFormat2.Format(id, target));
+        public static void ThrowActionTokenDisposeNotCalled(int id, object target, string? stackTrace) =>
+            throw new InvalidOperationException(ActionDisposeNotCalledFormat3.Format(id, target, stackTrace));
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]

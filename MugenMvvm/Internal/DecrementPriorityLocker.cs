@@ -16,5 +16,7 @@ namespace MugenMvvm.Internal
         public int Priority => _priority;
 
         public object SyncRoot => this;
+
+        public override string ToString() => $"DecrementPriorityLocker{_priority}";
     }
 }
