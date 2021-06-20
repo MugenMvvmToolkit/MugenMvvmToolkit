@@ -17,6 +17,7 @@ using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.Tests.Bindings.Core;
 using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.Tests.Bindings.Parsing;
+using MugenMvvm.Tests.Components;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Components.Internal;

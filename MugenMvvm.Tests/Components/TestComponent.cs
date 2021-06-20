@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Tests.Internal;
 
-namespace MugenMvvm.UnitTests.Components.Internal
+namespace MugenMvvm.Tests.Components
 {
     public class TestComponent<T> : TestDisposableComponent<T>, IHasPriority where T : class
     {

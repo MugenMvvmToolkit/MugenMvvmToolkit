@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.UnitTests.Components.Internal
+namespace MugenMvvm.Tests.Components
 {
     public delegate void DecorateDelegate<T>(IComponentCollection collection, ref ItemOrListEditor<T> components, IReadOnlyMetadataContext? metadata);
 

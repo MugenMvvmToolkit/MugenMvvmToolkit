@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Components.Internal
+namespace MugenMvvm.Tests.Components
 {
     public class TestComponentCollectionManagerListener : IComponentCollectionManagerListener
     {
