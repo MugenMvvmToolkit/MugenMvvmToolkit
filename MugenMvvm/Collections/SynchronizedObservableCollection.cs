@@ -216,12 +216,8 @@ namespace MugenMvvm.Collections
 
         public ActionToken BatchUpdate()
         {
-            using (Lock())
-            {
-                if (++_batchCount == 1)
-                    GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this, BatchUpdateType.Source);
-            }
-
+            if (Interlocked.Increment(ref _batchCount) == 1)
+                GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(this, BatchUpdateType.Source);
             return ActionToken.FromDelegate((@this, _) => ((SynchronizedObservableCollection<T>)@this!).EndBatchUpdate(), this);
         }
 
@@ -367,11 +363,8 @@ namespace MugenMvvm.Collections
 
         private void EndBatchUpdate()
         {
-            using (Lock())
-            {
-                if (--_batchCount == 0)
-                    GetComponents<ICollectionBatchUpdateListener>().OnEndBatchUpdate(this, BatchUpdateType.Source);
-            }
+            if (Interlocked.Decrement(ref _batchCount) == 0)
+                GetComponents<ICollectionBatchUpdateListener>().OnEndBatchUpdate(this, BatchUpdateType.Source);
         }
 
         void ICollection.CopyTo(Array array, int index)
