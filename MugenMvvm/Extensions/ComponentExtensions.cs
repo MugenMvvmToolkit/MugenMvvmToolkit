@@ -9,6 +9,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -55,11 +56,18 @@ namespace MugenMvvm.Extensions
             owner.GetComponents<IHasCache>(metadata).Invalidate(owner, state, metadata);
         }
 
-        public static ActionToken TrySuspend(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public static bool IsSuspended<T>(this IComponentOwner<T> owner, IReadOnlyMetadataContext? metadata = null)
+            where T : class
         {
-            if (owner == null)
-                return default;
-            return owner.GetComponents<ISuspendable>(metadata).Suspend(state, metadata);
+            Should.NotBeNull(owner, nameof(owner));
+            return owner.GetComponents<ISuspendableComponent<T>>(metadata).IsSuspended((T)owner, metadata);
+        }
+
+        public static ActionToken TrySuspend<T>(this IComponentOwner<T> owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
+            where T : class
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            return owner.GetComponents<ISuspendableComponent<T>>(metadata).TrySuspend((T)owner, state, metadata);
         }
 
         public static ActionToken AddComponent<T>(this IComponentOwner<T> owner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class

@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
@@ -56,7 +57,7 @@ namespace MugenMvvm.Commands
 
         public IMetadataContext Metadata => _metadata as IMetadataContext ?? MugenExtensions.EnsureInitialized(ref _metadata);
 
-        public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
+        public bool IsSuspended => GetComponents<ISuspendableComponent<ICompositeCommand>>().IsSuspended(this, null);
 
         public static ICompositeCommand Create(object? owner, IReadOnlyMetadataContext? metadata = null) =>
             MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, CommandMetadata.RawCommandRequest, metadata);
@@ -129,7 +130,8 @@ namespace MugenMvvm.Commands
             }
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<ISuspendable>().Suspend(state, metadata);
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<ISuspendableComponent<ICompositeCommand>>().TrySuspend(this, state, metadata);
 
         private new ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class =>

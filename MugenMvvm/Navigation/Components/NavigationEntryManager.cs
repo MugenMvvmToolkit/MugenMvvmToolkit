@@ -55,7 +55,7 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            using var token = _navigationListener.Suspend(request, metadata);
+            using var token = _navigationListener.Suspend();
             var result = Components.TryShow(presenter, request, cancellationToken, metadata);
             foreach (var r in result)
                 UpdateEntries(_navigationDispatcher.DefaultIfNull(), true, r.Target, r.NavigationProvider, r, true, r.GetMetadataOrDefault());

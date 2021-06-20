@@ -1,16 +1,21 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Tests.Internal
 {
-    public class TestSuspendableComponent : ISuspendable
+    public class TestSuspendableComponent<T> : ISuspendableComponent<T> where T : class
     {
-        public Func<object?, IReadOnlyMetadataContext?, ActionToken>? Suspend { get; set; }
+        public Func<T, object?, IReadOnlyMetadataContext?, ActionToken>? TrySuspend { get; set; }
+
+        public Func<T, IReadOnlyMetadataContext?, bool>? IsSuspendedFunc { get; set; }
 
         public bool IsSuspended { get; set; }
 
-        ActionToken ISuspendable.Suspend(object? state, IReadOnlyMetadataContext? metadata) => Suspend?.Invoke(state, metadata) ?? default;
+        bool ISuspendableComponent<T>.IsSuspended(T owner, IReadOnlyMetadataContext? metadata) => IsSuspendedFunc?.Invoke(owner, metadata) ?? IsSuspended;
+
+        ActionToken ISuspendableComponent<T>.TrySuspend(T owner, object? state, IReadOnlyMetadataContext? metadata) => TrySuspend?.Invoke(owner, state, metadata) ?? default;
     }
 }

@@ -4,14 +4,15 @@ using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public abstract class SuspendableNavigationListenerBase : AttachableComponentBase<INavigationDispatcher>, INavigationListener, INavigationErrorListener, ISuspendable
+    public abstract class SuspendableNavigationListenerBase : AttachableComponentBase<INavigationDispatcher>, INavigationListener, INavigationErrorListener,
+        ISuspendableComponent<INavigationDispatcher>
     {
         private readonly List<(INavigationDispatcher, INavigationContext, object?, CancellationToken?)> _suspendedEvents;
         private int _suspendCount;
@@ -32,7 +33,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken Suspend()
         {
             bool begin;
             lock (_suspendedEvents)
@@ -42,7 +43,7 @@ namespace MugenMvvm.Navigation.Components
 
             if (begin)
                 OnBeginSuspend();
-            return ActionToken.FromDelegate((o, _) => ((SuspendableNavigationListenerBase) o!).EndSuspend(), this);
+            return ActionToken.FromDelegate((o, _) => ((SuspendableNavigationListenerBase)o!).EndSuspend(), this);
         }
 
         protected abstract void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception);
@@ -116,5 +117,9 @@ namespace MugenMvvm.Navigation.Components
 
         void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
             AddEvent((navigationDispatcher, navigationContext, null, null));
+
+        ActionToken ISuspendableComponent<INavigationDispatcher>.TrySuspend(INavigationDispatcher owner, object? state, IReadOnlyMetadataContext? metadata) => Suspend();
+
+        bool ISuspendableComponent<INavigationDispatcher>.IsSuspended(INavigationDispatcher owner, IReadOnlyMetadataContext? metadata) => IsSuspended;
     }
 }

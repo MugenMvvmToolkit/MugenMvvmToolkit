@@ -3,7 +3,6 @@ using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Tests.Threading;
-using MugenMvvm.Threading;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -66,8 +65,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(1);
 
-            var actionToken1 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
-            var actionToken2 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
+            var actionToken1 = conditionEventCommandComponent.Suspend();
+            var actionToken2 = conditionEventCommandComponent.Suspend();
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(1);
 

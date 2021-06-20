@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presentation;
@@ -65,6 +65,6 @@ namespace MugenMvvm.Presentation.Components
         }
 
         private ActionToken SuspendNavigation(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata) =>
-            navigationDispatcher.GetComponents<ISuspendable>(metadata).Suspend(Owner, metadata);
+            navigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>(metadata).TrySuspend(navigationDispatcher, Owner, metadata);
     }
 }

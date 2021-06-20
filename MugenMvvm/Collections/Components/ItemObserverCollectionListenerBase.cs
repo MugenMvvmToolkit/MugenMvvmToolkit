@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -7,16 +8,17 @@ using System.Threading;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendable, IAttachableComponent, IDetachableComponent, IHasPriority where T : class?
+    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendableComponent<ICollection>, IAttachableComponent, IDetachableComponent, IHasPriority where T : class?
     {
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
         private readonly ListInternal<Observer> _observers;
-        private int _suspendCount;
+        private volatile int _suspendCount;
         private bool _isNotificationsDirty;
 #if !NET5_0
         private List<T>? _oldItems;
@@ -30,8 +32,6 @@ namespace MugenMvvm.Collections.Components
         }
 
         public int Priority { get; set; }
-
-        public bool IsSuspended => _suspendCount != 0;
 
         public ActionToken AddObserver<TState>(TState state, Func<TState, ChangedEventInfo, bool> canInvoke, Action<TState, T?> invokeAction, int delay = 0)
         {
@@ -56,15 +56,9 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            Interlocked.Increment(ref _suspendCount);
-            return ActionToken.FromDelegate(this, t => t.EndSuspend());
-        }
-
         protected virtual void OnChanged(T? item, string? member)
         {
-            if (IsSuspended)
+            if (_suspendCount != 0)
             {
                 _isNotificationsDirty = true;
                 return;
@@ -240,6 +234,14 @@ namespace MugenMvvm.Collections.Components
                 Unsubscribe(item.Key);
             _items.Clear();
             OnDetached(owner, metadata);
+        }
+
+        bool ISuspendableComponent<ICollection>.IsSuspended(ICollection owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
+
+        ActionToken ISuspendableComponent<ICollection>.TrySuspend(ICollection owner, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            Interlocked.Increment(ref _suspendCount);
+            return ActionToken.FromDelegate(this, t => t.EndSuspend());
         }
 
         [StructLayout(LayoutKind.Auto)]

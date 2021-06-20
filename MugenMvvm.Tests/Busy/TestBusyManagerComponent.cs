@@ -8,7 +8,7 @@ using MugenMvvm.Tests.Internal;
 
 namespace MugenMvvm.Tests.Busy
 {
-    public sealed class TestBusyManagerComponent : TestSuspendableComponent, IBusyManagerComponent, IHasPriority
+    public sealed class TestBusyManagerComponent : TestSuspendableComponent<IBusyManager>, IBusyManagerComponent, IHasPriority
     {
         public Func<IBusyManager, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryBeginBusy { get; set; }
 

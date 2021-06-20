@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
@@ -15,7 +16,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Commands
 {
-    public class CompositeCommandTest : SuspendableComponentOwnerTestBase<CompositeCommand>
+    public class CompositeCommandTest : SuspendableComponentOwnerTestBase<ICompositeCommand>
     {
         private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
         {
@@ -377,6 +378,7 @@ namespace MugenMvvm.UnitTests.Commands
                 DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
-        protected override CompositeCommand GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(null, componentCollectionManager);
+        protected override ICompositeCommand GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) =>
+            new CompositeCommand(null, componentCollectionManager);
     }
 }

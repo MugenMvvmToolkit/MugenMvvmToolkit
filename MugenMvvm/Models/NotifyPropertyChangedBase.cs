@@ -27,7 +27,7 @@ namespace MugenMvvm.Models
 
         [NonSerialized]
         [IgnoreDataMember]
-        private int _suspendCount;
+        private volatile int _suspendCount;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 

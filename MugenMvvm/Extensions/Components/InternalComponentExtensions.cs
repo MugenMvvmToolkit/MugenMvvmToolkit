@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
@@ -257,27 +258,29 @@ namespace MugenMvvm.Extensions.Components
                 c.Dispose();
         }
 
-        public static bool IsSuspended(this ItemOrArray<ISuspendable> components)
+        public static bool IsSuspended<T>(this ItemOrArray<ISuspendableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata)
+            where T : class
         {
             foreach (var c in components)
             {
-                if (c.IsSuspended)
+                if (c.IsSuspended(owner, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static ActionToken Suspend(this ItemOrArray<ISuspendable> components, object? state, IReadOnlyMetadataContext? metadata)
+        public static ActionToken TrySuspend<T>(this ItemOrArray<ISuspendableComponent<T>> components, T owner, object? state, IReadOnlyMetadataContext? metadata)
+            where T : class
         {
             if (components.Count == 0)
                 return default;
             if (components.Count == 1)
-                return components[0].Suspend(state, metadata);
+                return components[0].TrySuspend(owner, state, metadata);
 
             var tokens = new ActionToken[components.Count];
             for (var i = 0; i < tokens.Length; i++)
-                tokens[i] = components[i].Suspend(state, metadata);
+                tokens[i] = components[i].TrySuspend(owner, state, metadata);
             return ActionToken.FromTokens(tokens);
         }
     }

@@ -45,10 +45,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     return null;
                 }
             });
-            NavigationDispatcher.Components.TryAdd(new TestSuspendableComponent
+            NavigationDispatcher.Components.TryAdd(new TestSuspendableComponent<INavigationDispatcher>
             {
-                Suspend = (o, arg3) =>
+                TrySuspend = (d, o, arg3) =>
                 {
+                    d.ShouldEqual(NavigationDispatcher);
                     suspended.ShouldBeFalse();
                     suspended = true;
                     o.ShouldEqual(Presenter);
@@ -88,10 +89,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     return null;
                 }
             });
-            NavigationDispatcher.Components.TryAdd(new TestSuspendableComponent
+            NavigationDispatcher.Components.TryAdd(new TestSuspendableComponent<INavigationDispatcher>
             {
-                Suspend = (o, arg3) =>
+                TrySuspend = (d, o, arg3) =>
                 {
+                    d.ShouldEqual(NavigationDispatcher);
                     suspended.ShouldBeFalse();
                     suspended = true;
                     o.ShouldEqual(Presenter);
