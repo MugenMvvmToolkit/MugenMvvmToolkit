@@ -82,7 +82,7 @@ namespace MugenMvvm.Collections.Components
             foreach (var item in items)
             {
                 if (FilterInternal(item))
-                    Add(index, item);
+                    AddRaw(index, item);
                 ++index;
             }
         }
@@ -112,6 +112,8 @@ namespace MugenMvvm.Collections.Components
             for (var i = start; i < _size; i++)
                 _keys[i] += value;
         }
+
+        private void AddRaw(int key, object? value) => Insert(_size, key, value);
 
         private int Add(int key, object? value)
         {
