@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models.Components;
 
 namespace MugenMvvm.Internal
 {
@@ -39,7 +40,7 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MugenExtensions.LoggerWithLevel? Fatal(IReadOnlyMetadataContext? metadata = null) => MugenService.Optional<ILogger>().Fatal(metadata);
 
-        public void Dispose() => GetComponents<IDisposable>().Dispose();
+        public void Dispose() => GetComponents<IDisposableComponent<ILogger>>().Dispose(this, null);
 
         public ILogger? TryGetLogger(object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerProviderComponent>().TryGetLogger(this, request, metadata);
 

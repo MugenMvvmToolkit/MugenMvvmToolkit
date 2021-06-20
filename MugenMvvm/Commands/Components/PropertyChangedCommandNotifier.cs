@@ -4,14 +4,16 @@ using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class PropertyChangedCommandNotifier : MultiAttachableComponentBase<ICompositeCommand>, IHasDisposeCondition, IHasPriority, IComponent<ICompositeCommand>
+    public sealed class PropertyChangedCommandNotifier : MultiAttachableComponentBase<ICompositeCommand>, IHasDisposeCondition, IHasPriority,
+        IDisposableComponent<ICompositeCommand>
     {
         private PropertyChangedEventHandler? _handler;
 
@@ -52,5 +54,7 @@ namespace MugenMvvm.Commands.Components
                     owner.RaiseCanExecuteChanged();
             }
         }
+
+        void IDisposableComponent<ICompositeCommand>.Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => Dispose();
     }
 }

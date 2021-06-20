@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Commands.Components
 {
     public sealed class CommandEventHandler : MultiAttachableComponentBase<ICompositeCommand>, ICommandEventHandlerComponent, IThreadDispatcherHandler, IValueHolder<Delegate>,
-        ISuspendableComponent<ICompositeCommand>, IHasPriority, IDisposable
+        ISuspendableComponent<ICompositeCommand>, IHasPriority, IDisposableComponent<ICompositeCommand>
     {
         private readonly IThreadDispatcher? _threadDispatcher;
         private EventHandler? _canExecuteChanged;
@@ -66,8 +66,6 @@ namespace MugenMvvm.Commands.Components
                 dispatcher.Execute(EventExecutionMode, this, BoxingExtensions.Box(Interlocked.Increment(ref _version)));
         }
 
-        public void Dispose() => _canExecuteChanged = null;
-
         private void EndSuspendNotifications()
         {
             if (Interlocked.Decrement(ref _suspendCount) == 0 && _isNotificationsDirty)
@@ -82,6 +80,8 @@ namespace MugenMvvm.Commands.Components
             foreach (var owner in Owners)
                 _canExecuteChanged?.Invoke(owner, EventArgs.Empty);
         }
+
+        void IDisposableComponent<ICompositeCommand>.Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _canExecuteChanged = null;
 
         bool ISuspendableComponent<ICompositeCommand>.IsSuspended(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
 

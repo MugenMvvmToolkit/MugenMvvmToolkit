@@ -67,7 +67,6 @@ namespace MugenMvvm.Bindings.Extensions
 
             var managerCfg = configuration.WithAppService(MugenService.Optional<IBindingManager>() ?? new BindingManager())
                                           .WithComponent(new BindingBuilderDelegateExpressionParser())
-                                          .WithComponent(new BindingCleaner())
                                           .WithComponent(new BindingExpressionExceptionDecorator())
                                           .WithComponent(new BindingExpressionParser())
                                           .WithComponent(new StringBindingExpressionCache())

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
@@ -9,6 +8,7 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Validation
         {
             if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
             {
-                base.GetComponents<IDisposable>().Dispose();
+                base.GetComponents<IDisposableComponent<IValidator>>().Dispose(this, _metadata);
                 this.ClearComponents();
                 this.ClearMetadata(true);
             }

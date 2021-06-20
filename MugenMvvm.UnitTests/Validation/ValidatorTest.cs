@@ -31,9 +31,13 @@ namespace MugenMvvm.UnitTests.Validation
 
             for (var i = 0; i < count; i++)
             {
-                Validator.Components.Add(new TestDisposable
+                Validator.Components.Add(new TestDisposableComponent<IValidator>()
                 {
-                    Dispose = () => { ++invokeCount; }
+                    Dispose = (o, m) =>
+                    {
+                        o.ShouldEqual(Validator);
+                        ++invokeCount;
+                    }
                 });
             }
 

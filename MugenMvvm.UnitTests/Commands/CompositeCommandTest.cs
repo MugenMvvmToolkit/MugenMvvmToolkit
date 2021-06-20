@@ -150,8 +150,14 @@ namespace MugenMvvm.UnitTests.Commands
             Command.IsDisposable = canDispose;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestDisposable { Dispose = () => ++count };
-                Command.Components.TryAdd(component);
+                Command.AddComponent(new TestDisposableComponent<ICompositeCommand>
+                {
+                    Dispose = (o, _) =>
+                    {
+                        o.ShouldEqual(Command);
+                        ++count;
+                    }
+                });
             }
 
             Command.IsDisposed.ShouldBeFalse();

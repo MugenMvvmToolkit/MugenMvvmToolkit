@@ -124,7 +124,7 @@ namespace MugenMvvm.Commands
         {
             if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
             {
-                base.GetComponents<IDisposable>().Dispose();
+                base.GetComponents<IDisposableComponent<ICompositeCommand>>().Dispose(this, null);
                 this.ClearComponents();
                 this.ClearMetadata(true);
             }

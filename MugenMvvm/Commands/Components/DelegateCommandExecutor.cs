@@ -9,11 +9,13 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IHasDisposeCondition, IHasPriority
+    public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IDisposableComponent<ICompositeCommand>, IHasDisposeCondition,
+        IHasPriority
     {
         private readonly bool _allowMultipleExecution;
         private readonly CommandExecutionBehavior _executionBehavior;
@@ -51,7 +53,7 @@ namespace MugenMvvm.Commands.Components
 
             if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
                 return func(metadata);
-            return ((Func<T, IReadOnlyMetadataContext?, bool>) canExecuteDelegate).Invoke((T) parameter!, metadata);
+            return ((Func<T, IReadOnlyMetadataContext?, bool>)canExecuteDelegate).Invoke((T)parameter!, metadata);
         }
 
         public async ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
@@ -113,22 +115,24 @@ namespace MugenMvvm.Commands.Components
             if (executeAction is Action<IReadOnlyMetadataContext?> execute)
                 execute(metadata);
             else if (executeAction is Action<T, IReadOnlyMetadataContext?> genericExecute)
-                genericExecute((T) parameter!, metadata);
+                genericExecute((T)parameter!, metadata);
             else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
                 await executeTask(cancellationToken, metadata).ConfigureAwait(false);
             else if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task> executeTaskParameter)
-                await executeTaskParameter((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
+                await executeTaskParameter((T)parameter!, cancellationToken, metadata).ConfigureAwait(false);
             else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> executeTaskBool)
                 result = await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
             else
             {
-                result = await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>) executeAction)
-                               .Invoke((T) parameter!, cancellationToken, metadata)
+                result = await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>)executeAction)
+                               .Invoke((T)parameter!, cancellationToken, metadata)
                                .ConfigureAwait(false);
             }
 
             _executionBehavior.AfterExecute(command, parameter, cancellationToken, metadata);
             return result;
         }
+
+        void IDisposableComponent<ICompositeCommand>.Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => Dispose();
     }
 }

@@ -4,12 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidationHandler : IValidationHandlerComponent, IDisposable
+    public sealed class RuleValidationHandler : IValidationHandlerComponent, IDisposableComponent<IValidator>
     {
         [ThreadStatic]
         private static List<ValidationErrorInfo>? _errorsCache;
@@ -104,6 +105,6 @@ namespace MugenMvvm.Validation.Components
             validator.SetErrors(this, editor, metadata);
         }
 
-        void IDisposable.Dispose() => _disposeToken?.Cancel();
+        void IDisposableComponent<IValidator>.Dispose(IValidator owner, IReadOnlyMetadataContext? metadata) => _disposeToken?.Cancel();
     }
 }

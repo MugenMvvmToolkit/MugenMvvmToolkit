@@ -1317,15 +1317,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 }
             };
 
+            var binding = GetBinding(target, source);
             var disposeComponentCount = 0;
             var components = Enumerable
                              .Range(0, count)
-                             .Select(i => new TestComponent<IBinding> { Dispose = () => ++disposeComponentCount })
-                             .OfType<IComponent<IBinding>>()
+                             .Select(i => new TestComponent<IBinding>
+                             {
+                                 Dispose = (o, _) =>
+                                 {
+                                     o.ShouldEqual(binding);
+                                     ++disposeComponentCount;
+                                 }
+                             })
                              .Concat(new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() })
                              .ToArray();
 
-            var binding = GetBinding(target, source);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
             targetListener.ShouldEqual(binding);
@@ -1344,18 +1350,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             });
 
             binding.Dispose();
-            disposeComponentCount.ShouldEqual(0);
+            disposeComponentCount.ShouldEqual(count);
             binding.State.ShouldEqual(BindingState.Disposed);
-            targetDisposed.ShouldBeFalse();
-            sourceDisposed.ShouldBeFalse();
-            binding.GetComponents<object>().AsList().ShouldContain(components);
+            targetDisposed.ShouldBeTrue();
+            sourceDisposed.ShouldBeTrue();
+            binding.GetComponents<object>().IsEmpty.ShouldBeTrue();
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
-            binding.Components.Clear();
             binding.TryAddComponent(components[0]).IsEmpty.ShouldBeTrue();
-            binding.GetComponents<object>().AsList().ShouldBeEmpty();
+            binding.GetComponents<object>().IsEmpty.ShouldBeTrue();
         }
 
         public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)

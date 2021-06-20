@@ -7,10 +7,11 @@ using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class BindingParameterHandler : ISourceValueInterceptorComponent, ITargetValueInterceptorComponent, IHasPriority, IDisposable
+    public sealed class BindingParameterHandler : ISourceValueInterceptorComponent, ITargetValueInterceptorComponent, IDisposableComponent<IBinding>, IDisposable, IHasPriority
     {
         private BindingParameterValue _converter;
         private BindingParameterValue _converterParameter;
@@ -73,5 +74,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 return _targetNullValue.GetValue<object?>(metadata);
             return value;
         }
+
+        void IDisposableComponent<IBinding>.Dispose(IBinding owner, IReadOnlyMetadataContext? metadata) => Dispose();
     }
 }

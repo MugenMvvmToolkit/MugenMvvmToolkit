@@ -4,12 +4,13 @@ using System.ComponentModel;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class NotifyDataErrorInfoValidatorAdapter : INotifyDataErrorInfo, IValidatorErrorsChangedListener, IDisposable
+    public sealed class NotifyDataErrorInfoValidatorAdapter : INotifyDataErrorInfo, IValidatorErrorsChangedListener, IDisposableComponent<IValidator>
     {
         private static readonly DataErrorsChangedEventArgs EmptyArgs = new("");
         private readonly object _owner;
@@ -34,7 +35,7 @@ namespace MugenMvvm.Validation
             return errors.ToItemOrList().AsList();
         }
 
-        void IDisposable.Dispose() => ErrorsChanged = null;
+        void IDisposableComponent<IValidator>.Dispose(IValidator owner, IReadOnlyMetadataContext? metadata) => ErrorsChanged = null;
 
         void IValidatorErrorsChangedListener.OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
         {

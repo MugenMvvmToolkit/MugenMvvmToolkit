@@ -232,22 +232,22 @@ namespace MugenMvvm.Extensions.Components
                 listener.OnChanged(owner, locker, metadata);
         }
 
-        public static void Dispose(object? components)
+        public static void Dispose<T>(object? components, T owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (components is object[] c)
             {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDisposable)?.Dispose();
+                foreach (var t in c)
+                    (t as IDisposableComponent<T>)?.Dispose(owner, metadata);
             }
             else
-                (components as IDisposable)?.Dispose();
+                (components as IDisposableComponent<T>)?.Dispose(owner, metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Dispose(this ItemOrArray<IDisposable> components)
+        public static void Dispose<T>(this ItemOrArray<IDisposableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             foreach (var c in components)
-                c.Dispose();
+                c.Dispose(owner, metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

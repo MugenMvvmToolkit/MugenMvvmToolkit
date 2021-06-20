@@ -213,14 +213,7 @@ namespace MugenMvvm.Bindings.Core
             if (CheckFlag(DisposedFlag))
                 return;
             SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
-            if (CheckFlag(HasTargetObserverListener))
-                Target.RemoveListener(this);
-            if (CheckFlag(HasSourceObserverListener))
-                BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            MugenService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
             OnDispose();
-            Target = EmptyPathObserver.Empty;
-            SourceRaw = null;
         }
 
         protected virtual object? GetTargetValue(MemberPathLastMember sourceMember) => Target.GetLastMember(this).GetValueOrThrow(this);
@@ -310,6 +303,17 @@ namespace MugenMvvm.Bindings.Core
 
         protected virtual void OnDispose()
         {
+            MugenService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
+            if (CheckFlag(HasTargetObserverListener))
+                Target.RemoveListener(this);
+            if (CheckFlag(HasSourceObserverListener))
+                BindingComponentExtensions.RemoveListener(SourceRaw, this);
+            InternalComponentExtensions.Dispose<IBinding>(_components, this, null);
+            Target.Dispose();
+            BindingMugenExtensions.DisposeBindingSource(SourceRaw);
+            Components.Clear();
+            Target = EmptyPathObserver.Empty;
+            SourceRaw = null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -510,16 +514,16 @@ namespace MugenMvvm.Bindings.Core
             }
         }
 
-        void IHasCache.Invalidate(object? component, IReadOnlyMetadataContext? metadata)
-        {
-            if (_components is object[] array)
-                Array.Sort(array, this);
-        }
-
         ItemOrArray<T> IComponentCollection.Get<T>(IReadOnlyMetadataContext? metadata)
         {
             Should.MethodBeSupported(typeof(T) == typeof(object), nameof(IComponentCollection.Get));
             return ItemOrArray.FromRawValue<T>(_components);
+        }
+
+        void IHasCache.Invalidate(object? component, IReadOnlyMetadataContext? metadata)
+        {
+            if (_components is object[] array)
+                Array.Sort(array, this);
         }
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)

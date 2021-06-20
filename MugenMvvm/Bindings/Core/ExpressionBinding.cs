@@ -48,7 +48,7 @@ namespace MugenMvvm.Bindings.Core
         protected override int GetMetadataCount() => 2;
 
         protected override ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() =>
-            new[] {BindingMetadata.Binding.ToValue(this), BindingMetadata.IsExpressionBinding.ToValue(true)};
+            new[] { BindingMetadata.Binding.ToValue(this), BindingMetadata.IsExpressionBinding.ToValue(true) };
 
         protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsExpressionBinding.Equals(contextKey);
 
@@ -63,7 +63,11 @@ namespace MugenMvvm.Bindings.Core
             return base.TryGetMetadata(contextKey, out value);
         }
 
-        protected override void OnDispose() => _expression = null;
+        protected override void OnDispose()
+        {
+            base.OnDispose();
+            _expression = null;
+        }
 
         protected override object? GetSourceValue(MemberPathLastMember targetMember)
         {
