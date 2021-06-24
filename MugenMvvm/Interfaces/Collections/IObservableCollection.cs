@@ -1,10 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollection : IReadOnlyObservableCollection, IList
+    public interface IObservableCollection : IReadOnlyObservableCollection, IList, IDisposable
     {
         new int Count { get; }
 
@@ -14,7 +15,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         void Move(int oldIndex, int newIndex);
 
-        void Reset(IEnumerable<object> items);
+        void Reset(IEnumerable<object>? items);
 
         void RaiseItemChanged(object item, object? args);
     }

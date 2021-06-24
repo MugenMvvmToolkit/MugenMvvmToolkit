@@ -64,6 +64,8 @@ namespace MugenMvvm.ViewModels
 
         public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T)GetViewModel(typeof(T), metadata);
 
+        public void RegisterDisposeToken(IDisposable disposable) => RegisterDisposeToken(ActionToken.FromDisposable(disposable));
+
         public void Dispose()
         {
             if (IsDisposed || !CanDispose())

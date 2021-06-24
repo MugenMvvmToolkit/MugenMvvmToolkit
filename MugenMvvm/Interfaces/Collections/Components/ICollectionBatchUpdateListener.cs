@@ -1,13 +1,12 @@
-﻿using System.Collections;
-using MugenMvvm.Enums;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionBatchUpdateListener : IComponent<ICollection>
+    public interface ICollectionBatchUpdateListener : IComponent<IReadOnlyObservableCollection>
     {
-        void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType);
+        void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType);
 
-        void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType);
+        void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType);
     }
 }

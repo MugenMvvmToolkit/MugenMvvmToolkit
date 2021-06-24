@@ -1,24 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using MugenMvvm.Components;
+﻿using System.Collections.Generic;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
-    public class HeaderFooterCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority
+    public class HeaderFooterCollectionDecorator : CollectionDecoratorBase
     {
         private const int NoFooterIndex = -1;
         private ItemOrIReadOnlyList<object> _footer;
         private ItemOrIReadOnlyList<object> _header;
         private int _footerIndex;
 
-        public HeaderFooterCollectionDecorator(int priority = CollectionComponentPriority.HeaderFooterDecorator)
+        public HeaderFooterCollectionDecorator(int priority = CollectionComponentPriority.HeaderFooterDecorator) : base(priority)
         {
             Priority = priority;
             _footerIndex = NoFooterIndex;
@@ -36,16 +34,64 @@ namespace MugenMvvm.Collections.Components
             set => Update(value, _footer, true);
         }
 
-        public int Priority { get; set; }
-
-        protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
-
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => DecoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-
-        protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
-            DecoratorManager = null;
+            base.OnDetached(owner, metadata);
             _footerIndex = NoFooterIndex;
+        }
+
+        protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
+            IEnumerable<object?> items) => Decorate(items);
+
+        protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
+            ref object? args)
+        {
+            index += _header.Count;
+            return true;
+        }
+
+        protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            index += _header.Count;
+            if (_footerIndex > NoFooterIndex)
+            {
+                if (index > _footerIndex)
+                    --index;
+                ++_footerIndex;
+            }
+
+            return true;
+        }
+
+        protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
+            ref object? newItem, ref int index)
+        {
+            index += _header.Count;
+            return true;
+        }
+
+        protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
+            ref int newIndex)
+        {
+            oldIndex += _header.Count;
+            newIndex += _header.Count;
+            return true;
+        }
+
+        protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            index += _header.Count;
+            if (_footerIndex > NoFooterIndex)
+                --_footerIndex;
+            return true;
+        }
+
+        protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
+        {
+            if (_footerIndex > NoFooterIndex)
+                _footerIndex = items.CountEx() + _header.Count;
+            items = Decorate(items);
+            return true;
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?>? items)
@@ -145,74 +191,6 @@ namespace MugenMvvm.Collections.Components
                     }
                 }
             }
-        }
-
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => DecoratorManager == null ? items : Decorate(items);
-
-        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            index += _header.Count;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            index += _header.Count;
-            if (_footerIndex > NoFooterIndex)
-            {
-                if (index > _footerIndex)
-                    --index;
-                ++_footerIndex;
-            }
-
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            index += _header.Count;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            oldIndex += _header.Count;
-            newIndex += _header.Count;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            index += _header.Count;
-            if (_footerIndex > NoFooterIndex)
-                --_footerIndex;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            if (_footerIndex > NoFooterIndex)
-                _footerIndex = items.CountEx() + _header.Count;
-            items = Decorate(items);
-            return true;
         }
     }
 }

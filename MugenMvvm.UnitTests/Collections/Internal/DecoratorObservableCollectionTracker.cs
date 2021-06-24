@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
 
@@ -98,13 +99,13 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             RaiseChanged();
         }
 
-        public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
+        public void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
             if (batchUpdateType == BatchUpdateType.Decorators)
                 Interlocked.Increment(ref _batchCount);
         }
 
-        public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType)
+        public void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
             if (batchUpdateType == BatchUpdateType.Decorators)
             {
@@ -113,38 +114,38 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             }
         }
 
-        public void OnChanged(ICollection collection, object? item, int index, object? args)
+        public void OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
         {
             ChangedItems[index].ShouldEqual(item);
             ++ItemChangedCount;
             RaiseChanged();
         }
 
-        public void OnAdded(ICollection collection, object? item, int index)
+        public void OnAdded(IReadOnlyObservableCollection collection, object? item, int index)
         {
             OnAddEvent(ChangedItems, new[] {item}, index);
             RaiseChanged();
         }
 
-        public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index)
+        public void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index)
         {
             OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
             RaiseChanged();
         }
 
-        public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex)
+        public void OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
         {
             OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
             RaiseChanged();
         }
 
-        public void OnRemoved(ICollection collection, object? item, int index)
+        public void OnRemoved(IReadOnlyObservableCollection collection, object? item, int index)
         {
             OnRemoveEvent(ChangedItems, new[] {item}, index);
             RaiseChanged();
         }
 
-        public void OnReset(ICollection collection, IEnumerable<object?>? items)
+        public void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items)
         {
             OnReset(ChangedItems, items?.Cast<T>());
             RaiseChanged();

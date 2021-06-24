@@ -322,6 +322,9 @@ namespace MugenMvvm.Extensions
         public static T EnsureInitialized<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
             => Volatile.Read(ref item!) ?? Interlocked.CompareExchange(ref item, value, null!) ?? item;
 
+        public static ActionToken ToDebuggable(this ActionToken actionToken, object target, bool includeStackTrace = false) =>
+            DebugActionToken.Wrap(target, actionToken, includeStackTrace);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static ActionToken TryLock(object? target) => target is ISynchronizable synchronizable ? synchronizable.Lock() : default;
 

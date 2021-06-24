@@ -224,7 +224,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnChanged(this ItemOrArray<ILockerChangedListener> listeners, object owner, ILocker locker, IReadOnlyMetadataContext? metadata)
+        public static void OnChanged<T>(this ItemOrArray<ILockerChangedListener<T>> listeners, T owner, ILocker locker, IReadOnlyMetadataContext? metadata) where T : class
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(locker, nameof(locker));

@@ -90,7 +90,7 @@ namespace MugenMvvm.Extensions
                 if (navigationEntry.NavigationType != navigationType || navigationEntry.Target == null || Equals(navigationEntry.Target, navigationTarget))
                     continue;
 
-                closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
+                closeMetadata ??= new MetadataContext(metadata) { { NavigationMetadata.ForceClose, true }, { NavigationMetadata.NavigationType, navigationType } };
                 foreach (var result in presenter.DefaultIfNull(navigationEntry.Target).TryClose(navigationEntry.Target, default, closeMetadata))
                 foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
                 {
@@ -153,6 +153,20 @@ namespace MugenMvvm.Extensions
             }
 
             return null;
+        }
+
+        public static bool IsOpened(this INavigationDispatcher navigationDispatcher, object target, NavigationType? navigationType = null,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(target, nameof(target));
+            foreach (var entry in navigationDispatcher.GetNavigationEntries(metadata))
+            {
+                if (entry.Target == target && (navigationType == null || entry.NavigationType == navigationType))
+                    return true;
+            }
+
+            return false;
         }
 
         public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, IViewModelBase viewModel, NavigationType navigationType,

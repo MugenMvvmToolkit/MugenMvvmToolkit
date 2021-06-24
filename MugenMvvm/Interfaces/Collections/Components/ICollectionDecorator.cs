@@ -1,23 +1,22 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionDecorator : IComponent<ICollection>
+    public interface ICollectionDecorator : IComponent<IReadOnlyObservableCollection>
     {
-        IEnumerable<object?> Decorate(ICollection collection, IEnumerable<object?> items);
+        IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items);
 
-        bool OnChanged(ICollection collection, ref object? item, ref int index, ref object? args);
+        bool OnChanged(IReadOnlyObservableCollection collection, ref object? item, ref int index, ref object? args);
 
-        bool OnAdded(ICollection collection, ref object? item, ref int index);
+        bool OnAdded(IReadOnlyObservableCollection collection, ref object? item, ref int index);
 
-        bool OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index);
+        bool OnReplaced(IReadOnlyObservableCollection collection, ref object? oldItem, ref object? newItem, ref int index);
 
-        bool OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex);
+        bool OnMoved(IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex, ref int newIndex);
 
-        bool OnRemoved(ICollection collection, ref object? item, ref int index);
+        bool OnRemoved(IReadOnlyObservableCollection collection, ref object? item, ref int index);
 
-        bool OnReset(ICollection collection, ref IEnumerable<object?>? items);
+        bool OnReset(IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items);
     }
 }

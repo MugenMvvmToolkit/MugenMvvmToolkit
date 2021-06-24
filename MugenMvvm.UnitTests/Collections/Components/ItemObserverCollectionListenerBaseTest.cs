@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(100)]
         public async Task DelayShouldCancelPreviousChanges(int count)
         {
-            const int delay = 20;
+            const int delay = 10;
             _listener.ClearObservers();
             _listener.AddObserver(this, (s, info) => s == this && info.IsCollectionEvent, (s, item) =>
             {
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collectionChangedCount.ShouldEqual(0);
             _itemChangedCount.ShouldEqual(0);
 
-            await Task.Delay(delay + 30);
+            await Task.Delay(delay * 3);
             _collectionChangedCount.ShouldEqual(1);
             _itemChangedCount.ShouldEqual(0);
 
@@ -175,7 +175,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _itemChangedCount.ShouldEqual(0);
             }
 
-            await Task.Delay(delay + 30);
+            await Task.Delay(delay * 3);
             _collectionChangedCount.ShouldEqual(1);
             _itemChangedCount.ShouldEqual(1);
         }

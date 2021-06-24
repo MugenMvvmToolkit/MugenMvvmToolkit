@@ -190,19 +190,19 @@ namespace MugenMvvm.Bindings.Extensions
         public static void RegisterCollectionAttachedMembers(AttachedMemberProvider attachedMemberProvider)
         {
             attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Event<IComponentOwner<ICollection>>(nameof(ICollection.Count) + BindingInternalConstant.ChangedEventPostfix)
+                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(nameof(IReadOnlyObservableCollection.Count) + BindingInternalConstant.ChangedEventPostfix)
                                             .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
                                             .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Event<IComponentOwner<ICollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
+                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
                                             .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
                                             .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Property<IObservableCollection, int>(nameof(IObservableCollection.Count))
+                                            .Property<IReadOnlyObservableCollection, int>(nameof(IObservableCollection.Count))
                                             .CustomGetter((member, target, metadata) => BindingCollectionAdapter.GetOrAdd(target).Count)
                                             .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Method<IObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
+                                            .Method<IReadOnlyObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
                                             .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
                                             .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int) args[0]!])
                                             .Build());
@@ -331,7 +331,7 @@ namespace MugenMvvm.Bindings.Extensions
                                                    .Build());
         }
 
-        private sealed class BindingCollectionAdapter : BindableCollectionAdapter, IComponent<ICollection>
+        private sealed class BindingCollectionAdapter : BindableCollectionAdapter, IComponent<IReadOnlyObservableCollection>
         {
             private BindingCollectionAdapter()
             {
@@ -340,7 +340,7 @@ namespace MugenMvvm.Bindings.Extensions
 
             public EventListenerCollection Listeners { get; }
 
-            public static BindingCollectionAdapter GetOrAdd(IComponentOwner<ICollection> collection)
+            public static BindingCollectionAdapter GetOrAdd(IComponentOwner<IReadOnlyObservableCollection> collection)
                 => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter {Collection = (IEnumerable) owner});
 
             protected override bool IsChangeEventSupported(object? item, object? args) => false;

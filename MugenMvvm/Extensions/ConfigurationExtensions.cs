@@ -4,6 +4,7 @@ using System.Threading;
 using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Bindings.Interfaces.Core;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Components;
@@ -70,8 +71,8 @@ namespace MugenMvvm.Extensions
             else
                 configuration.InitializeService(serviceProvider);
 
-            if (!configuration.HasService<IComponentCollectionManager>())
-                configuration.WithAppService(new ComponentCollectionManager());
+            configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
+                         .WithComponent(new CollectionDecoratorManagerInitializer());
 
             configuration.Application.AddComponent(new AppLifecycleTracker());
 
@@ -182,7 +183,7 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service)
             where TService : class =>
-            configuration.InitializeService((TService) service);
+            configuration.InitializeService((TService)service);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component,

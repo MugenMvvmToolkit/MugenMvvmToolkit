@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
 
@@ -83,21 +84,21 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             }
         }
 
-        public void OnChanged(IReadOnlyCollection<T> collection, T item, int index, object? args)
+        public void OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args)
         {
             ChangedItems[index].ShouldEqual(item);
             ++ItemChangedCount;
         }
 
-        public void OnAdded(IReadOnlyCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
+        public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReplaced(IReadOnlyCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
+        public void OnReplaced(IReadOnlyObservableCollection<T> collection, T oldItem, T newItem, int index) => OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
 
-        public void OnMoved(IReadOnlyCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
+        public void OnMoved(IReadOnlyObservableCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
 
-        public void OnRemoved(IReadOnlyCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
+        public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReset(IReadOnlyCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
+        public void OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
 
         private void OnReset(List<T> items, IEnumerable<T>? resetItems)
         {

@@ -1,20 +1,17 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemHeaderFooterCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IHasPriority,
-        IComparer<ItemHeaderFooterCollectionDecorator.ItemInfo>
+    public class ItemHeaderFooterCollectionDecorator : CollectionDecoratorBase, IComparer<ItemHeaderFooterCollectionDecorator.ItemInfo>
     {
         private readonly Func<object?, bool?> _isHeaderOrFooter;
         private readonly IComparer<object?>? _headerComparer;
@@ -25,7 +22,7 @@ namespace MugenMvvm.Collections.Components
         private int _footerIndex;
 
         public ItemHeaderFooterCollectionDecorator(Func<object?, bool?> isHeaderOrFooter, IComparer<object?>? headerComparer = null, IComparer<object?>? footerComparer = null,
-            int priority = CollectionComponentPriority.HeaderFooterDecorator)
+            int priority = CollectionComponentPriority.HeaderFooterDecorator) : base(priority)
         {
             _isHeaderOrFooter = isHeaderOrFooter;
             _headerComparer = headerComparer;
@@ -34,10 +31,6 @@ namespace MugenMvvm.Collections.Components
             _footers = new ListInternal<ItemInfo>(0);
             Priority = priority;
         }
-
-        public int Priority { get; set; }
-
-        protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
 
         private static void UpdateIndexes(ListInternal<ItemInfo> items, int index, int value)
         {
@@ -50,13 +43,104 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => DecoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-
-        protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
-            DecoratorManager = null;
+            base.OnDetached(owner, metadata);
             _headers.Clear();
             _footers.Clear();
+        }
+
+        protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
+            IEnumerable<object?> items) => Decorate(items);
+
+        protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
+            ref object? args)
+        {
+            var isHeaderOrFooter = _isHeaderOrFooter(item);
+            if (isHeaderOrFooter != null)
+            {
+                if (isHeaderOrFooter.Value)
+                {
+                    index = _headers.IndexOf(new ItemInfo(item, index));
+                    return index >= 0;
+                }
+
+                index = _footers.IndexOf(new ItemInfo(item, index));
+                if (index < 0)
+                    return false;
+
+                index += _footerIndex;
+                return true;
+            }
+
+            index = GetIndex(index);
+            return true;
+        }
+
+        protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            AddHeaderOrFooter(item, ref index);
+            return true;
+        }
+
+        protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
+            ref object? newItem, ref int index)
+        {
+            var oldItemIsHeaderOrFooter = _isHeaderOrFooter(oldItem);
+            var newItemIsHeaderOrFooter = _isHeaderOrFooter(newItem);
+            if (oldItemIsHeaderOrFooter == null && newItemIsHeaderOrFooter == null)
+            {
+                index = GetIndex(index);
+                return true;
+            }
+
+            var removeIndex = index;
+            RemoveHeaderOrFooter(oldItem, ref removeIndex, oldItemIsHeaderOrFooter, true);
+            AddHeaderOrFooter(newItem, ref index, newItemIsHeaderOrFooter, true);
+
+            if (removeIndex == index)
+                return true;
+
+            decoratorManager.OnRemoved(collection, this, oldItem, removeIndex);
+            decoratorManager.OnAdded(collection, this, newItem, index);
+
+            return false;
+        }
+
+        protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
+            ref int newIndex)
+        {
+            RemoveHeaderOrFooter(item, ref oldIndex);
+            AddHeaderOrFooter(item, ref newIndex);
+            return oldIndex != newIndex;
+        }
+
+        protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            RemoveHeaderOrFooter(item, ref index);
+            return true;
+        }
+
+        protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
+        {
+            _headers.Clear();
+            _footers.Clear();
+            var count = 0;
+            if (items != null)
+            {
+                var i = 0;
+                foreach (var item in items)
+                {
+                    var index = i;
+                    if (!AddHeaderOrFooter(item, ref index, ignoreIndexes: true))
+                        ++count;
+                    ++i;
+                }
+            }
+
+            _footerIndex = count + _headers.Count;
+            items = Decorate(items);
+            return true;
         }
 
         private int Add(ListInternal<ItemInfo> items, object? item, int index, IComparer<object?>? comparer)
@@ -172,113 +256,6 @@ namespace MugenMvvm.Collections.Components
             }
 
             return result;
-        }
-
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => DecoratorManager == null ? items : Decorate(items);
-
-        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            var isHeaderOrFooter = _isHeaderOrFooter(item);
-            if (isHeaderOrFooter != null)
-            {
-                if (isHeaderOrFooter.Value)
-                {
-                    index = _headers.IndexOf(new ItemInfo(item, index));
-                    return index >= 0;
-                }
-
-                index = _footers.IndexOf(new ItemInfo(item, index));
-                if (index < 0)
-                    return false;
-
-                index += _footerIndex;
-                return true;
-            }
-
-            index = GetIndex(index);
-            return true;
-        }
-
-        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            AddHeaderOrFooter(item, ref index);
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            var oldItemIsHeaderOrFooter = _isHeaderOrFooter(oldItem);
-            var newItemIsHeaderOrFooter = _isHeaderOrFooter(newItem);
-            if (oldItemIsHeaderOrFooter == null && newItemIsHeaderOrFooter == null)
-            {
-                index = GetIndex(index);
-                return true;
-            }
-
-            var removeIndex = index;
-            RemoveHeaderOrFooter(oldItem, ref removeIndex, oldItemIsHeaderOrFooter, true);
-            AddHeaderOrFooter(newItem, ref index, newItemIsHeaderOrFooter, true);
-
-            if (removeIndex == index)
-                return true;
-
-            DecoratorManager.OnRemoved(collection, this, oldItem, removeIndex);
-            DecoratorManager.OnAdded(collection, this, newItem, index);
-
-            return false;
-        }
-
-        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            RemoveHeaderOrFooter(item, ref oldIndex);
-            AddHeaderOrFooter(item, ref newIndex);
-            return oldIndex != newIndex;
-        }
-
-        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            RemoveHeaderOrFooter(item, ref index);
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            _headers.Clear();
-            _footers.Clear();
-            var count = 0;
-            if (items != null)
-            {
-                var i = 0;
-                foreach (var item in items)
-                {
-                    var index = i;
-                    if (!AddHeaderOrFooter(item, ref index, ignoreIndexes: true))
-                        ++count;
-                    ++i;
-                }
-            }
-
-            _footerIndex = count + _headers.Count;
-            items = Decorate(items);
-            return true;
         }
 
         int IComparer<ItemInfo>.Compare(ItemInfo x, ItemInfo y)

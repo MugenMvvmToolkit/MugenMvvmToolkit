@@ -22,6 +22,7 @@ using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Collections;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Components;
@@ -355,7 +356,12 @@ namespace MugenMvvm.Tests
             return commandManager;
         }
 
-        protected virtual IComponentCollectionManager GetComponentCollectionManager() => new ComponentCollectionManager();
+        protected virtual IComponentCollectionManager GetComponentCollectionManager()
+        {
+            var collectionManager = new ComponentCollectionManager();
+            collectionManager.AddComponent(new CollectionDecoratorManagerInitializer());
+            return collectionManager;
+        }
 
         protected virtual void OnDispose()
         {

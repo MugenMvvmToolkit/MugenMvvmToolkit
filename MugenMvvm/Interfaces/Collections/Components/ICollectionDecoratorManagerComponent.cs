@@ -1,28 +1,27 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionDecoratorManagerComponent : IComponent<ICollection>
+    public interface ICollectionDecoratorManagerComponent : IComponent<IReadOnlyObservableCollection>
     {
-        ActionToken TryLock(ICollection collection, ICollectionDecorator? decorator = null);
+        ActionToken TryLock(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
 
-        ActionToken BatchUpdate(ICollection collection, ICollectionDecorator? decorator = null);
+        ActionToken BatchUpdate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
 
-        IEnumerable<object?> Decorate(ICollection collection, ICollectionDecorator? decorator = null);
+        IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
 
-        void OnChanged(ICollection collection, ICollectionDecorator? decorator, object? item, int index, object? args);
+        void OnChanged(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index, object? args);
 
-        void OnAdded(ICollection collection, ICollectionDecorator? decorator, object? item, int index);
+        void OnAdded(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index);
 
-        void OnReplaced(ICollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index);
+        void OnReplaced(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? oldItem, object? newItem, int index);
 
-        void OnMoved(ICollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex);
+        void OnMoved(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int oldIndex, int newIndex);
 
-        void OnRemoved(ICollection collection, ICollectionDecorator? decorator, object? item, int index);
+        void OnRemoved(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index);
 
-        void OnReset(ICollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items);
+        void OnReset(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items);
     }
 }

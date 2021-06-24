@@ -51,6 +51,8 @@ namespace MugenMvvm.UnitTests.Components
             componentOwner.Components.ShouldEqual(collection);
         }
 
+        protected override IComponentCollectionManager GetComponentCollectionManager() => new ComponentCollectionManager();
+
         protected abstract T GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null);
     }
 }

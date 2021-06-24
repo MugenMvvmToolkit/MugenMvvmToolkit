@@ -3,8 +3,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface ILockerChangedListener : IComponent
+    public interface ILockerChangedListener<in T> : IComponent where T : class
     {
-        void OnChanged(object owner, ILocker locker, IReadOnlyMetadataContext? metadata);
+        void OnChanged(T owner, ILocker locker, IReadOnlyMetadataContext? metadata);
     }
 }

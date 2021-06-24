@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -13,7 +13,8 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendableComponent<ICollection>, IAttachableComponent, IDetachableComponent, IHasPriority where T : class?
+    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendableComponent<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IAttachableComponent, IDetachableComponent,
+        IHasPriority where T : class?
     {
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
@@ -236,9 +237,11 @@ namespace MugenMvvm.Collections.Components
             OnDetached(owner, metadata);
         }
 
-        bool ISuspendableComponent<ICollection>.IsSuspended(ICollection owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
+        void IDisposableComponent<IReadOnlyObservableCollection>.Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => ClearObservers();
 
-        ActionToken ISuspendableComponent<ICollection>.TrySuspend(ICollection owner, object? state, IReadOnlyMetadataContext? metadata)
+        bool ISuspendableComponent<IReadOnlyObservableCollection>.IsSuspended(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
+
+        ActionToken ISuspendableComponent<IReadOnlyObservableCollection>.TrySuspend(IReadOnlyObservableCollection owner, object? state, IReadOnlyMetadataContext? metadata)
         {
             Interlocked.Increment(ref _suspendCount);
             return ActionToken.FromDelegate(this, t => t.EndSuspend());
@@ -289,7 +292,7 @@ namespace MugenMvvm.Collections.Components
                 _canInvoke = canInvoke;
                 _delay = delay;
                 if (delay != 0)
-                    _timer = new Timer(o => ((Observer<TState>)o).Raise(), this, Timeout.Infinite, Timeout.Infinite);
+                    _timer = new Timer(o => ((Observer<TState>)o!).Raise(), this, Timeout.Infinite, Timeout.Infinite);
             }
 
             public override void OnChanged(T? item, string? member)

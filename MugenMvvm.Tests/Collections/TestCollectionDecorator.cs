@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.UnitTests;
 
 namespace MugenMvvm.Tests.Collections
 {
@@ -27,49 +26,49 @@ namespace MugenMvvm.Tests.Collections
 
         public int Priority { get; set; }
 
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items)
+        IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)
         {
             if (Decorate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return Decorate?.Invoke(items) ?? items;
         }
 
-        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(IReadOnlyObservableCollection collection, ref object? item, ref int index, ref object? args)
         {
             if (OnChanged == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnChanged?.Invoke(ref item, ref index, ref args) ?? true;
         }
 
-        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
+        bool ICollectionDecorator.OnAdded(IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             if (OnAdded == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnAdded?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
+        bool ICollectionDecorator.OnReplaced(IReadOnlyObservableCollection collection, ref object? oldItem, ref object? newItem, ref int index)
         {
             if (OnReplaced == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnReplaced?.Invoke(ref oldItem, ref newItem, ref index) ?? true;
         }
 
-        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
+        bool ICollectionDecorator.OnMoved(IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex, ref int newIndex)
         {
             if (OnMoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnMoved?.Invoke(ref item, ref oldIndex, ref newIndex) ?? true;
         }
 
-        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
+        bool ICollectionDecorator.OnRemoved(IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             if (OnRemoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnRemoved?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
+        bool ICollectionDecorator.OnReset(IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
             if (OnReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();

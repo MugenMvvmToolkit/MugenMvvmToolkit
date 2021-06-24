@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
-using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ItemConverterCollectionDecorator : IAttachableComponent, ICollectionDecorator, IHasPriority
+    public sealed class ItemConverterCollectionDecorator : ICollectionDecorator, IHasPriority
     {
         public ItemConverterCollectionDecorator(Func<object?, object?> converter, int priority = CollectionComponentPriority.ConverterDecorator)
         {
@@ -23,44 +21,40 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; set; }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items) => items.Select(Converter);
 
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => CollectionDecoratorManager.GetOrAdd((IEnumerable) owner);
-
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => items.Select(Converter);
-
-        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnChanged(IReadOnlyObservableCollection collection, ref object? item, ref int index, ref object? args)
         {
             item = Converter(item);
             return true;
         }
 
-        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
+        bool ICollectionDecorator.OnAdded(IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             item = Converter(item);
             return true;
         }
 
-        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
+        bool ICollectionDecorator.OnReplaced(IReadOnlyObservableCollection collection, ref object? oldItem, ref object? newItem, ref int index)
         {
             oldItem = Converter(oldItem);
             newItem = Converter(newItem);
             return true;
         }
 
-        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
+        bool ICollectionDecorator.OnMoved(IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex, ref int newIndex)
         {
             item = Converter(item);
             return true;
         }
 
-        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
+        bool ICollectionDecorator.OnRemoved(IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             item = Converter(item);
             return true;
         }
 
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
+        bool ICollectionDecorator.OnReset(IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
             items = items?.Select(Converter);
             return true;

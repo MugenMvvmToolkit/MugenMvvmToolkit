@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IReadOnlyObservableCollection : IEnumerable, IComponentOwner<ICollection>
+    public interface IReadOnlyObservableCollection : IEnumerable, IComponentOwner<IReadOnlyObservableCollection>
     {
         Type ItemType { get; }
 

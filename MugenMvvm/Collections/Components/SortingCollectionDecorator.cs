@@ -2,21 +2,19 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class SortingCollectionDecorator : AttachableComponentBase<ICollection>, ICollectionDecorator, IReadOnlyCollection<object?>, IHasPriority,
-        IComparer<SortingCollectionDecorator.OrderedItem>
+    public class SortingCollectionDecorator : CollectionDecoratorBase, IReadOnlyCollection<object?>, IComparer<SortingCollectionDecorator.OrderedItem>
     {
         private readonly ListInternal<OrderedItem> _items;
         private IComparer<object?>? _comparer;
 
-        public SortingCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator)
+        public SortingCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator) : base(priority)
         {
             _comparer = comparer;
             _items = new ListInternal<OrderedItem>(8);
@@ -28,10 +26,6 @@ namespace MugenMvvm.Collections.Components
             get => _comparer;
             set => ReorderInternal(value, true);
         }
-
-        public int Priority { get; set; }
-
-        protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
 
         int IReadOnlyCollection<object?>.Count => _items.Count;
 
@@ -45,12 +39,119 @@ namespace MugenMvvm.Collections.Components
                 yield return items[i].Item;
         }
 
-        protected override void OnAttached(ICollection owner, IReadOnlyMetadataContext? metadata) => DecoratorManager = CollectionDecoratorManager.GetOrAdd(owner);
-
-        protected override void OnDetached(ICollection owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
+            base.OnDetached(owner, metadata);
             _items.Clear();
-            DecoratorManager = null;
+        }
+
+        protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
+            IEnumerable<object?> items) => Comparer == null ? items : this;
+
+        protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
+            ref object? args)
+        {
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var oldIndex = GetIndexByOriginalIndex(comparer, item, index);
+            if (oldIndex == -1)
+                return false;
+
+            _items.RemoveAt(oldIndex);
+            var newIndex = GetInsertIndex(item);
+            _items.Insert(newIndex, new OrderedItem(index, item));
+            if (oldIndex == newIndex)
+                index = oldIndex;
+            else
+            {
+                decoratorManager.OnMoved(collection, this, item, oldIndex, newIndex);
+                index = newIndex;
+            }
+
+            return true;
+        }
+
+        protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            if (Comparer == null)
+                return true;
+
+            UpdateIndexes(index, 1);
+            var newIndex = GetInsertIndex(item);
+            _items.Insert(newIndex, new OrderedItem(index, item));
+            index = newIndex;
+            return true;
+        }
+
+        protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
+            ref object? newItem, ref int index)
+        {
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var oldIndex = GetIndexByOriginalIndex(comparer, oldItem, index);
+            if (oldIndex == -1)
+                return false;
+
+            _items.RemoveAt(oldIndex);
+            decoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
+
+            var newIndex = GetInsertIndex(newItem);
+            _items.Insert(newIndex, new OrderedItem(index, newItem));
+            decoratorManager.OnAdded(collection, this, newItem, newIndex);
+            return false;
+        }
+
+        protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
+            ref int newIndex)
+        {
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var index = GetIndexByOriginalIndex(comparer, item, oldIndex);
+            UpdateIndexes(oldIndex + 1, -1);
+            UpdateIndexes(newIndex, 1);
+
+            if (index != -1)
+                _items.Items[index].OriginalIndex = newIndex;
+
+            return false;
+        }
+
+        protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            var comparer = Comparer;
+            if (comparer == null)
+                return true;
+
+            var indexToRemove = GetIndexByOriginalIndex(comparer, item, index);
+            UpdateIndexes(index, -1);
+            if (indexToRemove == -1)
+                return false;
+
+            _items.RemoveAt(indexToRemove);
+            index = indexToRemove;
+            return true;
+        }
+
+        protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
+        {
+            if (Comparer == null)
+                return true;
+
+            if (items == null)
+                _items.Clear();
+            else
+            {
+                Reset(items);
+                items = this;
+            }
+
+            return true;
         }
 
         private void ReorderInternal(IComparer<object?>? comparer, bool setComparer)
@@ -152,129 +253,6 @@ namespace MugenMvvm.Collections.Components
                 if (items[i].OriginalIndex >= index)
                     items[i].OriginalIndex += value;
             }
-        }
-
-        IEnumerable<object?> ICollectionDecorator.Decorate(ICollection collection, IEnumerable<object?> items) => DecoratorManager == null || Comparer == null ? items : this;
-
-        bool ICollectionDecorator.OnChanged(ICollection collection, ref object? item, ref int index, ref object? args)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            var comparer = Comparer;
-            if (comparer == null)
-                return true;
-
-            var oldIndex = GetIndexByOriginalIndex(comparer, item, index);
-            if (oldIndex == -1)
-                return false;
-
-            _items.RemoveAt(oldIndex);
-            var newIndex = GetInsertIndex(item);
-            _items.Insert(newIndex, new OrderedItem(index, item));
-            if (oldIndex == newIndex)
-                index = oldIndex;
-            else
-            {
-                DecoratorManager.OnMoved(collection, this, item, oldIndex, newIndex);
-                index = newIndex;
-            }
-
-            return true;
-        }
-
-        bool ICollectionDecorator.OnAdded(ICollection collection, ref object? item, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            if (Comparer == null)
-                return true;
-
-            UpdateIndexes(index, 1);
-            var newIndex = GetInsertIndex(item);
-            _items.Insert(newIndex, new OrderedItem(index, item));
-            index = newIndex;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReplaced(ICollection collection, ref object? oldItem, ref object? newItem, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            var comparer = Comparer;
-            if (comparer == null)
-                return true;
-
-            var oldIndex = GetIndexByOriginalIndex(comparer, oldItem, index);
-            if (oldIndex == -1)
-                return false;
-
-            _items.RemoveAt(oldIndex);
-            DecoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
-
-            var newIndex = GetInsertIndex(newItem);
-            _items.Insert(newIndex, new OrderedItem(index, newItem));
-            DecoratorManager.OnAdded(collection, this, newItem, newIndex);
-            return false;
-        }
-
-        bool ICollectionDecorator.OnMoved(ICollection collection, ref object? item, ref int oldIndex, ref int newIndex)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            var comparer = Comparer;
-            if (comparer == null)
-                return true;
-
-            var index = GetIndexByOriginalIndex(comparer, item, oldIndex);
-            UpdateIndexes(oldIndex + 1, -1);
-            UpdateIndexes(newIndex, 1);
-
-            if (index != -1)
-                _items.Items[index].OriginalIndex = newIndex;
-
-            return false;
-        }
-
-        bool ICollectionDecorator.OnRemoved(ICollection collection, ref object? item, ref int index)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            var comparer = Comparer;
-            if (comparer == null)
-                return true;
-
-            var indexToRemove = GetIndexByOriginalIndex(comparer, item, index);
-            UpdateIndexes(index, -1);
-            if (indexToRemove == -1)
-                return false;
-
-            _items.RemoveAt(indexToRemove);
-            index = indexToRemove;
-            return true;
-        }
-
-        bool ICollectionDecorator.OnReset(ICollection collection, ref IEnumerable<object?>? items)
-        {
-            if (DecoratorManager == null)
-                return false;
-
-            if (Comparer == null)
-                return true;
-
-            if (items == null)
-                _items.Clear();
-            else
-            {
-                Reset(items);
-                items = this;
-            }
-
-            return true;
         }
 
         int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y)

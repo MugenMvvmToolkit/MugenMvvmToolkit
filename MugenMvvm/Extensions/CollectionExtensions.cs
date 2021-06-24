@@ -29,7 +29,7 @@ namespace MugenMvvm.Extensions
             if (collection == null)
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            return component == null ? collection.AsEnumerable() : component.Decorate((ICollection)collection);
+            return component == null ? collection.AsEnumerable() : component.Decorate(collection);
         }
 
         public static void InvalidateDecorators(this IReadOnlyObservableCollection? collection)
@@ -41,7 +41,7 @@ namespace MugenMvvm.Extensions
             if (component != null)
             {
                 using var _ = collection.TryLock();
-                component.OnReset((ICollection)collection, null, collection.AsEnumerable());
+                component.OnReset(collection, null, collection.AsEnumerable());
             }
         }
 

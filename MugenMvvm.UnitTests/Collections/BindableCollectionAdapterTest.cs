@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using MugenMvvm.Collections;
-using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -74,7 +73,7 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.Collection = null;
             collectionAdapter.ShouldBeEmpty();
             observableCollection.Components.Count.ShouldEqual(1);
-            observableCollection.GetComponent<ICollectionDecoratorManagerComponent>().ShouldBeType<CollectionDecoratorManager>();
+            observableCollection.GetComponent<ICollectionDecoratorManagerComponent>().ShouldNotBeNull();
         }
 
         [Fact]

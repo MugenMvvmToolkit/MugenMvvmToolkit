@@ -7,14 +7,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Collections.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Metadata;
@@ -531,7 +530,7 @@ namespace MugenMvvm.Collections
                 new(CollectionChangedAction.Reset, null, items, -1, -1);
         }
 
-        protected class WeakListener : IAttachableComponent, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
+        protected class WeakListener : ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
         {
             private readonly IWeakReference _reference;
             private readonly int _version;
@@ -558,36 +557,31 @@ namespace MugenMvvm.Collections
                     adapter.OnCollectionChanged(sender, args, _version);
             }
 
-            public bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+            public void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType) => GetAdapter(collection)?.BeginBatchUpdate(_version);
 
-            public void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
-            {
-                if (owner is IEnumerable enumerable)
-                    CollectionDecoratorManager.GetOrAdd(enumerable);
-            }
+            public void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType) => GetAdapter(collection)?.EndBatchUpdate(_version);
 
-            public void OnBeginBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter(collection)?.BeginBatchUpdate(_version);
-
-            public void OnEndBatchUpdate(ICollection collection, BatchUpdateType batchUpdateType) => GetAdapter(collection)?.EndBatchUpdate(_version);
-
-            public void OnChanged(ICollection collection, object? item, int index, object? args)
+            public void OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
             {
                 var adapter = GetAdapter(collection);
                 if (adapter != null && adapter.IsChangeEventSupported(item, args))
                     adapter.AddEvent(CollectionChangedEvent.Changed(item, index, args), _version);
             }
 
-            public void OnAdded(ICollection collection, object? item, int index) => GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
+            public void OnAdded(IReadOnlyObservableCollection collection, object? item, int index) =>
+                GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Add(item, index), _version);
 
-            public void OnReplaced(ICollection collection, object? oldItem, object? newItem, int index) =>
+            public void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index) =>
                 GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Replace(oldItem, newItem, index), _version);
 
-            public void OnMoved(ICollection collection, object? item, int oldIndex, int newIndex) =>
+            public void OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex) =>
                 GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Move(item, oldIndex, newIndex), _version);
 
-            public void OnRemoved(ICollection collection, object? item, int index) => GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
+            public void OnRemoved(IReadOnlyObservableCollection collection, object? item, int index) =>
+                GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Remove(item, index), _version);
 
-            public void OnReset(ICollection collection, IEnumerable<object?>? items) => GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Reset(items), _version);
+            public void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items) =>
+                GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Reset(items), _version);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected BindableCollectionAdapter? GetAdapter(object? owner)
