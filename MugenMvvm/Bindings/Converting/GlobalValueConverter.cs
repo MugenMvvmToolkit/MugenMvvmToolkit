@@ -12,7 +12,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Converting
 {
-    public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter, IHasComponentAddedHandler, IHasComponentRemovedHandler
+    public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter, IHasComponentAddedHandler, IHasComponentRemovedHandler,
+        IHasComponentChangedHandler
     {
         private readonly ComponentTracker _componentTracker;
         private DefaultGlobalValueConverter? _component;
@@ -41,6 +42,9 @@ namespace MugenMvvm.Bindings.Converting
         }
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(collection, component, metadata);
+
+        void IHasComponentChangedHandler.OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
             _componentTracker.OnComponentChanged(collection, component, metadata);
 
         void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>

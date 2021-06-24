@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Collections;
+using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentTracker : IComponentCollectionChangedListener, IHasCacheComponent<IComponentCollection>
+    public sealed class ComponentTracker : IComponentCollectionChangedListener, IHasCacheComponent<IComponentCollection>, IHasPriority
     {
         private int _flag;
         private Listener _listener;
         private List<Listener>? _listeners;
+
+        public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
         public void AddListener<T, TState>(Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?> listener, TState state)
             where T : class

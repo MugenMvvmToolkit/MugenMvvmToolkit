@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Members
 {
-    public sealed class MemberManager : ComponentOwnerBase<IMemberManager>, IMemberManager, IHasComponentAddedHandler, IHasComponentRemovedHandler
+    public sealed class MemberManager : ComponentOwnerBase<IMemberManager>, IMemberManager, IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentChangedHandler
     {
         private readonly ComponentTracker _componentTracker;
         private ItemOrArray<IMemberManagerComponent> _components;
@@ -30,6 +30,9 @@ namespace MugenMvvm.Bindings.Members
             => _components.TryGetMembers(this, type, memberTypes, flags, request, metadata);
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(collection, component, metadata);
+
+        void IHasComponentChangedHandler.OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
             _componentTracker.OnComponentChanged(collection, component, metadata);
 
         void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>

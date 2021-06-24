@@ -8,7 +8,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class AttachedValueManager : ComponentOwnerBase<IAttachedValueManager>, IAttachedValueManager, IHasComponentAddedHandler, IHasComponentRemovedHandler
+    public sealed class AttachedValueManager : ComponentOwnerBase<IAttachedValueManager>, IAttachedValueManager, IHasComponentAddedHandler, IHasComponentRemovedHandler,
+        IHasComponentChangedHandler
     {
         private readonly ComponentTracker _componentTracker;
         private ItemOrArray<IAttachedValueStorageProviderComponent> _components;
@@ -22,6 +23,9 @@ namespace MugenMvvm.Internal
         public AttachedValueStorage TryGetAttachedValues(object item, IReadOnlyMetadataContext? metadata = null) => _components.TryGetAttachedValues(this, item, metadata);
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            _componentTracker.OnComponentChanged(collection, component, metadata);
+
+        void IHasComponentChangedHandler.OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
             _componentTracker.OnComponentChanged(collection, component, metadata);
 
         void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>

@@ -128,6 +128,7 @@ namespace MugenMvvm.Components
             }
 
             _components?.Get<IHasCacheComponent<IComponentCollection>>(metadata).Invalidate(this, component, metadata);
+            (Owner as IHasComponentChangedHandler)?.OnComponentChanged(this, component, metadata);
         }
 
         private ItemOrArray<TComponent> AddNewTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
