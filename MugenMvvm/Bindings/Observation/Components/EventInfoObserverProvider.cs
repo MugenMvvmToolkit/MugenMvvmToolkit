@@ -10,6 +10,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Components
@@ -93,7 +94,27 @@ namespace MugenMvvm.Bindings.Observation.Components
                 if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main, metadata))
                     base.Raise(sender, args, metadata);
                 else
-                    threadDispatcher.Execute(ThreadExecutionMode.Main, () => base.Raise(sender, args, metadata));
+                    threadDispatcher.Execute(ThreadExecutionMode.Main, new ExecuteClosure(this, sender, args, metadata), null, metadata);
+            }
+
+            private void RaiseBase(object? sender, object? args, IReadOnlyMetadataContext? metadata) => base.Raise(sender, args, metadata);
+
+            private sealed class ExecuteClosure : IThreadDispatcherHandler
+            {
+                private readonly MainThreadEventListenerCollection _collection;
+                private readonly object? _sender;
+                private readonly object? _args;
+                private readonly IReadOnlyMetadataContext? _metadata;
+
+                public ExecuteClosure(MainThreadEventListenerCollection collection, object? sender, object? args, IReadOnlyMetadataContext? metadata)
+                {
+                    _collection = collection;
+                    _sender = sender;
+                    _args = args;
+                    _metadata = metadata;
+                }
+
+                public void Execute(object? state) => _collection.RaiseBase(_sender, _args, _metadata);
             }
         }
     }

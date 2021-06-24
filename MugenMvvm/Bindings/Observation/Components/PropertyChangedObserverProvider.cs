@@ -13,6 +13,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Components
@@ -87,7 +88,29 @@ namespace MugenMvvm.Bindings.Observation.Components
                 if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main, metadata))
                     base.Raise(sender, message, memberName, metadata);
                 else
-                    threadDispatcher.Execute(ThreadExecutionMode.Main, () => base.Raise(sender, message, memberName, metadata), metadata);
+                    threadDispatcher.Execute(ThreadExecutionMode.Main, new ExecuteClosure(this, sender, message, memberName, metadata), null, metadata);
+            }
+
+            private void RaiseBase(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata) => base.Raise(sender, message, memberName, metadata);
+
+            private sealed class ExecuteClosure : IThreadDispatcherHandler
+            {
+                private readonly MainThreadMemberListenerCollection _collection;
+                private readonly object? _sender;
+                private readonly object? _message;
+                private readonly string _memberName;
+                private readonly IReadOnlyMetadataContext? _metadata;
+
+                public ExecuteClosure(MainThreadMemberListenerCollection collection, object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
+                {
+                    _collection = collection;
+                    _sender = sender;
+                    _message = message;
+                    _memberName = memberName;
+                    _metadata = metadata;
+                }
+
+                public void Execute(object? state) => _collection.RaiseBase(_sender, _message, _memberName, _metadata);
             }
         }
     }
