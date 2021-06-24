@@ -83,15 +83,17 @@ namespace MugenMvvm.Ios.Presentation
         private async Task ShowInternalAsync(bool bringToFront, IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
         {
             var metadata = navigationContext.GetMetadataOrDefault();
-            if (metadata.Get(NavigationMetadata.ClearBackStack))
-                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
-
             var animated = metadata.Get(NavigationMetadata.Animated);
             if (!bringToFront)
             {
                 NavigationController.PushViewController(view, animated);
+                if (metadata.Get(NavigationMetadata.ClearBackStack))
+                    await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
                 return;
             }
+
+            if (metadata.Get(NavigationMetadata.ClearBackStack))
+                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
 
             if (Equals(NavigationController.TopViewController, view))
                 return;
