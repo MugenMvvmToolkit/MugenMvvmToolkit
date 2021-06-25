@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections;
-using System.Threading;
+﻿using System.Threading;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Attributes;
 using MugenMvvm.Avalonia.Bindings;
-using MugenMvvm.Avalonia.Collections;
 using MugenMvvm.Avalonia.Internal;
 using MugenMvvm.Avalonia.Presentation;
+using MugenMvvm.Avalonia.Views;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -22,6 +20,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Views;
 
 namespace MugenMvvm.Avalonia.Extensions
 {
@@ -40,6 +39,9 @@ namespace MugenMvvm.Avalonia.Extensions
             configuration.ServiceConfiguration<IBindingManager>()
                          .WithComponent(new BindingExtensionExpressionParser());
 
+            configuration.ServiceConfiguration<IViewManager>()
+                         .WithComponent(new ItemsControlCollectionManager());
+
             if (listenAppLifecycle)
                 WindowBase.IsActiveProperty.Changed.AddClassHandler<WindowBase>(OnActiveChanged);
 
@@ -48,7 +50,7 @@ namespace MugenMvvm.Avalonia.Extensions
 
         private static void OnActiveChanged(WindowBase owner, AvaloniaPropertyChangedEventArgs args)
         {
-            var newValue = (bool?) args.NewValue;
+            var newValue = (bool?)args.NewValue;
             if (newValue.GetValueOrDefault())
             {
                 if (Interlocked.Increment(ref _activeWindowCount) == 1)
@@ -94,9 +96,6 @@ namespace MugenMvvm.Avalonia.Extensions
             attachedMemberProvider.Register(BindableMembers.For<ItemsControl>()
                                                            .DiffableEqualityComparer()
                                                            .GetBuilder()
-                                                           .NonObservable()
-                                                           .PropertyChangedHandler((_, target, _, newValue, _) =>
-                                                               ObservableCollectionAdapter.GetOrAdd(target).Adapter.DiffableComparer = newValue)
                                                            .Build());
 
             attachedMemberProvider.Register(BindableMembers.For<IControl>()
@@ -107,7 +106,7 @@ namespace MugenMvvm.Avalonia.Extensions
                                                            .InvokeHandler((member, target, args, metadata) =>
                                                            {
                                                                var nameScope = target.FindNameScope();
-                                                               return nameScope?.Find<IControl>((string) args.Item!);
+                                                               return nameScope?.Find<IControl>((string)args.Item!);
                                                            })
                                                            .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
@@ -120,14 +119,8 @@ namespace MugenMvvm.Avalonia.Extensions
                                                                MemberFlags.InstancePublic, nameof(IStyledElement.Parent)) as IObservableMemberInfo)
                                                            .Build());
 
-            attachedMemberProvider.Register(AttachedMemberBuilder.Property<ItemsControl, IEnumerable?>(nameof(ItemsControl.Items))
-                                                                 .CustomGetter((_, target, _) => ObservableCollectionAdapter.GetItemsSource(target.Items))
-                                                                 .CustomSetter((member, target, value, metadata) =>
-                                                                 {
-                                                                     if (!ReferenceEquals(member.GetValue(target, metadata), value))
-                                                                         ObservableCollectionAdapter.GetOrAdd(target).Adapter.Collection = value;
-                                                                 })
-                                                                 .Build());
+            BindingMugenExtensions.RegisterViewCollectionManagerMembers<ItemsControl>(attachedMemberProvider, nameof(ItemsControl.Items));
+
             return configuration;
         }
 

@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Runtime.CompilerServices;
-using Foundation;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -28,13 +26,6 @@ namespace MugenMvvm.Ios.Bindings
             nameof(ContentTemplateSelector);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindablePropertyDescriptor<T, ICollectionViewManager?> CollectionViewManager<T>(this BindableMembersDescriptor<T> _) where T : NSObject =>
-            nameof(CollectionViewManager);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindablePropertyDescriptor<T, IEnumerable?> ItemsSource<T>(this BindableMembersDescriptor<T> _) where T : UIView => nameof(ItemsSource);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindablePropertyDescriptor<T, object?> ItemTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : UIView => nameof(ItemTemplateSelector);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -46,15 +37,6 @@ namespace MugenMvvm.Ios.Bindings
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableEventDescriptor<T> Refreshed<T>(this BindableMembersDescriptor<T> _) where T : UIRefreshControl => nameof(Refreshed);
 
-        [BindingMember(nameof(CollectionViewManager))]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : NSObject =>
-            CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : NSObject =>
-            CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
-
         [BindingMember(nameof(ItemTemplateSelector))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? ItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : UIView =>
@@ -63,15 +45,6 @@ namespace MugenMvvm.Ios.Bindings
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : UIView =>
             ItemTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);
-
-        [BindingMember(nameof(ItemsSource))]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable? ItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : UIView =>
-            ItemsSource<T>(_: default).GetValue(descriptor.Target);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor, IEnumerable? value) where T : UIView =>
-            ItemsSource<T>(_: default).SetValue(descriptor.Target, value);
 
         [BindingMember(nameof(SelectedItem))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import com.mugen.mvvm.MugenService;
 import com.mugen.mvvm.MugenUtils;
+import com.mugen.mvvm.constants.BindableMemberConstant;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.MugenInitializationFlags;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
@@ -299,7 +300,7 @@ public final class BindableMemberMugenExtensions {
             return ViewPager2MugenExtensions.getCurrentItem(view);
         if (TabLayoutMugenExtensions.isSupported(view))
             return TabLayoutMugenExtensions.getSelectedTabPosition(view);
-        return -1;
+        return BindableMemberConstant.SelectedIndexNotSupported;
     }
 
     public static boolean setSelectedIndex(@NonNull View view, int index, boolean smoothScroll) {

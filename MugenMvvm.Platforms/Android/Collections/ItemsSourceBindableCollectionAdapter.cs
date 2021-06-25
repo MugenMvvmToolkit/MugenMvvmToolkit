@@ -98,7 +98,7 @@ namespace MugenMvvm.Android.Collections
 
         protected override async void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
         {
-            if (items != null && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxLimit)
+            if (items != null && Items.Count != 0 && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxLimit)
             {
                 if (items is IReadOnlyList<object?> list)
                     _resetItems = list;
@@ -182,9 +182,19 @@ namespace MugenMvvm.Android.Collections
             return observer;
         }
 
-        int DiffUtil.ICallback.GetOldListSize() => Items.Count;
+        int DiffUtil.ICallback.GetOldListSize()
+        {
+            if (_diffVersion != Version)
+                return 0;
+            return Items.Count;
+        }
 
-        int DiffUtil.ICallback.GetNewListSize() => _resetItems!.Count;
+        int DiffUtil.ICallback.GetNewListSize()
+        {
+            if (_diffVersion != Version)
+                return 0;
+            return _resetItems!.Count;
+        }
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {

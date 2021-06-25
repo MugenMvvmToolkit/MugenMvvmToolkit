@@ -7,18 +7,23 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import com.mugen.mvvm.constants.BindableMemberConstant;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 import com.mugen.mvvm.views.LifecycleMugenExtensions;
 
 public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObserver, IMugenAdapter {
+    protected final ViewPager _viewPager;
     protected final IContentItemsSourceProvider _provider;
     protected Object _currentPrimaryItem;
 
-    public MugenPagerAdapter(@NonNull IContentItemsSourceProvider provider) {
+    public MugenPagerAdapter(@NonNull ViewPager viewPager, @NonNull IContentItemsSourceProvider provider) {
+        _viewPager = viewPager;
         _provider = provider;
         provider.addObserver(this);
     }
@@ -131,5 +136,7 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     @Override
     public void onReset() {
         notifyDataSetChanged();
+        BindableMemberMugenExtensions.onMemberChanged(_viewPager, BindableMemberConstant.SelectedIndex, null);
+        BindableMemberMugenExtensions.onMemberChanged(_viewPager, BindableMemberConstant.SelectedIndexEvent, null);
     }
 }

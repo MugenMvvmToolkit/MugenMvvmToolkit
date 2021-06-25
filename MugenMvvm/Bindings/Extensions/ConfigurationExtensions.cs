@@ -33,6 +33,7 @@ using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -40,6 +41,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
@@ -157,6 +159,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static void RegisterObjectAttachedMembers(AttachedMemberProvider attachedMemberProvider)
         {
+            Should.NotBeNull(attachedMemberProvider, nameof(attachedMemberProvider));
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
                                                    .DataContext()
                                                    .GetBuilder()
@@ -177,7 +180,7 @@ namespace MugenMvvm.Bindings.Extensions
                                                        AttachedMemberBuilder.Parameter<string>().Build(),
                                                        AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build()
                                                    })
-                                                   .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
+                                                   .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string)args[0]!, (int)args[1]!, metadata))
                                                    .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                    .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
@@ -187,14 +190,63 @@ namespace MugenMvvm.Bindings.Extensions
                                                    .Build());
         }
 
+        public static void RegisterViewCollectionManagerMembers<T>(AttachedMemberProvider attachedMemberProvider, string? itemsSourceRawAlias = null) where T : class
+        {
+            Should.NotBeNull(attachedMemberProvider, nameof(attachedMemberProvider));
+            attachedMemberProvider.Register(Members.BindableMembers.For<T>()
+                                                   .ItemsSource()
+                                                   .GetBuilder()
+                                                   .CustomGetter((member, target, metadata) =>
+                                                   {
+                                                       var viewManager = MugenService.ViewManager;
+                                                       if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
+                                                                       .TryGetItemsSource(viewManager, target, metadata, out var itemsSource))
+                                                           ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                       return itemsSource;
+                                                   })
+                                                   .CustomSetter((member, target, value, metadata) =>
+                                                   {
+                                                       var viewManager = MugenService.ViewManager;
+                                                       if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
+                                                                       .TrySetItemsSource(viewManager, target, value, metadata))
+                                                           ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                   })
+                                                   .Build());
+            var itemsSourceRaw = Members.BindableMembers.For<T>()
+                                        .ItemsSourceRaw()
+                                        .GetBuilder()
+                                        .CustomGetter((member, target, metadata) =>
+                                        {
+                                            var viewManager = MugenService.ViewManager;
+                                            if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
+                                                            .TryGetItemsSourceRaw(viewManager, target, metadata, out var itemsSource))
+                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                            return itemsSource;
+                                        })
+                                        .CustomSetter((member, target, value, metadata) =>
+                                        {
+                                            var viewManager = MugenService.ViewManager;
+                                            if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
+                                                            .TrySetItemsSource(viewManager, target, value, metadata))
+                                                ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                        })
+                                        .Build();
+            attachedMemberProvider.Register(itemsSourceRaw);
+            if (itemsSourceRawAlias != null)
+                attachedMemberProvider.Register(itemsSourceRaw, itemsSourceRawAlias);
+        }
+
         public static void RegisterCollectionAttachedMembers(AttachedMemberProvider attachedMemberProvider)
         {
+            Should.NotBeNull(attachedMemberProvider, nameof(attachedMemberProvider));
             attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(nameof(IReadOnlyObservableCollection.Count) + BindingInternalConstant.ChangedEventPostfix)
+                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(nameof(IReadOnlyObservableCollection.Count) +
+                                                                                                   BindingInternalConstant.ChangedEventPostfix)
                                             .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
                                             .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(BindingInternalConstant.IndexerGetterName + BindingInternalConstant.ChangedEventPostfix)
+                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(BindingInternalConstant.IndexerGetterName +
+                                                                                                   BindingInternalConstant.ChangedEventPostfix)
                                             .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
                                             .Build());
             attachedMemberProvider.Register(AttachedMemberBuilder
@@ -204,12 +256,14 @@ namespace MugenMvvm.Bindings.Extensions
             attachedMemberProvider.Register(AttachedMemberBuilder
                                             .Method<IReadOnlyObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
                                             .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
-                                            .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int) args[0]!])
+                                            .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int)args[0]!])
                                             .Build());
         }
 
         public static void RegisterValidationAttachedMembers(IMemberManager memberManager, AttachedMemberProvider attachedMemberProvider)
         {
+            Should.NotBeNull(memberManager, nameof(memberManager));
+            Should.NotBeNull(attachedMemberProvider, nameof(attachedMemberProvider));
             var errorsChangedEvent =
                 memberManager.TryGetMember(typeof(INotifyDataErrorInfo), MemberType.Event, MemberFlags.InstancePublic, nameof(INotifyDataErrorInfo.ErrorsChanged));
             if (errorsChangedEvent != null)
@@ -227,8 +281,8 @@ namespace MugenMvvm.Bindings.Extensions
                                                   target.GetService(false)!.AddComponent(component);
                                                   return ActionToken.FromDelegate((t, c) =>
                                                   {
-                                                      var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
-                                                      hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>) c!);
+                                                      var hasService = (IHasService<IValidator>?)((IWeakReference)t!).Target;
+                                                      hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>)c!);
                                                   }, target.ToWeakReference(), component);
                                               })
                                               .Build();
@@ -342,7 +396,7 @@ namespace MugenMvvm.Bindings.Extensions
             public EventListenerCollection Listeners { get; }
 
             public static BindingCollectionAdapter GetOrAdd(IComponentOwner<IReadOnlyObservableCollection> collection)
-                => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter {Collection = (IEnumerable) owner});
+                => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter { Collection = (IEnumerable)owner });
 
             protected override bool IsChangeEventSupported(object? item, object? args) => false;
 

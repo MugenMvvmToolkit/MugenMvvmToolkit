@@ -66,9 +66,9 @@ public final class ViewPagerMugenExtensions {
                 ((IMugenAdapter) adapter).detach();
             viewPager.setAdapter(null);
         } else if (hasFragments)
-            viewPager.setAdapter(new MugenFragmentPagerAdapter(provider, (FragmentManager) FragmentMugenExtensions.getFragmentManager(view)));
+            viewPager.setAdapter(new MugenFragmentPagerAdapter(viewPager, provider, (FragmentManager) FragmentMugenExtensions.getFragmentManager(view)));
         else
-            viewPager.setAdapter(new MugenPagerAdapter(provider));
+            viewPager.setAdapter(new MugenPagerAdapter(viewPager, provider));
     }
 
     public static void onDestroy(@NonNull View view) {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Extensions;
@@ -38,12 +39,18 @@ namespace MugenMvvm.Bindings.Members
         public static BindablePropertyDescriptor<T, object?> DataContext<T>(this BindableMembersDescriptor<T> _) where T : class => nameof(DataContext);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BindablePropertyDescriptor<T, IEnumerable?> ItemsSourceRaw<T>(this BindableMembersDescriptor<T> _) where T : class => nameof(ItemsSourceRaw);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BindablePropertyDescriptor<T, IEnumerable?> ItemsSource<T>(this BindableMembersDescriptor<T> _) where T : class => nameof(ItemsSource);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, object, object?> ElementSourceMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
             _elementSourceMethod ??= new MemberTypesRequest(nameof(ElementSource), typeof(object));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, string, int, object?> RelativeSourceMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
-            _relativeSourceMethod ??= new MemberTypesRequest(nameof(RelativeSource), new[] {typeof(string), typeof(int)});
+            _relativeSourceMethod ??= new MemberTypesRequest(nameof(RelativeSource), new[] { typeof(string), typeof(int) });
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMethodDescriptor<T, object?, bool> HasErrorsMethod<T>(this BindableMembersDescriptor<T> _) where T : class =>
@@ -84,6 +91,20 @@ namespace MugenMvvm.Bindings.Members
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetDataContext<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class =>
             DataContext<T>(_: default).SetValue(descriptor.Target, value);
+
+        [BindingMember(nameof(ItemsSource))]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable? ItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class =>
+            ItemsSource<T>(_: default).GetValue(descriptor.Target);
+
+        [BindingMember(nameof(ItemsSourceRaw))]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEnumerable? ItemsSourceRaw<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class =>
+            ItemsSourceRaw<T>(_: default).GetValue(descriptor.Target);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void SetItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor, IEnumerable? value) where T : class =>
+            ItemsSourceRaw<T>(_: default).SetValue(descriptor.Target, value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? ElementSource<T>(this BindableMembersTargetDescriptor<T> descriptor, object name) where T : class =>

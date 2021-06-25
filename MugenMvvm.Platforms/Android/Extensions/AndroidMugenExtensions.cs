@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Android.Views;
 using Android.Widget;
 using MugenMvvm.Android.Bindings;
-using MugenMvvm.Android.Collections;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Interfaces;
@@ -79,6 +80,7 @@ namespace MugenMvvm.Android.Extensions
                          .WithComponent(new ViewLifecycleMapper())
                          .WithComponent(new ActivityViewRequestManager())
                          .WithComponent(new ResourceViewMappingDecorator())
+                         .WithComponent(new ViewCollectionManager())
                          .Service
                          .GetOrAddComponent<ViewLifecycleTracker>()
                          .Trackers.Add(TrackViewState);
@@ -119,21 +121,9 @@ namespace MugenMvvm.Android.Extensions
         public static MugenApplicationConfiguration AndroidAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
             var attachedMemberProvider = configuration.GetService<IMemberManager>().GetAttachedMemberProvider();
+
             //object
-            attachedMemberProvider.Register(BindableMembers.For<Object>()
-                                                           .CollectionViewManager()
-                                                           .GetBuilder()
-                                                           .DefaultValue(new CollectionViewManager())
-                                                           .NonObservable()
-                                                           .Build());
-            attachedMemberProvider.Register(BindableMembers.For<View>()
-                                                           .ItemsSource()
-                                                           .Override<Object>()
-                                                           .GetBuilder()
-                                                           .CustomGetter((_, target, _) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
-                                                           .CustomSetter((_, target, value, _) =>
-                                                               target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
-                                                           .Build());
+            BindingMugenExtensions.RegisterViewCollectionManagerMembers<Object>(attachedMemberProvider);
 
             //activity
             attachedMemberProvider.Register(BindableMembers.For<object>()
@@ -384,9 +374,40 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .SelectedItem()
                                                            .GetBuilder()
-                                                           .CustomGetter((_, target, _) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                                                           .CustomSetter((_, target, value, _) =>
-                                                               target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
+                                                           .CustomGetter((m, target, _) =>
+                                                           {
+                                                               var selectedIndex = NativeBindableMemberMugenExtensions.GetSelectedIndex(target);
+                                                               if (selectedIndex == BindableMemberConstant.SelectedIndexNotSupported)
+                                                                   ExceptionManager.ThrowInvalidBindingMember(target, m.Name);
+                                                               if (selectedIndex < 0)
+                                                                   return null;
+                                                               var itemsSource = target.BindableMembers().ItemsSource();
+                                                               if (itemsSource == null)
+                                                                   return null;
+
+                                                               if (itemsSource is IReadOnlyList<object> l)
+                                                               {
+                                                                   if (selectedIndex < l.Count)
+                                                                       return l[selectedIndex];
+                                                                   return null;
+                                                               }
+
+                                                               return itemsSource.OfType<object>().ElementAtOrDefault(selectedIndex);
+                                                           })
+                                                           .CustomSetter((m, target, value, _) =>
+                                                           {
+                                                               int index;
+                                                               var itemsSource = target.BindableMembers().ItemsSource();
+                                                               if (itemsSource == null)
+                                                                   index = -1;
+                                                               else if (itemsSource is IList<object?> l)
+                                                                   index = l.IndexOf(value);
+                                                               else
+                                                                   index = IndexOf(itemsSource, value);
+
+                                                               if (!NativeBindableMemberMugenExtensions.SetSelectedIndex(target, index, target.BindableMembers().SmoothScroll()))
+                                                                   ExceptionManager.ThrowInvalidBindingMember(target, m.Name);
+                                                           })
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .SelectedItemChanged()
@@ -539,6 +560,19 @@ namespace MugenMvvm.Android.Extensions
             if (_xdpi == float.MinValue)
                 _xdpi = MugenAndroidUtils.Xdpi;
             return _xdpi;
+        }
+
+        private static int IndexOf(IEnumerable enumerable, object? value)
+        {
+            var index = 0;
+            foreach (var item in enumerable)
+            {
+                if (Equals(item, value))
+                    return index;
+                ++index;
+            }
+
+            return -1;
         }
     }
 }

@@ -1,6 +1,8 @@
 package com.mugen.mvvm.constants;
 
 public final class BindableMemberConstant {
+    public static final int SelectedIndexNotSupported = Integer.MIN_VALUE + 1;
+
     public static final CharSequence Parent = "Parent";
     public static final CharSequence ParentEvent = "ParentChanged";
     public static final CharSequence Click = "Click";

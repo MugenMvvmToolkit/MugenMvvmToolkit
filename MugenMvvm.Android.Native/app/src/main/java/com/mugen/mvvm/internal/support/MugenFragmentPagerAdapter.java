@@ -5,18 +5,23 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import com.mugen.mvvm.constants.BindableMemberConstant;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
+import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 
 public class MugenFragmentPagerAdapter extends FragmentPagerAdapter implements IItemsSourceObserver, IMugenAdapter {
+    protected final ViewPager _viewPager;
     protected final IContentItemsSourceProvider _provider;
     protected final boolean _hasStableIds;
 
-    public MugenFragmentPagerAdapter(@NonNull IContentItemsSourceProvider provider, @NonNull FragmentManager fm) {
+    public MugenFragmentPagerAdapter(@NonNull ViewPager viewPager, @NonNull IContentItemsSourceProvider provider, @NonNull FragmentManager fm) {
         super(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
+        _viewPager = viewPager;
         _provider = provider;
         _hasStableIds = provider.hasStableId();
         provider.addObserver(this);
@@ -98,5 +103,7 @@ public class MugenFragmentPagerAdapter extends FragmentPagerAdapter implements I
     @Override
     public void onReset() {
         notifyDataSetChanged();
+        BindableMemberMugenExtensions.onMemberChanged(_viewPager, BindableMemberConstant.SelectedIndex, null);
+        BindableMemberMugenExtensions.onMemberChanged(_viewPager, BindableMemberConstant.SelectedIndexEvent, null);
     }
 }

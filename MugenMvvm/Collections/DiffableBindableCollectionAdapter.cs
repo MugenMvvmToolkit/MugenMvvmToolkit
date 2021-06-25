@@ -39,10 +39,6 @@ namespace MugenMvvm.Collections
             set => _diffUtilMaxLimit = value;
         }
 
-        public int GetOldListSize() => Items.Count;
-
-        public int GetNewListSize() => _resetItems!.Count;
-
         protected virtual void OnClear(bool batchUpdate, int version) => Items.Clear();
 
         protected virtual bool AreItemsTheSame(int oldItemPosition, int newItemPosition)
@@ -101,7 +97,7 @@ namespace MugenMvvm.Collections
                 return;
             }
 
-            if (Items.Count > DiffUtilMaxLimit)
+            if (Items.Count == 0 || Items.Count > DiffUtilMaxLimit)
             {
                 Reload(items, batchUpdate, version);
                 ResetCache?.Clear();
@@ -152,6 +148,20 @@ namespace MugenMvvm.Collections
                 if (Version == version)
                     throw;
             }
+        }
+
+        int DiffUtil.ICallback.GetOldListSize()
+        {
+            if (_resetVersion != Version)
+                return 0;
+            return Items.Count;
+        }
+
+        int DiffUtil.ICallback.GetNewListSize()
+        {
+            if (_resetVersion != Version)
+                return 0;
+            return _resetItems!.Count;
         }
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)

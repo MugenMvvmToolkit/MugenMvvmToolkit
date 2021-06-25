@@ -121,7 +121,7 @@ namespace MugenMvvm.Ios.Collections
         {
             BeginBatchUpdate(version);
             var closure = Closure.GetClosure(this, version);
-            if (items == null || !_isInitialized || Items.Count > DiffUtilMaxLimit)
+            if (items == null || !_isInitialized || Items.Count == 0 || Items.Count > DiffUtilMaxLimit)
             {
                 _isInitialized = true;
                 Reload(closure, items, batchUpdate, version);
@@ -213,9 +213,19 @@ namespace MugenMvvm.Ios.Collections
             CollectionViewAdapter.ReloadData(closure.EndBatchUpdate);
         }
 
-        int DiffUtil.ICallback.GetOldListSize() => Items.Count;
+        int DiffUtil.ICallback.GetOldListSize()
+        {
+            if (_closure == null || _closure.Version != Version)
+                return 0;
+            return Items.Count;
+        }
 
-        int DiffUtil.ICallback.GetNewListSize() => _resetItems!.Count;
+        int DiffUtil.ICallback.GetNewListSize()
+        {
+            if (_closure == null || _closure.Version != Version)
+                return 0;
+            return _resetItems!.Count;
+        }
 
         bool DiffUtil.ICallback.AreItemsTheSame(int oldItemPosition, int newItemPosition)
         {

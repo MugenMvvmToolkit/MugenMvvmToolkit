@@ -48,7 +48,6 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Compile Include="Android\**\*.cs" />
     <Compile Include="Common\IContentTemplateSelector.cs" />
-    <Compile Include="Common\ICollectionViewManager.cs" />
     <LibraryProjectZip Include="Android\Jars\mugenmvvm-core.aar" />
     <TransformFile Include="Android\Transforms\Metadata.xml" />
     <TransformFile Include="Android\Transforms\EnumFields.xml" />
@@ -58,7 +57,6 @@
   <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
     <Compile Include="Ios\**\*.cs" />
     <Compile Include="Common\IContentTemplateSelector.cs" />
-    <Compile Include="Common\ICollectionViewManager.cs" />
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('net4')) or $(TargetFramework.StartsWith('net5.0-windows')) ">

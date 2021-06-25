@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -83,6 +84,50 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(view, nameof(view));
             return components.InvokeAllAsync((viewManager, view, state), cancellationToken, metadata,
                 (component, s, c, m) => component.TryCleanupAsync(s.viewManager, s.view, s.state, c, m));
+        }
+
+        public static bool TryGetItemsSource(this ItemOrArray<IViewCollectionManagerComponent> components, IViewManager viewManager, object view,
+            IReadOnlyMetadataContext? metadata, out IEnumerable? itemsSource)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(view, nameof(view));
+            foreach (var component in components)
+            {
+                if (component.TryGetItemsSource(viewManager, view, metadata, out itemsSource))
+                    return true;
+            }
+
+            itemsSource = null;
+            return false;
+        }
+
+        public static bool TryGetItemsSourceRaw(this ItemOrArray<IViewCollectionManagerComponent> components, IViewManager viewManager, object view,
+            IReadOnlyMetadataContext? metadata, out IEnumerable? itemsSource)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(view, nameof(view));
+            foreach (var component in components)
+            {
+                if (component.TryGetItemsSourceRaw(viewManager, view, metadata, out itemsSource))
+                    return true;
+            }
+
+            itemsSource = null;
+            return false;
+        }
+
+        public static bool TrySetItemsSource(this ItemOrArray<IViewCollectionManagerComponent> components, IViewManager viewManager, object view, IEnumerable? value,
+            IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(view, nameof(view));
+            foreach (var component in components)
+            {
+                if (component.TrySetItemsSource(viewManager, view, value, metadata))
+                    return true;
+            }
+
+            return false;
         }
     }
 }

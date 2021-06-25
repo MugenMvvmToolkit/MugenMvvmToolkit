@@ -18,7 +18,6 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Ios.App;
 using MugenMvvm.Ios.Bindings;
-using MugenMvvm.Ios.Collections;
 using MugenMvvm.Ios.Constants;
 using MugenMvvm.Ios.Internal;
 using MugenMvvm.Ios.Navigation;
@@ -56,7 +55,8 @@ namespace MugenMvvm.Ios.Extensions
 
             configuration
                 .ServiceConfiguration<IViewManager>()
-                .WithComponent(new ViewLifecycleDispatcher());
+                .WithComponent(new ViewLifecycleDispatcher())
+                .WithComponent(new ViewCollectionManager());
 
             configuration
                 .ServiceConfiguration<IPresenter>()
@@ -80,29 +80,7 @@ namespace MugenMvvm.Ios.Extensions
             var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
 
             //NSObject
-            attachedMemberProvider.Register(BindableMembers
-                                            .For<NSObject>()
-                                            .CollectionViewManager()
-                                            .GetBuilder()
-                                            .DefaultValue((info, view) => new CollectionViewManager())
-                                            .NonObservable()
-                                            .Build());
-            attachedMemberProvider.Register(BindableMembers.For<UIView>()
-                                                           .ItemsSource()
-                                                           .Override<NSObject>()
-                                                           .GetBuilder()
-                                                           .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetItemsSource(target))
-                                                           .CustomSetter((member, target, value, metadata) =>
-                                                               target.BindableMembers().CollectionViewManager()?.SetItemsSource(target, value))
-                                                           .Build());
-            attachedMemberProvider.Register(BindableMembers.For<UIView>()
-                                                           .SelectedItem()
-                                                           .Override<NSObject>()
-                                                           .GetBuilder()
-                                                           .CustomGetter((member, target, metadata) => target.BindableMembers().CollectionViewManager()?.GetSelectedItem(target))
-                                                           .CustomSetter((member, target, value, metadata) =>
-                                                               target.BindableMembers().CollectionViewManager()?.SetSelectedItem(target, value))
-                                                           .Build());
+            BindingMugenExtensions.RegisterViewCollectionManagerMembers<NSObject>(attachedMemberProvider);
 
             //UIViewController
             attachedMemberProvider.Register(BindableMembers

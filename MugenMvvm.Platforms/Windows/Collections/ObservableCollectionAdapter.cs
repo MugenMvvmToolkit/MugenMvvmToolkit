@@ -3,57 +3,48 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
+using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 #if AVALONIA
 using Avalonia.Controls;
+using MugenMvvm.Avalonia.Bindings;
 
 namespace MugenMvvm.Avalonia.Collections
 #else
 using System.Windows.Controls;
+using MugenMvvm.Windows.Bindings;
 
 namespace MugenMvvm.Windows.Collections
 #endif
 {
-    public sealed class ObservableCollectionAdapter : ObservableCollection<object?>, ISuspendable
+    public sealed class ObservableCollectionAdapter : ObservableCollection<object?>, ISuspendable, IEventListener
     {
         private bool _isNotificationsDirty;
         private int _suspendCount;
 
-        public ObservableCollectionAdapter()
+        public ObservableCollectionAdapter(ItemsControl control)
         {
-            Adapter = new DiffableBindableCollectionAdapter(this);
+            Should.NotBeNull(control, nameof(control));
+            Adapter = new DiffableBindableCollectionAdapter(this)
+            {
+                DiffableComparer = control.BindableMembers().DiffableEqualityComparer()
+            };
+            BindableMembers.For<ItemsControl>().DiffableEqualityComparer().TryObserve(control, this);
+#if AVALONIA
+            control.Items = this;
+#else
+            control.ItemsSource = this;
+#endif
         }
 
         public DiffableBindableCollectionAdapter Adapter { get; }
 
         public bool IsSuspended => _suspendCount != 0;
-
-#if AVALONIA
-        public static ObservableCollectionAdapter GetOrAdd(ItemsControl target)
-        {
-            if (target.Items is not ObservableCollectionAdapter c)
-            {
-                c = new ObservableCollectionAdapter();
-                target.Items = c;
-            }
-
-            return c;
-        }
-#else
-        public static ObservableCollectionAdapter GetOrAdd(ItemsControl target)
-        {
-            if (target.ItemsSource is not ObservableCollectionAdapter c)
-            {
-                c = new ObservableCollectionAdapter();
-                target.ItemsSource = c;
-            }
-
-            return c;
-        }
-#endif
 
         public static IEnumerable? GetItemsSource(IEnumerable? itemSource)
         {
@@ -91,6 +82,17 @@ namespace MugenMvvm.Windows.Collections
                 OnPropertyChanged(Default.IndexerPropertyChangedArgs);
                 OnCollectionChanged(Default.ResetCollectionEventArgs);
             }
+        }
+
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        {
+            if (sender is ItemsControl itemCollection)
+            {
+                Adapter.DiffableComparer = itemCollection.BindableMembers().DiffableEqualityComparer();
+                return true;
+            }
+
+            return false;
         }
     }
 }

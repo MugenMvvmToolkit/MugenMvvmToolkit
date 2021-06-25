@@ -22,17 +22,11 @@ namespace MugenMvvm.Android.Collections
 
         public object Owner { get; }
 
-        public ItemsSourceBindableCollectionAdapter CollectionAdapter { get; }
-
         public TSelector ItemTemplateSelector { get; }
 
         public IStableIdProvider? StableIdProvider { get; }
 
-        public virtual IEnumerable? ItemsSource
-        {
-            get => CollectionAdapter.Collection;
-            set => CollectionAdapter.Collection = value;
-        }
+        public ItemsSourceBindableCollectionAdapter CollectionAdapter { get; }
 
         public virtual int Count => CollectionAdapter.Count;
 

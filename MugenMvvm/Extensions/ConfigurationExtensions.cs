@@ -66,7 +66,7 @@ namespace MugenMvvm.Extensions
             if (serviceProvider == null)
             {
                 if (!configuration.HasService<IServiceProvider>())
-                    configuration.InitializeService(new MugenServiceProvider());
+                    configuration.InitializeService<IServiceProvider>(new MugenServiceProvider());
             }
             else
                 configuration.InitializeService(serviceProvider);

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Windows;
 using System.Windows.Controls;
 using MugenMvvm.App.Configuration;
@@ -15,10 +14,11 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Windows.Bindings;
-using MugenMvvm.Windows.Collections;
 using MugenMvvm.Windows.Internal;
 using MugenMvvm.Windows.Presentation;
+using MugenMvvm.Windows.Views;
 
 namespace MugenMvvm.Windows.Extensions
 {
@@ -34,6 +34,9 @@ namespace MugenMvvm.Windows.Extensions
 
             configuration.ServiceConfiguration<IBindingManager>()
                          .WithComponent(new BindingExtensionExpressionParser());
+
+            configuration.ServiceConfiguration<IViewManager>()
+                         .WithComponent(new ItemsControlCollectionManager());
 
             if (listenAppLifecycle)
             {
@@ -82,9 +85,6 @@ namespace MugenMvvm.Windows.Extensions
             attachedMemberProvider.Register(BindableMembers.For<ItemsControl>()
                                                            .DiffableEqualityComparer()
                                                            .GetBuilder()
-                                                           .NonObservable()
-                                                           .PropertyChangedHandler((_, target, _, newValue, _) =>
-                                                               ObservableCollectionAdapter.GetOrAdd(target).Adapter.DiffableComparer = newValue)
                                                            .Build());
 
             attachedMemberProvider.Register(BindableMembers.For<FrameworkElement>()
@@ -104,14 +104,8 @@ namespace MugenMvvm.Windows.Extensions
                                                                nameof(FrameworkElement.Loaded)) as IObservableMemberInfo)
                                                            .Build());
 
-            attachedMemberProvider.Register(AttachedMemberBuilder.Property<ItemsControl, IEnumerable?>(nameof(ItemsControl.ItemsSource))
-                                                                 .CustomGetter((_, target, _) => ObservableCollectionAdapter.GetItemsSource(target.ItemsSource))
-                                                                 .CustomSetter((member, target, value, metadata) =>
-                                                                 {
-                                                                     if (!ReferenceEquals(member.GetValue(target, metadata), value))
-                                                                         ObservableCollectionAdapter.GetOrAdd(target).Adapter.Collection = value;
-                                                                 })
-                                                                 .Build());
+            BindingMugenExtensions.RegisterViewCollectionManagerMembers<ItemsControl>(attachedMemberProvider);
+
             return configuration;
         }
 

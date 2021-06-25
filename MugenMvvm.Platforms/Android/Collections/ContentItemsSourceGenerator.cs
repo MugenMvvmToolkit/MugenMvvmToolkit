@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using Android.Views;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
+using MugenMvvm.Android.Native.Constants;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members;
@@ -87,6 +89,16 @@ namespace MugenMvvm.Android.Collections
         {
             base.OnClear(batchUpdate, version);
             NativeBindableMemberMugenExtensions.Clear(View);
+        }
+
+        protected override void Reload(IEnumerable<object?> items, bool batchUpdate, int version)
+        {
+            base.Reload(items, batchUpdate, version);
+            if (IsAlive)
+            {
+                NativeBindableMemberMugenExtensions.OnMemberChanged(View, BindableMemberConstant.SelectedIndex!, null);
+                NativeBindableMemberMugenExtensions.OnMemberChanged(View, BindableMemberConstant.SelectedIndexEvent!, null);
+            }
         }
 
         private Object? GetItem(object? item)

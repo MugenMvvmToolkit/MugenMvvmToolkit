@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using Android.Views;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
@@ -14,17 +13,10 @@ namespace MugenMvvm.Android.Bindings
     public static class ViewBindableMembers
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindablePropertyDescriptor<T, ICollectionViewManager?> CollectionViewManager<T>(this BindableMembersDescriptor<T> _) where T : Object =>
-            nameof(CollectionViewManager);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindablePropertyDescriptor<T, IStableIdProvider?> StableIdProvider<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(StableIdProvider);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindablePropertyDescriptor<T, object?> ItemTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(ItemTemplateSelector);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static BindablePropertyDescriptor<T, IEnumerable?> ItemsSource<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(ItemsSource);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindablePropertyDescriptor<T, IMenuTemplate?> MenuTemplate<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(MenuTemplate);
@@ -74,15 +66,6 @@ namespace MugenMvvm.Android.Bindings
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableEventDescriptor<T> ActionBarHomeButtonClick<T>(this BindableMembersDescriptor<T> _) where T : Object => ViewMemberChangedListener.HomeButtonClick;
 
-        [BindingMember(nameof(CollectionViewManager))]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ICollectionViewManager? CollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : Object =>
-            CollectionViewManager<T>(_: default).GetValue(descriptor.Target);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetCollectionViewManager<T>(this BindableMembersTargetDescriptor<T> descriptor, ICollectionViewManager? value) where T : Object =>
-            CollectionViewManager<T>(_: default).SetValue(descriptor.Target, value);
-
         [BindingMember(nameof(StableIdProvider))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IStableIdProvider? StableIdProvider<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View =>
@@ -100,15 +83,6 @@ namespace MugenMvvm.Android.Bindings
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : View =>
             ItemTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);
-
-        [BindingMember(nameof(ItemsSource))]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static IEnumerable? ItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View =>
-            ItemsSource<T>(_: default).GetValue(descriptor.Target);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void SetItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor, IEnumerable? value) where T : View =>
-            ItemsSource<T>(_: default).SetValue(descriptor.Target, value);
 
         [BindingMember(nameof(MenuTemplate))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
