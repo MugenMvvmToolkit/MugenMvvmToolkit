@@ -96,6 +96,6 @@ namespace MugenMvvm.UnitTests.Collections
         }
 
         protected override BindableCollectionAdapter GetCollection(IThreadDispatcher threadDispatcher, IList<object?>? source = null) =>
-            new DiffableBindableCollectionAdapter(source, threadDispatcher);
+            new DiffableBindableCollectionAdapter(source, threadDispatcher) { BatchDelay = 0 };
     }
 }

@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -16,6 +17,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -30,11 +32,14 @@ namespace MugenMvvm.Collections
         private readonly List<CollectionChangedEvent> _pendingEvents;
         private readonly IThreadDispatcher? _threadDispatcher;
 
+        private Timer? _timer;
+        private int _timerVersion;
         private IEnumerable? _collection;
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
         private int _suspendCount;
         private int? _batchLimit;
+        private int? _batchDelay;
 
         public BindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source ?? new List<object?>())
@@ -71,6 +76,12 @@ namespace MugenMvvm.Collections
         {
             get => _batchLimit.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchLimit);
             set => _batchLimit = value;
+        }
+
+        public int BatchDelay
+        {
+            get => _batchDelay.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchDelay);
+            set => _batchDelay = value;
         }
 
         protected virtual bool IsAlive => true;
@@ -263,6 +274,14 @@ namespace MugenMvvm.Collections
                     --_suspendCount;
                     return;
                 }
+
+                if (BatchDelay != 0)
+                {
+                    _timerVersion = version;
+                    _timer ??= WeakTimer.Get(this, adapter => adapter.EndBatchUpdateTimer(), Listener?.Reference);
+                    _timer.Change(BatchDelay, Timeout.Infinite);
+                    return;
+                }
             }
 
             ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
@@ -299,6 +318,22 @@ namespace MugenMvvm.Collections
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     break;
             }
+        }
+
+        private void EndBatchUpdateTimer()
+        {
+            if (Version != _timerVersion)
+                return;
+
+            int version;
+            lock (_pendingEvents)
+            {
+                version = _timerVersion;
+                if (Version != version)
+                    return;
+            }
+
+            ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
         }
 
         private async void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue)
@@ -532,12 +567,12 @@ namespace MugenMvvm.Collections
 
         protected class WeakListener : ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
         {
-            private readonly IWeakReference _reference;
+            internal readonly IWeakReference Reference;
             private readonly int _version;
 
             public WeakListener(BindableCollectionAdapter adapter, int version, WeakListener? oldListener)
             {
-                _reference = oldListener?._reference ?? adapter.ToWeakReference();
+                Reference = oldListener?.Reference ?? adapter.ToWeakReference();
                 _version = version;
             }
 
@@ -586,7 +621,7 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected BindableCollectionAdapter? GetAdapter(object? owner)
             {
-                var adapter = (BindableCollectionAdapter?)_reference.Target;
+                var adapter = (BindableCollectionAdapter?)Reference.Target;
                 if (adapter != null && adapter.IsAlive)
                     return adapter;
 

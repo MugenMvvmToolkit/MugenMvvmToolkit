@@ -13,8 +13,8 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendableComponent<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IAttachableComponent, IDetachableComponent,
-        IHasPriority where T : class?
+    public abstract class ItemObserverCollectionListenerBase<T> : ISuspendableComponent<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>,
+        IAttachableComponent, IDetachableComponent, IDisposable, IHasPriority where T : class?
     {
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
@@ -56,6 +56,8 @@ namespace MugenMvvm.Collections.Components
                 _observers.Clear();
             }
         }
+
+        public void Dispose() => ClearObservers();
 
         protected virtual void OnChanged(T? item, string? member)
         {
@@ -237,7 +239,7 @@ namespace MugenMvvm.Collections.Components
             OnDetached(owner, metadata);
         }
 
-        void IDisposableComponent<IReadOnlyObservableCollection>.Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => ClearObservers();
+        void IDisposableComponent<IReadOnlyObservableCollection>.Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => Dispose();
 
         bool ISuspendableComponent<IReadOnlyObservableCollection>.IsSuspended(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
 
@@ -292,7 +294,7 @@ namespace MugenMvvm.Collections.Components
                 _canInvoke = canInvoke;
                 _delay = delay;
                 if (delay != 0)
-                    _timer = new Timer(o => ((Observer<TState>)o!).Raise(), this, Timeout.Infinite, Timeout.Infinite);
+                    _timer = WeakTimer.Get(this, observer => observer.Raise(), null);
             }
 
             public override void OnChanged(T? item, string? member)

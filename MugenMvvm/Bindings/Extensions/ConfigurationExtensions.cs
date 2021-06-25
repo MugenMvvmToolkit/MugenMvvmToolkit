@@ -336,6 +336,7 @@ namespace MugenMvvm.Bindings.Extensions
             private BindingCollectionAdapter()
             {
                 Listeners = new EventListenerCollection();
+                BatchDelay = 0;
             }
 
             public EventListenerCollection Listeners { get; }

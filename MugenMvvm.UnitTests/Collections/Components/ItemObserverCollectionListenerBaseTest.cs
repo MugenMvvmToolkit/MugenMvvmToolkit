@@ -10,6 +10,7 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
+    [Collection(SharedContext)]
     public abstract class ItemObserverCollectionListenerBaseTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<TestNotifyPropertyChangedModel> _collection;
@@ -35,6 +36,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _currentItem.ShouldEqual(item);
                 ++_itemChangedCount;
             });
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]

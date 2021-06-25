@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -123,6 +124,34 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.ShouldBeEmpty();
             observableCollection.Add(1);
             collectionAdapter.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public async Task ShouldTrackChangesBatchDelay()
+        {
+            const int delay = 50;
+            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var adapterCollection = new ObservableCollection<object?>();
+            var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
+            collectionAdapter.BatchDelay = delay;
+            var tracker = new ObservableCollectionTracker<object?>();
+            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
+            collectionAdapter.Collection = observableCollection;
+
+            observableCollection.Add(1);
+            observableCollection.Insert(1, 2);
+            observableCollection.Remove(2);
+            observableCollection.RemoveAt(0);
+            observableCollection.Reset(new object?[] { 1, 2, 3, 4, 5 });
+            observableCollection[0] = 200;
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.Count.ShouldEqual(0);
+            collectionAdapter.Count.ShouldEqual(0);
+
+            await Task.Delay(delay * 2);
+
+            tracker.ChangedItems.ShouldEqual(observableCollection);
+            collectionAdapter.ShouldEqual(observableCollection);
         }
 
         [Fact]
@@ -326,7 +355,8 @@ namespace MugenMvvm.UnitTests.Collections
             return threadDispatcher;
         }
 
-        protected virtual BindableCollectionAdapter GetCollection(IThreadDispatcher threadDispatcher, IList<object?>? source = null) => new(source, threadDispatcher);
+        protected virtual BindableCollectionAdapter GetCollection(IThreadDispatcher threadDispatcher, IList<object?>? source = null) =>
+            new(source, threadDispatcher) { BatchDelay = 0 };
 
         private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
         {

@@ -18,6 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public DelayBindingHandlerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             RegisterDisposeToken(WithGlobalService(ThreadDispatcher));
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
