@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -194,21 +195,129 @@ namespace MugenMvvm.Extensions
             return 0;
         }
 
-        public static async ValueTask<bool> InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
-            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> invoke)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T InvokeSequentially<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            IReadOnlyMetadataContext? metadata, Func<TComponent, TState, IReadOnlyMetadataContext?, T> invoke)
+            where TComponent : class, IComponent
+            where T : class?
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            foreach (var c in components)
+            {
+                var result = invoke(c, state, metadata);
+                if (result != null)
+                    return result;
+            }
+
+            return default!;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T InvokeSequentially<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            IReadOnlyMetadataContext? metadata, Func<TComponent, TState, IReadOnlyMetadataContext?, T> invoke, Func<T, bool> isValid)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            foreach (var c in components)
+            {
+                var result = invoke(c, state, metadata);
+                if (isValid(result))
+                    return result;
+            }
+
+            return default!;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool InvokeSequentially<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke, bool invert = false)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            foreach (var c in components)
+            {
+                var b = invoke(c, state, metadata);
+                if (invert)
+                {
+                    if (!b)
+                        return false;
+                }
+                else if (b)
+                    return true;
+            }
+
+            return invert;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool InvokeAll<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(invoke, nameof(invoke));
             var result = false;
             foreach (var c in components)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false))
+                if (invoke(c, state, metadata))
                     result = true;
-                cancellationToken.ThrowIfCancellationRequested();
             }
 
             return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrIReadOnlyList<T> InvokeAll<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<T>> invoke)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return invoke(components[0], state, metadata);
+
+            var editor = new ItemOrListEditor<T>();
+            foreach (var c in components)
+                editor.AddRange(invoke(c, state, metadata));
+
+            return editor.ToItemOrList();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EnumFlags<T> InvokeAll<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, IReadOnlyMetadataContext?, EnumFlags<T>> invoke)
+            where TComponent : class, IComponent
+            where T : class, IFlagsEnum
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            EnumFlags<T> result = default;
+            foreach (var c in components)
+                result |= invoke(c, state, metadata);
+            return result;
+        }
+
+        public static ValueTask<T> InvokeSequentiallyAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<T>> invoke)
+            where TComponent : class, IComponent
+            where T : class? =>
+            components.InvokeSequentiallyAsync(state, cancellationToken, metadata, invoke, arg => arg != null);
+
+        public static async ValueTask<T> InvokeSequentiallyAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<T>> invoke,
+            Func<T, bool> isValid)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var result = await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (isValid(result))
+                    return result;
+            }
+
+            return default!;
         }
 
         public static async ValueTask<bool> InvokeSequentiallyAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
@@ -233,9 +342,78 @@ namespace MugenMvvm.Extensions
             return invert;
         }
 
+        public static async Task InvokeSequentiallyAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> invoke)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+            }
+        }
+
+        public static async ValueTask<bool> InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> invoke)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            var result = false;
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false))
+                    result = true;
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            return result;
+        }
+
+        public static async ValueTask<ItemOrIReadOnlyList<T>> InvokeAllAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return await invoke(components[0], state, cancellationToken, metadata).ConfigureAwait(false);
+
+            var editor = new ItemOrListEditor<T>();
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var result = await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                editor.AddRange(result);
+            }
+
+            return editor.ToItemOrList();
+        }
+
+        public static async ValueTask<EnumFlags<T>> InvokeAllAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<EnumFlags<T>>> invoke)
+            where TComponent : class, IComponent
+            where T : class, IFlagsEnum
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            EnumFlags<T> result = default;
+            foreach (var c in components)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                result |= await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            return result;
+        }
+
         public static Task InvokeAllAsync<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata,
-            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> invoke)
+            IReadOnlyMetadataContext? metadata, Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, Task> invoke)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(invoke, nameof(invoke));
