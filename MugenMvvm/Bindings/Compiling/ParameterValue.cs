@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Bindings.Compiling
@@ -16,6 +17,7 @@ namespace MugenMvvm.Bindings.Compiling
             Value = value;
         }
 
+        [MemberNotNullWhen(false, nameof(Type))]
         public bool IsEmpty => Type == null;
     }
 }

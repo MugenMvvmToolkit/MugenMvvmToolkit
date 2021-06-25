@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
@@ -20,6 +21,7 @@ namespace MugenMvvm.Bindings.Core
             _compiledExpression = compiledExpression;
         }
 
+        [MemberNotNullWhen(false, nameof(_value), nameof(_compiledExpression))]
         public bool IsEmpty => _value == null && _compiledExpression == null;
 
         public BindingParameterValue ToBindingParameter(object target, object? source, IReadOnlyMetadataContext? metadata) =>

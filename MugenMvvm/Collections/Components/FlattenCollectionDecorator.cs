@@ -304,6 +304,7 @@ namespace MugenMvvm.Collections.Components
                 DecoratorListener = decoratorListener;
             }
 
+            [MemberNotNullWhen(false, nameof(Items))]
             internal bool IsEmpty => Items == null;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

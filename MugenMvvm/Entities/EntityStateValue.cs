@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Entities
 {
@@ -17,6 +18,7 @@ namespace MugenMvvm.Entities
             NewValue = newValue;
         }
 
+        [MemberNotNullWhen(false, nameof(Member))]
         public bool IsEmpty => Member == null;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
@@ -80,6 +81,7 @@ namespace MugenMvvm.Internal
                 _expression = expression;
             }
 
+            [MemberNotNullWhen(false, nameof(_expression))]
             public bool IsEmpty => _expression == null;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -90,7 +92,7 @@ namespace MugenMvvm.Internal
                 Should.NotBeNull(expression, nameof(expression));
                 return new SortingInfo((exp, isAsc, x, y) =>
                 {
-                    var func = (Func<T, TValue>) exp;
+                    var func = (Func<T, TValue>)exp;
                     if (isAsc)
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
@@ -100,7 +102,7 @@ namespace MugenMvvm.Internal
             public static SortingInfo Create(Func<T, T, int> compare)
             {
                 Should.NotBeNull(compare, nameof(compare));
-                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>) exp).Invoke(x, y), compare, false);
+                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>)exp).Invoke(x, y), compare, false);
             }
         }
     }

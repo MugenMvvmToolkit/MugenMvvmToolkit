@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
@@ -620,6 +621,7 @@ namespace MugenMvvm.Collections
                 _ignoreFinalPosition = ignoreFinalPosition;
             }
 
+            [MemberNotNullWhen(false, nameof(_callback))]
             public bool IsEmpty => _callback == null;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
@@ -36,6 +37,7 @@ namespace MugenMvvm.Bindings.Parsing
         {
         }
 
+        [MemberNotNullWhen(false, nameof(Target))]
         public bool IsEmpty => Target == null;
 
         public ItemOrIReadOnlyList<IExpressionNode> Parameters

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -34,7 +35,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         private static readonly ConstructorInfo ItemOrArrayInternalConstructor =
             typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic | BindingFlagsEx.InstanceNonPublic,
-                new[] {typeof(object), typeof(object[]), typeof(int)});
+                new[] { typeof(object), typeof(object[]), typeof(int) });
 
         private static readonly MethodInfo InvokeMethod = typeof(IMethodMemberInfo).GetMethodOrThrow(nameof(IMethodMemberInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
@@ -616,9 +617,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     return false;
 
                 if (typesX == null)
-                    return Equals(typesY!, (object?[]) Args);
+                    return Equals(typesY!, (object?[])Args);
                 if (typesY == null)
-                    return Equals(typesX!, (object?[]) other.Args);
+                    return Equals(typesX!, (object?[])other.Args);
                 return InternalEqualityComparer.Equals(typesX, typesY);
             }
 
@@ -638,7 +639,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
                 else
                 {
-                    foreach (var value in (object[]) Args)
+                    foreach (var value in (object[])Args)
                         hashCode.Add(GetValueType(value));
                 }
 
@@ -731,6 +732,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 _args = args;
             }
 
+            [MemberNotNullWhen(false, nameof(Method))]
             public bool IsEmpty => Method == null;
 
             public int ExpectedParameterCount
@@ -743,7 +745,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                         return 1;
                     if (_args is Expression[] expressions)
                         return expressions.Length;
-                    return ((Type[]) _args).Length;
+                    return ((Type[])_args).Length;
                 }
             }
 
@@ -767,7 +769,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
                 if (_args is Expression[] expressions)
                     return expressions[index].Type;
-                return ((Type[]) _args!)[index];
+                return ((Type[])_args!)[index];
             }
 
             public MethodData WithArgs(ItemOrArray<object?> args, ref ItemOrArray<Type> instanceArgs)
@@ -808,7 +810,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             {
             }
 
-            private MethodCallIndexerExpressionBuilder Component => (MethodCallIndexerExpressionBuilder) Comparer;
+            private MethodCallIndexerExpressionBuilder Component => (MethodCallIndexerExpressionBuilder)Comparer;
 
             public object? Invoke(object? target, string methodName, ItemOrArray<object?> args, object? typeArgs, IReadOnlyMetadataContext? metadata)
             {

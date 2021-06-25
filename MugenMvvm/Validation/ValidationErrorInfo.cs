@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Validation
 {
@@ -17,8 +18,10 @@ namespace MugenMvvm.Validation
             Error = error;
         }
 
+        [MemberNotNullWhen(false, nameof(Member))]
         public bool IsEmpty => Member == null;
 
+        [MemberNotNullWhen(true, nameof(Error), nameof(Member))]
         public bool HasError => Error != null;
 
         public override string ToString() => Error?.ToString() ?? "";

@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Messaging
@@ -16,6 +17,7 @@ namespace MugenMvvm.Messaging
             ExecutionMode = executionMode;
         }
 
+        [MemberNotNullWhen(false, nameof(Subscriber), nameof(ExecutionMode))]
         public bool IsEmpty => Subscriber == null;
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -23,6 +24,7 @@ namespace MugenMvvm.Bindings.Observation
             _handler = handler;
         }
 
+        [MemberNotNullWhen(false, nameof(_handler))]
         public bool IsEmpty => _handler == null;
 
         public void Deconstruct(out Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? handler, out object? member)

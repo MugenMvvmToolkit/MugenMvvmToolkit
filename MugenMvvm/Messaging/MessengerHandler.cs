@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
@@ -23,6 +24,7 @@ namespace MugenMvvm.Messaging
             _state = state;
         }
 
+        [MemberNotNullWhen(false, nameof(_handler))]
         public bool IsEmpty => _handler == null;
 
         public void Deconstruct(out object? subscriber, out ThreadExecutionMode? executionMode, out Func<object, IMessageContext, object?, MessengerResult>? handler,

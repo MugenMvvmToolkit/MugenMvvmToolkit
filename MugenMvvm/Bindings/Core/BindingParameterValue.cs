@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Compiling;
@@ -19,17 +20,18 @@ namespace MugenMvvm.Bindings.Core
             Expression = expression;
         }
 
+        [MemberNotNullWhen(false, nameof(Parameter), nameof(Expression))]
         public bool IsEmpty => Parameter == null && Expression == null;
 
         public T? GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
             if (Expression != null)
-                return (T) Expression.Invoke(Parameter, metadata)!;
+                return (T)Expression.Invoke(Parameter, metadata)!;
             if (Parameter is IMemberPathObserver observer)
-                return (T) observer.GetLastMember(metadata).GetValueOrThrow(metadata)!;
+                return (T)observer.GetLastMember(metadata).GetValueOrThrow(metadata)!;
             if (Parameter == null)
                 return default;
-            return (T?) Parameter;
+            return (T?)Parameter;
         }
 
         public void Dispose() => BindingMugenExtensions.DisposeBindingSource(Parameter);

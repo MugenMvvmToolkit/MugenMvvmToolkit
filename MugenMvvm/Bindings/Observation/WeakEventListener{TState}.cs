@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -16,6 +17,7 @@ namespace MugenMvvm.Bindings.Observation
             State = state;
         }
 
+        [MemberNotNullWhen(false, nameof(Target))]
         public bool IsEmpty => Target == null;
 
         public bool IsAlive => WeakEventListener.GetIsAlive(Target);

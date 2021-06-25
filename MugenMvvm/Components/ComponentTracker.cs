@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Collections;
@@ -127,6 +128,7 @@ namespace MugenMvvm.Components
                 _update = update;
             }
 
+            [MemberNotNullWhen(false, nameof(_listener))]
             public bool IsEmpty => _listener == null;
 
             public void OnComponentChanged(object component, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
