@@ -269,13 +269,14 @@ namespace MugenMvvm.Collections
                 if (Version != version)
                     return;
 
-                if (_suspendCount > 1)
+                if (_suspendCount > 1 || _pendingEvents.Count == 0)
                 {
-                    --_suspendCount;
+                    if (_suspendCount != 0)
+                        --_suspendCount;
                     return;
                 }
 
-                if (BatchDelay != 0)
+                if (BatchDelay != 0 && IsResetRequired())
                 {
                     _timerVersion = version;
                     _timer ??= WeakTimer.Get(this, adapter => adapter.EndBatchUpdateTimer(), Listener?.Reference);
@@ -318,6 +319,15 @@ namespace MugenMvvm.Collections
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     break;
             }
+        }
+
+        private bool IsResetRequired()
+        {
+            if (_pendingEvents.Count == 0)
+                return false;
+            if (_pendingEvents[0].Action == CollectionChangedAction.Reset)
+                return true;
+            return _pendingEvents.Count >= BatchLimit;
         }
 
         private void EndBatchUpdateTimer()
