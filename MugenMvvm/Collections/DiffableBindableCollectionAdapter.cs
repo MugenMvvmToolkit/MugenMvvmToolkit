@@ -122,7 +122,7 @@ namespace MugenMvvm.Collections
 
             _resetVersion = version;
             _resetBatchUpdate = batchUpdate;
-            var isAsync = Items.Count > DiffUtilAsyncLimit && _resetItems.Count > DiffUtilAsyncLimit;
+            var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
             if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
             {
                 MugenExtensions.Reset(ref ResetCache, _resetItems);

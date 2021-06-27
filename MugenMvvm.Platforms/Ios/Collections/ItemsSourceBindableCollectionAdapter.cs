@@ -142,7 +142,7 @@ namespace MugenMvvm.Ios.Collections
                 return;
             }
 
-            var isAsync = Items.Count > DiffUtilAsyncLimit && _resetItems.Count > DiffUtilAsyncLimit;
+            var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
             if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
             {
                 MugenExtensions.Reset(ref ResetCache, _resetItems);
@@ -249,9 +249,6 @@ namespace MugenMvvm.Ios.Collections
 
         void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool moved)
         {
-            if (moved)
-                return;
-
             _pendingReloads ??= new List<(int, int)>();
             _pendingReloads.Add((finalPosition, count));
             _pendingReloadCount += count;

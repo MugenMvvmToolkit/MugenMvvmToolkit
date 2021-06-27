@@ -110,7 +110,7 @@ namespace MugenMvvm.Android.Collections
 
                 if (Items.Count + _resetItems.Count <= DiffUtilMaxLimit)
                 {
-                    var isAsync = Items.Count > DiffUtilAsyncLimit && _resetItems.Count > DiffUtilAsyncLimit;
+                    var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
                     if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
                     {
                         MugenExtensions.Reset(ref ResetCache, _resetItems);
