@@ -26,6 +26,6 @@ namespace MugenMvvm.Collections.Components
 
         void ICollectionChangedListener<T>.OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) => OnRemoved(item);
 
-        void ICollectionChangedListener<T>.OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items) => OnReset(null, items);
+        void ICollectionChangedListener<T>.OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items) => OnReset(null, items);
     }
 }

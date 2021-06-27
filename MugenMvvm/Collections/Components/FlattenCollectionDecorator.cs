@@ -278,7 +278,7 @@ namespace MugenMvvm.Collections.Components
                 return;
 
             using var _ = MugenExtensions.TryLock(flattenItemInfo.Items);
-            if (OwnerOptional is ISynchronizable owner && flattenItemInfo.Items is ISynchronizable coll)
+            if (collection is ISynchronizable owner && flattenItemInfo.Items is ISynchronizable coll)
             {
                 owner.UpdateLocker(coll.Locker);
                 coll.UpdateLocker(owner.Locker);
@@ -360,8 +360,8 @@ namespace MugenMvvm.Collections.Components
 
             public void OnAdded(object source, int originalIndex, int index, bool notify, bool isRecycled, out bool isReset)
             {
-                isReset = false;
                 using var _ = MugenExtensions.TryLock(Collection);
+                isReset = false;
                 if (notify)
                 {
                     Size = GetItems().Count();
@@ -594,7 +594,7 @@ namespace MugenMvvm.Collections.Components
                 OnRemoved((IReadOnlyObservableCollection)collection, item, index);
             }
 
-            public void OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items) => OnReset(collection, AsObjectEnumerable(items));
+            public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items) => OnReset(collection, AsObjectEnumerable(items));
 
             protected override IEnumerable<object?> GetItems() => Collection.AsEnumerable();
 

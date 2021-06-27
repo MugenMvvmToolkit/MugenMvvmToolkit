@@ -346,10 +346,8 @@ namespace MugenMvvm.Collections
             ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
         }
 
-        private async void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue)
+        private void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue)
         {
-            await _threadDispatcher.SwitchToBackgroundAsync();
-
             int version;
             using var oldLock = MugenExtensions.TryLock(oldValue);
             using var newLock = MugenExtensions.TryLock(newValue);
@@ -377,7 +375,20 @@ namespace MugenMvvm.Collections
             oldLock.Dispose();
             newLock.Dispose();
 
-            await _threadDispatcher.SwitchToAsync(ExecutionMode);
+            if (_threadDispatcher.DefaultIfNull().CanExecuteInline(ExecutionMode))
+                OnCollectionChanged(version, oldValue, newValue);
+            else
+            {
+                _threadDispatcher.DefaultIfNull().Execute(ExecutionMode, state =>
+                {
+                    var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>)state;
+                    s.Item1.OnCollectionChanged(s.Item2, s.Item3, s.Item4);
+                }, Tuple.Create(this, version, oldValue, newValue));
+            }
+        }
+
+        private void OnCollectionChanged(int version, IEnumerable? oldValue, IEnumerable? newValue)
+        {
             if (Version == version)
             {
                 OnCollectionChanged(oldValue, newValue, version);

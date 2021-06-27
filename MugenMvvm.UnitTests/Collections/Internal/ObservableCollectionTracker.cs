@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
 
-        public void OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items) => OnReset(ChangedItems, items);
+        public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items) => OnReset(ChangedItems, items);
 
         private void OnReset(List<T> items, IEnumerable<T>? resetItems)
         {

@@ -32,30 +32,18 @@ namespace MugenMvvm.Extensions
             return component == null ? collection.AsEnumerable() : component.Decorate(collection);
         }
 
-        public static void InvalidateDecorators(this IReadOnlyObservableCollection? collection)
-        {
-            if (collection == null)
-                return;
-
-            var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            if (component != null)
-            {
-                using var _ = collection.TryLock();
-                component.OnReset(collection, null, collection.AsEnumerable());
-            }
-        }
-
         public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> value)
         {
             Should.NotBeNull(collection, nameof(collection));
-            if (value.List == null)
-            {
-                collection.Clear();
-                if (value.HasItem)
-                    collection.Add(value.Item!);
-            }
+            if (value.List is IReadOnlyCollection<T> l)
+                collection.Reset(l);
             else
-                collection.Reset(value.List);
+            {
+                using var _ = collection.BatchUpdate();
+                collection.Clear();
+                foreach (var item in value)
+                    collection.Add(item);
+            }
         }
 
         public static ActionToken TryLock(this IReadOnlyObservableCollection? collection) => TryLock(target: collection);

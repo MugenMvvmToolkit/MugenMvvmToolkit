@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         public void ShouldDelaySourceValue()
         {
             const int delay = 10;
-            const int wait = 10 * 3;
+            const int wait = 100;
             Action? invokeAction = null;
 
             var component = (DelayBindingHandler.Source)DelayBindingHandler.GetSource(delay);
@@ -51,8 +51,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
-            WaitCompletion();
-            WaitCompletion(wait);
+            WaitCompletion(wait, () => invokeAction != null);
             invokeAction.ShouldNotBeNull();
             sourceUpdateCount.ShouldEqual(0);
             invokeAction!();
@@ -108,7 +107,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
-            WaitCompletion(wait);
+            WaitCompletion(wait, () => invokeAction != null);
             invokeAction.ShouldNotBeNull();
             sourceUpdateCount.ShouldEqual(0);
             invokeAction!();

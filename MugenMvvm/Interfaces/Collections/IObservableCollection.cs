@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
@@ -15,7 +14,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         void Move(int oldIndex, int newIndex);
 
-        void Reset(IEnumerable<object>? items);
+        void Reset(IEnumerable? items);
 
         void RaiseItemChanged(object item, object? args);
     }

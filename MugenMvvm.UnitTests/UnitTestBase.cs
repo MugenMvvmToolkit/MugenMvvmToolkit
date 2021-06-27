@@ -24,9 +24,9 @@ namespace MugenMvvm.UnitTests
         protected const string SharedContext = nameof(SharedContext);
 
 #if LONGRUNNINGTEST
-        protected const string? LongRunningTest = null;
+        protected const int LongRunningTimeout = 60;
 #else
-        protected const string LongRunningTest = "LongRunningTest";
+        protected const int LongRunningTimeout = 10;
 #endif
 
 #if DEBUG
@@ -53,7 +53,17 @@ namespace MugenMvvm.UnitTests
 
         protected TestBinding Binding => _binding ??= new TestBinding(ComponentCollectionManager);
 
-        protected static void WaitCompletion(int milliseconds = 10) => Thread.Sleep(milliseconds);
+        protected static void WaitCompletion(int milliseconds = 10, Func<bool>? predicate = null, int attemptCount = 4)
+        {
+            int count = 0;
+            while (true)
+            {
+                Thread.Sleep(milliseconds);
+                if (predicate == null || predicate() || count == attemptCount)
+                    return;
+                ++count;
+            }
+        }
 
         protected static void ShouldThrow<T>(Action action) where T : Exception => Assert.Throws<T>(action);
 

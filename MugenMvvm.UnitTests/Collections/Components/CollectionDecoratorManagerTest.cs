@@ -640,7 +640,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ResetShouldNotifyListeners(int listenersCount, int count)
         {
             var reset = 0;
-            IEnumerable<TestCollectionItem>? expectedItem = null;
+            IReadOnlyCollection<TestCollectionItem>? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());

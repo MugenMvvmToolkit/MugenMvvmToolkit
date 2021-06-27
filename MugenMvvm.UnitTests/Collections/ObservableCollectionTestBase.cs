@@ -973,7 +973,7 @@ namespace MugenMvvm.UnitTests.Collections
             var reset = 0;
             var condition = 0;
             var canReset = false;
-            IEnumerable<TestCollectionItem>? expectedItem = null;
+            IReadOnlyCollection<TestCollectionItem>? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());

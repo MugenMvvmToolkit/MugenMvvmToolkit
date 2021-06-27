@@ -6,17 +6,18 @@ namespace MugenMvvm.Internal
     public sealed class DecrementPriorityLocker : ILocker
     {
         private static int _counter;
-        private readonly int _priority;
 
         public DecrementPriorityLocker()
         {
-            _priority = Interlocked.Decrement(ref _counter);
+            Priority = Interlocked.Decrement(ref _counter);
         }
 
-        public int Priority => _priority;
+        public int Priority { get; }
 
-        public object SyncRoot => this;
+        public override string ToString() => $"DecrementPriorityLocker{Priority}";
 
-        public override string ToString() => $"DecrementPriorityLocker{_priority}";
+        public void Enter(ref bool lockTaken) => Monitor.Enter(this, ref lockTaken);
+
+        public void Exit() => Monitor.Exit(this);
     }
 }

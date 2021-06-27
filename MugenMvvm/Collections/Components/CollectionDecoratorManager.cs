@@ -44,8 +44,6 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; }
 
-        public ActionToken TryLock(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null) => collection.TryLock();
-
         public IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null)
         {
             using var _ = decorator == null ? collection.TryLock() : default;
@@ -248,7 +246,7 @@ namespace MugenMvvm.Collections.Components
         void ICollectionChangedListener<T>.OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) =>
             OnRemoved(collection, null, item, index);
 
-        void ICollectionChangedListener<T>.OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
+        void ICollectionChangedListener<T>.OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
         {
             if (items == null)
                 OnReset(collection, null, null);

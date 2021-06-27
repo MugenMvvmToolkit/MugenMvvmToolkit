@@ -19,6 +19,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
+    [Collection(SharedContext)]
     public class FlattenCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<int> _itemCollection1;
@@ -293,9 +294,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
-        [Fact(Skip = LongRunningTest)]
-        // [Fact]
-        public async Task ShouldBeThreadSafe1()
+        [Theory]
+        [InlineData(LongRunningTimeout)]
+        public async Task ShouldBeThreadSafe1(int timeout)
         {
             var cts = new CancellationTokenSource();
             var root = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
@@ -402,15 +403,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     tracker.ChangedItems.ShouldEqual(root.Decorate());
                 }
             });
-            t5.Wait(TimeSpan.FromMinutes(1));
+            t5.Wait(TimeSpan.FromSeconds(timeout));
             cts.Cancel();
             await Task.WhenAll(t1, t2, t3, t4, t5);
             Assert();
         }
 
-        [Fact(Skip = LongRunningTest)]
-        // [Fact]
-        public async Task ShouldBeThreadSafe2()
+        [Theory]
+        [InlineData(LongRunningTimeout)]
+        public async Task ShouldBeThreadSafe2(int timeout)
         {
             var cts = new CancellationTokenSource();
             _targetCollection.Add("T");
@@ -513,7 +514,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     Assert();
                 }
             });
-            t8.Wait(TimeSpan.FromMinutes(1));
+            t8.Wait(TimeSpan.FromSeconds(timeout));
             cts.Cancel();
             GcCollect();
             GcCollect();

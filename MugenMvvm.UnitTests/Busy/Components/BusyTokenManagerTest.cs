@@ -384,7 +384,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             }
 
             count.ShouldEqual(0);
-            WaitCompletion(delay + 100);
+            WaitCompletion(delay + 100, () => beginBusy == busyToken);
             beginBusy.ShouldEqual(busyToken);
             count.ShouldEqual(1);
         }

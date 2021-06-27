@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -183,7 +184,7 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
-            using var _ = DecoratorManager.TryLock(Owner, this);
+            using var _ = Owner.TryLock();
             _filter = filter;
             Clear();
             if (HasFilter)

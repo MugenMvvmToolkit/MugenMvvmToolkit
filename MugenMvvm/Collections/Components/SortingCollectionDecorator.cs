@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -163,7 +164,7 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
-            using var _ = DecoratorManager.TryLock(Owner, this);
+            using var _ = Owner.TryLock();
             if (setComparer)
                 _comparer = comparer!;
             if (Comparer == null)

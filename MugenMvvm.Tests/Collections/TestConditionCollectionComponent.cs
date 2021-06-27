@@ -16,7 +16,7 @@ namespace MugenMvvm.Tests.Collections
 
         public Func<IReadOnlyObservableCollection<T>, T, int, bool>? CanRemove { get; set; }
 
-        public Func<IReadOnlyObservableCollection<T>, IEnumerable<T>?, bool>? CanReset { get; set; }
+        public Func<IReadOnlyObservableCollection<T>, IReadOnlyCollection<T>?, bool>? CanReset { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -50,7 +50,7 @@ namespace MugenMvvm.Tests.Collections
             return CanRemove?.Invoke(collection, item!, index) ?? true;
         }
 
-        bool IConditionCollectionComponent<T>.CanReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
+        bool IConditionCollectionComponent<T>.CanReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
         {
             if (CanReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();

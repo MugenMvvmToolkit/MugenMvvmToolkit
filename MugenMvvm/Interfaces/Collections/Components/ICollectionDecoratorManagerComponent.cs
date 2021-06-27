@@ -6,8 +6,6 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecoratorManagerComponent : IComponent<IReadOnlyObservableCollection>
     {
-        ActionToken TryLock(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
-
         ActionToken BatchUpdate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
 
         IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);

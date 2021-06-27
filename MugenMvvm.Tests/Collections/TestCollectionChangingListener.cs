@@ -16,7 +16,7 @@ namespace MugenMvvm.Tests.Collections
 
         public Action<IReadOnlyObservableCollection<T>, T, int>? OnRemoving { get; set; }
 
-        public Action<IReadOnlyObservableCollection<T>, IEnumerable<T>?>? OnResetting { get; set; }
+        public Action<IReadOnlyObservableCollection<T>, IReadOnlyCollection<T>?>? OnResetting { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -50,7 +50,7 @@ namespace MugenMvvm.Tests.Collections
             OnRemoving?.Invoke(collection, item!, index);
         }
 
-        void ICollectionChangingListener<T>.OnResetting(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
+        void ICollectionChangingListener<T>.OnResetting(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
         {
             if (OnResetting == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();

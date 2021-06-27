@@ -4,6 +4,8 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface ILocker : IHasPriority
     {
-        object SyncRoot { get; }
+        void Enter(ref bool lockTaken);
+
+        void Exit();
     }
 }
