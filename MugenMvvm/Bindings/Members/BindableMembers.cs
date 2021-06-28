@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Members.Descriptors;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
@@ -68,9 +69,17 @@ namespace MugenMvvm.Bindings.Members
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? Root<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Root<T>(_: default).GetValue(descriptor.Target);
 
+        [BindingMember(nameof(Root))]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? Root<T>(this IBindableMembersTargetDescriptor<object> descriptor) where T : class => ExceptionManager.ThrowBindableMemberNotSupported<T>(nameof(Root));
+
         [BindingMember(nameof(Parent))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? Parent<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Parent<T>(_: default).GetValue(descriptor.Target);
+
+        [BindingMember(nameof(Parent))]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? Parent<T>(this IBindableMembersTargetDescriptor<object> descriptor) where T : class => ExceptionManager.ThrowBindableMemberNotSupported<T>(nameof(Parent));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetParent<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class =>
@@ -87,6 +96,11 @@ namespace MugenMvvm.Bindings.Members
         [BindingMember(nameof(DataContext))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? DataContext<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => DataContext<T>(_: default).GetValue(descriptor.Target);
+
+        [BindingMember(nameof(DataContext))]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? DataContext<T>(this IBindableMembersTargetDescriptor<object> descriptor) where T : class =>
+            ExceptionManager.ThrowBindableMemberNotSupported<T>(nameof(DataContext));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetDataContext<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class =>
@@ -111,8 +125,24 @@ namespace MugenMvvm.Bindings.Members
             ElementSourceMethod<T>(default).Invoke(descriptor.Target, name);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? ElementSource<T>(this IBindableMembersTargetDescriptor<object> descriptor, object name) where T : class =>
+            ExceptionManager.ThrowBindableMemberNotSupported<T>(nameof(ElementSource));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? RelativeSource<T>(this BindableMembersTargetDescriptor<T> descriptor, string name, int level) where T : class =>
             RelativeSourceMethod<T>(default).Invoke(descriptor.Target, name, level);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? RelativeSource<T>(this BindableMembersTargetDescriptor<T> descriptor, string name) where T : class =>
+            RelativeSourceMethod<T>(default).Invoke(descriptor.Target, name, 1);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? RelativeSource<T>(this IBindableMembersTargetDescriptor<object> descriptor, string name, int level) where T : class =>
+            ExceptionManager.ThrowBindableMemberNotSupported<T>(nameof(RelativeSource));
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? RelativeSource<T>(this IBindableMembersTargetDescriptor<object> descriptor, string name) where T : class =>
+            ExceptionManager.ThrowBindableMemberNotSupported<T>(nameof(RelativeSource));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasErrors<T>(this BindableMembersTargetDescriptor<T> descriptor, ItemOrArray<string> members) where T : class =>

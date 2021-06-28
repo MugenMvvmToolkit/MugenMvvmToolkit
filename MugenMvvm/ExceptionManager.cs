@@ -102,6 +102,10 @@ namespace MugenMvvm
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
+        public static T ThrowBindableMemberNotSupported<T>(string member) => throw new NotSupportedException(BindableMemberNotSupportedFormat1.Format(member));
+
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowMultiplePresenterResultNotSupported() => throw new NotSupportedException(MultiplePresenterResultNotSupported);
 
         [DoesNotReturn]

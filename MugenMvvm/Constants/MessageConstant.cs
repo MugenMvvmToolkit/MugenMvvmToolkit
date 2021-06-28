@@ -29,5 +29,6 @@
         public const string CannotAddComponentFormat2 = "The component collection with owner {0} cannot add component {1}";
         public const string AsyncInitializationAssert = "The application is in an initializing state on a different thread";
         public const string ActionDisposeNotCalledFormat3 = "Dispose method for action wasn't called, action thread id: {0}, target: {1}, {2}";
+        public const string BindableMemberNotSupportedFormat1 = "The {0} member can be used only from binding expression";
     }
 }

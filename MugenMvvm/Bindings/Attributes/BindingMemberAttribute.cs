@@ -32,7 +32,7 @@ namespace MugenMvvm.Bindings.Attributes
 
         public int MemberNameIndex { get; }
 
-        internal static IExpressionNode? GetTarget(IExpressionConverterContext<Expression> context, Expression? expression)
+        public static IExpressionNode? GetTarget(IExpressionConverterContext<Expression> context, Expression? expression)
         {
             if (expression is MethodCallExpression method)
             {
