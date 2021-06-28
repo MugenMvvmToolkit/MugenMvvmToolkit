@@ -21,7 +21,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Parsing.Visitors
 {
-    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor, IEqualityComparer<BindingMemberExpressionVisitor.CacheKey>
+    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor
     {
         private readonly Func<IExpressionNode, bool> _condition;
         private readonly StringBuilder _memberBuilder;
@@ -36,7 +36,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             _observationManager = observationManager;
             _resourceResolver = resourceResolver;
             _memberManager = memberManager;
-            _members = new Dictionary<CacheKey, IExpressionNode>(this);
+            _members = new Dictionary<CacheKey, IExpressionNode>();
             _memberBuilder = new StringBuilder();
             _condition = Condition;
         }
@@ -243,13 +243,6 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             return true;
         }
 
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) =>
-            x.MemberFlagsField == y.MemberFlagsField && x.BindingMemberFlagsField == y.BindingMemberFlagsField && x.MemberType == y.MemberType
-            && x.Path == y.Path && x.MethodName == y.MethodName && Equals(x.Target, y.Target);
-
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Path, key.MethodName, (int) key.MemberFlagsField, (int) key.BindingMemberFlagsField,
-            (int) key.MemberType, key.Target);
-
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is IMethodCallExpressionNode methodCall)
@@ -277,7 +270,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
         }
 
         [StructLayout(LayoutKind.Auto)]
-        internal readonly struct CacheKey
+        internal readonly struct CacheKey : IEquatable<CacheKey>
         {
             public readonly string Path;
             public readonly string? MethodName;
@@ -309,6 +302,14 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => new(MemberFlagsField);
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Equals(CacheKey other) => MemberFlagsField == other.MemberFlagsField && BindingMemberFlagsField == other.BindingMemberFlagsField &&
+                                                  MemberType == other.MemberType
+                                                  && Path == other.Path && MethodName == other.MethodName && Equals(Target, other.Target);
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override int GetHashCode() => HashCode.Combine(Path, MethodName, (int)MemberFlagsField, (int)BindingMemberFlagsField, (int)MemberType, Target);
         }
     }
 }

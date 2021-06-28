@@ -46,7 +46,7 @@ namespace MugenMvvm.Messaging.Components
             if (handlers.Count == 0)
                 return null;
 
-            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>(InternalEqualityComparer.ThreadExecutionMode);
+            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
             foreach (var subscriber in handlers)
             {
                 var mode = subscriber.ExecutionMode ?? defaultMode;

@@ -11,13 +11,13 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class ValidatorErrorManager : IValidatorErrorManagerComponent, IEqualityComparer<ValidatorErrorManager.CacheKey>
+    public sealed class ValidatorErrorManager : IValidatorErrorManagerComponent
     {
         private readonly Dictionary<CacheKey, List<ValidationErrorInfo>> _errors;
 
         public ValidatorErrorManager()
         {
-            _errors = new Dictionary<CacheKey, List<ValidationErrorInfo>>(this);
+            _errors = new Dictionary<CacheKey, List<ValidationErrorInfo>>();
         }
 
         private static bool RemoveError(List<ValidationErrorInfo> errors, ValidationErrorInfo error)
@@ -219,12 +219,8 @@ namespace MugenMvvm.Validation.Components
                 validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, toNotify, metadata);
         }
 
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) => x.Source.Equals(y.Source) && x.Member == y.Member;
-
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey obj) => HashCode.Combine(obj.Source, obj.Member);
-
         [StructLayout(LayoutKind.Auto)]
-        internal readonly struct CacheKey
+        internal readonly struct CacheKey : IEquatable<CacheKey>
         {
             public readonly object Source;
             public readonly string Member;
@@ -237,6 +233,12 @@ namespace MugenMvvm.Validation.Components
                 Source = source;
                 Member = member;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Equals(CacheKey other) => Source.Equals(other.Source) && Member == other.Member;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override int GetHashCode() => HashCode.Combine(Source, Member);
         }
     }
 }

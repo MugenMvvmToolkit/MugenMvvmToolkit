@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
@@ -117,6 +118,7 @@ namespace MugenMvvm.Entities.Components
             public readonly Action<object, object?> SetValue;
             public readonly object? Value;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MemberState(object? value, Func<object, object?> getValue, Action<object, object?> setValue)
             {
                 Value = value;
@@ -132,6 +134,7 @@ namespace MugenMvvm.Entities.Components
             public readonly Func<object, object?> GetValue;
             public readonly Action<object, object?> SetValue;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public EntityMemberAccessor(object member, Func<object, object?> getValue, Action<object, object?> setValue)
             {
                 Should.NotBeNull(member, nameof(member));

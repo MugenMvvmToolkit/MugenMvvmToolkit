@@ -21,10 +21,11 @@ namespace MugenMvvm.Avalonia.Bindings.Markup
 #else
 using System.Windows.Data;
 using System.Windows.Markup;
+
 namespace MugenMvvm.Windows.Bindings.Markup
 #endif
 {
-    public partial class MugenBindingExtension : IEqualityComparer<MugenBindingExtension>
+    public partial class MugenBindingExtension : IEquatable<MugenBindingExtension>
     {
         private static readonly Func<object?> NoDoFunc = () => null;
         private static readonly Dictionary<Type, Delegate> CachedDelegates = new(InternalEqualityComparer.Type);
@@ -78,35 +79,28 @@ namespace MugenMvvm.Windows.Bindings.Markup
 
         public string? Trace { get; set; }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void BoolParameter(ref ItemOrListEditor<KeyValuePair<string?, object>> editor, IExpressionNode parameter, bool? value)
+        public override bool Equals(object? obj) => ReferenceEquals(this, obj) || obj is MugenBindingExtension other && Equals(other);
+
+        public override int GetHashCode()
         {
-            if (!value.HasValue)
-                return;
-
-            if (!value.Value)
-                parameter = new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter);
-
-            editor.Add(new KeyValuePair<string?, object>(null, parameter));
-        }
-
-        private static Delegate CreateDelegateForEvent(Type eventHandlerType)
-        {
-            if (!CachedDelegates.TryGetValue(eventHandlerType, out var value))
-            {
-                var parameters = eventHandlerType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic)!
-                                 .GetParameters()
-                                 .ToArray(parameter => Expression.Parameter(parameter.ParameterType));
-
-                var callExpression = Expression.Call(Expression.Constant(NoDoFunc, typeof(Func<object>)), nameof(Action.Invoke),
-                    Array.Empty<Type>());
-                value = Expression
-                        .Lambda(eventHandlerType, callExpression, parameters)
-                        .Compile();
-                CachedDelegates[eventHandlerType] = value;
-            }
-
-            return value;
+            var hashCode = new HashCode();
+            hashCode.Add(Path);
+            hashCode.Add((int)Mode);
+            hashCode.Add(Observable);
+            hashCode.Add(Optional);
+            hashCode.Add(HasStablePath);
+            hashCode.Add(ToggleEnabled);
+            hashCode.Add(SuppressMethodAccessors);
+            hashCode.Add(SuppressIndexAccessors);
+            hashCode.Add(ObservableMethods);
+            hashCode.Add(Delay);
+            hashCode.Add(TargetDelay);
+            hashCode.Add(CommandParameter);
+            hashCode.Add(Converter);
+            hashCode.Add(ConverterParameter);
+            hashCode.Add(Fallback);
+            hashCode.Add(TargetNullValue);
+            return hashCode.ToHashCode();
         }
 
         public BindingExpressionRequest ToRequest()
@@ -161,41 +155,48 @@ namespace MugenMvvm.Windows.Bindings.Markup
             return new BindingExpressionRequest(_targetPath!, Path, editor);
         }
 
-        bool IEqualityComparer<MugenBindingExtension>.Equals(MugenBindingExtension? x, MugenBindingExtension? y)
+        public bool Equals(MugenBindingExtension? other)
         {
-            if (ReferenceEquals(x, y))
+            if (ReferenceEquals(this, other))
                 return true;
-            if (ReferenceEquals(x, null))
+            if (ReferenceEquals(other, null))
                 return false;
-            if (ReferenceEquals(y, null))
-                return false;
-            return x.Path == y.Path && x.Mode == y.Mode && x.Observable == y.Observable && x.Optional == y.Optional && x.HasStablePath == y.HasStablePath &&
-                   x.ToggleEnabled == y.ToggleEnabled && x.SuppressMethodAccessors == y.SuppressMethodAccessors && x.SuppressIndexAccessors == y.SuppressIndexAccessors &&
-                   x.ObservableMethods == y.ObservableMethods && x.Delay == y.Delay && x.TargetDelay == y.TargetDelay && Equals(x.CommandParameter, y.CommandParameter) &&
-                   Equals(x.Converter, y.Converter) && Equals(x.ConverterParameter, y.ConverterParameter) && Equals(x.Fallback, y.Fallback) &&
-                   Equals(x.TargetNullValue, y.TargetNullValue) && x.Trace == y.Trace;
+            return Path == other.Path && Mode == other.Mode && Observable == other.Observable && Optional == other.Optional && HasStablePath == other.HasStablePath &&
+                   ToggleEnabled == other.ToggleEnabled && SuppressMethodAccessors == other.SuppressMethodAccessors && SuppressIndexAccessors == other.SuppressIndexAccessors &&
+                   ObservableMethods == other.ObservableMethods && Delay == other.Delay && TargetDelay == other.TargetDelay && Equals(CommandParameter, other.CommandParameter) &&
+                   Equals(Converter, other.Converter) && Equals(ConverterParameter, other.ConverterParameter) && Equals(Fallback, other.Fallback) &&
+                   Equals(TargetNullValue, other.TargetNullValue) && Trace == other.Trace;
         }
 
-        int IEqualityComparer<MugenBindingExtension>.GetHashCode(MugenBindingExtension obj)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void BoolParameter(ref ItemOrListEditor<KeyValuePair<string?, object>> editor, IExpressionNode parameter, bool? value)
         {
-            var hashCode = new HashCode();
-            hashCode.Add(obj.Path);
-            hashCode.Add((int) obj.Mode);
-            hashCode.Add(obj.Observable);
-            hashCode.Add(obj.Optional);
-            hashCode.Add(obj.HasStablePath);
-            hashCode.Add(obj.ToggleEnabled);
-            hashCode.Add(obj.SuppressMethodAccessors);
-            hashCode.Add(obj.SuppressIndexAccessors);
-            hashCode.Add(obj.ObservableMethods);
-            hashCode.Add(obj.Delay);
-            hashCode.Add(obj.TargetDelay);
-            hashCode.Add(obj.CommandParameter);
-            hashCode.Add(obj.Converter);
-            hashCode.Add(obj.ConverterParameter);
-            hashCode.Add(obj.Fallback);
-            hashCode.Add(obj.TargetNullValue);
-            return hashCode.ToHashCode();
+            if (!value.HasValue)
+                return;
+
+            if (!value.Value)
+                parameter = new UnaryExpressionNode(UnaryTokenType.LogicalNegation, parameter);
+
+            editor.Add(new KeyValuePair<string?, object>(null, parameter));
+        }
+
+        private static Delegate CreateDelegateForEvent(Type eventHandlerType)
+        {
+            if (!CachedDelegates.TryGetValue(eventHandlerType, out var value))
+            {
+                var parameters = eventHandlerType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic)!
+                                                 .GetParameters()
+                                                 .ToArray(parameter => Expression.Parameter(parameter.ParameterType));
+
+                var callExpression = Expression.Call(Expression.Constant(NoDoFunc, typeof(Func<object>)), nameof(Action.Invoke),
+                    Array.Empty<Type>());
+                value = Expression
+                        .Lambda(eventHandlerType, callExpression, parameters)
+                        .Compile();
+                CachedDelegates[eventHandlerType] = value;
+            }
+
+            return value;
         }
     }
 }

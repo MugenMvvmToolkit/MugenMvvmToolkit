@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
@@ -18,7 +19,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
-    public sealed class ReflectionMemberProvider : IMemberProviderComponent, IEqualityComparer<ReflectionMemberProvider.CacheKey>, IHasPriority
+    public sealed class ReflectionMemberProvider : IMemberProviderComponent, IHasPriority
     {
         private readonly IObservationManager? _observationManager;
         private readonly HashSet<Type> _types;
@@ -29,41 +30,10 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             _observationManager = observationManager;
             _types = new HashSet<Type>(InternalEqualityComparer.Type);
-            _cache = new Dictionary<CacheKey, object?>(59, this);
+            _cache = new Dictionary<CacheKey, object?>(59);
         }
 
         public int Priority { get; set; } = MemberComponentPriority.Instance;
-
-        private static void AddMethodsInternal(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
-        {
-            var isGetter = name == BindingInternalConstant.IndexerGetterName;
-            var isSetter = name == BindingInternalConstant.IndexerSetterName;
-            if (isGetter || isSetter)
-            {
-                var propertyInfos = t.GetProperties(BindingFlagsEx.All | BindingFlags.DeclaredOnly);
-                for (var i = 0; i < propertyInfos.Length; i++)
-                {
-                    var propertyInfo = propertyInfos[i];
-                    var indexParameters = propertyInfo.GetIndexParameters();
-                    if (indexParameters.Length > 0)
-                    {
-                        var method = isGetter ? propertyInfo.GetGetMethod(true) : propertyInfo.GetSetMethod(true);
-                        if (method != null)
-                            result.Add(new MethodMemberInfo(name, method, false, requestedType, isGetter ? indexParameters : null, null));
-                    }
-                }
-            }
-            else
-            {
-                var methods = t.GetMethods(BindingFlagsEx.All | BindingFlags.DeclaredOnly);
-                for (var index = 0; index < methods.Length; index++)
-                {
-                    var methodInfo = methods[index];
-                    if (methodInfo.Name == name)
-                        result.Add(new MethodMemberInfo(name, methodInfo, false, requestedType));
-                }
-            }
-        }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)
@@ -97,6 +67,37 @@ namespace MugenMvvm.Bindings.Members.Components
             }
 
             return result.ToItemOrList();
+        }
+
+        private static void AddMethodsInternal(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
+        {
+            var isGetter = name == BindingInternalConstant.IndexerGetterName;
+            var isSetter = name == BindingInternalConstant.IndexerSetterName;
+            if (isGetter || isSetter)
+            {
+                var propertyInfos = t.GetProperties(BindingFlagsEx.All | BindingFlags.DeclaredOnly);
+                for (var i = 0; i < propertyInfos.Length; i++)
+                {
+                    var propertyInfo = propertyInfos[i];
+                    var indexParameters = propertyInfo.GetIndexParameters();
+                    if (indexParameters.Length > 0)
+                    {
+                        var method = isGetter ? propertyInfo.GetGetMethod(true) : propertyInfo.GetSetMethod(true);
+                        if (method != null)
+                            result.Add(new MethodMemberInfo(name, method, false, requestedType, isGetter ? indexParameters : null, null));
+                    }
+                }
+            }
+            else
+            {
+                var methods = t.GetMethods(BindingFlagsEx.All | BindingFlags.DeclaredOnly);
+                for (var index = 0; index < methods.Length; index++)
+                {
+                    var methodInfo = methods[index];
+                    if (methodInfo.Name == name)
+                        result.Add(new MethodMemberInfo(name, methodInfo, false, requestedType));
+                }
+            }
         }
 
         private void AddMethods(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo> result)
@@ -170,11 +171,8 @@ namespace MugenMvvm.Bindings.Members.Components
             return true;
         }
 
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) => x.MemberType == y.MemberType && x.Name == y.Name && x.Type == y.Type;
-
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey obj) => HashCode.Combine(obj.MemberType, obj.Name, obj.Type);
-
-        internal readonly struct CacheKey
+        [StructLayout(LayoutKind.Auto)]
+        internal readonly struct CacheKey : IEquatable<CacheKey>
         {
             public const int Field = 1;
             public const int Property = 2;
@@ -192,6 +190,12 @@ namespace MugenMvvm.Bindings.Members.Components
                 Name = name;
                 Type = type;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Equals(CacheKey other) => MemberType == other.MemberType && Name == other.Name && Type == other.Type;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override int GetHashCode() => HashCode.Combine(MemberType, Name, Type);
         }
     }
 }

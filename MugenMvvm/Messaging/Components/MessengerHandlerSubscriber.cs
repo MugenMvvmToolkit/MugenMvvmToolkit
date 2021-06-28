@@ -28,7 +28,6 @@ namespace MugenMvvm.Messaging.Components
 
         [Preserve(Conditional = true)]
         public MessengerHandlerSubscriber(IReflectionManager? reflectionManager = null)
-            : base(HandlerSubscriberEqualityComparer.Instance)
         {
             _reflectionManager = reflectionManager;
         }
@@ -199,12 +198,13 @@ namespace MugenMvvm.Messaging.Components
         }
 
         [StructLayout(LayoutKind.Auto)]
-        public readonly struct HandlerSubscriber
+        public readonly struct HandlerSubscriber : IEquatable<HandlerSubscriber>
         {
             public readonly ThreadExecutionMode? ExecutionMode;
             public readonly int Hash;
             public readonly object Subscriber;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public HandlerSubscriber(object subscriber, int hashCode, ThreadExecutionMode? executionMode)
             {
                 Subscriber = subscriber;
@@ -212,25 +212,19 @@ namespace MugenMvvm.Messaging.Components
                 ExecutionMode = executionMode;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public object? GetSubscriber()
             {
                 if (Subscriber is IWeakReference w)
                     return w.Target;
                 return Subscriber;
             }
-        }
 
-        private sealed class HandlerSubscriberEqualityComparer : IEqualityComparer<HandlerSubscriber>
-        {
-            public static readonly IEqualityComparer<HandlerSubscriber> Instance = new HandlerSubscriberEqualityComparer();
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Equals(HandlerSubscriber other) => Subscriber == other.Subscriber || GetSubscriber() == other.GetSubscriber();
 
-            private HandlerSubscriberEqualityComparer()
-            {
-            }
-
-            public bool Equals(HandlerSubscriber x, HandlerSubscriber y) => x.Subscriber == y.Subscriber || x.GetSubscriber() == y.GetSubscriber();
-
-            public int GetHashCode(HandlerSubscriber obj) => obj.Hash;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override int GetHashCode() => Hash;
         }
     }
 }

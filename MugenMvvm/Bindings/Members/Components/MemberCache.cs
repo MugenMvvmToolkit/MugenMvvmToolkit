@@ -18,7 +18,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
-    public sealed class MemberCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IEqualityComparer<MemberCache.CacheKey>
+    public sealed class MemberCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent
     {
         private readonly Dictionary<CacheKey, object?> _cache;
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Members.Components
         public MemberCache(int priority = MemberComponentPriority.Cache)
             : base(priority)
         {
-            _cache = new Dictionary<CacheKey, object?>(59, this);
+            _cache = new Dictionary<CacheKey, object?>(59);
         }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
@@ -78,13 +78,8 @@ namespace MugenMvvm.Bindings.Members.Components
 
         protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Invalidate(component, metadata);
 
-        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y) =>
-            x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type && InternalEqualityComparer.Equals(x.Types, y.Types);
-
-        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key) => HashCode.Combine(key.Key, key.Type, key.MemberType, key.MemberFlags, key.Types.Count);
-
         [StructLayout(LayoutKind.Auto)]
-        internal readonly struct CacheKey
+        internal readonly struct CacheKey : IEquatable<CacheKey>
         {
             public readonly string Key;
             public readonly Type Type;
@@ -107,6 +102,14 @@ namespace MugenMvvm.Bindings.Members.Components
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => ItemOrArray.FromRawValue<Type>(_typesRaw);
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool Equals(CacheKey other) =>
+                MemberType == other.MemberType && MemberFlags == other.MemberFlags && Key.Equals(other.Key) && Type == other.Type &&
+                InternalEqualityComparer.Equals(Types, other.Types);
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override int GetHashCode() => HashCode.Combine(Key, Type, MemberType, MemberFlags, Types.Count);
         }
     }
 }

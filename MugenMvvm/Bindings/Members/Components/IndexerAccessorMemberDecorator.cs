@@ -18,8 +18,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Members.Components
 {
-    public sealed class IndexerAccessorMemberDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent,
-        IEqualityComparer<IndexerAccessorMemberDecorator.MemberKey>
+    public sealed class IndexerAccessorMemberDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent
     {
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
@@ -34,7 +33,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _globalValueConverter = globalValueConverter;
             _members = new List<IMemberInfo>();
             _membersDictionary =
-                new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> flags)>(this);
+                new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, ItemOrArray<object?> args, EnumFlags<ArgumentFlags> flags)>();
         }
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
@@ -137,30 +136,8 @@ namespace MugenMvvm.Bindings.Members.Components
             return _members.ToItemOrList(true);
         }
 
-        bool IEqualityComparer<MemberKey>.Equals(MemberKey x, MemberKey y)
-        {
-            if (x.Type != y.Type || x.ReturnType != y.ReturnType)
-                return false;
-
-            var xCount = x.ParametersCount;
-            if (xCount != y.ParametersCount)
-                return false;
-
-            var xParameters = x.Parameters;
-            var yParameters = y.Parameters;
-            for (var i = 0; i < xCount; i++)
-            {
-                if (xParameters[i].ParameterType != yParameters[i].ParameterType)
-                    return false;
-            }
-
-            return true;
-        }
-
-        int IEqualityComparer<MemberKey>.GetHashCode(MemberKey key) => HashCode.Combine(key.Type, key.ReturnType, key.ParametersCount);
-
         [StructLayout(LayoutKind.Auto)]
-        internal readonly struct MemberKey
+        internal readonly struct MemberKey : IEquatable<MemberKey>
         {
             public readonly Type ReturnType;
             public readonly bool Setter;
@@ -168,6 +145,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
             private readonly object? _parametersRaw;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MemberKey(Type type, Type returnType, ItemOrIReadOnlyList<IParameterInfo> parameters, bool setter)
             {
                 _parametersRaw = parameters.GetRawValue();
@@ -183,6 +161,27 @@ namespace MugenMvvm.Bindings.Members.Components
             }
 
             public int ParametersCount => Setter ? Parameters.Count - 1 : Parameters.Count;
+
+            public bool Equals(MemberKey other)
+            {
+                if (Type != other.Type || ReturnType != other.ReturnType)
+                    return false;
+
+                if (ParametersCount != other.ParametersCount)
+                    return false;
+
+                var yParameters = other.Parameters;
+                for (var i = 0; i < ParametersCount; i++)
+                {
+                    if (Parameters[i].ParameterType != yParameters[i].ParameterType)
+                        return false;
+                }
+
+                return true;
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public override int GetHashCode() => HashCode.Combine(Type, ReturnType, ParametersCount);
         }
     }
 }

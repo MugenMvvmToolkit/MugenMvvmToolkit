@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
     internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type?>,
-        IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>, IEqualityComparer<ThreadExecutionMode?>,
-        IEqualityComparer<KeyValuePair<Type, Type>>,
+        IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>, IEqualityComparer<KeyValuePair<Type, Type>>,
         IEqualityComparer<IMetadataContextKey?>
     {
         private static readonly InternalEqualityComparer Comparer = new();
@@ -20,7 +18,6 @@ namespace MugenMvvm.Internal
         public static readonly IEqualityComparer<Type> Type = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, MethodInfo>> TypeMethod = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, MemberInfo>> TypeMember = Comparer;
-        public static readonly IEqualityComparer<ThreadExecutionMode> ThreadExecutionMode = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, Type>> TypeType = Comparer;
         public static readonly IEqualityComparer<IMetadataContextKey> MetadataContextKey = Comparer;
 
@@ -90,10 +87,6 @@ namespace MugenMvvm.Internal
         bool IEqualityComparer<object?>.Equals(object? x, object? y) => x == y;
 
         int IEqualityComparer<object?>.GetHashCode(object? obj) => obj == null ? 0 : obj.GetHashCode();
-
-        bool IEqualityComparer<ThreadExecutionMode?>.Equals(ThreadExecutionMode? x, ThreadExecutionMode? y) => x == y;
-
-        int IEqualityComparer<ThreadExecutionMode?>.GetHashCode(ThreadExecutionMode? obj) => obj!.GetHashCode();
 
         bool IEqualityComparer<Type?>.Equals(Type? x, Type? y) => x == y;
 

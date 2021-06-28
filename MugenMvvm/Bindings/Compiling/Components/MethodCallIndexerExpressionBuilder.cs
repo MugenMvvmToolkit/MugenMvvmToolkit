@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
@@ -24,7 +25,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Compiling.Components
 {
-    public sealed class MethodCallIndexerExpressionBuilder : IExpressionBuilderComponent, IHasPriority, IEqualityComparer<MethodCallIndexerExpressionBuilder.MethodInvokerKey>
+    public sealed class MethodCallIndexerExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
         private const float NotExactlyEqualWeight = 1f;
         private const float NotExactlyEqualBoxWeight = 1.1f;
@@ -103,7 +104,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
                 catch
                 {
-                    ;
+                    // ignored
                 }
             }
         }
@@ -574,16 +575,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return methods;
         }
 
-        bool IEqualityComparer<MethodInvokerKey>.Equals(MethodInvokerKey x, MethodInvokerKey y) => x.Equals(y);
-
-        int IEqualityComparer<MethodInvokerKey>.GetHashCode(MethodInvokerKey key) => key.GetHashCode();
-
         [StructLayout(LayoutKind.Auto)]
-        internal readonly struct MethodInvokerKey
+        internal readonly struct MethodInvokerKey : IEquatable<MethodInvokerKey>
         {
             public readonly object? Args;
             public readonly Type Type;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MethodInvokerKey(Type type, ItemOrArray<object?> args)
             {
                 Type = type;
@@ -705,8 +703,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 Type = type;
             }
 
-            public bool IsLambda => Node.ExpressionType == ExpressionNodeType.Lambda;
+            public bool IsLambda
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Node.ExpressionType == ExpressionNodeType.Lambda;
+            }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ArgumentData UpdateExpression(Expression expression) => new(Node, expression, Type);
         }
 
@@ -806,11 +809,12 @@ namespace MugenMvvm.Bindings.Compiling.Components
         [Preserve(AllMembers = true, Conditional = true)]
         private sealed class MethodInvoker : Dictionary<MethodInvokerKey, MethodData>
         {
-            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3, component)
-            {
-            }
+            private readonly MethodCallIndexerExpressionBuilder _component;
 
-            private MethodCallIndexerExpressionBuilder Component => (MethodCallIndexerExpressionBuilder)Comparer;
+            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3)
+            {
+                _component = component;
+            }
 
             public object? Invoke(object? target, string methodName, ItemOrArray<object?> args, object? typeArgs, IReadOnlyMetadataContext? metadata)
             {
@@ -820,7 +824,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 var key = new MethodInvokerKey(target.GetType(), args);
                 if (!TryGetValue(key, out var method))
                 {
-                    var methods = Component.GetMethods(key.Type, methodName, false, ItemOrArray.FromRawValue<Type>(typeArgs), metadata);
+                    var methods = _component.GetMethods(key.Type, methodName, false, ItemOrArray.FromRawValue<Type>(typeArgs), metadata);
                     ItemOrArray<Type> instanceArgs = default;
                     for (var i = 0; i < methods.Count; i++)
                         methods.SetAt(i, methods[i].WithArgs(args, ref instanceArgs));
@@ -831,7 +835,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
                 if (method.IsEmpty)
                     ExceptionManager.ThrowInvalidBindingMember(key.Type, methodName);
-                return method.Method!.Invoke(target, Component._globalValueConverter.TryGetInvokeArgs(method.Parameters, args, metadata)!, metadata);
+                return method.Method!.Invoke(target, _component._globalValueConverter.TryGetInvokeArgs(method.Parameters, args, metadata)!, metadata);
             }
         }
     }

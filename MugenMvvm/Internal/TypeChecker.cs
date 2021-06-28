@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Internal
 {
@@ -13,7 +12,7 @@ namespace MugenMvvm.Internal
 
         private static class GenericChecker<T>
         {
-            public static readonly bool IsNullableType = BoxingExtensions.Box(default(T)) == null;
+            public static readonly bool IsNullableType = default(T) == null;
             public static readonly bool IsValueType = typeof(T).IsValueType;
         }
     }
