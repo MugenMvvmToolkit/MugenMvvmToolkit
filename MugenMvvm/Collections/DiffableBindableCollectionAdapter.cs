@@ -11,6 +11,7 @@ namespace MugenMvvm.Collections
     public class DiffableBindableCollectionAdapter : BindableCollectionAdapter, DiffUtil.IListUpdateCallback, DiffUtil.ICallback
     {
         private IReadOnlyList<object?>? _resetItems;
+        private Dictionary<(int, object?), object?>? _changedItems;
         private bool _resetBatchUpdate;
         private int _resetVersion;
         private int? _diffUtilAsyncLimit;
@@ -50,9 +51,8 @@ namespace MugenMvvm.Collections
 
         protected virtual bool AreContentsTheSame(int oldItemPosition, int newItemPosition)
         {
-            if (DiffableComparer is IContentDiffableEqualityComparer contentDiffable)
-                return contentDiffable.AreContentsTheSame(Items[oldItemPosition], _resetItems![newItemPosition]);
-            return true;
+            var changedItems = _changedItems;
+            return changedItems == null || !changedItems.ContainsKey((oldItemPosition, CollectionMetadata.ReloadItem));
         }
 
         protected virtual void OnInsertedDiff(int position, int finalPosition, int count)
@@ -67,7 +67,7 @@ namespace MugenMvvm.Collections
                 OnRemoved(Items[position + i], position + i, _resetBatchUpdate, _resetVersion);
         }
 
-        protected virtual void Reload(IEnumerable<object?> items, bool batchUpdate, int version)
+        protected virtual void Reload(IEnumerable<object?> items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
         {
             if (NotifyOnReload)
             {
@@ -77,7 +77,7 @@ namespace MugenMvvm.Collections
                     OnAdded(item, index++, batchUpdate, version);
             }
             else
-                base.OnReset(items, batchUpdate, version);
+                base.OnReset(items, changedItems, batchUpdate, version);
         }
 
         protected virtual void OnMovedDiff(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition)
@@ -88,7 +88,7 @@ namespace MugenMvvm.Collections
 
         protected virtual ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
 
-        protected sealed override async void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected sealed override async void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
         {
             using var _ = SuspendItems();
             if (items == null)
@@ -99,8 +99,8 @@ namespace MugenMvvm.Collections
 
             if (Items.Count == 0 || Items.Count > DiffUtilMaxLimit)
             {
-                Reload(items, batchUpdate, version);
-                ResetCache?.Clear();
+                Reload(items, changedItems, batchUpdate, version);
+                ClearResetCache();
                 return;
             }
 
@@ -114,14 +114,14 @@ namespace MugenMvvm.Collections
 
             if (Items.Count + _resetItems.Count > DiffUtilMaxLimit)
             {
-                Reload(_resetItems, batchUpdate, version);
-                _resetItems = null;
-                ResetCache?.Clear();
+                Reload(_resetItems, changedItems, batchUpdate, version);
+                ClearResetCache();
                 return;
             }
 
             _resetVersion = version;
             _resetBatchUpdate = batchUpdate;
+            _changedItems = changedItems;
             var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
             if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
             {
@@ -137,8 +137,7 @@ namespace MugenMvvm.Collections
                 if (Version == version)
                 {
                     diff.DispatchUpdatesTo(this);
-                    _resetItems = null;
-                    ResetCache?.Clear();
+                    ClearResetCache();
                     if (isAsync)
                         EndBatchUpdate(version);
                 }
@@ -148,6 +147,13 @@ namespace MugenMvvm.Collections
                 if (Version == version)
                     throw;
             }
+        }
+
+        protected override void ClearResetCache()
+        {
+            base.ClearResetCache();
+            _resetItems = null;
+            _changedItems = null;
         }
 
         int DiffUtil.ICallback.GetOldListSize()

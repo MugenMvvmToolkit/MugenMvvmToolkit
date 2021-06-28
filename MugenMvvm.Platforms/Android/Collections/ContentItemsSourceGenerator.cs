@@ -91,9 +91,9 @@ namespace MugenMvvm.Android.Collections
             NativeBindableMemberMugenExtensions.Clear(View);
         }
 
-        protected override void Reload(IEnumerable<object?> items, bool batchUpdate, int version)
+        protected override void Reload(IEnumerable<object?> items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
         {
-            base.Reload(items, batchUpdate, version);
+            base.Reload(items, changedItems, batchUpdate, version);
             if (IsAlive)
             {
                 NativeBindableMemberMugenExtensions.OnMemberChanged(View, BindableMemberConstant.SelectedIndex!, null);

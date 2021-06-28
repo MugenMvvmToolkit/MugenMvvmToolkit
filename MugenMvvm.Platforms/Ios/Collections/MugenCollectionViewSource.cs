@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Foundation;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Members;
@@ -36,9 +37,11 @@ namespace MugenMvvm.Ios.Collections
             cell.BindableMembers().SetDataContext(item);
             if ((cell.Tag & InitializedStateMask) != InitializedStateMask)
             {
+                (cell as ISupportInitialize)?.BeginInit();
                 cell.Tag |= InitializedStateMask;
                 cell.BindableMembers().SetParent(collectionView);
                 ItemTemplateSelector.OnCellCreated(collectionView, cell);
+                (cell as ISupportInitialize)?.EndInit();
             }
 
             return cell;

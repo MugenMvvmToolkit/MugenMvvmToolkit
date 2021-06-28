@@ -22,7 +22,7 @@ using MugenMvvm.Windows.Bindings;
 namespace MugenMvvm.Windows.Collections
 #endif
 {
-    public sealed class ObservableCollectionAdapter : ObservableCollection<object?>, ISuspendable, IEventListener
+    public sealed class ObservableCollectionAdapter : ObservableCollection<object?>, ISuspendable, IEventListener, BindableCollectionAdapter.IHasItemChangedSupport
     {
         private bool _isNotificationsDirty;
         private int _suspendCount;
@@ -94,5 +94,7 @@ namespace MugenMvvm.Windows.Collections
 
             return false;
         }
+
+        void BindableCollectionAdapter.IHasItemChangedSupport.OnChanged(object? item, int index, object? args) => this[index] = item;
     }
 }

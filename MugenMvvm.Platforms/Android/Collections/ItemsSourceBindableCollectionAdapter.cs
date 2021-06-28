@@ -13,6 +13,7 @@ namespace MugenMvvm.Android.Collections
     {
         protected readonly List<IItemsSourceObserver> Observers;
         private IReadOnlyList<object?>? _resetItems;
+        private Dictionary<(int, object?), object?>? _changedItems;
         private int _diffSupportedCount;
         private int _diffVersion;
         private bool _isAlive;
@@ -91,12 +92,14 @@ namespace MugenMvvm.Android.Collections
 
         protected override void OnChanged(object? item, int index, object? args, bool batchUpdate, int version)
         {
-            base.OnChanged(item, index, args, batchUpdate, version);
-            for (var i = 0; i < Observers.Count; i++)
-                GetObserver(i)?.OnItemChanged(index);
+            if (CollectionMetadata.ReloadItem == args)
+            {
+                for (var i = 0; i < Observers.Count; i++)
+                    GetObserver(i)?.OnItemChanged(index);
+            }
         }
 
-        protected override async void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected override async void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
         {
             if (items != null && Items.Count != 0 && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxLimit)
             {
@@ -110,6 +113,7 @@ namespace MugenMvvm.Android.Collections
 
                 if (Items.Count + _resetItems.Count <= DiffUtilMaxLimit)
                 {
+                    _changedItems = changedItems;
                     var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
                     if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
                     {
@@ -126,10 +130,9 @@ namespace MugenMvvm.Android.Collections
                         var diffResult = await DiffUtil.CalculateDiffAsync(this, isAsync, DetectMoves);
                         if (Version == version)
                         {
-                            base.OnReset(_resetItems, batchUpdate, version);
+                            base.OnReset(_resetItems, changedItems, batchUpdate, version);
                             diffResult.DispatchUpdatesTo(this, true);
-                            _resetItems = null;
-                            ResetCache?.Clear();
+                            ClearResetCache();
                             if (isAsync)
                                 EndBatchUpdate(version);
                         }
@@ -143,27 +146,36 @@ namespace MugenMvvm.Android.Collections
                     return;
                 }
 
-                base.OnReset(_resetItems, batchUpdate, version);
-                _resetItems = null;
-                ResetCache?.Clear();
+                base.OnReset(_resetItems, changedItems, batchUpdate, version);
+                ClearResetCache();
             }
             else
             {
-                base.OnReset(items, batchUpdate, version);
-                ResetCache?.Clear();
+                base.OnReset(items, changedItems, batchUpdate, version);
+                ClearResetCache();
             }
 
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnReset();
         }
 
+        protected override void ClearResetCache()
+        {
+            base.ClearResetCache();
+            _resetItems = null;
+            _changedItems = null;
+        }
+
         protected override void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
         {
+            Dictionary<(int, object?), object?>? items = null;
             var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
             for (var i = 0; i < events.Count; i++)
             {
                 var e = events[i];
-                e.ApplyToSource(Items);
+                if (e.Action == CollectionChangedAction.Changed && e.ChangedArgs != CollectionMetadata.ReloadItem)
+                    continue;
+                e.ApplyToSource(Items, ref items, false);
                 e.Raise(ref callback);
             }
 
@@ -205,7 +217,13 @@ namespace MugenMvvm.Android.Collections
             return DiffableComparer.AreItemsTheSame(Items[oldItemPosition], _resetItems![newItemPosition]);
         }
 
-        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition) => true;
+        bool DiffUtil.ICallback.AreContentsTheSame(int oldItemPosition, int newItemPosition)
+        {
+            if (_diffVersion != Version)
+                return true;
+            var changedItems = _changedItems;
+            return changedItems == null || !changedItems.ContainsKey((oldItemPosition, CollectionMetadata.ReloadItem));
+        }
 
         void DiffUtil.IListUpdateCallback.OnInserted(int position, int finalPosition, int count)
         {

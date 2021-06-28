@@ -27,9 +27,11 @@ namespace MugenMvvm.Collections
     public class BindableCollectionAdapter : ReadOnlyCollection<object?>, IThreadDispatcherHandler, IValueHolder<Delegate>
     {
         protected WeakListener? Listener;
-        internal List<object?>? ResetCache;
+        protected List<object?>? ResetCache;
+        protected Dictionary<(int, object?), object?>? ResetChangedItemsCache;
 
         private readonly List<CollectionChangedEvent> _pendingEvents;
+        private readonly ListInternal<CollectionChangedEvent> _pendingChangedEvents;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         private Timer? _timer;
@@ -46,6 +48,7 @@ namespace MugenMvvm.Collections
         {
             _threadDispatcher = threadDispatcher;
             _pendingEvents = new List<CollectionChangedEvent>();
+            _pendingChangedEvents = new ListInternal<CollectionChangedEvent>(0);
             _executionMode = ThreadExecutionMode.Main;
             Version = -BoxingExtensions.CacheSize;
         }
@@ -92,7 +95,7 @@ namespace MugenMvvm.Collections
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 
-        protected virtual void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue, int version) => ResetCache?.Clear();
+        protected virtual void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue, int version) => ClearResetCache();
 
         protected virtual void AddCollectionListener(IEnumerable collection, int version)
         {
@@ -121,9 +124,7 @@ namespace MugenMvvm.Collections
 
         protected virtual IEnumerable<object?> GetCollectionItems(IEnumerable collection) => collection.Decorate();
 
-        protected virtual void OnChanged(object? item, int index, object? args, bool batchUpdate, int version)
-        {
-        }
+        protected virtual void OnChanged(object? item, int index, object? args, bool batchUpdate, int version) => (Items as IHasItemChangedSupport)?.OnChanged(item, index, args);
 
         protected virtual void OnAdded(object? item, int index, bool batchUpdate, int version) => Items.Insert(index, item);
 
@@ -142,7 +143,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnRemoved(object? item, int index, bool batchUpdate, int version) => Items.RemoveAt(index);
 
-        protected virtual void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+        protected virtual void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
         {
             Items.Clear();
             if (items != null)
@@ -170,8 +171,8 @@ namespace MugenMvvm.Collections
             int startIndex;
             if (firstEvent.Action == CollectionChangedAction.Reset)
             {
-                MugenExtensions.Reset(ref ResetCache, firstEvent.ResetItems);
                 startIndex = 1;
+                MugenExtensions.Reset(ref ResetCache, firstEvent.ResetItems);
             }
             else
             {
@@ -179,10 +180,14 @@ namespace MugenMvvm.Collections
                 MugenExtensions.Reset(ref ResetCache, Items);
             }
 
+            ResetChangedItemsCache?.Clear();
             for (var i = startIndex; i < events.Count; i++)
-                events[i].ApplyToSource(ResetCache);
+                events[i].ApplyToSource(ResetCache, ref ResetChangedItemsCache);
 
-            OnReset(ResetCache, true, version);
+            if (ResetChangedItemsCache == null || ResetChangedItemsCache.Count == 0)
+                OnReset(ResetCache, changedItems: null, true, version);
+            else
+                OnReset(ResetCache, ResetChangedItemsCache, true, version);
         }
 
         protected virtual void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
@@ -191,17 +196,24 @@ namespace MugenMvvm.Collections
                 events[i].Raise(this, true, version);
         }
 
-        protected virtual bool AddPendingEvent(List<CollectionChangedEvent> pendingEvents, in CollectionChangedEvent e)
+        protected virtual bool AddPendingEvent(List<CollectionChangedEvent> pendingEvents, CollectionChangedEvent e)
         {
             if (e.Action == CollectionChangedAction.Reset)
             {
                 pendingEvents.Clear();
                 var resetItems = ((IEnumerable<object?>?)e.NewItem)?.ToArray();
-                pendingEvents.Add(CollectionChangedEvent.Reset(resetItems == null || resetItems.Length == 0 ? null : resetItems));
+                if (resetItems == null || resetItems.Length == 0)
+                    pendingEvents.Add(CollectionChangedEvent.Reset(null));
+                else
+                    pendingEvents.Add(CollectionChangedEvent.Reset(resetItems, _pendingChangedEvents.ToArray()));
+
+                _pendingChangedEvents.Clear();
                 return true;
             }
 
             pendingEvents.Add(e);
+            if (e.Action == CollectionChangedAction.Changed)
+                _pendingChangedEvents.Add(e);
             return true;
         }
 
@@ -213,7 +225,13 @@ namespace MugenMvvm.Collections
 
         protected virtual bool IsChangeEventSupported(object? item, object? args) => CollectionMetadata.ReloadItem.Equals(args);
 
-        protected bool AddEvent(in CollectionChangedEvent collectionChangedEvent, int version)
+        protected virtual void ClearResetCache()
+        {
+            ResetCache?.Clear();
+            ResetChangedItemsCache?.Clear();
+        }
+
+        protected bool AddEvent(CollectionChangedEvent collectionChangedEvent, int version)
         {
             if (Version != version)
                 return false;
@@ -321,6 +339,23 @@ namespace MugenMvvm.Collections
             }
         }
 
+        private void OnReset(IEnumerable<object?>? items, CollectionChangedEvent[]? changedItemsArray, bool batchUpdate, int version)
+        {
+            ResetChangedItemsCache?.Clear();
+            Dictionary<(int, object?), object?>? resetChangedItemsCache;
+            if (changedItemsArray != null && changedItemsArray.Length != 0)
+            {
+                ResetChangedItemsCache ??= new Dictionary<(int, object?), object?>();
+                foreach (var e in changedItemsArray)
+                    ResetChangedItemsCache[(e.OldIndex, e.NewItem)] = e.OldItem;
+                resetChangedItemsCache = ResetChangedItemsCache;
+            }
+            else
+                resetChangedItemsCache = null;
+
+            OnReset(items, resetChangedItemsCache, batchUpdate, version);
+        }
+
         private bool IsResetRequired()
         {
             if (_pendingEvents.Count == 0)
@@ -362,6 +397,7 @@ namespace MugenMvvm.Collections
                 }
 
                 _pendingEvents.Clear();
+                _pendingChangedEvents.Clear();
                 _collection = newValue;
                 if (newValue == null)
                     AddEvent(CollectionChangedEvent.Reset(null), version);
@@ -433,6 +469,7 @@ namespace MugenMvvm.Collections
 
                 events = GetPendingEvents(_pendingEvents);
                 _pendingEvents.Clear();
+                _pendingChangedEvents.Clear();
             }
 
             if (events.Count != 0)
@@ -442,7 +479,12 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected enum CollectionChangedAction : byte
+        public interface IHasItemChangedSupport
+        {
+            void OnChanged(object? item, int index, object? args);
+        }
+
+        protected enum CollectionChangedAction : short
         {
             Add = 1,
             Move = 2,
@@ -504,7 +546,7 @@ namespace MugenMvvm.Collections
                         adapter.OnReplaced(OldItem, NewItem, OldIndex, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Reset:
-                        adapter.OnReset((IEnumerable<object?>?)NewItem, batchUpdate, version);
+                        adapter.OnReset((IEnumerable<object?>?)NewItem, (CollectionChangedEvent[]?)OldItem, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Changed:
                         adapter.OnChanged(OldItem, OldIndex, NewItem, batchUpdate, version);
@@ -515,7 +557,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            public void ApplyToSource(IList<object?> source)
+            public void ApplyToSource(IList<object?> source, ref Dictionary<(int, object?), object?>? changedItems, bool initChangedItems = true)
             {
                 Should.NotBeNull(source, nameof(source));
                 switch (Action)
@@ -532,6 +574,12 @@ namespace MugenMvvm.Collections
                         break;
                     case CollectionChangedAction.Replace:
                         source[OldIndex] = NewItem;
+                        break;
+                    case CollectionChangedAction.Changed:
+                        if (initChangedItems)
+                            changedItems ??= new Dictionary<(int, object?), object?>();
+                        if (changedItems != null)
+                            changedItems[(OldIndex, NewItem)] = OldItem;
                         break;
                     case CollectionChangedAction.Reset:
                         source.Clear();
@@ -555,8 +603,6 @@ namespace MugenMvvm.Collections
                         callback.OnRemoved(OldIndex, 1);
                         break;
                     case CollectionChangedAction.Replace:
-                        callback.OnChanged(OldIndex, OldIndex, 1, false);
-                        break;
                     case CollectionChangedAction.Changed:
                         callback.OnChanged(OldIndex, OldIndex, 1, false);
                         break;
@@ -582,8 +628,8 @@ namespace MugenMvvm.Collections
             public static CollectionChangedEvent Remove(object? item, int index) => new(CollectionChangedAction.Remove, item, item, index, index);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public static CollectionChangedEvent Reset(IEnumerable<object?>? items) =>
-                new(CollectionChangedAction.Reset, null, items, -1, -1);
+            public static CollectionChangedEvent Reset(IEnumerable<object?>? items, CollectionChangedEvent[]? changedEvents = null) =>
+                new(CollectionChangedAction.Reset, changedEvents, items, -1, -1);
         }
 
         protected class WeakListener : ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority

@@ -8,6 +8,6 @@
         public static int BindableCollectionAdapterBatchLimit = 10;
         public static int FlattenCollectionDecoratorBatchLimit = 30;
 
-        public static readonly object ReloadItem = new(); //todo scroll to item
+        public static readonly object ReloadItem = new();
     }
 }

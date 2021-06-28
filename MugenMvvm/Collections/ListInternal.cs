@@ -42,7 +42,7 @@ namespace MugenMvvm.Collections
         {
             T[] array = Items;
             var size = Count;
-            if ((uint) size < (uint) array.Length)
+            if ((uint)size < (uint)array.Length)
             {
                 Count = size + 1;
                 array[size] = item;
@@ -145,6 +145,16 @@ namespace MugenMvvm.Collections
                 Array.Sort(Items, index, count, comparer);
         }
 
+        public T[] ToArray()
+        {
+            if (Count == 0)
+                return Array.Empty<T>();
+
+            T[] array = new T[Count];
+            Array.Copy(Items, 0, array, 0, Count);
+            return array;
+        }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private void AddWithResize(T item)
         {
@@ -159,7 +169,7 @@ namespace MugenMvvm.Collections
             if (Items.Length < min)
             {
                 var newCapacity = Items.Length == 0 ? DefaultCapacity : Items.Length * 2;
-                if ((uint) newCapacity > 2146435071U)
+                if ((uint)newCapacity > 2146435071U)
                     newCapacity = 2146435071;
                 if (newCapacity < min)
                     newCapacity = min;

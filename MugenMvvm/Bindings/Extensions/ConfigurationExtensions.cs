@@ -434,9 +434,9 @@ namespace MugenMvvm.Bindings.Extensions
                     Raise();
             }
 
-            protected override void OnReset(IEnumerable<object?>? items, bool batchUpdate, int version)
+            protected override void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
             {
-                base.OnReset(items, batchUpdate, version);
+                base.OnReset(items, changedItems, batchUpdate, version);
                 if (!batchUpdate)
                     Raise();
             }
