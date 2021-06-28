@@ -92,7 +92,7 @@ namespace MugenMvvm.Bindings.Members.Components
             if (memberTypes.HasFlag(MemberType.Method))
             {
                 types.Clear();
-                foreach (var t in BindingMugenExtensions.SelfAndBaseTypes(type, false, types: types))
+                foreach (var t in BindingMugenExtensions.SelfAndBaseTypes(type, types: types))
                     AddMethods(type, t, name, ref result);
             }
 
@@ -132,7 +132,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
             if (v == null)
                 return false;
-            result.Add((IMemberInfo) v);
+            result.Add((IMemberInfo)v);
             return true;
         }
 
@@ -149,7 +149,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
             if (v == null)
                 return false;
-            result.Add((IMemberInfo) v);
+            result.Add((IMemberInfo)v);
             return true;
         }
 
@@ -166,7 +166,7 @@ namespace MugenMvvm.Bindings.Members.Components
 
             if (v == null)
                 return false;
-            result.Add((IMemberInfo) v);
+            result.Add((IMemberInfo)v);
             return true;
         }
 

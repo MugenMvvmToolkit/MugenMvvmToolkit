@@ -34,7 +34,7 @@ namespace MugenMvvm.Ios.Collections
             var item = GetItemAt(indexPath);
             var cell = tableView.DequeueReusableCell(ItemTemplateSelector.GetIdentifier(tableView, item), indexPath);
             cell.BindableMembers().SetDataContext(item);
-            if ((cell.Tag & InitializedStateMask) == InitializedStateMask)
+            if ((cell.Tag & InitializedStateMask) != InitializedStateMask)
             {
                 cell.Tag |= InitializedStateMask;
                 cell.BindableMembers().SetParent(tableView);

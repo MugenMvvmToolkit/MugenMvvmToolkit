@@ -247,8 +247,11 @@ namespace MugenMvvm.Ios.Collections
         void DiffUtil.IListUpdateCallback.OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition) =>
             NotifyMoved(fromOriginalPosition, toFinalPosition);
 
-        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool moved)
+        void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
+            if (isMove)
+                return;
+
             _pendingReloads ??= new List<(int, int)>();
             _pendingReloads.Add((finalPosition, count));
             _pendingReloadCount += count;

@@ -32,9 +32,9 @@ namespace MugenMvvm.Ios.Collections
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
             var item = GetItemAt(indexPath);
-            var cell = (UICollectionViewCell) collectionView.DequeueReusableCell(ItemTemplateSelector.GetIdentifier(collectionView, item), indexPath);
+            var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(ItemTemplateSelector.GetIdentifier(collectionView, item), indexPath);
             cell.BindableMembers().SetDataContext(item);
-            if ((cell.Tag & InitializedStateMask) == InitializedStateMask)
+            if ((cell.Tag & InitializedStateMask) != InitializedStateMask)
             {
                 cell.Tag |= InitializedStateMask;
                 cell.BindableMembers().SetParent(collectionView);
