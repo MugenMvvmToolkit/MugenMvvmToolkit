@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class LimitCollectionDecorator<T> : CollectionDecoratorBase, IComparer<LimitCollectionDecorator<T>.ItemInfo>
+    public class LimitCollectionDecorator<T> : CollectionDecoratorBase
     {
         private const int NotFound = -1;
         private readonly ListInternal<ItemInfo> _items;
@@ -133,7 +133,7 @@ namespace MugenMvvm.Collections.Components
                 if (toRemove != NotFound)
                 {
                     _items.RemoveAt(toRemove);
-                    _items.AddOrdered(new ItemInfo((T)item!, newIndex), this);
+                    _items.AddOrdered(new ItemInfo((T)item!, newIndex));
                 }
 
                 oldIndex = GetIndex(oldIndex, oldIndex > newIndex);
@@ -203,6 +203,7 @@ namespace MugenMvvm.Collections.Components
             DecoratorManager.OnReset(Owner, this, items);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsSatisfied(object? item)
         {
             if (_condition == null)
@@ -212,7 +213,7 @@ namespace MugenMvvm.Collections.Components
 
         private int IndexOf(int index)
         {
-            var i = _items.BinarySearch(new ItemInfo(default!, index), this);
+            var i = _items.BinarySearch(new ItemInfo(default!, index));
             if (i < 0)
                 return NotFound;
             return i;
@@ -250,19 +251,24 @@ namespace MugenMvvm.Collections.Components
 
         private void UpdateItems(IEnumerable<object?> items)
         {
+            if (items is IReadOnlyCollection<object?> c)
+                _items.EnsureCapacity(c.Count);
+
             var index = 0;
             foreach (var item in items)
             {
                 if (IsSatisfied(item))
-                    _items.AddOrdered(new ItemInfo((T)item!, index), this);
+                    _items.Add(new ItemInfo((T)item!, index));
                 ++index;
             }
+
+            _items.Sort();
         }
 
         private bool Add(ICollectionDecoratorManagerComponent decoratorManager, T item, int index)
         {
             UpdateIndexes(index, 1);
-            var newIndex = _items.AddOrdered(new ItemInfo(item, index), this);
+            var newIndex = _items.AddOrdered(new ItemInfo(item, index));
             var limit = Limit!.Value;
             if (limit == 0 || newIndex >= limit)
                 return false;
@@ -312,7 +318,7 @@ namespace MugenMvvm.Collections.Components
             if (Limit!.Value > index || Limit!.Value >= _items.Count)
                 return index;
 
-            var lastIndex = _items.BinarySearch(new ItemInfo(default!, index), this);
+            var lastIndex = _items.BinarySearch(new ItemInfo(default!, index));
             if (lastIndex == 0)
                 return index;
             if (lastIndex < 0)
@@ -336,10 +342,8 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        int IComparer<ItemInfo>.Compare(ItemInfo x, ItemInfo y) => x.OriginalIndex.CompareTo(y.OriginalIndex);
-
         [StructLayout(LayoutKind.Auto)]
-        private struct ItemInfo : IEquatable<ItemInfo>
+        private struct ItemInfo : IEquatable<ItemInfo>, IComparable<ItemInfo>
         {
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             public T Item;
@@ -354,7 +358,11 @@ namespace MugenMvvm.Collections.Components
                 OriginalIndex = originalIndex;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool Equals(ItemInfo other) => OriginalIndex == other.OriginalIndex;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public int CompareTo(ItemInfo other) => OriginalIndex.CompareTo(other.OriginalIndex);
         }
     }
 }

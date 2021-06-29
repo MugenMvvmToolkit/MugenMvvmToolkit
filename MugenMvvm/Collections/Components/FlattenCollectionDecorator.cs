@@ -62,7 +62,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnAdded(collection, item, ref index, true, out _);
+            OnAdded(collection, item, ref index, true, true, out _);
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
@@ -79,7 +79,7 @@ namespace MugenMvvm.Collections.Components
                 }
             }
 
-            var added = OnAdded(collection, newItem, ref addIndex, !isRemoveReset, out var isAddReset);
+            var added = OnAdded(collection, newItem, ref addIndex, !isRemoveReset, true, out var isAddReset);
             if (added && removed)
                 return true;
             if (isAddReset || isRemoveReset)
@@ -115,7 +115,6 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
-            Clear();
             if (items == null)
                 Clear();
             else
@@ -127,7 +126,7 @@ namespace MugenMvvm.Collections.Components
                 var i = 0;
                 foreach (var item in items)
                 {
-                    OnAdded(collection, item, ref i, false, out _);
+                    OnAdded(collection, item, ref i, false, false, out _);
                     i = ++index;
                 }
 
@@ -183,10 +182,11 @@ namespace MugenMvvm.Collections.Components
             _collectionItems.Clear();
         }
 
-        private bool OnAdded(object source, object? item, ref int index, bool notify, out bool isReset)
+        private bool OnAdded(object source, object? item, ref int index, bool notify, bool updateIndex, out bool isReset)
         {
             var originalIndex = index;
-            index = UpdateIndexes(index, 1);
+            if (updateIndex)
+                index = UpdateIndexes(index, 1);
             if (item == null)
             {
                 isReset = false;
@@ -298,6 +298,7 @@ namespace MugenMvvm.Collections.Components
             internal readonly IEnumerable? Items;
             internal readonly bool DecoratorListener;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public FlattenItemInfo(IEnumerable? items, bool decoratorListener = true)
             {
                 Items = items;

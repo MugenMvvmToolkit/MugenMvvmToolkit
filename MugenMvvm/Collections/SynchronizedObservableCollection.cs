@@ -562,6 +562,9 @@ namespace MugenMvvm.Collections
         void ISynchronizable.UpdateLocker(ILocker locker)
         {
             Should.NotBeNull(locker, nameof(locker));
+            if (ReferenceEquals(locker, _locker))
+                return;
+
             var set = false;
             lock (_componentTracker)
             {
@@ -583,6 +586,7 @@ namespace MugenMvvm.Collections
             private ActionToken _locker;
             private int _index;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Enumerator(SynchronizedObservableCollection<T> collection)
             {
                 _collection = collection;
@@ -590,14 +594,21 @@ namespace MugenMvvm.Collections
                 _locker = collection.Lock();
             }
 
-            public readonly T Current => _collection == null ? default! : _collection[_index];
+            public readonly T Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _collection == null ? default! : _collection._items[_index];
+            }
 
             object IEnumerator.Current => Current!;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext() => _collection != null && ++_index < _collection._size;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset() => _index = -1;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose() => _locker.Dispose();
         }
 

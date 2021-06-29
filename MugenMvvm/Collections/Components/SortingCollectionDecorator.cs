@@ -181,6 +181,9 @@ namespace MugenMvvm.Collections.Components
 
         private void Reset(IEnumerable<object?> items)
         {
+            if (items is IReadOnlyCollection<object?> c)
+                _items.EnsureCapacity(c.Count);
+
             _items.Clear();
             var index = 0;
             foreach (var item in items)

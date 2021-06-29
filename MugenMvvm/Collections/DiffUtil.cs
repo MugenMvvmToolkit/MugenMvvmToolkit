@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -10,10 +9,6 @@ namespace MugenMvvm.Collections
 {
     public static class DiffUtil
     {
-#if !NET5_0
-        private static readonly Comparer<Diagonal> DiagonalComparer = Comparer<Diagonal>.Create((o1, o2) => o1.X - o2.X);
-#endif
-
         public interface ICallback
         {
             public int GetOldListSize();
@@ -102,12 +97,7 @@ namespace MugenMvvm.Collections
             }
 
             // sort snakes
-#if NET5_0
-            diagonals.Sort((o1, o2) => o1.X - o2.X);
-#else
-            diagonals.Sort(DiagonalComparer);
-#endif
-
+            diagonals.Sort();
             return new DiffResult(cb, diagonals, forward.Data, backward.Data, detectMoves);
         }
 
@@ -719,7 +709,7 @@ namespace MugenMvvm.Collections
         }
 
         [StructLayout(LayoutKind.Auto)]
-        internal readonly struct Diagonal
+        internal readonly struct Diagonal : IComparable<Diagonal>
         {
             public readonly int Size;
             public readonly int X;
@@ -744,6 +734,9 @@ namespace MugenMvvm.Collections
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => Y + Size;
             }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public int CompareTo(Diagonal other) => X - other.X;
         }
 
         [StructLayout(LayoutKind.Auto)]

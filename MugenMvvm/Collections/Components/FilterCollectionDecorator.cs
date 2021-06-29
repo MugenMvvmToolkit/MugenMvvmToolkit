@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
@@ -194,6 +195,9 @@ namespace MugenMvvm.Collections.Components
 
         private void UpdateItems(IEnumerable<object?> items)
         {
+            if (items is IReadOnlyCollection<object?> c)
+                EnsureCapacity(c.Count);
+
             var index = 0;
             foreach (var item in items)
             {
@@ -203,6 +207,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool FilterInternal(object? value) => _filter == null || value is not T v || _filter(v);
 
         private void UpdateIndexes(int index, int value)
@@ -288,10 +293,13 @@ namespace MugenMvvm.Collections.Components
 
         private void EnsureCapacity(int min)
         {
-            var num = _keys.Length == 0 ? 4 : _keys.Length * 2;
-            if (num < min)
-                num = min;
-            SetCapacity(num);
+            if (_keys.Length < min)
+            {
+                var num = _keys.Length == 0 ? 4 : _keys.Length * 2;
+                if (num < min)
+                    num = min;
+                SetCapacity(num);
+            }
         }
 
         private int Insert(int index, int key, object? value)

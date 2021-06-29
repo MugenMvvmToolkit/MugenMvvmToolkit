@@ -51,7 +51,7 @@ namespace MugenMvvm.Collections
                 AddWithResize(item);
         }
 
-        public int AddOrdered(T item, IComparer<T> comparer)
+        public int AddOrdered(T item, IComparer<T>? comparer = null)
         {
             var binarySearch = BinarySearch(item, comparer);
             if (binarySearch < 0)
@@ -61,7 +61,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int BinarySearch(T item, IComparer<T>? comparer)
+        public int BinarySearch(T item, IComparer<T>? comparer = null)
             => BinarySearch(0, Count, item, comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,13 +131,8 @@ namespace MugenMvvm.Collections
                 Items[Count] = default!;
         }
 
-        public void Sort(IComparer<T>? comparer)
+        public void Sort(IComparer<T>? comparer = null)
             => Sort(0, Count, comparer);
-
-#if NET5_0
-        public void Sort(Comparison<T> comparison)
-            => Items.AsSpan(0, Count).Sort(comparison);
-#endif
 
         public void Sort(int index, int count, IComparer<T>? comparer)
         {
@@ -155,16 +150,7 @@ namespace MugenMvvm.Collections
             return array;
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private void AddWithResize(T item)
-        {
-            var size = Count;
-            EnsureCapacity(size + 1);
-            Count = size + 1;
-            Items[size] = item;
-        }
-
-        private void EnsureCapacity(int min)
+        public void EnsureCapacity(int min)
         {
             if (Items.Length < min)
             {
@@ -175,6 +161,15 @@ namespace MugenMvvm.Collections
                     newCapacity = min;
                 Capacity = newCapacity;
             }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void AddWithResize(T item)
+        {
+            var size = Count;
+            EnsureCapacity(size + 1);
+            Count = size + 1;
+            Items[size] = item;
         }
     }
 }
