@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
@@ -37,6 +38,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 ++_itemChangedCount;
             });
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
+            RegisterDisposeToken(ActionToken.FromDisposable(_listener));
         }
 
         [Fact]
@@ -354,6 +356,48 @@ namespace MugenMvvm.UnitTests.Collections.Components
             item2.OnPropertyChanged(nameof(item1.Property));
             _itemChangedCount.ShouldEqual(1);
             _collectionChangedCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ShouldRaiseChangeEvent()
+        {
+            _listener.ClearObservers();
+            var item1 = new TestNotifyPropertyChangedModel();
+            var item2 = new TestNotifyPropertyChangedModel();
+
+            int invokeCount = 0;
+            _listener.Changed += (sender, args) =>
+            {
+                sender.ShouldEqual(_listener);
+                ++invokeCount;
+            };
+            _collection.Add(item1);
+            invokeCount.ShouldEqual(1);
+            _collection.Add(item2);
+            invokeCount.ShouldEqual(2);
+
+            item1.OnPropertyChanged(nameof(item1.Property));
+            invokeCount.ShouldEqual(3);
+
+            item2.OnPropertyChanged(nameof(item2.Property));
+            invokeCount.ShouldEqual(4);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldRaiseChanged(bool force)
+        {
+            const int delay = 10;
+            int invokeCount = 0;
+            int delayInvokeCount = 0;
+            _listener.ClearObservers();
+            _listener.AddObserver(this, (_, _) => true, (_, _) => ++invokeCount);
+            _listener.AddObserver(this, (_, _) => true, (_, _) => ++delayInvokeCount, delay);
+
+            _listener.RaiseChanged(force);
+            invokeCount.ShouldEqual(1);
+            delayInvokeCount.ShouldEqual(force ? 1 : 0);
         }
     }
 }

@@ -14,11 +14,11 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections.Components
 {
     public abstract class ItemObserverCollectionListenerBase<T> : ISuspendableComponent<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>,
-        IAttachableComponent, IDetachableComponent, IDisposable, IHasPriority where T : class?
+        IAttachableComponent, IDetachableComponent, IDisposable, ISupportChangeNotification, IHasPriority where T : class?
     {
         private readonly Dictionary<T, int> _items;
         private readonly PropertyChangedEventHandler _handler;
-        private readonly ListInternal<Observer> _observers;
+        private readonly ListInternal<IObserver> _observers;
         private volatile int _suspendCount;
         private bool _isNotificationsDirty;
 #if !NET5_0
@@ -28,9 +28,11 @@ namespace MugenMvvm.Collections.Components
         protected ItemObserverCollectionListenerBase(IEqualityComparer<T>? comparer)
         {
             _handler = OnPropertyChanged;
-            _observers = new ListInternal<Observer>(2);
+            _observers = new ListInternal<IObserver>(2);
             _items = new Dictionary<T, int>(comparer ?? EqualityComparer<T>.Default);
         }
+
+        public event EventHandler? Changed;
 
         public int Priority { get; set; }
 
@@ -44,7 +46,7 @@ namespace MugenMvvm.Collections.Components
                 _observers.Add(observer);
             }
 
-            return ActionToken.FromDelegate((l, item) => ((ItemObserverCollectionListenerBase<T>)l!).RemoveObserver((Observer)item!), this, observer);
+            return ActionToken.FromDelegate((l, item) => ((ItemObserverCollectionListenerBase<T>)l!).RemoveObserver((IObserver)item!), this, observer);
         }
 
         public void ClearObservers()
@@ -57,9 +59,15 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public void Dispose() => ClearObservers();
+        public void Dispose()
+        {
+            ClearObservers();
+            Changed = null;
+        }
 
-        protected virtual void OnChanged(T? item, string? member)
+        public void RaiseChanged(bool force = false, IReadOnlyMetadataContext? metadata = null) => OnChanged(null, null, force);
+
+        protected virtual void OnChanged(T? item, string? member, bool force = false)
         {
             if (_suspendCount != 0)
             {
@@ -72,7 +80,8 @@ namespace MugenMvvm.Collections.Components
             var count = Math.Min(_observers.Count, items.Length);
             // ReSharper restore InconsistentlySynchronizedField
             for (var i = 0; i < count; i++)
-                items[i]?.OnChanged(item, member);
+                items[i]?.OnChanged(item, member, force);
+            Changed?.Invoke(this, EventArgs.Empty);
         }
 
         protected virtual bool TrySubscribe(T item)
@@ -182,7 +191,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private void RemoveObserver(Observer observer)
+        private void RemoveObserver(IObserver observer)
         {
             bool removed;
             lock (_observers)
@@ -249,6 +258,11 @@ namespace MugenMvvm.Collections.Components
             return ActionToken.FromDelegate(this, t => t.EndSuspend());
         }
 
+        private interface IObserver : IDisposable
+        {
+            public void OnChanged(T? item, string? member, bool force);
+        }
+
         [StructLayout(LayoutKind.Auto)]
         public readonly struct ChangedEventInfo
         {
@@ -271,14 +285,7 @@ namespace MugenMvvm.Collections.Components
             public bool IsMemberOrCollectionChanged(string member, bool emptyMemberResult = true) => Item == null || member == Member || Member == "" && emptyMemberResult;
         }
 
-        private abstract class Observer : IDisposable
-        {
-            public abstract void OnChanged(T? item, string? member);
-
-            public abstract void Dispose();
-        }
-
-        private sealed class Observer<TState> : Observer
+        private sealed class Observer<TState> : IObserver
         {
             private readonly TState _state;
             private readonly Action<TState, T?> _invokeAction;
@@ -294,27 +301,27 @@ namespace MugenMvvm.Collections.Components
                 _canInvoke = canInvoke;
                 _delay = delay;
                 if (delay != 0)
-                    _timer = WeakTimer.Get(this, observer => observer.Raise(), null);
+                    _timer = WeakTimer.Get(this, observer => observer.Raise());
             }
 
-            public override void OnChanged(T? item, string? member)
+            public void Dispose()
+            {
+                _timer?.Dispose();
+                _timer = null;
+            }
+
+            public void OnChanged(T? item, string? member, bool force)
             {
                 if (!_canInvoke(_state, new ChangedEventInfo(item, member)))
                     return;
 
-                if (_delay == 0)
+                if (_delay == 0 || force)
                     _invokeAction(_state, item);
                 else
                 {
                     _item = item;
                     _timer?.Change(_delay, Timeout.Infinite);
                 }
-            }
-
-            public override void Dispose()
-            {
-                _timer?.Dispose();
-                _timer = null;
             }
 
             private void Raise()

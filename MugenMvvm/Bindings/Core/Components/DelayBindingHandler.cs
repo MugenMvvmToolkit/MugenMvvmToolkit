@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public abstract class DelayBindingHandler : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler
+    public abstract class DelayBindingHandler : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler, IDisposable
     {
         private IBinding? _binding;
         private bool _isUpdating;
@@ -55,7 +55,7 @@ namespace MugenMvvm.Bindings.Core.Components
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             _binding = (IBinding)owner;
-            _timer = WeakTimer.Get(this, handler => MugenService.ThreadDispatcher.Execute(ExecutionMode, handler, null), null);
+            _timer = WeakTimer.Get(this, handler => MugenService.ThreadDispatcher.Execute(ExecutionMode, handler, null));
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
@@ -65,6 +65,8 @@ namespace MugenMvvm.Bindings.Core.Components
             _timer?.Dispose();
             _binding = null;
         }
+
+        void IDisposable.Dispose() => _timer?.Dispose();
 
         void IThreadDispatcherHandler.Execute(object? state)
         {

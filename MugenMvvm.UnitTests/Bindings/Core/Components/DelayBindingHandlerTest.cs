@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             const int wait = 100;
             Action? invokeAction = null;
 
-            var component = (DelayBindingHandler.Source)DelayBindingHandler.GetSource(delay);
+            using var component = (DelayBindingHandler.Source)DelayBindingHandler.GetSource(delay);
             var sourceUpdateCount = 0;
             ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             const int wait = 10 * 4;
             Action? invokeAction = null;
 
-            var component = (DelayBindingHandler.Target)DelayBindingHandler.GetTarget(delay);
+            using var component = (DelayBindingHandler.Target)DelayBindingHandler.GetTarget(delay);
             var sourceUpdateCount = 0;
             ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
             {

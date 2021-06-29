@@ -316,11 +316,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             child1.Add(nestedChild);
             child2.Add(nestedChild);
 
+            DateTime startDate = default;
+
+            bool IsCancellationRequested()
+            {
+                if (DateTime.Now - startDate > TimeSpan.FromSeconds(timeout))
+                    cts.Cancel();
+                return cts.IsCancellationRequested;
+            }
+
             var t1 = Task.Run(() =>
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(10);
                     nestedChild.Add(Guid.NewGuid());
@@ -331,7 +340,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(10);
                     if (root.Contains(child1))
@@ -345,7 +354,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(10);
                     if (root.Contains(child2))
@@ -360,7 +369,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 var index = 0;
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
 
                     if (index == 1000)
@@ -371,14 +380,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     var child = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
                     var nestedChild1 = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
 
-                    ThreadPool.QueueUserWorkItem(_ =>
+                    Task.Run(() =>
                     {
                         while (true)
                         {
+                            if (IsCancellationRequested())
+                                return;
                             nestedChild1.Add(Guid.NewGuid());
                             Thread.Sleep(10);
                         }
-                    }, null);
+                    });
 
                     child.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
                     child.Add(nestedChild1);
@@ -396,15 +407,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
+
                     Thread.Sleep(1000);
                     using var l = root.Lock();
                     tracker.ChangedItems.ShouldEqual(root.Decorate());
                 }
             });
-            t5.Wait(TimeSpan.FromSeconds(timeout));
-            cts.Cancel();
+            cts.CancelAfter(TimeSpan.FromSeconds(timeout));
+            startDate = DateTime.Now;
             await Task.WhenAll(t1, t2, t3, t4, t5);
             Assert();
         }
@@ -416,12 +428,22 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var cts = new CancellationTokenSource();
             _targetCollection.Add("T");
             var random = new Random();
+
+            DateTime startDate = default;
+
+            bool IsCancellationRequested()
+            {
+                if (DateTime.Now - startDate > TimeSpan.FromSeconds(timeout))
+                    cts.Cancel();
+                return cts.IsCancellationRequested;
+            }
+
             var t1 = Task.Run(() =>
             {
                 var index = 0;
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(5);
                     _itemCollection1.Add(++index);
@@ -432,7 +454,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 var index = 0;
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(10);
                     _itemCollection2.Add(++index);
@@ -442,7 +464,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(10);
                     _targetCollection[0] = random.Next() % 2 == 0 ? "" : _itemCollection1;
@@ -455,7 +477,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(3000);
                     _targetCollection.Add(_itemCollection1);
@@ -466,7 +488,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(2000);
                     var target = _targetCollection[_targetCollection.Count - 1];
@@ -480,7 +502,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(1000);
                     _itemCollection1.Reset(new[] { 1, 2, 3 });
@@ -490,7 +512,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(100);
                     if (_itemCollection1.Count > 2)
@@ -504,7 +526,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 var index = 0;
                 while (true)
                 {
-                    if (cts.IsCancellationRequested)
+                    if (IsCancellationRequested())
                         return;
                     Thread.Sleep(50);
                     _targetCollection.Add(++index);
@@ -514,10 +536,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     Assert();
                 }
             });
-            t8.Wait(TimeSpan.FromSeconds(timeout));
-            cts.Cancel();
-            GcCollect();
-            GcCollect();
+            cts.CancelAfter(TimeSpan.FromSeconds(timeout));
+            startDate = DateTime.Now;
             await Task.WhenAll(t1, t2, t3, t4, t5, t6, t7, t8);
             Assert();
         }
