@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -10,15 +9,15 @@ namespace MugenMvvm.Extensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrArray<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIEnumerable<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyList<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrListEditor<T> editor)
@@ -87,8 +86,8 @@ namespace MugenMvvm.Extensions
         {
             if (array.List != null)
                 array.List[index] = value;
-            else if ((uint) index < (uint) array.Count)
-                array = new ItemOrArray<T>(value, true);
+            else if ((uint)index < (uint)array.Count)
+                array = new ItemOrArray<T>(value);
             else
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
         }

@@ -39,7 +39,7 @@ namespace MugenMvvm.Metadata
         }
 
         public MetadataContext(IEnumerable<KeyValuePair<IMetadataContextKey, object?>>? values = null)
-            : this(new ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>>(values))
+            : this(ItemOrIEnumerable.FromList(values))
         {
         }
 

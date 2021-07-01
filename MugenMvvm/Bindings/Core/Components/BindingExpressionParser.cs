@@ -83,12 +83,12 @@ namespace MugenMvvm.Bindings.Core.Components
 
                 if (_compiledExpression == InitializedState)
                 {
-                    return InitializeBinding(new Binding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
-                        ((IBindingMemberExpressionNode) _sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
+                    return InitializeBinding(new Binding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
+                        ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
-                return InitializeBinding(new ExpressionBinding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
-                    BindingMugenExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression) _compiledExpression!), target, source, metadata);
+                return InitializeBinding(new ExpressionBinding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
+                    BindingMugenExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression)_compiledExpression!), target, source, metadata);
             }
 
             private IBinding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
@@ -98,21 +98,19 @@ namespace MugenMvvm.Bindings.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                    {
                         binding.Initialize(ItemOrArray.FromItem<object?>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)),
                             metadata);
-                    }
                 }
 
                 if (binding.State == BindingState.Valid)
-                    ((BindingExpressionParser) _context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, null, metadata);
+                    ((BindingExpressionParser)_context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, null, metadata);
                 return binding;
             }
 
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                var component = (BindingExpressionParser) _context.Owner;
-                _context.Initialize(target, source, TargetExpression, (IExpressionNode?) _sourceExpression, GetParameters(), metadata);
+                var component = (BindingExpressionParser)_context.Owner;
+                _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, GetParameters(), metadata);
                 component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(component.Owner, _context);
                 TargetExpression = _context.TargetExpression;
                 var sourceExpression = _context.SourceExpression;
@@ -160,8 +158,8 @@ namespace MugenMvvm.Bindings.Core.Components
                 if (_parametersRaw == null)
                     return default;
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> parameters)
-                    return new ItemOrIReadOnlyList<IExpressionNode>(parameters.ToList());
-                return new ItemOrIReadOnlyList<IExpressionNode>((IExpressionNode) _parametersRaw, true);
+                    return ItemOrIReadOnlyList.FromList(parameters.ToList());
+                return new ItemOrIReadOnlyList<IExpressionNode>((IExpressionNode)_parametersRaw);
             }
         }
     }

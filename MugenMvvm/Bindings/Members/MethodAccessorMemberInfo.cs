@@ -62,7 +62,7 @@ namespace MugenMvvm.Bindings.Members
             if (ArgumentFlags.HasFlag(Enums.ArgumentFlags.Metadata))
             {
                 if (_args.Count == 1)
-                    args = new ItemOrArray<object?>(metadata, true);
+                    args = new ItemOrArray<object?>(metadata);
                 else
                 {
                     var argsArray = new object?[_args.List!.Length];

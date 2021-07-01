@@ -146,7 +146,7 @@ namespace MugenMvvm.Collections.Components
                     }
                 }
 #if !NET5_0
-                foreach (object item in toRemove.ToItemOrList())
+                foreach (object item in toRemove)
                     _collectionItems.Remove(item);
 #endif
 

@@ -11,28 +11,35 @@ namespace MugenMvvm.Collections
             if (count == 0)
                 return default;
             if (count == 1)
-                return new ItemOrArray<T>(default, true);
-            return new ItemOrArray<T>(new T[count]);
+                return new ItemOrArray<T>(default, null, 1);
+            return new ItemOrArray<T>(default, new T[count], count);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrArray<T> FromItem<T>(T? item) where T : class? => new(item, item != null);
+        public static ItemOrArray<T> FromItem<T>(T? item) where T : class? => item == null ? default : new ItemOrArray<T>(item, null, 1);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrArray<T> FromItem<T>(T? item, bool hasItem) => new(item, hasItem);
+        public static ItemOrArray<T> FromItem<T>(T? item, bool hasItem) => hasItem ? new ItemOrArray<T>(item, null, 1) : default;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrArray<T> FromList<T>(T[]? array) => new(array);
+        public static ItemOrArray<T> FromList<T>(T[]? array)
+        {
+            if (array == null || array.Length == 0)
+                return default;
+            if (array.Length == 1)
+                return new ItemOrArray<T>(array[0], null, 1);
+            return new ItemOrArray<T>(default, array, array.Length);
+        }
 
         [Preserve(Conditional = true)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> FromRawValue<T>(object? value)
         {
-            if (value is T[] list)
-                return new ItemOrArray<T>(list);
             if (value == null)
                 return default;
-            return new ItemOrArray<T>((T) value, true);
+            if (value is T[] list)
+                return FromList(list);
+            return new ItemOrArray<T>((T)value, null, 1);
         }
     }
 }

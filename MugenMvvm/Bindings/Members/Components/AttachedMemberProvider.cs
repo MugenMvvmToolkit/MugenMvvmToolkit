@@ -31,7 +31,7 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             var members = new ItemOrListEditor<IMemberInfo>();
             foreach (var keyValuePair in _registeredMembers)
-                members.AddRange(new ItemOrIEnumerable<IMemberInfo>(keyValuePair.Value));
+                members.AddRange(keyValuePair.Value);
             return members.ToItemOrList();
         }
 

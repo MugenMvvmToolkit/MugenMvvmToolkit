@@ -22,8 +22,8 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
-        private static readonly HashSet<char> BindingTargetDelimiters = new() {',', ';', ' '};
-        private static readonly HashSet<char> BindingDelimiters = new() {',', ';'};
+        private static readonly HashSet<char> BindingTargetDelimiters = new() { ',', ';', ' ' };
+        private static readonly HashSet<char> BindingDelimiters = new() { ',', ';' };
 
         public static EnumFlags<T> GetFlags<T>(this IExpressionNode expression, string key, EnumFlags<T> defaultFlags) where T : class, IFlagsEnum
         {
@@ -46,7 +46,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(expression, nameof(expression));
             Should.NotBeNull(key, nameof(key));
             if (expression.Metadata.TryGetValue(key, out var v))
-                return (TValue) v!;
+                return (TValue)v!;
             return defaultValue;
         }
 
@@ -104,7 +104,7 @@ namespace MugenMvvm.Bindings.Extensions
             var method = methodCallExpression.Method;
             ParameterInfo[]? parameters = null;
             IExpressionNode? target;
-            var args = context.Convert(new ItemOrIReadOnlyList<Expression>(methodCallExpression.Arguments));
+            var args = context.Convert(ItemOrIReadOnlyList.FromList(methodCallExpression.Arguments));
             if (method.GetAccessModifiers(true, ref parameters).HasFlag(MemberFlags.Extension))
             {
                 target = args[0];

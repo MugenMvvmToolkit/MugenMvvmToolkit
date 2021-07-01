@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -14,7 +13,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void CastShouldBeValid1()
         {
-            var objValue = new ItemOrArray<object>(this, false);
+            var objValue = ItemOrArray.FromItem<object>(this, false);
             var thisValue = objValue.Cast<ItemOrArrayTest>();
             AssertEmpty(thisValue);
         }
@@ -22,7 +21,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void CastShouldBeValid2()
         {
-            var objValue = new ItemOrArray<object>(this, true);
+            var objValue = ItemOrArray.FromItem<object>(this, true);
             var thisValue = objValue.Cast<ItemOrArrayTest>();
             AssertItem(thisValue, this);
         }
@@ -30,8 +29,8 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void CastShouldBeValid3()
         {
-            var list = new[] {this, this};
-            var objValue = new ItemOrArray<object>(list);
+            var list = new[] { this, this };
+            var objValue = ItemOrArray.FromList(list);
             var thisValue = objValue.Cast<ItemOrArrayTest>();
             AssertList(thisValue, list);
         }
@@ -39,7 +38,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void FromRawValueShouldHandleList()
         {
-            var list = new object[] {this, this};
+            var list = new object[] { this, this };
             AssertList(ItemOrArray.FromRawValue<object>(list), list);
         }
 
@@ -52,7 +51,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void FromRawValueShouldHandleSingleItemList()
         {
-            var list = new[] {this};
+            var list = new[] { this };
             AssertItem(ItemOrArray.FromRawValue<object>(list), list[0]);
         }
 
@@ -60,35 +59,35 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldHandleArray1()
         {
             AssertEmpty(ItemOrArray.FromList<string>(null));
-            AssertEmpty(new ItemOrArray<string>(null));
-            AssertEmpty(new ItemOrArray<string>(Array.Empty<string>()));
+            AssertEmpty(ItemOrArray.FromItem<string>(null));
+            AssertEmpty(ItemOrArray.FromList(Array.Empty<string>()));
 
-            ItemOrIReadOnlyListTest.AssertEmpty<string>(new ItemOrArray<string>(null));
-            ItemOrIEnumerableTest.AssertEmpty<string>(new ItemOrArray<string>(null));
+            ItemOrIReadOnlyListTest.AssertEmpty<string>(ItemOrArray.FromItem<string>(null));
+            ItemOrIEnumerableTest.AssertEmpty<string>(ItemOrArray.FromItem<string>(null));
         }
 
         [Fact]
         public void ShouldHandleArray2()
         {
-            var list = new[] {this};
+            var list = new[] { this };
             AssertItem(ItemOrArray.FromList(list), list[0]);
             AssertItem(list, list[0]);
-            AssertItem(new ItemOrArray<ItemOrArrayTest>(list), list[0]);
+            AssertItem(ItemOrArray.FromList(list), list[0]);
 
-            ItemOrIReadOnlyListTest.AssertItem(new ItemOrArray<ItemOrArrayTest>(list), this);
-            ItemOrIEnumerableTest.AssertItem(new ItemOrArray<ItemOrArrayTest>(list), this);
+            ItemOrIReadOnlyListTest.AssertItem(ItemOrArray.FromList(list), this);
+            ItemOrIEnumerableTest.AssertItem(ItemOrArray.FromList(list), this);
         }
 
         [Fact]
         public void ShouldHandleArray3()
         {
-            var list = new[] {this, this};
+            var list = new[] { this, this };
             AssertList(ItemOrArray.FromList(list), list);
             AssertList(list, list);
-            AssertList(new ItemOrArray<ItemOrArrayTest>(list), list);
+            AssertList(ItemOrArray.FromList(list), list);
 
-            ItemOrIReadOnlyListTest.AssertList(new ItemOrArray<ItemOrArrayTest>(list), list);
-            ItemOrIEnumerableTest.AssertList(new ItemOrArray<ItemOrArrayTest>(list), list);
+            ItemOrIReadOnlyListTest.AssertList(ItemOrArray.FromList(list), list);
+            ItemOrIEnumerableTest.AssertList(ItemOrArray.FromList(list), list);
         }
 
         [Fact]
@@ -96,13 +95,13 @@ namespace MugenMvvm.UnitTests.Collections
         {
             AssertItem(ItemOrArray.FromItem(this), this);
             AssertEmpty(ItemOrArray.FromItem(this, false));
-            AssertItem(new ItemOrArray<ItemOrArrayTest>(this, true), this);
-            AssertEmpty(new ItemOrArray<ItemOrArrayTest>(this, false));
+            AssertItem(ItemOrArray.FromItem(this, true), this);
+            AssertEmpty(ItemOrArray.FromItem(this, false));
 
-            ItemOrIReadOnlyListTest.AssertItem(new ItemOrArray<ItemOrArrayTest>(this, true), this);
-            ItemOrIReadOnlyListTest.AssertEmpty<ItemOrArrayTest>(new ItemOrArray<ItemOrArrayTest>(this, false));
-            ItemOrIEnumerableTest.AssertItem(new ItemOrArray<ItemOrArrayTest>(this, true), this);
-            ItemOrIEnumerableTest.AssertEmpty<ItemOrArrayTest>(new ItemOrArray<ItemOrArrayTest>(this, false));
+            ItemOrIReadOnlyListTest.AssertItem(ItemOrArray.FromItem(this, true), this);
+            ItemOrIReadOnlyListTest.AssertEmpty<ItemOrArrayTest>(ItemOrArray.FromItem(this, false));
+            ItemOrIEnumerableTest.AssertItem(ItemOrArray.FromItem(this, true), this);
+            ItemOrIEnumerableTest.AssertEmpty<ItemOrArrayTest>(ItemOrArray.FromItem(this, false));
         }
 
         private static void AssertEmpty<T>(ItemOrArray<T> itemOrList) where T : class
@@ -129,7 +128,7 @@ namespace MugenMvvm.UnitTests.Collections
 
         private static void AssertItem<T>(ItemOrArray<T> itemOrList, T item) where T : class
         {
-            var list = new[] {item};
+            var list = new[] { item };
             itemOrList.Item.ShouldEqual(item);
             itemOrList.IsEmpty.ShouldBeFalse();
             itemOrList.Count.ShouldEqual(1);

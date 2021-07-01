@@ -32,7 +32,7 @@ namespace MugenMvvm.Validation
         {
             var errors = new ItemOrListEditor<object>();
             _validator.GetErrors(propertyName, ref errors);
-            return errors.ToItemOrList().AsList();
+            return errors.AsList();
         }
 
         void IDisposableComponent<IValidator>.Dispose(IValidator owner, IReadOnlyMetadataContext? metadata) => ErrorsChanged = null;

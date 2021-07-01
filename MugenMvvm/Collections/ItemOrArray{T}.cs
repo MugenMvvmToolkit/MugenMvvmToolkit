@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 
@@ -12,47 +11,17 @@ namespace MugenMvvm.Collections
     {
         public readonly T? Item;
         public readonly T[]? List;
+        public readonly int Count;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrArray(T? item, bool hasItem)
+        public ItemOrArray(T? item)
         {
+            Item = item;
             List = null;
-            if (hasItem)
-            {
-                Item = item!;
-                Count = 1;
-            }
-            else
-            {
-                Item = default!;
-                Count = 0;
-            }
+            Count = 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrArray(T[]? array)
-        {
-            if (array == null || array.Length == 0)
-            {
-                Item = default!;
-                List = null;
-                Count = 0;
-            }
-            else if (array.Length == 1)
-            {
-                Count = 1;
-                Item = array[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = array;
-                Count = array.Length;
-            }
-        }
-
-        [Preserve]
         internal ItemOrArray(T? item, T[]? list, int count)
         {
             Item = item!;
@@ -72,12 +41,6 @@ namespace MugenMvvm.Collections
             get => Count == 1 && List == null;
         }
 
-        public int Count
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-        }
-
         [IndexerName(InternalConstant.CustomIndexerName)]
         public T this[int index]
         {
@@ -85,7 +48,7 @@ namespace MugenMvvm.Collections
             {
                 if (List != null)
                     return List[index];
-                if ((uint) index < (uint) Count)
+                if ((uint)index < (uint)Count)
                     return Item!;
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
                 return default!;
@@ -93,10 +56,10 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrArray<T>(T? item) => new(item, item != null);
+        public static implicit operator ItemOrArray<T>(T? item) => ItemOrArray.FromItem(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrArray<T>(T[]? items) => new(items);
+        public static implicit operator ItemOrArray<T>(T[]? items) => ItemOrArray.FromList(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIEnumerable<T>(ItemOrArray<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.Count);
@@ -105,7 +68,7 @@ namespace MugenMvvm.Collections
         public static implicit operator ItemOrIReadOnlyList<T>(ItemOrArray<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.Count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrArray<TType> Cast<TType>() => new((TType?) (object?) Item!, (TType[]?) (object?) List, Count);
+        public ItemOrArray<TType> Cast<TType>() => new((TType?)(object?)Item!, (TType[]?)(object?)List, Count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T[] AsList()
@@ -114,7 +77,7 @@ namespace MugenMvvm.Collections
                 return List;
             if (Count == 0)
                 return Array.Empty<T>();
-            return new[] {Item!};
+            return new[] { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -124,7 +87,7 @@ namespace MugenMvvm.Collections
                 return List.ToArray();
             if (Count == 0)
                 return Array.Empty<T>();
-            return new[] {Item!};
+            return new[] { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -139,7 +102,7 @@ namespace MugenMvvm.Collections
             private int _index;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Enumerator(ItemOrArray<T> itemOrList)
+            internal Enumerator(ItemOrArray<T> itemOrList)
             {
                 _index = -1;
                 _count = itemOrList.Count;

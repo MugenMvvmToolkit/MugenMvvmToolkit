@@ -142,7 +142,7 @@ namespace MugenMvvm.Bindings.Compiling
                     memberValues.Add(new KeyValuePair<IBindingMemberExpressionNode, Expression>(memberExpression, index.ConvertIfNeed(values[memberExpression.Index].Type, false)));
                 }
 
-                foreach (var pair in memberValues.ToItemOrList())
+                foreach (var pair in memberValues)
                     _expressions[pair.Key] = pair.Value;
 
                 return Expression

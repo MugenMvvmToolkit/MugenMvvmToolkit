@@ -15,91 +15,11 @@ namespace MugenMvvm.Collections
         public readonly IReadOnlyList<T>? List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList(T? item, bool hasItem)
+        public ItemOrIReadOnlyList(T? item)
         {
+            Item = item;
             List = null;
-            if (hasItem)
-            {
-                Item = item!;
-                _fixedCount = 1;
-            }
-            else
-            {
-                Item = default!;
-                _fixedCount = 0;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList(T[]? array)
-        {
-            if (array == null || array.Length == 0)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-            }
-            else if (array.Length == 1)
-            {
-                _fixedCount = 1;
-                Item = array[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = array;
-                _fixedCount = array.Length;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList(List<T>? list)
-        {
-            if (list == null || list.Count == 0)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-            }
-            else if (list.Count == 1)
-            {
-                _fixedCount = 1;
-                Item = list[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = list;
-                _fixedCount = 0;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList(IReadOnlyList<T>? readOnlyList)
-        {
-            if (readOnlyList == null || readOnlyList.Count == 0)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-            }
-            else if (readOnlyList.Count == 1)
-            {
-                _fixedCount = 1;
-                Item = readOnlyList[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = readOnlyList;
-                if (readOnlyList is T[] array)
-                    _fixedCount = array.Length;
-                else
-                    _fixedCount = 0;
-            }
+            _fixedCount = 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -143,11 +63,11 @@ namespace MugenMvvm.Collections
                 if (List != null)
                 {
                     if (_fixedCount != 0)
-                        return ((T[]) List)[index];
+                        return ((T[])List)[index];
                     return List[index];
                 }
 
-                if ((uint) index < (uint) _fixedCount)
+                if ((uint)index < (uint)_fixedCount)
                     return Item!;
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
                 return default!;
@@ -155,19 +75,19 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIReadOnlyList<T>(T? item) => new(item, item != null);
+        public static implicit operator ItemOrIReadOnlyList<T>(T? item) => ItemOrIReadOnlyList.FromItem(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIReadOnlyList<T>(T[]? items) => new(items);
+        public static implicit operator ItemOrIReadOnlyList<T>(T[]? items) => ItemOrIReadOnlyList.FromList(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIReadOnlyList<T>(List<T>? items) => new(items);
+        public static implicit operator ItemOrIReadOnlyList<T>(List<T>? items) => ItemOrIReadOnlyList.FromList<List<T>, T>(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIEnumerable<T>(ItemOrIReadOnlyList<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList._fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList<TType> Cast<TType>() => new((TType?) (object?) Item!, (IReadOnlyList<TType>?) List, _fixedCount);
+        public ItemOrIReadOnlyList<TType> Cast<TType>() => new((TType?)(object?)Item!, (IReadOnlyList<TType>?)List, _fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IReadOnlyList<T> AsList()
@@ -176,7 +96,7 @@ namespace MugenMvvm.Collections
                 return List;
             if (_fixedCount == 0)
                 return Array.Empty<T>();
-            return new[] {Item!};
+            return new[] { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -185,7 +105,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return List.ToArray();
             if (_fixedCount == 1)
-                return new[] {Item!};
+                return new[] { Item! };
             return Array.Empty<T>();
         }
 
@@ -203,7 +123,7 @@ namespace MugenMvvm.Collections
             private int _index;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Enumerator(ItemOrIReadOnlyList<T> itemOrList)
+            internal Enumerator(ItemOrIReadOnlyList<T> itemOrList)
             {
                 _index = -1;
                 if (itemOrList.List == null)
@@ -219,7 +139,7 @@ namespace MugenMvvm.Collections
                     _item = default!;
                     _readOnlyList = null;
                     _list = null;
-                    _array = (T[]) itemOrList.List;
+                    _array = (T[])itemOrList.List;
                     _count = itemOrList._fixedCount;
                 }
                 else

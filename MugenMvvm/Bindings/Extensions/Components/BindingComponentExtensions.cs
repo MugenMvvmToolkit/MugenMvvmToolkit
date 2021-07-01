@@ -315,7 +315,7 @@ namespace MugenMvvm.Bindings.Extensions.Components
                     return result;
             }
 
-            return new ItemOrIReadOnlyList<IBindingBuilder>(expression as IReadOnlyList<IBindingBuilder>);
+            return ItemOrIReadOnlyList.FromList(expression as IReadOnlyList<IBindingBuilder>);
         }
 
         public static void Initialize(this ItemOrArray<IBindingExpressionInitializerComponent> components, IBindingManager bindingManager,

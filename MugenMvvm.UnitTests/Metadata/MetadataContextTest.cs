@@ -152,7 +152,7 @@ namespace MugenMvvm.UnitTests.Metadata
         [Fact]
         public void TryGetShouldUseCustomGetter()
         {
-            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue), true));
+            var context = new MetadataContext(new ItemOrIReadOnlyList<KeyValuePair<IMetadataContextKey, object?>>(CustomGetterKey.ToValue(DefaultGetterValue)));
             TryGetGetterTest(context);
         }
 

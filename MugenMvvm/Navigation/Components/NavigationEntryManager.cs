@@ -47,7 +47,7 @@ namespace MugenMvvm.Navigation.Components
             lock (_navigationEntries)
             {
                 foreach (var t in _navigationEntries)
-                    result.AddRange(new ItemOrIEnumerable<INavigationEntry>(t.Value));
+                    result.AddRange(t.Value);
             }
 
             return result.ToItemOrList();

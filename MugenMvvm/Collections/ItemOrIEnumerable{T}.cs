@@ -16,171 +16,11 @@ namespace MugenMvvm.Collections
         public readonly IEnumerable<T>? List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable(T? item, bool hasItem)
+        public ItemOrIEnumerable(T? item)
         {
+            Item = item;
             List = null;
-            if (hasItem)
-            {
-                Item = item!;
-                _fixedCount = 1;
-            }
-            else
-            {
-                Item = default!;
-                _fixedCount = 0;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable(T[]? array)
-        {
-            if (array == null || array.Length == 0)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-            }
-            else if (array.Length == 1)
-            {
-                _fixedCount = 1;
-                Item = array[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = array;
-                _fixedCount = array.Length;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable(List<T>? list)
-        {
-            if (list == null || list.Count == 0)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-            }
-            else if (list.Count == 1)
-            {
-                _fixedCount = 1;
-                Item = list[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = list;
-                _fixedCount = 0;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable(IReadOnlyList<T>? readOnlyList)
-        {
-            if (readOnlyList == null || readOnlyList.Count == 0)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-            }
-            else if (readOnlyList.Count == 1)
-            {
-                _fixedCount = 1;
-                Item = readOnlyList[0];
-                List = null;
-            }
-            else
-            {
-                Item = default!;
-                List = readOnlyList;
-                if (readOnlyList is T[] array)
-                    _fixedCount = array.Length;
-                else
-                    _fixedCount = 0;
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable(IEnumerable<T>? enumerable)
-        {
-            if (enumerable == null)
-            {
-                Item = default!;
-                List = null;
-                _fixedCount = 0;
-                return;
-            }
-
-            if (enumerable is T[] array)
-            {
-                _fixedCount = array.Length;
-                if (_fixedCount > 1)
-                {
-                    Item = default!;
-                    List = enumerable;
-                }
-                else if (_fixedCount == 1)
-                {
-                    Item = array[0];
-                    List = null;
-                }
-                else
-                {
-                    Item = default!;
-                    List = null;
-                }
-
-                return;
-            }
-
-            int count;
-            if (enumerable is IReadOnlyList<T> readOnlyList)
-            {
-                count = readOnlyList.Count;
-                if (count > 1)
-                {
-                    _fixedCount = 0;
-                    Item = default!;
-                    List = enumerable;
-                }
-                else if (count == 1)
-                {
-                    _fixedCount = 1;
-                    Item = readOnlyList[0];
-                    List = null;
-                }
-                else
-                {
-                    _fixedCount = 0;
-                    Item = default!;
-                    List = null;
-                }
-
-                return;
-            }
-
-            count = enumerable.CountEx();
-            if (count > 1)
-            {
-                _fixedCount = 0;
-                Item = default!;
-                List = enumerable;
-            }
-            else if (count == 1)
-            {
-                _fixedCount = 1;
-                Item = enumerable.ElementAt(0);
-                List = null;
-            }
-            else
-            {
-                _fixedCount = 0;
-                Item = default!;
-                List = null;
-            }
+            _fixedCount = 1;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -210,16 +50,16 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIEnumerable<T>(T? item) => new(item, item != null);
+        public static implicit operator ItemOrIEnumerable<T>(T? item) => ItemOrIEnumerable.FromItem(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIEnumerable<T>(T[]? items) => new(items);
+        public static implicit operator ItemOrIEnumerable<T>(T[]? items) => ItemOrIEnumerable.FromList(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIEnumerable<T>(List<T>? items) => new(items);
+        public static implicit operator ItemOrIEnumerable<T>(List<T>? items) => ItemOrIEnumerable.FromList(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable<TType> Cast<TType>() => new((TType?) (object?) Item!, (IEnumerable<TType>?) List, _fixedCount);
+        public ItemOrIEnumerable<TType> Cast<TType>() => new((TType?)(object?)Item!, (IEnumerable<TType>?)List, _fixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsList()
@@ -228,7 +68,7 @@ namespace MugenMvvm.Collections
                 return List;
             if (Count == 0)
                 return Array.Empty<T>();
-            return new[] {Item!};
+            return new[] { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -237,7 +77,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return List.ToArray();
             if (_fixedCount == 1)
-                return new[] {Item!};
+                return new[] { Item! };
             return Array.Empty<T>();
         }
 
@@ -256,7 +96,7 @@ namespace MugenMvvm.Collections
             private int _index;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Enumerator(ItemOrIEnumerable<T> itemOrList)
+            internal Enumerator(ItemOrIEnumerable<T> itemOrList)
             {
                 _index = -1;
                 if (itemOrList.List == null)

@@ -24,7 +24,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
                 return null;
 
             return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<NewArrayExpressionConverter>(), nameof(NewArrayInit),
-                context.Convert(new ItemOrIReadOnlyList<Expression>(newArrayExpression.Expressions)), expression.Type.GetElementType()!.AssemblyQualifiedName!);
+                context.Convert(ItemOrIReadOnlyList.FromList(newArrayExpression.Expressions)), expression.Type.GetElementType()!.AssemblyQualifiedName!);
         }
     }
 }

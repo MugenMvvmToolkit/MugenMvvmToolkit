@@ -74,8 +74,8 @@ namespace MugenMvvm.Bindings.Core
             get
             {
                 if (SourceRaw is object?[] objects)
-                    return new ItemOrArray<object?>(objects);
-                return new ItemOrArray<object?>(SourceRaw, CheckFlag(HasItem));
+                    return ItemOrArray.FromList(objects);
+                return ItemOrArray.FromItem<object?>(SourceRaw, CheckFlag(HasItem));
             }
         }
 

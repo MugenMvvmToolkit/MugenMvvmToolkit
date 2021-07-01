@@ -29,15 +29,15 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
             EscapeSequenceMap = new Dictionary<char, char>(11)
             {
-                {'\\', '\\'},
-                {'0', '\0'},
-                {'a', '\a'},
-                {'b', '\b'},
-                {'f', '\f'},
-                {'n', '\n'},
-                {'r', '\r'},
-                {'t', '\t'},
-                {'v', '\v'}
+                { '\\', '\\' },
+                { '0', '\0' },
+                { 'a', '\a' },
+                { 'b', '\b' },
+                { 'f', '\f' },
+                { 'n', '\n' },
+                { 'r', '\r' },
+                { 't', '\t' },
+                { 'v', '\v' }
             };
         }
 
@@ -251,11 +251,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 return value;
 
             if (args.Count == 1)
-                return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), new[] {value, args[0]});
+                return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), new[] { value, args[0] });
 
-            var list = args.AsList();
+            var list = (List<IExpressionNode>)args.AsList();
             list.Insert(0, value);
-            return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), new ItemOrIReadOnlyList<IExpressionNode>((IReadOnlyList<IExpressionNode>) list));
+            return new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), ItemOrIReadOnlyList.FromList(list));
         }
 
         private string? GetQuoteToken(ITokenParserContext context)

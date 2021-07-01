@@ -19,7 +19,7 @@ namespace MugenMvvm.Metadata
 
         public int Count => _dictionary.Count;
 
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => new(_dictionary);
+        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => ItemOrIEnumerable.FromList(_dictionary);
 
         public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
 

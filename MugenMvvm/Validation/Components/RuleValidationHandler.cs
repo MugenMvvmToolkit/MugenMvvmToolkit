@@ -84,7 +84,7 @@ namespace MugenMvvm.Validation.Components
                     tasks.Add(task);
             }
 
-            foreach (var task in tasks.ToItemOrList())
+            foreach (var task in tasks)
                 editor.AddRange(await task.ConfigureAwait(false));
 
             validator.SetErrors(this, editor, metadata);

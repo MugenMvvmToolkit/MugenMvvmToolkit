@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -24,6 +25,7 @@ namespace MugenMvvm.Collections.Components
             _values = Array.Empty<object?>();
             _size = 0;
             Priority = priority;
+            NullItemResult = true;
         }
 
         public Func<T, bool>? Filter
@@ -36,6 +38,9 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
+        public bool NullItemResult { get; set; }
+
+        [MemberNotNullWhen(true, nameof(_filter))]
         private bool HasFilter => _filter != null;
 
         int IReadOnlyCollection<object?>.Count => _size;
@@ -208,7 +213,12 @@ namespace MugenMvvm.Collections.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool FilterInternal(object? value) => _filter == null || value is not T v || _filter(v);
+        private bool FilterInternal(object? value)
+        {
+            if (value == null)
+                return NullItemResult;
+            return value is not T v || _filter!(v);
+        }
 
         private void UpdateIndexes(int index, int value)
         {

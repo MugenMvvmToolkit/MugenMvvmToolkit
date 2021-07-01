@@ -127,7 +127,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 changed = true;
             if (notNull && result == null)
                 ExceptionManager.ThrowExpressionNodeCannotBeNull(GetType());
-            return (T) result!;
+            return (T)result!;
         }
 
         protected ItemOrIReadOnlyList<T> VisitWithCheck<T>(IExpressionVisitor visitor, ItemOrIReadOnlyList<T> nodes, ref bool changed, IReadOnlyMetadataContext? metadata)
@@ -142,7 +142,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                     continue;
 
                 if (newArgs.IsEmpty)
-                    newArgs = nodes.Count == 1 ? new ItemOrArray<T>(null!, true) : nodes.ToArray();
+                    newArgs = nodes.Count == 1 ? new ItemOrArray<T>(null) : nodes.ToArray();
                 newArgs.SetAt(i, node);
             }
 

@@ -33,7 +33,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             {
                 var r = _members[0].Item2;
                 _members.Clear();
-                return new ItemOrIReadOnlyList<IBindingMemberExpressionNode>(r, true);
+                return new ItemOrIReadOnlyList<IBindingMemberExpressionNode>(r);
             }
 
             var nodes = new IBindingMemberExpressionNode[count];

@@ -105,7 +105,7 @@ namespace MugenMvvm.Bindings.Extensions
             {
                 var editor = new ItemOrListEditor<object>();
                 hasValidator.GetService(false)!.GetErrors(ItemOrIReadOnlyList.FromRawValue<string>(membersRaw), ref editor, null, metadata);
-                return editor.ToItemOrList().AsList();
+                return (IReadOnlyList<object>)editor.AsList();
             }
 
             if (target is INotifyDataErrorInfo dataErrorInfo)

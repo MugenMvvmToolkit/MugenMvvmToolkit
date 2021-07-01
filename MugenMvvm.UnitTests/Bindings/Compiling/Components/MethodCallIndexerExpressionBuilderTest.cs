@@ -715,7 +715,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             if (state != 0 || !underlying)
                 parameters.Add(context.MetadataExpression);
 
-            var node = new MethodCallExpressionNode(target, method, arguments, new ItemOrIReadOnlyList<string>(typeArgs));
+            var node = new MethodCallExpressionNode(target, method, arguments, ItemOrIReadOnlyList.FromList(typeArgs));
             var expression = _component.TryBuild(context, node);
             return (expression!, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] { DefaultMetadata }).ToArray());
         }

@@ -14,8 +14,19 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key) where TValue : new()
+        {
+            Should.NotBeNull(dictionary, nameof(dictionary));
+            if (dictionary.TryGetValue(key, out var v))
+                return v;
+            v = new TValue();
+            dictionary[key] = v;
+            return v;
+        }
+
         public static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, Func<TKey, TValue> getValue)
         {
+            Should.NotBeNull(dictionary, nameof(dictionary));
             if (dictionary.TryGetValue(key, out var v))
                 return v;
             v = getValue(key);

@@ -39,7 +39,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 var target = Target;
                 if (target == null)
                     return default;
-                return new MemberPathMembers(target, new ItemOrIReadOnlyList<IMemberInfo>(member, true));
+                return new MemberPathMembers(target, new ItemOrIReadOnlyList<IMemberInfo>(member));
             }
 
             if (_lastMemberOrException is Exception e)
