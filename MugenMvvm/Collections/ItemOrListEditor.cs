@@ -34,7 +34,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor(IList<T> iList)
+        public ItemOrListEditor(IList<T>? iList)
         {
             _list = iList;
             _item = default!;
@@ -42,7 +42,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrListEditor(List<T> list) : this(iList: list)
+        public ItemOrListEditor(List<T>? list) : this(iList: list)
         {
         }
 

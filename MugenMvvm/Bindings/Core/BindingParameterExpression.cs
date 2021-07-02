@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Compiling;
@@ -8,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Bindings.Core
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingParameterExpression
+    public readonly struct BindingParameterExpression : IEquatable<BindingParameterExpression>
     {
         private readonly ICompiledExpression? _compiledExpression;
         private readonly object? _value;
@@ -26,5 +27,11 @@ namespace MugenMvvm.Bindings.Core
 
         public BindingParameterValue ToBindingParameter(object target, object? source, IReadOnlyMetadataContext? metadata) =>
             new(BindingMugenExtensions.ToBindingSource(_value, target, source, metadata), _compiledExpression);
+
+        public bool Equals(BindingParameterExpression other) => Equals(_compiledExpression, other._compiledExpression) && Equals(_value, other._value);
+
+        public override bool Equals(object? obj) => obj is BindingParameterExpression other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(_compiledExpression, _value);
     }
 }

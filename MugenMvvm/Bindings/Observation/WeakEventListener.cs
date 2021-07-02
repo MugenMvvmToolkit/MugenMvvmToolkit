@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Extensions;
@@ -8,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Bindings.Observation
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct WeakEventListener
+    public readonly struct WeakEventListener : IEquatable<WeakEventListener>
     {
         public readonly object? Target;
 
@@ -23,8 +25,6 @@ namespace MugenMvvm.Bindings.Observation
         public bool IsAlive => GetIsAlive(Target);
 
         public IEventListener? Listener => GetListener(Target);
-
-        public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => TryHandle(Target, sender, message, metadata);
 
         public static object GetTarget(IEventListener listener)
         {
@@ -55,7 +55,7 @@ namespace MugenMvvm.Bindings.Observation
                 return null;
             if (target is IEventListener listener)
                 return listener;
-            return (IEventListener?) ((IWeakReference) target).Target;
+            return (IEventListener?)((IWeakReference)target).Target;
         }
 
         public static bool TryHandle(object? target, object? sender, object? message, IReadOnlyMetadataContext? metadata)
@@ -66,8 +66,17 @@ namespace MugenMvvm.Bindings.Observation
             if (target is IEventListener listener)
                 return listener.TryHandle(sender, message, metadata);
 
-            listener = (IEventListener) ((IWeakReference) target).Target!;
+            listener = (IEventListener)((IWeakReference)target).Target!;
             return listener != null && listener.TryHandle(sender, message, metadata);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => TryHandle(Target, sender, message, metadata);
+
+        public bool Equals(WeakEventListener other) => Equals(Target, other.Target);
+
+        public override bool Equals(object? obj) => obj is WeakEventListener other && Equals(other);
+
+        public override int GetHashCode() => Target != null ? Target.GetHashCode() : 0;
     }
 }

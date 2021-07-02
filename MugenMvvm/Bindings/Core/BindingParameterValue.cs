@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Bindings.Core
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingParameterValue : IDisposable
+    public readonly struct BindingParameterValue : IDisposable, IEquatable<BindingParameterValue>
     {
         public readonly ICompiledExpression? Expression;
         public readonly object? Parameter;
@@ -35,5 +35,11 @@ namespace MugenMvvm.Bindings.Core
         }
 
         public void Dispose() => BindingMugenExtensions.DisposeBindingSource(Parameter);
+
+        public bool Equals(BindingParameterValue other) => Equals(Expression, other.Expression) && Equals(Parameter, other.Parameter);
+
+        public override bool Equals(object? obj) => obj is BindingParameterValue other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Expression, Parameter);
     }
 }

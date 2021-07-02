@@ -1,10 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Validation
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ValidationErrorInfo
+    public readonly struct ValidationErrorInfo : IEquatable<ValidationErrorInfo>
     {
         public readonly object? Target;
         public readonly string Member;
@@ -25,5 +26,11 @@ namespace MugenMvvm.Validation
         public bool HasError => Error != null;
 
         public override string ToString() => Error?.ToString() ?? "";
+
+        public bool Equals(ValidationErrorInfo other) => Equals(Target, other.Target) && Member == other.Member && Equals(Error, other.Error);
+
+        public override bool Equals(object? obj) => obj is ValidationErrorInfo other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Target, Member, Error);
     }
 }

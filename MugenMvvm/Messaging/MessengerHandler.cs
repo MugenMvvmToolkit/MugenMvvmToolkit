@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Messaging;
 namespace MugenMvvm.Messaging
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct MessengerHandler
+    public readonly struct MessengerHandler : IEquatable<MessengerHandler>
     {
         public readonly object? Subscriber;
         public readonly ThreadExecutionMode? ExecutionMode;
@@ -42,5 +42,12 @@ namespace MugenMvvm.Messaging
                 return MessengerResult.Ignored;
             return _handler(Subscriber!, messageContext, _state);
         }
+
+        public bool Equals(MessengerHandler other) => Equals(Subscriber, other.Subscriber) && Equals(ExecutionMode, other.ExecutionMode) && Equals(_handler, other._handler) &&
+                                                      Equals(_state, other._state);
+
+        public override bool Equals(object? obj) => obj is MessengerHandler other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Subscriber, ExecutionMode, _handler, _state);
     }
 }

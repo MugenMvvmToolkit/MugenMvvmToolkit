@@ -1,27 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidationHandler : IValidationHandlerComponent, IDisposableComponent<IValidator>
+    public sealed class RuleValidationHandler : IValidationHandlerComponent, IHasTarget<object>, IDisposableComponent<IValidator>
     {
-        [ThreadStatic]
-        private static List<ValidationErrorInfo>? _errorsCache;
-
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
+        private readonly List<ValidationErrorInfo>? _errors;
         private readonly CancellationTokenSource? _disposeToken;
 
-        public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules, bool useCache)
+        public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules)
         {
             Should.NotBeNull(target, nameof(target));
-            UseCache = useCache;
             Target = target;
             Rules = rules;
             foreach (var rule in rules)
@@ -32,32 +29,12 @@ namespace MugenMvvm.Validation.Components
                     break;
                 }
             }
-        }
 
-        public bool UseCache { get; }
+            if (_disposeToken == null && rules.Count > 1)
+                _errors = new List<ValidationErrorInfo>(rules.Count);
+        }
 
         public object Target { get; }
-
-        private static ItemOrListEditor<ValidationErrorInfo> GetItemOrListEditor(int count, bool useCache)
-        {
-            if (count < 2)
-                return default;
-            if (useCache)
-            {
-                var errors = _errorsCache;
-                if (errors == null)
-                {
-                    errors = new List<ValidationErrorInfo>(count);
-                    _errorsCache = errors;
-                }
-                else
-                    errors.Clear();
-
-                return new ItemOrListEditor<ValidationErrorInfo>(errors);
-            }
-
-            return new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>(count));
-        }
 
         public Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -73,7 +50,7 @@ namespace MugenMvvm.Validation.Components
 
         private async Task ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var editor = GetItemOrListEditor(Rules.Count, false);
+            var editor = new ItemOrListEditor<ValidationErrorInfo>();
             ItemOrListEditor<ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>> tasks = default;
             foreach (var rule in Rules)
             {
@@ -92,7 +69,8 @@ namespace MugenMvvm.Validation.Components
 
         private void Validate(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
         {
-            var editor = GetItemOrListEditor(Rules.Count, true);
+            _errors?.Clear();
+            var editor = new ItemOrListEditor<ValidationErrorInfo>(_errors);
             foreach (var rule in Rules)
             {
                 var task = rule.ValidateAsync(Target, member, default, metadata);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -9,7 +10,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Bindings.Observation
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct MemberObserver
+    public readonly struct MemberObserver : IEquatable<MemberObserver>
     {
         public static readonly MemberObserver NoDo = new((_, __, ___, ____) => default, "");
 
@@ -33,14 +34,22 @@ namespace MugenMvvm.Bindings.Observation
             member = _member;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemberObserver NoDoIfEmpty() => IsEmpty ? NoDo : this;
 
         [Pure]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (_handler == null)
                 return default;
             return _handler.Invoke(target, _member!, listener, metadata);
         }
+
+        public bool Equals(MemberObserver other) => Equals(_handler, other._handler) && Equals(_member, other._member);
+
+        public override bool Equals(object? obj) => obj is MemberObserver other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(_handler, _member);
     }
 }

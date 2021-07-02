@@ -22,7 +22,6 @@ using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
@@ -221,11 +220,7 @@ namespace MugenMvvm.Extensions
         public static ActionToken AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
-            var handler = command.GetOrAddComponent<PropertyChangedCommandNotifier>();
-            var token = handler.AddNotifier(notifier);
-            if (notifier is IHasDisposeCallback hasDisposeCallback)
-                hasDisposeCallback.RegisterDisposeToken(token);
-            return token;
+            return command.GetOrAddComponent<PropertyChangedCommandNotifier>().AddNotifier(notifier);
         }
 
         public static ValueTask<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
