@@ -239,6 +239,13 @@ namespace MugenMvvm.Extensions
             return command.ExecuteAsync(parameter, cancellationToken, metadata);
         }
 
+        public static ICompositeCommand SetForceExecute(this ICompositeCommand command, bool value = true)
+        {
+            Should.NotBeNull(command, nameof(command));
+            command.Metadata.Set(CommandMetadata.ForceExecute, value);
+            return command;
+        }
+
         public static void SynchronizeExecution(this ICompositeCommand command, ICompositeCommand value) => DelegateCommandExecutor.SynchronizeExecution(command, value);
 
         public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
