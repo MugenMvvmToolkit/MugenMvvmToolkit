@@ -211,6 +211,31 @@ namespace MugenMvvm.Collections
                 return true;
             }
 
+            if (pendingEvents.Count != 0)
+            {
+                CollectionChangedEvent prevEvent;
+                if (e.Action == CollectionChangedAction.Add)
+                {
+                    prevEvent = pendingEvents[pendingEvents.Count - 1];
+                    if (prevEvent.Action != CollectionChangedAction.Remove)
+                        prevEvent = default;
+                }
+                else if (e.Action == CollectionChangedAction.Remove)
+                {
+                    prevEvent = pendingEvents[pendingEvents.Count - 1];
+                    if (prevEvent.Action != CollectionChangedAction.Add)
+                        prevEvent = default;
+                }
+                else
+                    prevEvent = default;
+
+                if (!prevEvent.IsEmpty && prevEvent.OldIndex == e.OldIndex && ReferenceEquals(prevEvent.OldItem, e.OldItem))
+                {
+                    pendingEvents.RemoveAt(pendingEvents.Count - 1);
+                    return true;
+                }
+            }
+
             pendingEvents.Add(e);
             if (e.Action == CollectionChangedAction.Changed)
                 _pendingChangedEvents.Add(e);
