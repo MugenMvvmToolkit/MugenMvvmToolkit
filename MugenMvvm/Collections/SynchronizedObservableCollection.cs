@@ -27,7 +27,7 @@ namespace MugenMvvm.Collections
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(SynchronizedObservableCollection<>.DebuggerProxy))]
     public sealed class SynchronizedObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection, ISynchronizable,
-        IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentChangedHandler
+        IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentChangedHandler, IHasComponentAddingHandler
     {
         private const int DefaultCapacity = 4;
         private const int MaxArrayLength = 0X7FEFFFFF;
@@ -578,6 +578,8 @@ namespace MugenMvvm.Collections
             if (set)
                 GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(this, locker, null);
         }
+
+        bool IHasComponentAddingHandler.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>

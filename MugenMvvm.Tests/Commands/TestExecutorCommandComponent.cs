@@ -14,7 +14,7 @@ namespace MugenMvvm.Tests.Commands
 
         public int Priority { get; set; }
 
-        ValueTask<bool> ICommandExecutorComponent.ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken,
+        ValueTask<bool> ICommandExecutorComponent.TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata) =>
             ExecuteAsync?.Invoke(command, parameter, cancellationToken, metadata) ?? default;
     }

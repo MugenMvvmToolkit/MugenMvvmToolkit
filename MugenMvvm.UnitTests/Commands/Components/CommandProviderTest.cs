@@ -44,14 +44,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
         protected override ICommandManager GetCommandManager() => new CommandManager(ComponentCollectionManager);
 
         [Theory]
-        [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
-        public async Task TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution,
-            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public async Task TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers,
+            bool hasCanNotify, bool hasMetadata)
         {
             var executedCount = 0;
             var canExecuteValue = true;
-            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             Action<IReadOnlyMetadataContext?> execute = m =>
             {
                 m.ShouldEqual(DefaultMetadata);
@@ -69,13 +68,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
-            var request = DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
+            var request = DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify);
 
             var command = CommandManager.TryGetCommand<object>(this, request, metadata)!;
             command.ShouldNotBeNull();
 
-            var component = command.GetComponent<DelegateCommandExecutor<object>>();
-            await component.ExecuteAsync(command, null, DefaultCancellationToken, DefaultMetadata);
+            var component = command.GetComponent<DelegateCommandExecutor.IDelegateCommandExecutor>();
+            await component.TryExecuteAsync(command, null, DefaultCancellationToken, DefaultMetadata);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {
@@ -96,7 +95,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var metadataOwner = new TestMetadataOwner<IMetadataContext> { Metadata = new MetadataContext() };
             Action execute = () => { };
             Func<bool> canExecute = () => true;
-            var request = DelegateCommandRequest.Get(execute, canExecute, null, null, null, default, null);
+            var request = DelegateCommandRequest.Get(execute, canExecute, null, null, default, null);
             var command1 = CommandManager.TryGetCommand<object>(metadataOwner, request)!;
             var command2 = CommandManager.TryGetCommand<object>(metadataOwner, request)!;
             if (cache)
@@ -108,8 +107,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command4 = CommandManager.TryGetCommand<object>(this, request)!;
             command3.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command4.GetComponent<PropertyChangedCommandNotifier>());
 
-            command1 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null))!;
-            command2 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, null, metadataOwner, null))!;
+            command1 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, metadataOwner, null))!;
+            command2 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, metadataOwner, null))!;
             command1.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
         }
 

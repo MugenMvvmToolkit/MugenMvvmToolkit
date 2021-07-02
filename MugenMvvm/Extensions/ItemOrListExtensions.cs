@@ -39,27 +39,17 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ItemOrArray<T> itemOrList)
         {
-            if (itemOrList.List != null)
-            {
-                foreach (var item in itemOrList)
-                    return item;
-                return default;
-            }
-
-            return itemOrList.Item;
+            foreach (var item in itemOrList)
+                return item;
+            return default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ItemOrIReadOnlyList<T> itemOrList)
         {
-            if (itemOrList.List != null)
-            {
-                foreach (var item in itemOrList)
-                    return item;
-                return default;
-            }
-
-            return itemOrList.Item;
+            foreach (var item in itemOrList)
+                return item;
+            return default;
         }
 
         public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
@@ -146,21 +136,14 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static T Last<T>(this ItemOrIReadOnlyList<T> itemOrList) => itemOrList[itemOrList.Count - 1];
 
-        internal static T? FirstOrDefault<T>(this ItemOrArray<T> itemOrList, Func<T, bool> predicate)
+        internal static T? FirstOrDefault<T, TState>(this ItemOrArray<T> itemOrList, TState state, Func<T, TState, bool> predicate)
         {
-            if (itemOrList.List != null)
+            foreach (var item in itemOrList)
             {
-                foreach (var item in itemOrList)
-                {
-                    if (predicate(item))
-                        return item;
-                }
-
-                return default;
+                if (predicate(item, state))
+                    return item;
             }
 
-            if (predicate(itemOrList.Item!))
-                return itemOrList.Item;
             return default;
         }
     }

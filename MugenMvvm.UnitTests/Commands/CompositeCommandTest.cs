@@ -213,14 +213,13 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
-        public void CreateShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
-            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public void CreateShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
+            bool hasMetadata)
         {
             var owner = new object();
             Action<IReadOnlyMetadataContext?> execute = m => { };
-            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
@@ -240,30 +239,28 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
+            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
                 request.CanExecute.ShouldEqual(canExecute);
                 request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
-                request.ExecutionMode.ShouldEqual(executionMode);
                 request.EventThreadMode.ShouldEqual(threadMode);
                 request.Notifiers.ShouldEqual(notifiers);
                 request.CanNotify.ShouldEqual(canNotify);
             }
             else
-                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
+                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
         [Theory]
-        [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
-        public void CreateShouldGenerateValidRequest2(bool hasCanExecute, bool? allowMultipleExecution,
-            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public void CreateShouldGenerateValidRequest2(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
+            bool hasMetadata)
         {
             var owner = new object();
             Action<object, IReadOnlyMetadataContext?> execute = (t, m) => { };
-            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
@@ -283,30 +280,28 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
+            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
                 request.CanExecute.ShouldEqual(canExecute);
                 request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
-                request.ExecutionMode.ShouldEqual(executionMode);
                 request.EventThreadMode.ShouldEqual(threadMode);
                 request.Notifiers.ShouldEqual(notifiers);
                 request.CanNotify.ShouldEqual(canNotify);
             }
             else
-                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
+                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
         [Theory]
-        [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
-        public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution,
-            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
+            bool hasMetadata)
         {
             var owner = new object();
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
-            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
@@ -326,30 +321,28 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
                 request.CanExecute.ShouldEqual(canExecute);
                 request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
-                request.ExecutionMode.ShouldEqual(executionMode);
                 request.EventThreadMode.ShouldEqual(threadMode);
                 request.Notifiers.ShouldEqual(notifiers);
                 request.CanNotify.ShouldEqual(canNotify);
             }
             else
-                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
+                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
         [Theory]
-        [InlineData(false, null, null, false, false, false, false)]
-        [InlineData(true, true, CommandExecutionBehavior.CheckCanExecuteValue, true, true, true, true)]
-        public void CreateFromTaskShouldGenerateValidRequest2(bool hasCanExecute, bool? allowMultipleExecution,
-            int? executionModeValue, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify, bool hasMetadata)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public void CreateFromTaskShouldGenerateValidRequest2(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
+            bool hasMetadata)
         {
             var owner = new object();
             Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
-            var executionMode = executionModeValue == null ? null : CommandExecutionBehavior.Get(executionModeValue.Value);
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
@@ -369,19 +362,18 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, executionMode, threadMode, canNotify, metadata, CommandManager);
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
                 request.CanExecute.ShouldEqual(canExecute);
                 request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
-                request.ExecutionMode.ShouldEqual(executionMode);
                 request.EventThreadMode.ShouldEqual(threadMode);
                 request.Notifiers.ShouldEqual(notifiers);
                 request.CanNotify.ShouldEqual(canNotify);
             }
             else
-                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify).ShouldEqual(r);
+                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
         protected override ICompositeCommand GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) =>

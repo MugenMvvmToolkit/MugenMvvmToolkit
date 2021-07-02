@@ -31,7 +31,7 @@ namespace MugenMvvm.Wrapping.Components
             var collection = view.Components;
             lock (collection)
             {
-                var item = collection.Get<object>(metadata).FirstOrDefault(wrapperType.IsInstanceOfType);
+                var item = collection.Get<object>(metadata).FirstOrDefault(wrapperType, (o, type) => type.IsInstanceOfType(o));
                 if (item == null)
                 {
                     item = Components.TryWrap(wrapperManager, wrapperType, view.Target, metadata)!;

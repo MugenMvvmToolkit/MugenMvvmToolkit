@@ -9,14 +9,13 @@ namespace MugenMvvm.Commands
     {
         private object? _notifiers;
 
-        public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
-            ThreadExecutionMode? eventThreadMode, ItemOrIEnumerable<object> notifiers, Func<object?, object?, bool>? canNotify)
+        public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, ThreadExecutionMode? eventThreadMode,
+            ItemOrIEnumerable<object> notifiers, Func<object?, object?, bool>? canNotify)
         {
             Should.NotBeNull(execute, nameof(execute));
             Execute = execute;
             CanExecute = canExecute;
             AllowMultipleExecution = allowMultipleExecution;
-            ExecutionMode = executionMode;
             EventThreadMode = eventThreadMode;
             _notifiers = notifiers.GetRawValue();
             CanNotify = canNotify;
@@ -32,20 +31,18 @@ namespace MugenMvvm.Commands
 
         public Delegate Execute { get; protected set; }
 
-        public CommandExecutionBehavior? ExecutionMode { get; protected set; }
-
         public ItemOrIEnumerable<object> Notifiers
         {
             get => ItemOrIEnumerable.FromRawValue<object>(_notifiers);
             protected set => _notifiers = value.GetRawValue();
         }
 
-        public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionBehavior? executionMode,
-            ThreadExecutionMode? eventThreadMode, ItemOrIEnumerable<object> notifiers, Func<object?, object?, bool>? canNotify)
+        public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, ThreadExecutionMode? eventThreadMode, ItemOrIEnumerable<object> notifiers,
+            Func<object?, object?, bool>? canNotify)
         {
-            if (canExecute == null && allowMultipleExecution == null && executionMode == null && eventThreadMode == null)
+            if (canExecute == null && allowMultipleExecution == null && eventThreadMode == null)
                 return execute;
-            return new DelegateCommandRequest(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify);
+            return new DelegateCommandRequest(execute, canExecute, allowMultipleExecution, eventThreadMode, notifiers, canNotify);
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
@@ -14,125 +14,254 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IDisposableComponent<ICompositeCommand>, IHasDisposeCondition,
-        IHasPriority
+    public sealed class DelegateCommandExecutor : MultiAttachableComponentBase<ICompositeCommand>, DelegateCommandExecutor.IDelegateCommandExecutor
     {
-        private readonly bool _allowMultipleExecution;
-        private readonly CommandExecutionBehavior _executionBehavior;
-        private Delegate? _canExecute;
-        private Delegate? _execute;
+        private static readonly AllowMultipleExecutionDelegateCommandExecutor AllowMultipleExecutionExecutor = new();
         private ICompositeCommand? _executingCommand;
-        private bool _executing;
+        private volatile bool _executing;
 
-        public DelegateCommandExecutor(Delegate execute, Delegate? canExecute, CommandExecutionBehavior executionBehavior, bool allowMultipleExecution)
+        private DelegateCommandExecutor()
         {
-            Should.NotBeNull(execute, nameof(execute));
-            Should.NotBeNull(executionBehavior, nameof(executionBehavior));
-            _execute = execute;
-            _canExecute = canExecute;
-            _executionBehavior = executionBehavior;
-            _allowMultipleExecution = allowMultipleExecution;
-            IsDisposable = true;
         }
 
-        public bool IsDisposable { get; set; }
+        public bool IsExecuting => _executing;
+
+        public bool AllowMultipleExecution => false;
 
         public int Priority => CommandComponentPriority.Executor;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsForceExecute(IReadOnlyMetadataContext? metadata) => metadata != null && metadata.TryGet(CommandMetadata.ForceExecute, out var value) && value;
+        public static ICommandExecutorComponent Get(bool allowMultipleExecution)
+        {
+            if (allowMultipleExecution)
+                return AllowMultipleExecutionExecutor;
+            return new DelegateCommandExecutor();
+        }
+
+        public static ICommandExecutorComponent Add<T>(ICompositeCommand command, Delegate execute, Delegate? canExecute, bool allowMultipleExecution)
+        {
+            Should.NotBeNull(command, nameof(command));
+            var component = Get(allowMultipleExecution);
+            command.AddComponent(component);
+            command.AddComponent(canExecute == null ? new DelegateExecutor<T>(execute) : new ConditionDelegateExecutor<T>(execute, canExecute));
+            return component;
+        }
+
+        public static void SynchronizeExecution(ICompositeCommand command, ICompositeCommand value)
+        {
+            Should.NotBeNull(command, nameof(command));
+            Should.NotBeNull(value, nameof(value));
+            var executor1 = command.GetComponentOptional<IDelegateCommandExecutor>();
+            var executor2 = value.GetComponentOptional<IDelegateCommandExecutor>();
+            if (ReferenceEquals(executor1, executor2) && executor1 != null && !executor1.AllowMultipleExecution)
+                return;
+
+            if (executor1 != null && !executor1.AllowMultipleExecution)
+            {
+                value.RemoveComponents<IDelegateCommandExecutor>();
+                value.AddComponent(executor1);
+                return;
+            }
+
+            if (executor2 != null && !executor2.AllowMultipleExecution)
+            {
+                command.RemoveComponents<IDelegateCommandExecutor>();
+                command.AddComponent(executor2);
+                return;
+            }
+
+            var executor = new DelegateCommandExecutor();
+            command.RemoveComponents<IDelegateCommandExecutor>();
+            value.RemoveComponents<IDelegateCommandExecutor>();
+            command.AddComponent(executor);
+            value.AddComponent(executor);
+        }
 
         public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
-            if (_execute == null || _executing && !IsForceExecute(metadata))
+            if (_executing && !IsForceExecute(command, metadata))
                 return false;
 
-            var canExecuteDelegate = _canExecute;
-            if (canExecuteDelegate == null)
-                return true;
-
-            if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
-                return func(metadata);
-            return ((Func<T, IReadOnlyMetadataContext?, bool>)canExecuteDelegate).Invoke((T)parameter!, metadata);
+            var executor = command.GetComponentOptional<IDelegateExecutor>();
+            return executor != null && executor.CanExecute(command, parameter, metadata);
         }
 
-        public async ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
-                if (_allowMultipleExecution)
-                    return await ExecuteInternalAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
-
                 if (Interlocked.CompareExchange(ref _executingCommand, command, null) != null)
                 {
-                    if (!IsForceExecute(metadata))
+                    if (!IsForceExecute(command, metadata))
                         return false;
                     _executingCommand = command;
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
-                command.RaiseCanExecuteChanged();
-                var result = await ExecuteInternalAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
-                OnExecuted(command);
+                var result = await ExecuteAsync(command, parameter, cancellationToken, metadata).ConfigureAwait(false);
+                OnExecuted(command, metadata);
                 return result;
             }
             catch
             {
-                OnExecuted(command);
+                OnExecuted(command, metadata);
                 throw;
             }
         }
 
-        public void Dispose()
+        private static bool IsForceExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata) =>
+            command.HasMetadata && command.Metadata.TryGet(CommandMetadata.ForceExecute, out var forceExecute) && forceExecute ||
+            metadata != null && metadata.TryGet(CommandMetadata.ForceExecute, out var value) && value;
+
+        private ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (IsDisposable)
+            if (cancellationToken.IsCancellationRequested)
+                return default;
+
+            var executor = command.GetComponentOptional<IDelegateExecutor>();
+            if (executor == null || !command.CanExecute(parameter, metadata))
             {
-                _canExecute = null;
-                _execute = null;
+                command.RaiseCanExecuteChanged(metadata);
+                return default;
             }
+
+            _executing = true;
+            RaiseCanExecuteChanged(metadata);
+            return executor.ExecuteAsync(command, parameter, cancellationToken, metadata);
         }
 
-        private void OnExecuted(ICompositeCommand command)
+        private void OnExecuted(ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
             if (Interlocked.CompareExchange(ref _executingCommand, null, command) == command)
+            {
                 _executing = false;
-            command.RaiseCanExecuteChanged();
+                RaiseCanExecuteChanged(metadata);
+            }
         }
 
-        private async ValueTask<bool> ExecuteInternalAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        private void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata)
         {
-            var executeAction = _execute;
-            if (executeAction == null || cancellationToken.IsCancellationRequested)
-                return false;
+            foreach (var owner in Owners)
+                owner.RaiseCanExecuteChanged(metadata);
+        }
 
-            if (!_executionBehavior.BeforeExecute(command, parameter, cancellationToken, metadata))
-                return false;
+        public interface IDelegateExecutor : IComponent<ICompositeCommand>
+        {
+            bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata);
 
-            if (!_allowMultipleExecution)
-                _executing = true;
+            public ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        }
 
-            var result = true;
-            if (executeAction is Action<IReadOnlyMetadataContext?> execute)
-                execute(metadata);
-            else if (executeAction is Action<T, IReadOnlyMetadataContext?> genericExecute)
-                genericExecute((T)parameter!, metadata);
-            else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
-                await executeTask(cancellationToken, metadata).ConfigureAwait(false);
-            else if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task> executeTaskParameter)
-                await executeTaskParameter((T)parameter!, cancellationToken, metadata).ConfigureAwait(false);
-            else if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> executeTaskBool)
-                result = await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
-            else
+        internal interface IDelegateCommandExecutor : ICommandExecutorComponent, ICommandConditionComponent, IHasPriority
+        {
+            bool AllowMultipleExecution { get; }
+        }
+
+        public class DelegateExecutor<T> : IDelegateExecutor, IDisposableComponent<ICompositeCommand>
+        {
+            private Delegate? _execute;
+
+            public DelegateExecutor(Delegate execute)
             {
-                result = await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>)executeAction)
-                               .Invoke((T)parameter!, cancellationToken, metadata)
-                               .ConfigureAwait(false);
+                Should.NotBeNull(execute, nameof(execute));
+                _execute = execute;
             }
 
-            _executionBehavior.AfterExecute(command, parameter, cancellationToken, metadata);
-            return result;
+            public virtual bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => _execute != null;
+
+            public virtual async ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            {
+                var executeAction = _execute;
+                if (executeAction == null || cancellationToken.IsCancellationRequested)
+                    return false;
+
+                if (executeAction is Action<IReadOnlyMetadataContext?> execute)
+                {
+                    execute(metadata);
+                    return true;
+                }
+
+                if (executeAction is Action<T, IReadOnlyMetadataContext?> genericExecute)
+                {
+                    genericExecute((T)parameter!, metadata);
+                    return true;
+                }
+
+                if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
+                {
+                    await executeTask(cancellationToken, metadata).ConfigureAwait(false);
+                    return true;
+                }
+
+                if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task> executeTaskParameter)
+                {
+                    await executeTaskParameter((T)parameter!, cancellationToken, metadata).ConfigureAwait(false);
+                    return true;
+                }
+
+                if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> executeTaskBool)
+                    return await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
+
+                return await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>)executeAction)
+                             .Invoke((T)parameter!, cancellationToken, metadata)
+                             .ConfigureAwait(false);
+            }
+
+            public virtual void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _execute = null;
         }
 
-        void IDisposableComponent<ICompositeCommand>.Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => Dispose();
+        public class ConditionDelegateExecutor<T> : DelegateExecutor<T>
+        {
+            private Delegate? _canExecute;
+
+            public ConditionDelegateExecutor(Delegate execute, Delegate canExecute) : base(execute)
+            {
+                Should.NotBeNull(canExecute, nameof(canExecute));
+                _canExecute = canExecute;
+            }
+
+            public override bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+            {
+                var canExecuteDelegate = _canExecute;
+                if (canExecuteDelegate == null)
+                    return false;
+
+                if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
+                    return func(metadata);
+                return ((Func<T, IReadOnlyMetadataContext?, bool>)canExecuteDelegate).Invoke((T)parameter!, metadata);
+            }
+
+            public override void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
+            {
+                base.Dispose(owner, metadata);
+                _canExecute = null;
+            }
+        }
+
+        private sealed class AllowMultipleExecutionDelegateCommandExecutor : IDelegateCommandExecutor
+        {
+            public bool AllowMultipleExecution => true;
+
+            public int Priority => CommandComponentPriority.Executor;
+
+            public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
+            {
+                var executor = command.GetComponentOptional<IDelegateExecutor>();
+                return executor != null && executor.CanExecute(command, parameter, metadata);
+            }
+
+            public ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return default;
+
+                var executor = command.GetComponentOptional<IDelegateExecutor>();
+                if (executor == null || !executor.CanExecute(command, parameter, metadata))
+                {
+                    command.RaiseCanExecuteChanged();
+                    return default;
+                }
+
+                return executor.ExecuteAsync(command, parameter, cancellationToken, metadata);
+            }
+        }
     }
 }

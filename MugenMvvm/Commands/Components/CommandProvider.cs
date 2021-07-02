@@ -21,21 +21,40 @@ namespace MugenMvvm.Commands.Components
         private readonly IThreadDispatcher? _threadDispatcher;
 
         [Preserve(Conditional = true)]
-        public CommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionManager? componentCollectionManager = null)
+        public CommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionManager? componentCollectionManager = null,
+            int priority = CommandComponentPriority.CommandProvider)
         {
             _componentCollectionManager = componentCollectionManager;
             _threadDispatcher = threadDispatcher;
+            EventThreadMode = ThreadExecutionMode.Main;
+            CacheCommandNotifier = true;
+            Priority = priority;
         }
 
         public bool AllowMultipleExecution { get; set; }
 
-        public CommandExecutionBehavior CommandExecutionBehavior { get; set; } = CommandExecutionBehavior.CheckCanExecute;
+        public ThreadExecutionMode EventThreadMode { get; set; }
 
-        public ThreadExecutionMode EventThreadMode { get; set; } = ThreadExecutionMode.Main;
+        public bool CacheCommandNotifier { get; set; }
 
-        public bool CacheCommandNotifier { get; set; } = true;
+        public int Priority { get; set; }
 
-        public int Priority { get; set; } = CommandComponentPriority.CommandProvider;
+        public ICompositeCommand TryGetCommand<TParameter>(ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
+        {
+            var command = new CompositeCommand(null, _componentCollectionManager);
+            command.AddComponent(new CommandEventHandler(_threadDispatcher, EventThreadMode));
+
+            if (request is Delegate execute)
+                DelegateCommandExecutor.Add<TParameter>(command, execute, null, AllowMultipleExecution);
+            else if (request is DelegateCommandRequest commandRequest)
+            {
+                DelegateCommandExecutor.Add<TParameter>(command, commandRequest.Execute, commandRequest.CanExecute,
+                    commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution));
+                command.AddComponent(GetCommandCommandNotifier(owner, commandRequest, metadata), metadata);
+            }
+
+            return command;
+        }
 
         private static PropertyChangedCommandNotifier GetCommandCommandNotifierInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
@@ -48,24 +67,6 @@ namespace MugenMvvm.Commands.Components
             }
 
             return commandNotifier;
-        }
-
-        public ICompositeCommand TryGetCommand<TParameter>(ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
-        {
-            var command = new CompositeCommand(null, _componentCollectionManager);
-            command.AddComponent(new CommandEventHandler(_threadDispatcher, EventThreadMode));
-
-            if (request is Delegate execute)
-                command.AddComponent(new DelegateCommandExecutor<TParameter>(execute, null, CommandExecutionBehavior, AllowMultipleExecution));
-            else if (request is DelegateCommandRequest commandRequest)
-            {
-                command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute,
-                    commandRequest.ExecutionMode ?? CommandExecutionBehavior,
-                    commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
-                command.AddComponent(GetCommandCommandNotifier(owner, commandRequest, metadata), metadata);
-            }
-
-            return command;
         }
 
         private PropertyChangedCommandNotifier GetCommandCommandNotifier(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
