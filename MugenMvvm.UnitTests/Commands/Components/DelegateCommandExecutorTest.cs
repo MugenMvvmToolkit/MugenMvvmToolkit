@@ -215,7 +215,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task ShouldSupportCommandExecutionModeCanExecuteBeforeExecute(bool allowMultipleExecution)
+        public async Task ShouldCheckCanExecuteBeforeExecute(bool allowMultipleExecution)
         {
             var executed = 0;
             var canExecuted = 0;
@@ -228,7 +228,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
             {
                 ++canExecuted;
-                m.ShouldEqual(DefaultMetadata);
+                if (!allowMultipleExecution)
+                    m!.Get(CommandMetadata.ForceExecute).ShouldBeTrue();
+                else
+                    m.ShouldEqual(DefaultMetadata);
                 return canExecuteValue;
             };
 

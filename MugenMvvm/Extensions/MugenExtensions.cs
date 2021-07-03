@@ -227,18 +227,7 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(command, nameof(command));
-            if (metadata == null)
-                metadata = _forceExecuteMetadata ??= CommandMetadata.ForceExecute.ToContext(true);
-            else
-                metadata = metadata.WithValue(CommandMetadata.ForceExecute, true);
-            return command.ExecuteAsync(parameter, cancellationToken, metadata);
-        }
-
-        public static ICompositeCommand SetForceExecute(this ICompositeCommand command, bool value = true)
-        {
-            Should.NotBeNull(command, nameof(command));
-            command.Metadata.Set(CommandMetadata.ForceExecute, value);
-            return command;
+            return command.ExecuteAsync(parameter, cancellationToken, GetForceExecuteMetadata(metadata));
         }
 
         public static void SynchronizeExecution(this ICompositeCommand command, ICompositeCommand value) => DelegateCommandExecutor.SynchronizeExecution(command, value);
@@ -351,6 +340,13 @@ namespace MugenMvvm.Extensions
             }
             else
                 handler.Handle(sender, args);
+        }
+
+        internal static IReadOnlyMetadataContext GetForceExecuteMetadata(IReadOnlyMetadataContext? metadata)
+        {
+            if (metadata == null || metadata.Count == 0)
+                return _forceExecuteMetadata ??= CommandMetadata.ForceExecute.ToContext(true);
+            return metadata.WithValue(CommandMetadata.ForceExecute, true);
         }
 
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
