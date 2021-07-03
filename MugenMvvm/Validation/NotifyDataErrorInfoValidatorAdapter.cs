@@ -30,7 +30,7 @@ namespace MugenMvvm.Validation
 
         public IEnumerable GetErrors(string? propertyName)
         {
-            var errors = new ItemOrListEditor<object>();
+            var errors = new ItemOrListEditor<object>(2);
             _validator.GetErrors(propertyName, ref errors);
             return errors.AsList();
         }

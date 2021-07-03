@@ -458,7 +458,7 @@ namespace MugenMvvm.Bindings.Core
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
         }
 
-        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
+        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!).CompareTo(MugenExtensions.GetComponentPriority(x!));
 
         bool IComponentCollection.TryAdd(object component, IReadOnlyMetadataContext? metadata)
         {
@@ -474,7 +474,7 @@ namespace MugenMvvm.Bindings.Core
             }
             else
             {
-                _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
+                _components = MugenExtensions.GetComponentPriority(_components) >= MugenExtensions.GetComponentPriority(component)
                     ? new[] { _components, component }
                     : new[] { component, _components };
             }

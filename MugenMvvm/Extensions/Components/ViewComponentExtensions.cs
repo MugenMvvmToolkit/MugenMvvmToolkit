@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions.Components
             if (components.Count == 1)
                 return components[0].TryGetViews(viewManager, request, metadata);
 
-            var result = new ItemOrListEditor<IView>();
+            var result = new ItemOrListEditor<IView>(2);
             foreach (var c in components)
                 result.AddRange(c.TryGetViews(viewManager, request, metadata));
 
@@ -51,7 +51,7 @@ namespace MugenMvvm.Extensions.Components
             if (components.Count == 1)
                 return components[0].TryGetMappings(viewManager, request, metadata);
 
-            var result = new ItemOrListEditor<IViewMapping>();
+            var result = new ItemOrListEditor<IViewMapping>(2);
             foreach (var c in components)
                 result.AddRange(c.TryGetMappings(viewManager, request, metadata));
 

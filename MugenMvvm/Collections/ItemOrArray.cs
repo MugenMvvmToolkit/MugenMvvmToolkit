@@ -41,5 +41,15 @@ namespace MugenMvvm.Collections
                 return FromList(list);
             return new ItemOrArray<T>((T)value, null, 1);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static ItemOrArray<T> FromRawValueFixedArray<T>(object? value)
+        {
+            if (value == null)
+                return default;
+            if (value is T[] t)
+                return new ItemOrArray<T>(default, t, t.Length);
+            return new ItemOrArray<T>((T)value, null, 1);
+        }
     }
 }

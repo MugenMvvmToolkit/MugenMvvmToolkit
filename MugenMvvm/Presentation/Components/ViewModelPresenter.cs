@@ -35,7 +35,7 @@ namespace MugenMvvm.Presentation.Components
             if (viewModel == null)
                 return default;
 
-            var result = new ItemOrListEditor<IPresenterResult>();
+            var result = new ItemOrListEditor<IPresenterResult>(2);
             foreach (var mediator in TryGetMediators(presenter, viewModel, request, metadata))
                 result.AddIfNotNull(mediator.TryShow(view, cancellationToken, metadata)!);
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.Presentation.Components
             if (viewModel == null)
                 return default;
 
-            var result = new ItemOrListEditor<IPresenterResult>();
+            var result = new ItemOrListEditor<IPresenterResult>(2);
             lock (_locker)
             {
                 var dictionary = viewModel.GetOrDefault(InternalMetadata.Mediators);
@@ -63,7 +63,7 @@ namespace MugenMvvm.Presentation.Components
 
         private ItemOrIReadOnlyList<IViewModelPresenterMediator> TryGetMediators(IPresenter presenter, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
-            var result = new ItemOrListEditor<IViewModelPresenterMediator>();
+            var result = new ItemOrListEditor<IViewModelPresenterMediator>(2);
             lock (_locker)
             {
                 var components = presenter.GetComponents<IViewModelPresenterMediatorProviderComponent>(metadata);

@@ -50,8 +50,8 @@ namespace MugenMvvm.Validation.Components
 
         private async Task ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var editor = new ItemOrListEditor<ValidationErrorInfo>();
-            ItemOrListEditor<ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>> tasks = default;
+            var editor = new ItemOrListEditor<ValidationErrorInfo>(Rules.Count);
+            var tasks = new ItemOrListEditor<ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>>(2);
             foreach (var rule in Rules)
             {
                 var task = rule.ValidateAsync(Target, member, cancellationToken, metadata);

@@ -37,7 +37,7 @@ namespace MugenMvvm.Internal.Components
                     return dictionary.ToArray();
                 }
 
-                var result = new ItemOrListEditor<KeyValuePair<string, object?>>();
+                var result = new ItemOrListEditor<KeyValuePair<string, object?>>(2);
                 foreach (var keyValue in dictionary)
                 {
                     if (predicate(item, keyValue.Key, keyValue.Value, state))

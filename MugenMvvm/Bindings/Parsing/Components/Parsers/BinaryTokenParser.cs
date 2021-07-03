@@ -101,7 +101,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             expression = null;
             while (true)
             {
-                var newNode = context.TryParse(expression, (_, parser) => parser.GetPriority() >= ParsingComponentPriority.Binary);
+                var newNode = context.TryParse(expression, (_, parser) => MugenExtensions.GetComponentPriority(parser) >= ParsingComponentPriority.Binary);
                 if (newNode == null)
                 {
                     if (expression != null)

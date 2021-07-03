@@ -183,13 +183,9 @@ namespace MugenMvvm.Extensions
                 ExceptionManager.ThrowCannotAddComponent(collection, component);
         }
 
-        public static int GetPriority(this IComponent component, object? owner = null) => GetComponentPriority(component, owner);
-
-        public static int GetComponentPriority(object component, object? owner)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetComponentPriority(object component)
         {
-            var provider = MugenService.Optional<IComponentPriorityProvider>();
-            if (provider != null)
-                return provider.GetPriority(component, owner);
             if (component is IHasPriority p)
                 return p.Priority;
             return 0;

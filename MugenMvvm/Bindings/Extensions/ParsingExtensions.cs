@@ -92,9 +92,9 @@ namespace MugenMvvm.Bindings.Extensions
 
         public static ItemOrListEditor<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, ItemOrIReadOnlyList<Expression> expressions)
         {
-            var nodes = new ItemOrListEditor<IExpressionNode>();
-            for (var i = 0; i < expressions.Count; i++)
-                nodes.Add(context.Convert(expressions[i]));
+            var nodes = new ItemOrListEditor<IExpressionNode>(expressions.Count);
+            foreach (var t in expressions)
+                nodes.Add(context.Convert(t));
             return nodes;
         }
 
@@ -437,7 +437,7 @@ namespace MugenMvvm.Bindings.Extensions
                 errors?.Clear();
             }
 
-            var parameters = new ItemOrListEditor<IExpressionNode>();
+            var parameters = new ItemOrListEditor<IExpressionNode>(2);
             while (context.IsToken(','))
             {
                 parameters.Add(context.MoveNext().ParseWhileAnyOf(BindingDelimiters));

@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTests
                 Instance = type => services[type],
                 Optional = type =>
                 {
-                    if (type == typeof(IComponentPriorityProvider) || type == typeof(ILambdaExpressionCompiler))
+                    if (type == typeof(ILambdaExpressionCompiler))
                         return null;
                     throw new NotSupportedException();
                 }
@@ -161,7 +161,7 @@ namespace MugenMvvm.UnitTests
                 },
                 Optional = type =>
                 {
-                    if (type == typeof(IComponentPriorityProvider) || type == typeof(ILambdaExpressionCompiler))
+                    if (type == typeof(ILambdaExpressionCompiler))
                         return null;
                     type.ShouldEqual(GetType());
                     return optional;

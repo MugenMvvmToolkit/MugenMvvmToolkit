@@ -105,7 +105,7 @@ namespace MugenMvvm.Bindings.Members.Components
             var key = new CacheKey(CacheKey.Method, name, t);
             if (!_cache.TryGetValue(key, out var v))
             {
-                ItemOrListEditor<IMemberInfo> methods = default;
+                var methods = new ItemOrListEditor<IMemberInfo>();
                 AddMethodsInternal(requestedType, t, name, ref methods);
                 v = methods.GetRawValueInternal();
                 _cache[key] = v;

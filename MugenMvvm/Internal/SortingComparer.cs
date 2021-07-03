@@ -42,7 +42,7 @@ namespace MugenMvvm.Internal
 
             internal Builder(SortingInfo sortingInfo)
             {
-                _sortInfo = new ItemOrListEditor<SortingInfo>();
+                _sortInfo = new ItemOrListEditor<SortingInfo>(2);
                 _sortInfo.Add(sortingInfo);
             }
 

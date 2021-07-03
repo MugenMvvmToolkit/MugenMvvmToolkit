@@ -131,7 +131,7 @@ namespace MugenMvvm.Collections.Components
                 }
 
 #if !NET5_0
-                var toRemove = new ItemOrListEditor<object>();
+                var toRemove = new ItemOrListEditor<object>(2);
 #endif
                 foreach (var item in _collectionItems)
                 {

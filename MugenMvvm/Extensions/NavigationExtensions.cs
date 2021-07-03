@@ -81,7 +81,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(navigationTarget, nameof(navigationTarget));
             IReadOnlyMetadataContext? closeMetadata = null;
-            var callbacks = new ItemOrListEditor<INavigationCallback>();
+            var callbacks = new ItemOrListEditor<INavigationCallback>(2);
             foreach (var navigationEntry in navigationDispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && navigationEntry.IsPending)
@@ -207,7 +207,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            var callbacks = new ItemOrListEditor<INavigationCallback>();
+            var callbacks = new ItemOrListEditor<INavigationCallback>(2);
             foreach (var t in dispatcher.GetNavigationEntries(metadata))
             {
                 if (!includePending && t.IsPending)

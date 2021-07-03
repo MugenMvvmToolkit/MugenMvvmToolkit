@@ -151,7 +151,7 @@ namespace MugenMvvm.Busy.Components
 
             public ItemOrIReadOnlyList<IBusyToken> GetTokens()
             {
-                var tokens = new ItemOrListEditor<IBusyToken>();
+                var tokens = new ItemOrListEditor<IBusyToken>(2);
                 lock (Locker)
                 {
                     var token = Owner._busyTail;

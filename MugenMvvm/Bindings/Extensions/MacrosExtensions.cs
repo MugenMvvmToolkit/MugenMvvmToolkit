@@ -78,7 +78,7 @@ namespace MugenMvvm.Bindings.Extensions
             if (target is IHasService<IValidator> hasValidator)
             {
                 var validator = hasValidator.GetService(false)!;
-                ItemOrListEditor<object> errors = default;
+                var errors = new ItemOrListEditor<object>();
                 foreach (var member in ItemOrArray.FromRawValue<string>(membersRaw))
                 {
                     validator.GetErrors(member, ref errors, null, metadata);

@@ -145,7 +145,7 @@ namespace MugenMvvm.Validation.Components
 
         public void SetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<string> toNotify = default;
+            var toNotify = new ItemOrListEditor<string>(2);
             lock (_errors)
             {
                 foreach (var error in errors)
@@ -185,7 +185,7 @@ namespace MugenMvvm.Validation.Components
 
         public void ClearErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<string> toNotify = default;
+            var toNotify = new ItemOrListEditor<string>(2);
             lock (_errors)
             {
                 if (members.IsEmpty || source == null)

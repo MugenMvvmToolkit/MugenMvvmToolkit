@@ -100,7 +100,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 return null;
 
             context.MoveNext(quoteToken.Length);
-            var args = new ItemOrListEditor<IExpressionNode>();
+            var args = new ItemOrListEditor<IExpressionNode>(2);
             StringBuilder? builder = null;
 
             var openedBraceCount = 0;

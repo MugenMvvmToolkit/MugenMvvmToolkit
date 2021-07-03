@@ -31,7 +31,7 @@ namespace MugenMvvm.Android.Views
             if (viewId == 0)
                 return mappings;
 
-            var result = new ItemOrListEditor<IViewMapping>();
+            var result = new ItemOrListEditor<IViewMapping>(2);
             foreach (var mapping in mappings)
             {
                 if (!mapping.ViewType.IsInterface && mapping.ViewType.IsInstanceOfType(view))

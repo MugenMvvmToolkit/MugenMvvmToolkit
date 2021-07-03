@@ -130,7 +130,7 @@ namespace MugenMvvm.Navigation.Components
             if (callbacks == null)
                 return false;
 
-            var toInvoke = new ItemOrListEditor<NavigationCallback>();
+            var toInvoke = new ItemOrListEditor<NavigationCallback>(2);
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
@@ -165,7 +165,7 @@ namespace MugenMvvm.Navigation.Components
         private ItemOrIReadOnlyList<INavigationCallback> GetCallbacks(IReadOnlyMetadataContext? metadata, object target)
         {
             var canMoveNext = true;
-            var list = new ItemOrListEditor<INavigationCallback>();
+            var list = new ItemOrListEditor<INavigationCallback>(3);
             while (true)
             {
                 AddCallbacks(InternalMetadata.ShowingCallbacks, metadata, ref list);

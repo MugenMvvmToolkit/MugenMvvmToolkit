@@ -59,7 +59,7 @@ namespace MugenMvvm.Bindings.Members.Components
         {
             if (state is Type type)
             {
-                var keys = new ItemOrListEditor<CacheKey>();
+                var keys = new ItemOrListEditor<CacheKey>(2);
                 foreach (var pair in _cache)
                 {
                     if (pair.Key.Type == type)

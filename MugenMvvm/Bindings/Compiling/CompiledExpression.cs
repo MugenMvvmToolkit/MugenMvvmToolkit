@@ -132,7 +132,7 @@ namespace MugenMvvm.Bindings.Compiling
         {
             try
             {
-                var memberValues = new ItemOrListEditor<KeyValuePair<IBindingMemberExpressionNode, Expression>>();
+                var memberValues = new ItemOrListEditor<KeyValuePair<IBindingMemberExpressionNode, Expression>>(2);
                 foreach (var value in _expressions)
                 {
                     if (value.Key is not IBindingMemberExpressionNode memberExpression)

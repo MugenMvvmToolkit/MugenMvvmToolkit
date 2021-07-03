@@ -69,7 +69,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                 IExpressionNode? operand = null;
                 while (true)
                 {
-                    var result = context.TryParse(operand, (_, parser) => parser.GetPriority() >= ParsingComponentPriority.Unary);
+                    var result = context.TryParse(operand, (_, parser) => MugenExtensions.GetComponentPriority(parser) >= ParsingComponentPriority.Unary);
                     if (result == null)
                         break;
                     operand = result;

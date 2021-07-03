@@ -125,7 +125,7 @@ namespace MugenMvvm.Views.Components
 
         private ItemOrIReadOnlyList<TInvoker> GetDelegates<TInvoker>(Type targetType, Type interfaceType, string propertyName, MethodInfo method) where TInvoker : Delegate
         {
-            var result = new ItemOrListEditor<TInvoker>();
+            var result = new ItemOrListEditor<TInvoker>(2);
             var interfaces = targetType.GetInterfaces();
             for (var index = 0; index < interfaces.Length; index++)
             {

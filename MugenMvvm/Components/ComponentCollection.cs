@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
@@ -107,7 +108,7 @@ namespace MugenMvvm.Components
             foreach (var tracker in _componentTrackers)
             {
                 if (tracker.ComponentType == typeof(T))
-                    return ItemOrArray.FromRawValue<T>(tracker.Components);
+                    return ItemOrArray.FromRawValueFixedArray<T>(tracker.Components);
             }
 
             return AddNewTracker<T>(metadata);
@@ -190,7 +191,7 @@ namespace MugenMvvm.Components
         private ComponentTracker GetComponentTrackerWithDecorators<TComponent>(IReadOnlyMetadataContext? metadata)
             where TComponent : class
         {
-            var components = new ItemOrListEditor<TComponent>();
+            var components = new ItemOrListEditor<TComponent>(2);
             for (var i = 0; i < _items.Count; i++)
             {
                 if (_items[i] is TComponent c)
@@ -203,21 +204,19 @@ namespace MugenMvvm.Components
 
         int IComparer<IComponentCollectionDecoratorBase>.Compare(IComponentCollectionDecoratorBase? x, IComponentCollectionDecoratorBase? y)
         {
-            var result = MugenExtensions.GetComponentPriority(x!, this).CompareTo(MugenExtensions.GetComponentPriority(y!, this));
+            var result = MugenExtensions.GetComponentPriority(x!).CompareTo(MugenExtensions.GetComponentPriority(y!));
             if (result == 0)
             {
                 lock (_items)
                 {
-                    var xIndex = _items.IndexOf(x!);
-                    var yIndex = _items.IndexOf(y!);
-                    return yIndex.CompareTo(xIndex);
+                    return _items.IndexOf(y!).CompareTo(_items.IndexOf(x!));
                 }
             }
 
             return result;
         }
 
-        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
+        int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!).CompareTo(MugenExtensions.GetComponentPriority(x!));
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
@@ -250,6 +249,7 @@ namespace MugenMvvm.Components
             public readonly Type ComponentType;
             public readonly Func<object?, IComponentCollectionDecoratorBase?, IReadOnlyMetadataContext?, bool> IsComponentSupported;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             private ComponentTracker(object? components, Type componentType,
                 Func<object?, IComponentCollectionDecoratorBase?, IReadOnlyMetadataContext?, bool> isComponentSupported)
             {
@@ -258,6 +258,7 @@ namespace MugenMvvm.Components
                 IsComponentSupported = isComponentSupported;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public static ComponentTracker Get<T>(ItemOrArray<T> components) where T : class =>
                 new(components.GetRawValue(), typeof(T),
                     (o, decorator, m) => o is T || decorator is IComponentCollectionDecorator<T> || decorator is IComponentCollectionDecorator d && d.CanDecorate<T>(m));

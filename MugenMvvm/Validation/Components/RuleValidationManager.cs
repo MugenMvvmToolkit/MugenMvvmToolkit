@@ -46,7 +46,7 @@ namespace MugenMvvm.Validation.Components
             if (target == null)
                 return null;
 
-            var rules = new ItemOrListEditor<IValidationRule>();
+            var rules = new ItemOrListEditor<IValidationRule>(2);
             for (var i = 0; i < _rules.Count; i++)
             {
                 if (_rules[i].condition(validator, target, metadata))

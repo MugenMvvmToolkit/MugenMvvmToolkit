@@ -59,7 +59,7 @@ namespace MugenMvvm.Views.Components
             var type = view as Type;
             var id = view as string;
 
-            var mappings = new ItemOrListEditor<IViewMapping>();
+            var mappings = new ItemOrListEditor<IViewMapping>(2);
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)

@@ -121,7 +121,7 @@ namespace MugenMvvm.Messaging.Components
 
         public ItemOrIReadOnlyList<MessengerHandler> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
-            var result = new ItemOrListEditor<MessengerHandler>();
+            var result = new ItemOrListEditor<MessengerHandler>(2);
             var toRemove = new ItemOrListEditor<object>();
             lock (this)
             {

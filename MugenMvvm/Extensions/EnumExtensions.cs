@@ -101,7 +101,7 @@ namespace MugenMvvm.Extensions
             where T : FlagsEnumBase<T, TValue>
             where TValue : IComparable<TValue>, IEquatable<TValue>, IConvertible
         {
-            var editor = new ItemOrListEditor<T>();
+            var editor = new ItemOrListEditor<T>(2);
             foreach (var value in FlagsEnumBase<T, TValue>.GetAll())
             {
                 if (flags.HasFlag(value.Flag))

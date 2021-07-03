@@ -12,10 +12,21 @@ namespace MugenMvvm.Collections
         private bool _hasItem;
         private T? _item;
         private IList<T>? _list;
+        private readonly int _capacity;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrListEditor(int capacity)
+        {
+            _capacity = capacity;
+            _list = null;
+            _item = default!;
+            _hasItem = false;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(ItemOrIEnumerable<T> itemOrList, bool isRawList)
         {
+            _capacity = 0;
             if (itemOrList.List != null)
             {
                 _item = default;
@@ -36,6 +47,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(IList<T>? iList)
         {
+            _capacity = 0;
             _list = iList;
             _item = default!;
             _hasItem = false;
@@ -49,6 +61,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(T? item, IList<T>? list, bool hasItem)
         {
+            _capacity = 0;
             _item = item!;
             _list = list;
             _hasItem = hasItem;
@@ -92,6 +105,12 @@ namespace MugenMvvm.Collections
                 else
                     _item = value;
             }
+        }
+
+        private int DefaultCapacity
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _capacity == 0 ? 4 : _capacity;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,14 +160,14 @@ namespace MugenMvvm.Collections
                     }
                     else
                     {
-                        _list = new List<T>(2);
+                        _list = new List<T>(DefaultCapacity);
                         _list.AddRange(value.List);
                     }
 
                     return;
                 }
 
-                _list = new List<T>(2) { _item! };
+                _list = new List<T>(DefaultCapacity) { _item! };
                 _item = default!;
                 _hasItem = false;
             }
@@ -165,7 +184,7 @@ namespace MugenMvvm.Collections
                 _list.Add(item!);
             else if (_hasItem)
             {
-                _list = new List<T>(2) { _item!, item! };
+                _list = new List<T>(DefaultCapacity) { _item!, item! };
                 _item = default;
                 _hasItem = false;
             }

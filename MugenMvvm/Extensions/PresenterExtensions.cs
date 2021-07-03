@@ -43,7 +43,7 @@ namespace MugenMvvm.Extensions
         public static ValueTask<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default, bool isSerializable = true,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            var callbacks = new ItemOrListEditor<INavigationCallback>();
+            var callbacks = new ItemOrListEditor<INavigationCallback>(2);
             foreach (var result in presenter.DefaultIfNull(viewModel).TryClose(viewModel, cancellationToken, metadata))
             foreach (var callback in navigationDispatcher.DefaultIfNull(viewModel).GetNavigationCallbacks(result, metadata))
             {

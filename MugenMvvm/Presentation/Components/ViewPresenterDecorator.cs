@@ -65,7 +65,7 @@ namespace MugenMvvm.Presentation.Components
             if (vm == null && view != null)
             {
                 var views = _viewManager.DefaultIfNull().GetViews(request, metadata);
-                var result = new ItemOrListEditor<IPresenterResult>();
+                var result = new ItemOrListEditor<IPresenterResult>(2);
                 foreach (var v in views)
                     result.AddRange(Components.TryClose(presenter, v.ViewModel, cancellationToken, metadata));
 
