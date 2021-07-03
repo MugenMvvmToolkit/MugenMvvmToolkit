@@ -36,7 +36,7 @@ public class ViewCleaner implements ILifecycleDispatcher, IViewDispatcher {
             RecyclerViewMugenExtensions.onDestroy(view);
         else if (AdapterViewMugenExtensions.isSupported(view))
             AdapterViewMugenExtensions.onDestroy(view);
-        ViewMugenExtensions.setAttachedValues(view, null);
+        ViewMugenExtensions.clearNativeAttachedValues(view);
     }
 
     @Override

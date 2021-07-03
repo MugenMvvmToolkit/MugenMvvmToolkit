@@ -70,7 +70,9 @@ public final class ViewMugenExtensions {
     }
 
     public static void setAttachedValues(@NonNull Object view, @Nullable Object values) {
-        getNativeAttachedValues(view, true).setAttachedValues(values);
+        AttachedValues attachedValues = getNativeAttachedValues(view, values != null);
+        if (attachedValues != null)
+            attachedValues.setAttachedValues(values);
     }
 
     public static AttachedValues getNativeAttachedValues(@NonNull Object target, boolean required) {
@@ -143,6 +145,14 @@ public final class ViewMugenExtensions {
         result = new ViewAttachedValues();
         view.setTag(R.id.attachedValues, result);
         return result;
+    }
+
+    public static void clearNativeAttachedValues(@NonNull View view) {
+        if (!MugenUtils.isRawViewTagMode()) {
+            if (view.getTag(R.id.attachedValues) != null)
+                view.setTag(R.id.attachedValues, null);
+        } else if (view.getTag() instanceof ViewAttachedValues)
+            view.setTag(null);
     }
 
     public static void addViewMapping(@NonNull Class viewClass, int resourceId, boolean rewrite) {
