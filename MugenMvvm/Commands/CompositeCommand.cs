@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -59,11 +60,11 @@ namespace MugenMvvm.Commands
 
         public bool IsSuspended => GetComponents<ISuspendableComponent<ICompositeCommand>>().IsSuspended(this, null);
 
-        public static ICompositeCommand Create(object? owner, IReadOnlyMetadataContext? metadata = null) =>
-            MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, CommandMetadata.RawCommandRequest, metadata);
+        public static ICompositeCommand Create(object? owner, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
+            commandManager.DefaultIfNull(owner).GetCommand<object?>(owner, CommandMetadata.RawCommandRequest, metadata);
 
-        public static ICompositeCommand Create(object? owner, object request, IReadOnlyMetadataContext? metadata = null) =>
-            MugenExtensions.DefaultIfNull<ICommandManager>(null, owner).GetCommand<object?>(owner, request, metadata);
+        public static ICompositeCommand Create(object? owner, object request, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
+            commandManager.DefaultIfNull(owner).GetCommand<object?>(owner, request, metadata);
 
         public static ICompositeCommand Create(object? owner, Action<IReadOnlyMetadataContext?> execute, Func<IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIEnumerable<object> notifiers = default,
@@ -108,13 +109,17 @@ namespace MugenMvvm.Commands
 
         bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Execute(object? parameter = null) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ValueTask<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<ICommandExecutorComponent>().TryExecuteAsync(this, parameter, cancellationToken, metadata);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 
         public void Dispose()
