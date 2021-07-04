@@ -72,15 +72,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 DefaultMetadata).Item;
             member!.UnderlyingMember.ShouldEqual(typeof(ReflectionMemberProviderTest).GetProperty("Item")!.GetMethod);
 
-            member = _provider.TryGetMembers(MemberManager, typeof(ReflectionMemberProviderTest), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata)
-                              .Item;
+            member = _provider.TryGetMembers(MemberManager, typeof(ReflectionMemberProviderTest), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).Item;
             member!.UnderlyingMember.ShouldEqual(typeof(ReflectionMemberProviderTest).GetProperty("Item")!.SetMethod);
 
             member = _provider.TryGetMembers(MemberManager, typeof(string), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
             member!.UnderlyingMember.ShouldEqual(typeof(string).GetProperty("Chars")!.GetMethod);
             _provider.TryGetMembers(MemberManager, typeof(string), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
-            member = _provider.TryGetMembers(MemberManager, typeof(ItemOrArray<object>), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).Item;
+            member = _provider.TryGetMembers(MemberManager, typeof(ItemOrArray<object>), BindingInternalConstant.IndexerGetterName, MemberType.Method, DefaultMetadata).FirstOrDefault();
             member!.UnderlyingMember.ShouldEqual(typeof(ItemOrArray<object>).GetProperty(InternalConstant.CustomIndexerName)!.GetMethod);
             _provider.TryGetMembers(MemberManager, typeof(ItemOrArray<object>), BindingInternalConstant.IndexerSetterName, MemberType.Method, DefaultMetadata).IsEmpty
                      .ShouldBeTrue();
@@ -95,7 +94,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .Where(info => info.Name == nameof(_field))
                         .ToArray();
             items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(null!, GetType(), nameof(_field), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(null!, GetType(), nameof(_field), MemberType.Accessor, DefaultMetadata);
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -107,7 +106,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .Where(info => info.Name == nameof(List<object>.Remove))
                         .ToArray();
             items.ShouldNotBeEmpty();
-            var members = _provider.TryGetMembers(MemberManager, typeof(List<object>), nameof(List<object>.Remove), MemberType.Method, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, typeof(List<object>), nameof(List<object>.Remove), MemberType.Method, DefaultMetadata);
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -119,7 +118,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .Where(info => info.Name == nameof(List<object>.Count))
                         .ToArray();
             items.ShouldNotBeEmpty();
-            var members = _provider.TryGetMembers(MemberManager, typeof(List<object>), nameof(List<object>.Count), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, typeof(List<object>), nameof(List<object>.Count), MemberType.Accessor, DefaultMetadata);
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -132,7 +131,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .ToArray();
             items.ShouldNotBeEmpty();
             _provider.TryGetMembers(MemberManager, GetType(), nameof(FieldStatic), MemberType.Event, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata);
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -146,7 +145,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             items.ShouldNotBeEmpty();
 
             _provider.TryGetMembers(MemberManager, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            var members = _provider.TryGetMembers(MemberManager, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -158,7 +157,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .Where(info => info.Name == nameof(PropertyStatic))
                         .ToArray();
             items.ShouldNotBeEmpty();
-            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata);
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -199,7 +198,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .ToArray();
             items.ShouldNotBeEmpty();
             _provider.TryGetMembers(MemberManager, GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata);
 
             if (canObserve)
                 members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
@@ -227,7 +226,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                         .Where(info => info.Name == nameof(Event))
                         .ToArray();
             items.ShouldNotBeEmpty();
-            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(Event), MemberType.Event, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, GetType(), nameof(Event), MemberType.Event, DefaultMetadata);
 
             if (canObserve)
                 members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);

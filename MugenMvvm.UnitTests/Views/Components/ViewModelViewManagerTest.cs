@@ -51,21 +51,21 @@ namespace MugenMvvm.UnitTests.Views.Components
                 result.Mapping.ShouldEqual(mapping);
                 result.ViewModel.ShouldEqual(_viewModel);
 
-                ViewManager.GetViews(_viewModel, DefaultMetadata).AsList().ShouldContain(results);
-                ViewManager.GetViews(view, DefaultMetadata).AsList().Single().ShouldEqual(results.Last());
+                ViewManager.GetViews(_viewModel, DefaultMetadata).ShouldContain(results);
+                ViewManager.GetViews(view, DefaultMetadata).Single().ShouldEqual(results.Last());
             }
 
             for (var i = 0; i < count; i++)
             {
                 var view = results[0];
-                ViewManager.GetViews(_viewModel, DefaultMetadata).AsList().ShouldContain(results);
-                ViewManager.GetViews(view.Target, DefaultMetadata).AsList().Single().ShouldEqual(view);
+                ViewManager.GetViews(_viewModel, DefaultMetadata).ShouldContain(results);
+                ViewManager.GetViews(view.Target, DefaultMetadata).Single().ShouldEqual(view);
                 await ViewManager.TryCleanupAsync(view, _viewModel, CancellationToken.None, DefaultMetadata);
-                ViewManager.GetViews(view.Target, DefaultMetadata).AsList().ShouldBeEmpty();
+                ViewManager.GetViews(view.Target, DefaultMetadata).ShouldBeEmpty();
                 results.RemoveAt(0);
             }
 
-            ViewManager.GetViews(_viewModel, DefaultMetadata).AsList().ShouldBeEmpty();
+            ViewManager.GetViews(_viewModel, DefaultMetadata).ShouldBeEmpty();
         }
 
         [Theory]

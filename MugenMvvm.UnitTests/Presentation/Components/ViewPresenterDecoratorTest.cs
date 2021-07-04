@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     return presenterResult;
                 }
             });
-            Presenter.TryClose(view, default, DefaultMetadata).AsList().ShouldEqual(new[] { presenterResult, presenterResult });
+            Presenter.TryClose(view, default, DefaultMetadata).ShouldEqual(new[] { presenterResult, presenterResult });
             invokeCount.ShouldEqual(1);
             closedVms.Count.ShouldEqual(2);
             closedVms.Contains(v1.ViewModel).ShouldBeTrue();

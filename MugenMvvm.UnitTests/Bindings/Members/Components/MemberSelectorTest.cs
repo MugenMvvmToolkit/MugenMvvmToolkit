@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             IReadOnlyList<IMemberInfo> result)
         {
             var component = new MemberSelector();
-            var array = component.TryGetMembers(null!, type, memberTypes, flags, members, DefaultMetadata).AsList();
+            var array = component.TryGetMembers(null!, type, memberTypes, flags, members, DefaultMetadata);
             for (var i = 0; i < array.Count; i++)
                 array[i].ShouldEqual(result[i]);
             array.Count.ShouldEqual(result.Count);

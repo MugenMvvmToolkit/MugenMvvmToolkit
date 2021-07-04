@@ -11,31 +11,6 @@ namespace MugenMvvm.UnitTests.Collections
     public class ItemOrIReadOnlyListTest : UnitTestBase
     {
         [Fact]
-        public void CastShouldBeValid1()
-        {
-            var objValue = ItemOrIReadOnlyList.FromItem<object>(this, false);
-            var thisValue = objValue.Cast<ItemOrIReadOnlyListTest>();
-            AssertEmpty(thisValue);
-        }
-
-        [Fact]
-        public void CastShouldBeValid2()
-        {
-            var objValue = ItemOrIReadOnlyList.FromItem<object>(this, true);
-            var thisValue = objValue.Cast<ItemOrIReadOnlyListTest>();
-            AssertItem(thisValue, this);
-        }
-
-        [Fact]
-        public void CastShouldBeValid3()
-        {
-            var list = new[] { this, this };
-            var objValue = ItemOrIReadOnlyList.FromList(list);
-            var thisValue = objValue.Cast<ItemOrIReadOnlyListTest>();
-            AssertList(thisValue, list);
-        }
-
-        [Fact]
         public void FromRawValueShouldHandleList()
         {
             var list = new object[] { this, this };
@@ -168,6 +143,11 @@ namespace MugenMvvm.UnitTests.Collections
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
             buffer.ShouldEqual(Array.Empty<T>());
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
+            buffer.ShouldEqual(Array.Empty<T>());
         }
 
         internal static void AssertItem<T>(ItemOrIReadOnlyList<T> itemOrList, T item) where T : class
@@ -191,6 +171,11 @@ namespace MugenMvvm.UnitTests.Collections
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
             buffer.ShouldEqual(list);
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
+            buffer.ShouldEqual(list);
         }
 
         internal static void AssertList<T>(ItemOrIReadOnlyList<T> itemOrList, IReadOnlyList<T> list) where T : class
@@ -212,6 +197,11 @@ namespace MugenMvvm.UnitTests.Collections
             buffer.Clear();
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
+            buffer.ShouldEqual(list);
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
             buffer.ShouldEqual(list);
         }
     }

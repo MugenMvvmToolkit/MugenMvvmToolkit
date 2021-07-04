@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 Presenter.AddComponent(component);
             }
 
-            Presenter.Show(request, DefaultCancellationToken, DefaultMetadata).AsList().ShouldEqual(results);
+            Presenter.Show(request, DefaultCancellationToken, DefaultMetadata).ShouldEqual(results);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 Presenter.AddComponent(component);
             }
 
-            Presenter.TryClose(request, DefaultCancellationToken, DefaultMetadata).AsList().ShouldEqual(results);
+            Presenter.TryClose(request, DefaultCancellationToken, DefaultMetadata).ShouldEqual(results);
             invokeCount.ShouldEqual(componentCount);
         }
 

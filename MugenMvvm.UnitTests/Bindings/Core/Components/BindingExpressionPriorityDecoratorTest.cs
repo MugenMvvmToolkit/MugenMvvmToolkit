@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return exp;
                 }
             });
-            BindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
+            BindingManager.TryParseBindingExpression(request, DefaultMetadata).Single().ShouldEqual(exp);
         }
 
         protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryParseBindingExpression = (_, _, _) => ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(result)
             });
 
-            var bindingExpressions = BindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var bindingExpressions = BindingManager.TryParseBindingExpression("", DefaultMetadata);
             bindingExpressions.ShouldEqual(expected);
         }
 

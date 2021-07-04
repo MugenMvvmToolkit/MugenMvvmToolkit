@@ -35,13 +35,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             _provider.Register(memberInfo2);
             _provider.Register(memberInfo3);
 
-            var members = _provider.TryGetMembers(null!, typeof(List<object>), memberName, MemberType.All, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(null!, typeof(List<object>), memberName, MemberType.All, DefaultMetadata);
             members.Count.ShouldEqual(2);
             members.ShouldContain(memberInfo1);
             members.ShouldContain(memberInfo2);
 
             _provider.TryGetMembers(MemberManager, typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _provider.TryGetMembers(MemberManager, typeof(string), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo3);
+            _provider.TryGetMembers(MemberManager, typeof(string), memberName, MemberType.All, DefaultMetadata).Single().ShouldEqual(memberInfo3);
         }
 
         [Fact]
@@ -56,14 +56,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             _provider.Register(memberInfo2);
             _provider.Register(memberInfo3);
 
-            var members = _provider.TryGetMembers(MemberManager, typeof(string), memberName, MemberType.All, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, typeof(string), memberName, MemberType.All, DefaultMetadata);
             members.Count.ShouldEqual(3);
             members.ShouldContain(memberInfo1);
             members.ShouldContain(memberInfo2);
             members.ShouldContain(memberInfo3);
 
-            _provider.TryGetMembers(MemberManager, typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1);
-            _provider.TryGetMembers(MemberManager, typeof(IList<string>), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1);
+            _provider.TryGetMembers(MemberManager, typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).Single().ShouldEqual(memberInfo1);
+            _provider.TryGetMembers(MemberManager, typeof(IList<string>), memberName, MemberType.All, DefaultMetadata).Single().ShouldEqual(memberInfo1);
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             _provider.Register(memberInfo3);
             _provider.Register(memberInfo4);
 
-            var members = _provider.TryGetMembers(MemberManager, typeof(List<>), memberName, MemberType.Accessor, DefaultMetadata).AsList();
+            var members = _provider.TryGetMembers(MemberManager, typeof(List<>), memberName, MemberType.Accessor, DefaultMetadata);
             members.Count.ShouldEqual(3);
             members.ShouldContain(memberInfo1);
             members.ShouldContain(memberInfo2);

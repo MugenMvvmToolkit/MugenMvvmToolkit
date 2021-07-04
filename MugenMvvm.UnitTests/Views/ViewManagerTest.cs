@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTests.Views
                 });
             }
 
-            ViewManager.GetViews(viewModel, DefaultMetadata).AsList().ShouldEqual(views);
+            ViewManager.GetViews(viewModel, DefaultMetadata).ShouldEqual(views);
         }
 
         [Theory]
@@ -141,7 +141,7 @@ namespace MugenMvvm.UnitTests.Views
                 });
             }
 
-            ViewManager.GetMappings(view, DefaultMetadata).AsList().ShouldEqual(mappings);
+            ViewManager.GetMappings(view, DefaultMetadata).ShouldEqual(mappings);
         }
 
         [Theory]

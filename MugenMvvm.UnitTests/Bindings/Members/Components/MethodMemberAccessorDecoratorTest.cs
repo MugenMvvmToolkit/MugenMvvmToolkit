@@ -63,7 +63,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                          .ShouldBeTrue();
             MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
                              $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
-                         .AsList()
                          .OfType<TestAccessorMemberInfo>()
                          .Single()
                          .ShouldEqual(accessor);
@@ -100,7 +99,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                          .IsEmpty
                          .ShouldBeTrue();
             MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNoParameters)}()", DefaultMetadata)
-                         .AsList()
                          .OfType<TestAccessorMemberInfo>()
                          .Single()
                          .ShouldEqual(accessor);
@@ -138,7 +136,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                          .IsEmpty
                          .ShouldBeTrue();
             MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValueNull)}(null)", DefaultMetadata)
-                         .AsList()
                          .OfType<TestAccessorMemberInfo>()
                          .Single()
                          .ShouldEqual(accessor);
@@ -152,7 +149,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
                                            $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(4);
@@ -185,7 +181,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var member = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All,
                                           $"{nameof(TestMethodInvoker.GetValue)}({index1}, {string.Join(",", args)})", DefaultMetadata)
-                                      .AsList()
                                       .OfType<MethodAccessorMemberInfo>()
                                       .Single();
             member.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray).ShouldBeTrue();
@@ -214,7 +209,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}({index1})",
                                            DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(4);
@@ -247,7 +241,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')",
                                            DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(2);
@@ -278,7 +271,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var members = MemberManager.TryGetMembers(typeof(TestMethodInvoker), MemberType.Accessor, MemberFlags.All, $"{nameof(TestMethodInvoker.GetValue)}('{index1}')",
                                            DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(2);

@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Components
             {
                 currentOwner = owners[i];
                 attachable.OnAttached(currentOwner, DefaultMetadata);
-                _component.Owners.AsList().ShouldEqual(owners.Take(i + 1).ToArray());
+                _component.Owners.ShouldEqual(owners.Take(i + 1).ToArray());
                 methodCallCount.ShouldEqual(i + 1);
             }
         }
@@ -113,14 +113,14 @@ namespace MugenMvvm.UnitTests.Components
             for (var i = 0; i < owners.Length; i++)
                 attachable.OnAttached(owners[i], DefaultMetadata);
 
-            _component.Owners.AsList().ShouldEqual(owners);
+            _component.Owners.ShouldEqual(owners);
             methodCallCount.ShouldEqual(0);
 
             for (var i = 0; i < owners.Length; i++)
             {
                 currentOwner = owners[i];
                 detachable.OnDetached(currentOwner, DefaultMetadata);
-                _component.Owners.AsList().ShouldEqual(owners.Skip(i + 1).ToArray());
+                _component.Owners.ShouldEqual(owners.Skip(i + 1).ToArray());
                 methodCallCount.ShouldEqual(i + 1);
             }
 

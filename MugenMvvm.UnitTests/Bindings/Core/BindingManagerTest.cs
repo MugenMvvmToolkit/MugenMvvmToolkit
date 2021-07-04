@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             }
 
             var result = BindingManager.GetBindings(target, path, DefaultMetadata);
-            list1.ShouldEqual(result.AsList());
+            list1.ShouldEqual(result);
             list1.ShouldEqual(list2);
         }
 

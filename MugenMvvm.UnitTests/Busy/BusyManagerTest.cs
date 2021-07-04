@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Busy
         public void BeginBusyShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BusyManager.BeginBusy(this));
 
         [Fact]
-        public void GetTokensShouldReturnEmptyNoComponents() => BusyManager.GetTokens().AsList().ShouldBeEmpty();
+        public void GetTokensShouldReturnEmptyNoComponents() => BusyManager.GetTokens().ShouldBeEmpty();
 
         [Fact]
         public void ShouldValidateInputArgs() => ShouldThrow<ArgumentNullException>(() => BusyManager.TryGetToken(this, null!));
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Busy
                 });
             }
 
-            new HashSet<IBusyToken>(BusyManager.GetTokens(DefaultMetadata).AsList()).Count.ShouldEqual(componentCount * 2);
+            new HashSet<IBusyToken>(BusyManager.GetTokens(DefaultMetadata)).Count.ShouldEqual(componentCount * 2);
             methodCallCount.ShouldEqual(componentCount);
         }
 

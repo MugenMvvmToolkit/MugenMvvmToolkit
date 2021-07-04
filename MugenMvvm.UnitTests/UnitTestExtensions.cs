@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
-using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using Should;
 using Should.Core.Assertions;
@@ -13,19 +11,6 @@ namespace MugenMvvm.UnitTests
 {
     public static class UnitTestExtensions
     {
-        public static void ShouldEqual<T>(this ItemOrArray<T> itemOrList, IEnumerable<T> enumerable) => itemOrList.AsList().ShouldEqual(enumerable);
-
-        public static void ShouldContain<T>(this ItemOrArray<T> itemOrList, params T[] values) => itemOrList.AsList().ShouldContain(values);
-
-        public static void ShouldBeEmpty<T>(this ItemOrArray<T> itemOrList) => itemOrList.IsEmpty.ShouldBeTrue();
-
-        public static T Single<T>(this ItemOrArray<T> itemOrList)
-        {
-            if (itemOrList.Count != 1)
-                throw new InvalidOperationException("Assert Single");
-            return itemOrList[0];
-        }
-
         public static T UpdateMetadata<T>(this T expression, string key1, object? value1, string? key2 = null, object? value2 = null)
             where T : class, IExpressionNode
         {
@@ -90,7 +75,7 @@ namespace MugenMvvm.UnitTests
             if (!ReferenceEquals(x1, x2))
             {
                 if (x1 != null && x2 != null)
-                    x1.GetValues().AsList().ShouldEqual(x2.GetValues().AsList());
+                    x1.GetValues().ShouldEqual(x2.GetValues());
                 else
                     ObjectAssertExtensions.ShouldEqual(x1, x2);
             }

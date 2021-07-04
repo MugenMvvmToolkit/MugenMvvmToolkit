@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 Invoke = (list, context) =>
                 {
-                    list.AsList().ShouldEqual(values.Select(o => new ParameterValue(o.GetType(), o)));
+                    list.ShouldEqual(values.Select(o => new ParameterValue(o.GetType(), o)));
                     context.ShouldEqual(DefaultMetadata);
                     return result;
                 }
@@ -117,7 +117,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Invoke = (list, context) =>
                 {
                     ++invokeCount;
-                    list.AsList().ShouldEqual(values.Select(o =>
+                    list.ShouldEqual(values.Select(o =>
                     {
                         if (o is IMemberPathObserver ob)
                             o = ob.GetLastMember(DefaultMetadata).GetValueOrThrow(DefaultMetadata)!;

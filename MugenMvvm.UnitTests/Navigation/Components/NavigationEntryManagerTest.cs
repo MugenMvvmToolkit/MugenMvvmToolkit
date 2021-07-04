@@ -45,11 +45,11 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             Presenter.TryShow(presenterResult);
             var entries = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeTrue();
+            entries.Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeTrue();
 
             NavigationDispatcher.OnNavigated(navigationContext);
             entries = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
+            entries.Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
         }
 
         protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
@@ -75,19 +75,19 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             Presenter.TryShow(presenterResult);
 
             var entries = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == id1).ShouldNotBeNull();
-            entries.AsList().Single(entry => entry.NavigationId == id2).ShouldNotBeNull();
+            entries.Single(entry => entry.NavigationId == id1).ShouldNotBeNull();
+            entries.Single(entry => entry.NavigationId == id2).ShouldNotBeNull();
 
             NavigationDispatcher.OnNavigationCanceled(new NavigationContext(this, TestNavigationProvider.Instance, id1, NavigationType.Background, mode));
             NavigationDispatcher.OnNavigationCanceled(new NavigationContext(this, TestNavigationProvider.Instance, id2, NavigationType.Background, mode));
 
             entries = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            var navigationEntry = entries.AsList().SingleOrDefault(entry => entry.NavigationId == id1);
+            var navigationEntry = entries.SingleOrDefault(entry => entry.NavigationId == id1);
             if (shouldRemove)
                 navigationEntry.ShouldBeNull();
             else
                 navigationEntry.ShouldNotBeNull();
-            entries.AsList().SingleOrDefault(entry => entry.NavigationId == id2).ShouldBeNull();
+            entries.SingleOrDefault(entry => entry.NavigationId == id2).ShouldBeNull();
         }
 
         [Theory]
@@ -109,19 +109,19 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             Presenter.TryShow(presenterResult);
 
             var entries = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            entries.AsList().Single(entry => entry.NavigationId == id1).ShouldNotBeNull();
-            entries.AsList().Single(entry => entry.NavigationId == id2).ShouldNotBeNull();
+            entries.Single(entry => entry.NavigationId == id1).ShouldNotBeNull();
+            entries.Single(entry => entry.NavigationId == id2).ShouldNotBeNull();
 
             NavigationDispatcher.OnNavigationFailed(new NavigationContext(this, TestNavigationProvider.Instance, id1, NavigationType.Background, mode), new Exception());
             NavigationDispatcher.OnNavigationFailed(new NavigationContext(this, TestNavigationProvider.Instance, id2, NavigationType.Background, mode), new Exception());
 
             entries = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
-            var navigationEntry = entries.AsList().SingleOrDefault(entry => entry.NavigationId == id1);
+            var navigationEntry = entries.SingleOrDefault(entry => entry.NavigationId == id1);
             if (shouldRemove)
                 navigationEntry.ShouldBeNull();
             else
                 navigationEntry.ShouldNotBeNull();
-            entries.AsList().SingleOrDefault(entry => entry.NavigationId == id2).ShouldBeNull();
+            entries.SingleOrDefault(entry => entry.NavigationId == id2).ShouldBeNull();
         }
 
         [Theory]
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 }
             }
 
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries().AsList(), contexts, true);
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
 
@@ -210,7 +210,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 }
             }
 
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries().AsList(), contexts);
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
 
@@ -260,7 +260,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 NavigationDispatcher.OnNavigated(navigationContext);
             }
 
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries().AsList(), contexts);
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
 
@@ -318,7 +318,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
                 invokedCount.ShouldEqual(contexts.Count * count);
                 contexts.Clear();
-                ValidateEntries(NavigationDispatcher.GetNavigationEntries().AsList(), contexts);
+                ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
             }
         }
 
@@ -367,7 +367,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 }
             }
 
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries().AsList(), contexts, true);
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
 

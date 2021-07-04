@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var strings = new[] {"Test", "Test1", "Test2", "Test3"};
             string path = string.Join(".", strings);
             var memberPath = MemberPath.Get(path);
-            memberPath.Members.AsList().ShouldEqual(strings);
+            memberPath.Members.ShouldEqual(strings);
             memberPath.Path.ShouldEqual(path);
         }
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             var items = new[] {"[test]", "Test1", "Test2", "[test]", "Test3"};
             string path = string.Join(".", strings);
             var memberPath = MemberPath.Get(path);
-            memberPath.Members.AsList().ShouldEqual(items);
+            memberPath.Members.ShouldEqual(items);
             memberPath.Path.ShouldEqual(path);
         }
 
@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             string path = string.Join(".", strings);
             var memberPath = MemberPath.Get(path);
             memberPath.Path.ShouldEqual(path);
-            memberPath.Members.AsList().ShouldEqual(items);
+            memberPath.Members.ShouldEqual(items);
         }
 
         [Fact]

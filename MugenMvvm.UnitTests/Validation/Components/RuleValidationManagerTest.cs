@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             ValidationManager.TryGetValidator(target1).ShouldEqual(validator);
             var ruleValidatorComponent = validator.GetComponents<RuleValidationHandler>().Single();
-            var rules = ruleValidatorComponent.Rules.AsList().ToList();
+            var rules = ruleValidatorComponent.Rules.ToList();
             rules.Count.ShouldEqual(2);
             rules.Remove(rule1).ShouldBeTrue();
             rules.Remove(rule2).ShouldBeTrue();
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.ClearComponents();
             ValidationManager.TryGetValidator(target2).ShouldEqual(validator);
             ruleValidatorComponent = validator.GetComponents<RuleValidationHandler>().Single();
-            rules = ruleValidatorComponent.Rules.AsList().ToList();
+            rules = ruleValidatorComponent.Rules.ToList();
             rules.Count.ShouldEqual(1);
             rules.Remove(rule3).ShouldBeTrue();
 
@@ -59,14 +59,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var components = validator.GetComponents<RuleValidationHandler>();
             components.Count.ShouldEqual(2);
 
-            ruleValidatorComponent = components.AsList().Single(validatorComponent => validatorComponent.Target == target1);
-            rules = ruleValidatorComponent.Rules.AsList().ToList();
+            ruleValidatorComponent = components.Single(validatorComponent => validatorComponent.Target == target1);
+            rules = ruleValidatorComponent.Rules.ToList();
             rules.Count.ShouldEqual(2);
             rules.Remove(rule1).ShouldBeTrue();
             rules.Remove(rule2).ShouldBeTrue();
 
-            ruleValidatorComponent = components.AsList().Single(validatorComponent => ReferenceEquals(validatorComponent.Target, target2));
-            rules = ruleValidatorComponent.Rules.AsList().ToList();
+            ruleValidatorComponent = components.Single(validatorComponent => ReferenceEquals(validatorComponent.Target, target2));
+            rules = ruleValidatorComponent.Rules.ToList();
             rules.Count.ShouldEqual(1);
             rules.Remove(rule3).ShouldBeTrue();
         }

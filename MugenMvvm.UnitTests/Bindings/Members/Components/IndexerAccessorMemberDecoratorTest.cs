@@ -53,7 +53,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
             var members = MemberManager
                           .TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index.ToString(CultureInfo.InvariantCulture)}]", DefaultMetadata)
-                          .AsList()
                           .OfType<MethodAccessorMemberInfo>()
                           .ToList();
             members.Count.ShouldEqual(4);
@@ -96,7 +95,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var args = new[] { 2, 3, 4, 56 };
 
             var member = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}, {string.Join(" , ", args)}]", DefaultMetadata)
-                                      .AsList()
                                       .OfType<MethodAccessorMemberInfo>()
                                       .Single();
             member.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray).ShouldBeTrue();
@@ -135,7 +133,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             const int index1 = 2;
             var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}]", DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(4);
@@ -178,7 +175,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             const string index1 = "test";
             var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(2);
@@ -219,7 +215,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         {
             const string index1 = "t1";
             var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
-                                       .AsList()
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(2);

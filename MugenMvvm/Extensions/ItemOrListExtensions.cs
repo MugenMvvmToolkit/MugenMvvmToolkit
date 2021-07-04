@@ -26,14 +26,9 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ItemOrIEnumerable<T> itemOrList)
         {
-            if (itemOrList.List != null)
-            {
-                foreach (var item in itemOrList)
-                    return item;
-                return default;
-            }
-
-            return itemOrList.Item;
+            foreach (var item in itemOrList)
+                return item;
+            return default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,7 +47,31 @@ namespace MugenMvvm.Extensions
             return default;
         }
 
+        public static bool Contains<T>(this ItemOrIEnumerable<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
+        {
+            comparer ??= EqualityComparer<T>.Default;
+            foreach (var v in itemOrList)
+            {
+                if (comparer.Equals(v, value))
+                    return true;
+            }
+
+            return false;
+        }
+
         public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
+        {
+            comparer ??= EqualityComparer<T>.Default;
+            foreach (var v in itemOrList)
+            {
+                if (comparer.Equals(v, value))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool Contains<T>(this ItemOrArray<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
             comparer ??= EqualityComparer<T>.Default;
             foreach (var v in itemOrList)

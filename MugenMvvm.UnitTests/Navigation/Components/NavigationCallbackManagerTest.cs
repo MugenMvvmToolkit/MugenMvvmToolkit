@@ -68,8 +68,8 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                         DefaultMetadata)!;
                     callback.ShouldNotBeNull();
                     addedCallbacks.Add(callback);
-                    _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
-                    _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, result, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
+                    _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldEqual(addedCallbacks);
+                    _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, result, DefaultMetadata).ShouldEqual(addedCallbacks);
                 }
                 else
                 {
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                         DefaultMetadata)!;
                     callback.ShouldNotBeNull();
                     addedCallbacks.Add(callback);
-                    _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).AsList().ShouldEqual(addedCallbacks);
+                    _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldEqual(addedCallbacks);
                 }
             }
 
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).AsList().ShouldBeEmpty();
+            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldBeEmpty();
         }
 
         [Theory]
@@ -175,7 +175,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext, exception).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).AsList().ShouldBeEmpty();
+            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldBeEmpty();
         }
 
         [Theory]
@@ -222,7 +222,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext, DefaultCancellationToken).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).AsList().ShouldBeEmpty();
+            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldBeEmpty();
         }
     }
 }

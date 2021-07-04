@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             rootListener.ShouldNotBeNull();
             rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
-            members.Members.AsList().ShouldEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 });
+            members.Members.ShouldEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 });
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             getMembersCount.ShouldEqual(3);
@@ -176,7 +176,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             getMembersCount = 0;
             rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
-            members.Members.AsList().ShouldEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 });
+            members.Members.ShouldEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 });
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             if (hasStablePath)

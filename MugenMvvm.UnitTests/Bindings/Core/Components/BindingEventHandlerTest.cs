@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;

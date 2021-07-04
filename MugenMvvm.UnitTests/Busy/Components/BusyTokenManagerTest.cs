@@ -289,19 +289,19 @@ namespace MugenMvvm.UnitTests.Busy.Components
             var token1 = BusyManager.TryBeginBusy("Test1")!;
             var token2 = BusyManager.TryBeginBusy("Test2")!;
 
-            var tokens = BusyManager.GetTokens(DefaultMetadata)!.AsList();
+            var tokens = BusyManager.GetTokens(DefaultMetadata)!;
             tokens.Count.ShouldEqual(2);
             tokens.ShouldContain(token1);
             tokens.ShouldContain(token2);
 
             token1.Dispose();
-            tokens = BusyManager.GetTokens(DefaultMetadata)!.AsList();
+            tokens = BusyManager.GetTokens(DefaultMetadata)!;
             tokens.Count.ShouldEqual(1);
             tokens.ShouldContain(token2);
 
             token2.Dispose();
-            tokens = BusyManager.GetTokens(DefaultMetadata)!.AsList();
-            (tokens == null || tokens.Count == 0).ShouldBeTrue();
+            tokens = BusyManager.GetTokens(DefaultMetadata)!;
+            tokens.IsEmpty.ShouldBeTrue();
         }
 
         protected override IBusyManager GetBusyManager() => new BusyManager(ComponentCollectionManager);

@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
             attachingCount.ShouldEqual(2);
             attachedCount.ShouldEqual(1);
-            binding.GetComponents<object>().AsList().Single().ShouldEqual(component);
+            binding.GetComponents<object>().Single().ShouldEqual(component);
         }
 
         [Fact]
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();
             context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
             b.ShouldEqual(binding);
-            context.GetValues().AsList().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding) });
+            context.GetValues().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding) });
         }
 
         [Fact]
@@ -139,13 +139,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             detachingCount.ShouldEqual(1);
             detachedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(1);
-            binding.GetComponents<object>().AsList().Single().ShouldEqual(component);
+            binding.GetComponents<object>().Single().ShouldEqual(component);
 
             canDetach = true;
             componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
             detachingCount.ShouldEqual(2);
             detachedCount.ShouldEqual(1);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(0);
+            binding.GetComponents<object>().Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -285,7 +285,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             componentCollection.Count.ShouldEqual(components.Count);
             componentCollection.Owner.ShouldEqual(binding);
-            binding.GetComponents<object>().AsList().ShouldEqual(components);
+            binding.GetComponents<object>().ShouldEqual(components);
         }
 
         [Theory]
@@ -311,7 +311,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 component.Priority = -component.Priority;
                 componentCollection.Invalidate(component);
-                var list = componentCollection.Get<object>().AsList();
+                var list = componentCollection.Get<object>();
                 list.ShouldEqual(components.OrderByDescending(c => c.Priority));
             }
         }
@@ -338,7 +338,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 componentCollection.Remove(component).ShouldBeTrue();
 
                 componentCollection.Count.ShouldEqual(components.Count);
-                binding.GetComponents<object>().AsList().ShouldEqual(components);
+                binding.GetComponents<object>().ShouldEqual(components);
             }
         }
 
@@ -360,7 +360,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             componentCollection.Count.ShouldEqual(components.Count);
             componentCollection.Clear(DefaultMetadata);
             componentCollection.Count.ShouldEqual(0);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(0);
+            binding.GetComponents<object>().Count.ShouldEqual(0);
         }
 
         [Theory]
@@ -412,7 +412,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             addingCount.ShouldEqual(count);
             addedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(defaultCount);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(defaultCount);
+            binding.GetComponents<object>().Count.ShouldEqual(defaultCount);
 
             canAdd = true;
             addingCount = 0;
@@ -425,7 +425,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             addingCount.ShouldEqual(count);
             addedCount.ShouldEqual(count);
             componentCollection.Count.ShouldEqual(count + defaultCount);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(count + defaultCount);
+            binding.GetComponents<object>().Count.ShouldEqual(count + defaultCount);
         }
 
         [Theory]
@@ -467,7 +467,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < count; i++)
                 componentCollection.TryAdd(new object(), DefaultMetadata);
 
-            var objects = binding.GetComponents<object>().AsList().Where(o => o.GetType() == typeof(object)).ToArray();
+            var objects = binding.GetComponents<object>().Where(o => o.GetType() == typeof(object)).ToArray();
             foreach (var o in objects)
             {
                 expectedItem = o;
@@ -477,7 +477,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             removingCount.ShouldEqual(count);
             removedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(count + defaultCount);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(count + defaultCount);
+            binding.GetComponents<object>().Count.ShouldEqual(count + defaultCount);
 
             canRemove = true;
             removingCount = 0;
@@ -490,7 +490,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             removingCount.ShouldEqual(count);
             removedCount.ShouldEqual(count);
             componentCollection.Count.ShouldEqual(defaultCount);
-            binding.GetComponents<object>().AsList().Length.ShouldEqual(defaultCount);
+            binding.GetComponents<object>().Count.ShouldEqual(defaultCount);
         }
 
         [Theory]
@@ -1124,7 +1124,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             errorCount.ShouldEqual(count);
             pathMembersCount.ShouldEqual(count);
 
-            foreach (var o in binding.GetComponents<object>().AsList())
+            foreach (var o in binding.GetComponents<object>())
                 binding.RemoveComponent((IComponent<IBinding>)o);
 
             listener.ShouldBeNull();
@@ -1225,7 +1225,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 pathMembersCount.ShouldEqual(count);
             }
 
-            foreach (var o in binding.GetComponents<object>().AsList())
+            foreach (var o in binding.GetComponents<object>())
                 binding.RemoveComponent((IComponent<IBinding>)o);
 
             foreach (var listener in listeners)
@@ -1273,7 +1273,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             }
 
             binding.Initialize(components, DefaultMetadata);
-            binding.GetComponents<object>().AsList().ShouldEqual(addedComponents);
+            binding.GetComponents<object>().ShouldEqual(addedComponents);
             attachedCount.ShouldEqual(addedComponents.Count);
 
             ShouldThrow<InvalidOperationException>(() => binding.Initialize(components, DefaultMetadata));

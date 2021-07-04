@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
             var stateModel = GetModel();
             var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
-            var values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
+            var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
             var v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
             stateModel.String = null;
             stateModel.Guid = Guid.Empty;
 
-            values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
+            values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
             v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
@@ -147,7 +147,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
             _entityStateSnapshotProvider.MemberFilter = info => info.Name == nameof(stateModel.Guid);
             var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
 
-            var values = snapshot.Dump(stateModel, DefaultMetadata).AsList();
+            var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(1);
             var v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);

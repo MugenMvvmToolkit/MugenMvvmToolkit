@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 }
             });
 
-            var list = MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList();
+            var list = MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
             list.ShouldEqual(expectedResult);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
@@ -118,11 +118,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             var members = methods.Concat(additionMembers).ToArray();
             return new[]
             {
-                new object[] { members, methods[0].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] { methods[0] }.Concat(additionMembers) },
-                new object[] { members, methods[1].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] { methods[1] }.Concat(additionMembers) },
+                new object[] { members, methods[0].GetParameters().Select(info => info.ParameterType).ToArray(), new[] { methods[0] }.Concat(additionMembers) },
+                new object[] { members, methods[1].GetParameters().Select(info => info.ParameterType).ToArray(), new[] { methods[1] }.Concat(additionMembers) },
                 new object[]
                 {
-                    members, methods[2].GetParameters().AsList().Select(info => info.ParameterType).ToArray(), new[] { methods[2], methods[3] }.Concat(additionMembers)
+                    members, methods[2].GetParameters().Select(info => info.ParameterType).ToArray(), new[] { methods[2], methods[3] }.Concat(additionMembers)
                 },
                 new object[] { members, Array.Empty<Type>(), additionMembers },
                 new object[] { members, new[] { typeof(Guid) }, additionMembers }

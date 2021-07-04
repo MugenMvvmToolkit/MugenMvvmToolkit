@@ -21,46 +21,46 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var converterRequest = (BindingExpressionRequest) target.To(toValue);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(toValue);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             converterRequest = target.To<IComparable>(toValue);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(toValue);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             converterRequest = target.To(MemberExpressionNode.Empty);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(MemberExpressionNode.Empty);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             converterRequest = target.To<IComparable>(MemberExpressionNode.Empty);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(MemberExpressionNode.Empty);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Func<IBindingBuilderContext<string, object>, object?>> expression1 = context => context.Source;
             converterRequest = target.To(expression1);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression1);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Func<IBindingBuilderContext<string, IComparable>, object?>> expression2 = context => context.Source;
             converterRequest = target.To(expression2);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression2);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Action<IBindingBuilderContext<string, object>>> expression3 = context => context.ToString();
             converterRequest = target.To(expression3);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression3);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Action<IBindingBuilderContext<string, IComparable>>> expression4 = context => context.ToString();
             converterRequest = target.To(expression4);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression4);
-            converterRequest.Parameters.AsList().Count.ShouldEqual(0);
+            converterRequest.Parameters.Count.ShouldEqual(0);
         }
     }
 }

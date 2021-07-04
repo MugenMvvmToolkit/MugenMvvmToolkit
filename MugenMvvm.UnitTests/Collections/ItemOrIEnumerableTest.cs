@@ -13,31 +13,6 @@ namespace MugenMvvm.UnitTests.Collections
     public class ItemOrIEnumerableTest : UnitTestBase
     {
         [Fact]
-        public void CastShouldBeValid1()
-        {
-            var objValue = ItemOrIEnumerable.FromItem<object>(this, false);
-            var thisValue = objValue.Cast<ItemOrIEnumerableTest>();
-            AssertEmpty(thisValue);
-        }
-
-        [Fact]
-        public void CastShouldBeValid2()
-        {
-            var objValue = ItemOrIEnumerable.FromItem<object>(this, true);
-            var thisValue = objValue.Cast<ItemOrIEnumerableTest>();
-            AssertItem(thisValue, this);
-        }
-
-        [Fact]
-        public void CastShouldBeValid3()
-        {
-            var list = new[] { this, this };
-            var objValue = ItemOrIEnumerable.FromList(list);
-            var thisValue = objValue.Cast<ItemOrIEnumerableTest>();
-            AssertList(thisValue, list);
-        }
-
-        [Fact]
         public void FromRawValueShouldHandleList()
         {
             var list = new object[] { this, this };
@@ -181,6 +156,11 @@ namespace MugenMvvm.UnitTests.Collections
             foreach (var i in itemOrList)
                 buffer.Add(i);
             buffer.ShouldEqual(Array.Empty<T>());
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
+            buffer.ShouldEqual(Array.Empty<T>());
         }
 
         internal static void AssertItem<T>(ItemOrIEnumerable<T> itemOrList, T item) where T : class
@@ -199,6 +179,11 @@ namespace MugenMvvm.UnitTests.Collections
             foreach (var i in itemOrList)
                 buffer.Add(i);
             buffer.ShouldEqual(list);
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
+            buffer.ShouldEqual(list);
         }
 
         internal static void AssertList<T>(ItemOrIEnumerable<T> itemOrList, IEnumerable<T> list) where T : class
@@ -215,6 +200,11 @@ namespace MugenMvvm.UnitTests.Collections
             var buffer = new List<T>();
             foreach (var item in itemOrList)
                 buffer.Add(item);
+            buffer.ShouldEqual(list);
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
             buffer.ShouldEqual(list);
         }
     }

@@ -63,13 +63,13 @@ namespace MugenMvvm.UnitTests.Navigation
                 var listener = new TestNavigationCallbackListener();
                 list.Add(listener);
                 callback.AddCallback(listener);
-                callback.GetCallbacks().AsList().ShouldEqual(list);
+                callback.GetCallbacks().ShouldEqual(list);
             }
 
             for (var i = 0; i < count; i++)
             {
                 callback.RemoveCallback(list[i]);
-                var array = callback.GetCallbacks().AsList();
+                var array = callback.GetCallbacks();
                 array.ShouldEqual(list.Skip(i + 1));
             }
         }

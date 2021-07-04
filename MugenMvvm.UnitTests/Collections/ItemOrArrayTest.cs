@@ -11,31 +11,6 @@ namespace MugenMvvm.UnitTests.Collections
     public class ItemOrArrayTest : UnitTestBase
     {
         [Fact]
-        public void CastShouldBeValid1()
-        {
-            var objValue = ItemOrArray.FromItem<object>(this, false);
-            var thisValue = objValue.Cast<ItemOrArrayTest>();
-            AssertEmpty(thisValue);
-        }
-
-        [Fact]
-        public void CastShouldBeValid2()
-        {
-            var objValue = ItemOrArray.FromItem<object>(this, true);
-            var thisValue = objValue.Cast<ItemOrArrayTest>();
-            AssertItem(thisValue, this);
-        }
-
-        [Fact]
-        public void CastShouldBeValid3()
-        {
-            var list = new[] { this, this };
-            var objValue = ItemOrArray.FromList(list);
-            var thisValue = objValue.Cast<ItemOrArrayTest>();
-            AssertList(thisValue, list);
-        }
-
-        [Fact]
         public void FromRawValueShouldHandleList()
         {
             var list = new object[] { this, this };
@@ -124,6 +99,11 @@ namespace MugenMvvm.UnitTests.Collections
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
             buffer.ShouldEqual(Array.Empty<T>());
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
+            buffer.ShouldEqual(Array.Empty<T>());
         }
 
         private static void AssertItem<T>(ItemOrArray<T> itemOrList, T item) where T : class
@@ -147,6 +127,11 @@ namespace MugenMvvm.UnitTests.Collections
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
             buffer.ShouldEqual(list);
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
+            buffer.ShouldEqual(list);
         }
 
         private static void AssertList<T>(ItemOrArray<T> itemOrList, T[] list) where T : class
@@ -168,6 +153,11 @@ namespace MugenMvvm.UnitTests.Collections
             buffer.Clear();
             for (var i = 0; i < itemOrList.Count; i++)
                 buffer.Add(itemOrList[i]);
+            buffer.ShouldEqual(list);
+
+            buffer.Clear();
+            foreach (var i in itemOrList.AsEnumerable())
+                buffer.Add(i);
             buffer.ShouldEqual(list);
         }
     }

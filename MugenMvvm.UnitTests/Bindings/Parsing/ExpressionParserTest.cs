@@ -156,7 +156,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         [Fact]
         public void ParserShouldParseActionExpression()
         {
-            var result = GetParser().TryParse("@1+2; @1+2", DefaultMetadata).AsList();
+            var result = GetParser().TryParse("@1+2; @1+2", DefaultMetadata);
             result.Count.ShouldEqual(2);
             for (var i = 0; i < result.Count; i++)
             {
@@ -523,14 +523,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             }
 
             var parser = GetParser();
-            var list = (requests.Count == 1 ? parser.TryParse(requests[0], DefaultMetadata) : parser.TryParse(requests, DefaultMetadata)).AsList();
+            var list = (requests.Count == 1 ? parser.TryParse(requests[0], DefaultMetadata) : parser.TryParse(requests, DefaultMetadata));
             list.Count.ShouldEqual(count);
             for (var i = 0; i < count; i++)
             {
                 var result = list[i];
                 result.Target.ShouldEqual(new MemberExpressionNode(null, targetName));
                 result.Source.ShouldEqual(expectedResult);
-                var array = result.Parameters.AsList();
+                var array = result.Parameters;
                 for (var j = 0; j < parameterCount; j++)
                 {
                     var binaryExpressionNode = (BinaryExpressionNode)array[j];
@@ -555,14 +555,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             }
 
             var exp = builder.ToString();
-            var list = GetParser().TryParse(exp, DefaultMetadata).AsList();
+            var list = GetParser().TryParse(exp, DefaultMetadata);
             list.Count.ShouldEqual(count);
             for (var i = 0; i < count; i++)
             {
                 var result = list[i];
                 result.Target.ShouldEqual(new MemberExpressionNode(null, targetName + i));
                 result.Source.ShouldEqual(expectedResult);
-                var array = result.Parameters.AsList();
+                var array = result.Parameters;
                 for (var j = 0; j < parameterCount; j++)
                 {
                     var binaryExpressionNode = (BinaryExpressionNode)array[j];

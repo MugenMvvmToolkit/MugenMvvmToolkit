@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 }
             });
 
-            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList().ShouldEqual(members);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(members);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }

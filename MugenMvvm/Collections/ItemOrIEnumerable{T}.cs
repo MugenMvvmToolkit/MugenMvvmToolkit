@@ -5,11 +5,12 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ItemOrIEnumerable<T>
+    public readonly struct ItemOrIEnumerable<T> : IReadOnlyCollection<T>
     {
         private readonly int _fixedCount;
         public readonly T? Item;
@@ -59,16 +60,26 @@ namespace MugenMvvm.Collections
         public static implicit operator ItemOrIEnumerable<T>(List<T>? items) => ItemOrIEnumerable.FromList(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable<TType> Cast<TType>() => new((TType?)(object?)Item!, (IEnumerable<TType>?)List, _fixedCount);
+        public IEnumerable<T> AsEnumerable() => AsList();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsList()
         {
             if (List != null)
                 return List;
-            if (Count == 0)
-                return Array.Empty<T>();
-            return new[] { Item! };
+            if (_fixedCount == 0)
+                return Default.EmptyEnumerable<T>();
+            return Default.SingleItemEnumerable(Item!);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public List<T> ToList()
+        {
+            if (List != null)
+                return new List<T>(List);
+            if (_fixedCount == 0)
+                return new List<T>();
+            return new List<T> { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -76,13 +87,27 @@ namespace MugenMvvm.Collections
         {
             if (List != null)
                 return List.ToArray();
-            if (_fixedCount == 1)
-                return new[] { Item! };
-            return Array.Empty<T>();
+            if (_fixedCount == 0)
+                return Array.Empty<T>();
+            return new[] { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public Enumerator GetEnumerator() => new(this);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private IEnumerator<T> GetEnumeratorRef()
+        {
+            if (List != null)
+                return List.GetEnumerator();
+            if (_fixedCount == 0)
+                return Default.EmptyEnumerator<T>();
+            return Default.SingleItemEnumerator(Item!);
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumeratorRef();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumeratorRef();
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>

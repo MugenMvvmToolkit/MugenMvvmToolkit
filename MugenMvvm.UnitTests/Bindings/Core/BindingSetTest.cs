@@ -216,7 +216,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var bindings = bindingSet.BuildIncludeBindings(DefaultMetadata);
             invokeBuilderCount.ShouldEqual(count * bindingCount);
             sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
-            var groupBy = bindings.AsList().GroupBy(binding => binding);
+            var groupBy = bindings.GroupBy(binding => binding);
             groupBy.Count().ShouldEqual(count);
             foreach (var group in groupBy)
                 group.Count().ShouldEqual(bindingCount);

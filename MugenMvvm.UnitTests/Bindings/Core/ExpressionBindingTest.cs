@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.TryGet(BindingMetadata.IsExpressionBinding, out var isMulti).ShouldBeTrue();
             b.ShouldEqual(binding);
             isMulti.ShouldBeTrue();
-            context.GetValues().AsList().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsExpressionBinding.ToValue(true) });
+            context.GetValues().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsExpressionBinding.ToValue(true) });
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Invoke = (list, context) =>
                 {
                     ++expressionInvoke;
-                    list.AsList().ShouldEqual(new[] { new ParameterValue(sourceValue.GetType(), sourceValue) });
+                    list.ShouldEqual(new[] { new ParameterValue(sourceValue.GetType(), sourceValue) });
                     context.ShouldEqual(binding);
                     return expressionValue;
                 }

@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             string name = "T";
             var types = new[] {typeof(string)};
             var memberTypesRequest = new MemberTypesRequest(name, types);
-            memberTypesRequest.Types.AsList().ShouldEqual(types);
+            memberTypesRequest.Types.ShouldEqual(types);
             memberTypesRequest.Name.ShouldEqual(name);
         }
     }

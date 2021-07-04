@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     ++invokeCount;
                     member.ShouldEqual(m);
                     target.ShouldEqual(t);
-                    objects.ShouldEqual(args.AsList());
+                    objects.ShouldEqual(args);
                     metadata.ShouldEqual(DefaultMetadata);
                     return result;
                 }, null, null, null, null);

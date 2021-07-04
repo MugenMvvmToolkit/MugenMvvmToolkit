@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             const string member = "Test.Test[T]";
             var path = ObservationManager.TryGetMemberPath(member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
-            path.Members.AsList().ShouldEqual(new[] { "Test", "Test", "[T]" });
+            path.Members.ShouldEqual(new[] { "Test", "Test", "[T]" });
         }
 
         [Fact]

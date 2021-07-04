@@ -241,9 +241,9 @@ namespace MugenMvvm.UnitTests.Internal.Components
                 arg3.ShouldEqual(this);
                 hashSet.Remove(new KeyValuePair<string, object?>(key, value));
                 return false;
-            }).AsList().ShouldBeEmpty();
+            }).ShouldBeEmpty();
             hashSet.Count.ShouldEqual(0);
-            attachedValues.GetValues().AsList().ShouldEqual(values);
+            attachedValues.GetValues().ShouldEqual(values);
         }
 
         [Theory]

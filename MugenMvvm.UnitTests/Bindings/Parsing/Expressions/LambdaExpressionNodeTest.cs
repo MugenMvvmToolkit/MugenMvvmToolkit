@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var expressionNode = (LambdaExpressionNode) exp.Accept(visitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Body.ShouldEqual(targetChanged);
-            expressionNode.Parameters.AsList().ShouldEqual(new[] {arg1Changed, arg2Changed});
+            expressionNode.Parameters.ShouldEqual(new[] {arg1Changed, arg2Changed});
         }
 
         [Theory]

@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
                         context.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{index}"));
                         context.SourceExpression.ShouldEqual(new TestBindingMemberExpressionNode(index + "_"));
-                        context.ParameterExpressions.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
+                        context.ParameterExpressions.ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
@@ -173,7 +173,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 });
             }
 
-            var expressions = _builder.TryParseBindingExpression(null!, "", DefaultMetadata).AsList();
+            var expressions = _builder.TryParseBindingExpression(null!, "", DefaultMetadata);
             expressions.Count.ShouldEqual(expressionCount);
             for (var i = 0; i < expressions.Count; i++)
             {
@@ -190,14 +190,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Target.ShouldEqual(targetObserver);
                 binding.Source.ShouldEqual(sourceObserver);
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents<object>().AsList().ShouldContain(components);
+                binding.GetComponents<object>().ShouldContain(components);
 
                 binding = expression.Build(target, source, DefaultMetadata);
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
                 binding.Source.ShouldEqual(sourceObserver);
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents<object>().AsList().ShouldContain(components);
+                binding.GetComponents<object>().ShouldContain(components);
             }
         }
 
@@ -267,7 +267,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
                         context.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{index}"));
                         context.SourceExpression.ShouldEqual(GetBindingSourceExpression(index, out _, out _));
-                        context.ParameterExpressions.AsList().ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
+                        context.ParameterExpressions.ShouldEqual(Enumerable.Range(0, index + 1).Select(ConstantExpressionNode.Get));
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
@@ -318,7 +318,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 });
             }
 
-            var expressions = _builder.TryParseBindingExpression(null!, "", DefaultMetadata).AsList();
+            var expressions = _builder.TryParseBindingExpression(null!, "", DefaultMetadata);
             expressions.Count.ShouldEqual(expressionCount);
             for (var i = 0; i < expressions.Count; i++)
             {
@@ -334,17 +334,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 expression.TargetExpression.ShouldEqual(new TestBindingMemberExpressionNode($"{count}"));
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
-                binding.Source.AsList().ShouldEqual(new[] { sourceObserver1, sourceObserver2 });
+                binding.Source.ShouldEqual(new[] { sourceObserver1, sourceObserver2 });
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents<object>().AsList().ShouldContain(components);
+                binding.GetComponents<object>().ShouldContain(components);
 
                 binding = (ExpressionBinding)expression.Build(target, source, DefaultMetadata);
                 binding.Expression.ShouldEqual(exp);
                 invokeCount.ShouldEqual(count);
                 binding.Target.ShouldEqual(targetObserver);
-                binding.Source.AsList().ShouldEqual(new[] { sourceObserver1, sourceObserver2 });
+                binding.Source.ShouldEqual(new[] { sourceObserver1, sourceObserver2 });
                 binding.State.ShouldEqual(BindingState.Valid);
-                binding.GetComponents<object>().AsList().ShouldContain(components);
+                binding.GetComponents<object>().ShouldContain(components);
             }
         }
 

@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         return;
                     ++invokeCount;
                     validator.ShouldEqual(Validator);
-                    list.AsList().ShouldEqual(members);
+                    list.ShouldEqual(members);
                     m.ShouldEqual(DefaultMetadata);
                 }
             });
@@ -349,7 +349,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 {
                     ++invokeCount;
                     validator.ShouldEqual(Validator);
-                    list.AsList().ShouldEqual(members);
+                    list.ShouldEqual(members);
                     m.ShouldEqual(DefaultMetadata);
                 }
             });

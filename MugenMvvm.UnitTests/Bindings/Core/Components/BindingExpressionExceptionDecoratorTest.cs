@@ -70,12 +70,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryParseBindingExpression = (_, _, _) => expressions
             });
 
-            var result = BindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var result = BindingManager.TryParseBindingExpression("", DefaultMetadata);
             result.Count.ShouldEqual(count);
 
-            for (var i = 0; i < result.Count; i++)
+            foreach (var t in result)
             {
-                var binding = (InvalidBinding)result[i].Build(target, source, DefaultMetadata);
+                var binding = (InvalidBinding)t.Build(target, source, DefaultMetadata);
                 binding.Exception.ShouldEqual(exception);
             }
         }

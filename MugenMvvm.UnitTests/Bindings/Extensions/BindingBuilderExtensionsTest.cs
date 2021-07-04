@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 }
             });
 
-            var readOnlyList = target.Bind(request, source, DefaultMetadata, BindingManager).AsList();
+            var readOnlyList = target.Bind(request, source, DefaultMetadata, BindingManager);
             readOnlyList.Count.ShouldEqual(2);
             readOnlyList[0].ShouldEqual(Binding);
             readOnlyList[1].ShouldEqual(Binding);

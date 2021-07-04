@@ -24,16 +24,16 @@ namespace MugenMvvm.UnitTests.Bindings.Internal
                 case IConstantExpressionNode ex:
                     return $"ConstantExpressionNode.Get({ToCodeValue(ex.Value)}, typeof({ex.Type.Name}))";
                 case IIndexExpressionNode ex:
-                    return $"new IndexExpressionNode({ToCode(ex.Target, valueToConstant)}, {ToCode(ex.Arguments.AsList(), valueToConstant)})";
+                    return $"new IndexExpressionNode({ToCode(ex.Target, valueToConstant)}, {ToCode(ex.Arguments, valueToConstant)})";
                 case ILambdaExpressionNode ex:
-                    return $"new LambdaExpressionNode({ToCode(ex.Body, valueToConstant)}, {ToCode(ex.Parameters.AsList(), valueToConstant)})";
+                    return $"new LambdaExpressionNode({ToCode(ex.Body, valueToConstant)}, {ToCode(ex.Parameters, valueToConstant)})";
                 case IMemberExpressionNode ex:
                     if (valueToConstant && ex.Member.StartsWith("value"))
                         return $"ConstantExpressionNode.Get({ex.Member})";
                     return $"new MemberExpressionNode({ToCode(ex.Target, valueToConstant)}, \"{ex.Member}\")";
                 case IMethodCallExpressionNode ex:
                     return
-                        $"new MethodCallExpressionNode({ToCode(ex.Target, valueToConstant)}, \"{ex.Method}\", {ToCode(ex.Arguments.AsList(), valueToConstant)}, {ToCode(ex.TypeArgs.AsList())})";
+                        $"new MethodCallExpressionNode({ToCode(ex.Target, valueToConstant)}, \"{ex.Method}\", {ToCode(ex.Arguments, valueToConstant)}, {ToCode(ex.TypeArgs)})";
                 case IUnaryExpressionNode ex:
                     return $"new UnaryExpressionNode({ToCode(ex.Token)}, {ToCode(ex.Operand, valueToConstant)})";
                 case IParameterExpressionNode ex:

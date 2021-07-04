@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Messaging
     public class MessengerTest : ComponentOwnerTestBase<Messenger>
     {
         [Fact]
-        public void GetSubscribersShouldReturnEmptyListNoComponents() => Messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
+        public void GetSubscribersShouldReturnEmptyListNoComponents() => Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
 
         [Fact]
         public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
@@ -262,7 +262,7 @@ namespace MugenMvvm.UnitTests.Messaging
                 });
             }
 
-            var result = Messenger.GetSubscribers(DefaultMetadata).AsList();
+            var result = Messenger.GetSubscribers(DefaultMetadata);
             result.Count.ShouldEqual(count);
             foreach (var messengerSubscriberInfo in result)
                 subscribers.Remove(messengerSubscriberInfo);

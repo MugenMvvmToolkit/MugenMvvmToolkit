@@ -470,7 +470,7 @@ namespace MugenMvvm.UnitTests.Components
             var components = componentCollection.Get<IThreadDispatcherComponent>();
             executed.ShouldEqual(count);
             components.Count.ShouldEqual(count * 2);
-            components.AsList().OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
+            components.OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
         }
 
         [Theory]
@@ -494,7 +494,7 @@ namespace MugenMvvm.UnitTests.Components
             {
                 component.Priority = -component.Priority;
                 _componentCollection.Invalidate(component);
-                var list = _componentCollection.Get<TestComponentCollectionProviderComponent>().AsList();
+                var list = _componentCollection.Get<TestComponentCollectionProviderComponent>();
                 list.ShouldEqual(components.OrderByDescending(c => c.Priority));
             }
         }
