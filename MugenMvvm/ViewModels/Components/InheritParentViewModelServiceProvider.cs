@@ -21,7 +21,7 @@ namespace MugenMvvm.ViewModels.Components
             ServiceMapping = new Dictionary<Type, Func<IViewModelBase, object?>>(3, InternalEqualityComparer.Type);
         }
 
-        public int Priority { get; set; } = ViewModelComponentPriority.InheritParentServiceResolver;
+        public int Priority { get; init; } = ViewModelComponentPriority.InheritParentServiceResolver;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.GetService(false);

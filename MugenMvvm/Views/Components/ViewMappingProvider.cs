@@ -23,7 +23,7 @@ namespace MugenMvvm.Views.Components
             _mappings = new List<MappingInfo>();
         }
 
-        public int Priority { get; set; } = ViewComponentPriority.MappingProvider;
+        public int Priority { get; init; } = ViewComponentPriority.MappingProvider;
 
         public IViewMapping AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null,
             IReadOnlyMetadataContext? metadata = null)

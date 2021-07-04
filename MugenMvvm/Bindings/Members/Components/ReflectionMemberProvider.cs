@@ -33,7 +33,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<CacheKey, object?>(59);
         }
 
-        public int Priority { get; set; } = MemberComponentPriority.Instance;
+        public int Priority { get; init; } = MemberComponentPriority.Instance;
 
         public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, string name, EnumFlags<MemberType> memberTypes,
             IReadOnlyMetadataContext? metadata)

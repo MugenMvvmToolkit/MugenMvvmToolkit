@@ -12,7 +12,7 @@ namespace MugenMvvm.Windows.Internal
         private static readonly DependencyProperty DictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedDictionary", typeof(object), typeof(DependencyObject), new PropertyMetadata(null));
 
-        public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(DependencyObject item, bool optional)
         {

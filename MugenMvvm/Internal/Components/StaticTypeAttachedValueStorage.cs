@@ -14,7 +14,7 @@ namespace MugenMvvm.Internal.Components
             _attachedValues = new Dictionary<Type, SortedList<string, object?>>(7, InternalEqualityComparer.Type);
         }
 
-        public int Priority { get; set; } = InternalComponentPriority.StaticTypeAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.StaticTypeAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(Type item, bool optional)
         {

@@ -9,7 +9,7 @@ namespace MugenMvvm.Android.Internal
 {
     public sealed class AndroidWeakReferenceProvider : IWeakReferenceProviderComponent, IHasPriority
     {
-        public int Priority { get; set; } = InternalComponentPriority.WeakReferenceProvider + 1;
+        public int Priority { get; init; } = InternalComponentPriority.WeakReferenceProvider + 1;
 
         public IWeakReference? TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {

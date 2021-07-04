@@ -35,7 +35,7 @@ namespace MugenMvvm.Android.Views
             _serializer = serializer;
         }
 
-        public int Priority { get; set; } = ViewComponentPriority.StateManager;
+        public int Priority { get; init; } = ViewComponentPriority.StateManager;
 
         private static bool TryGetBundle(object? state, [NotNullWhen(true)] out Bundle? bundle)
         {

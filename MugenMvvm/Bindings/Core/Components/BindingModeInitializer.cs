@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public Dictionary<string, object?> BindingModes { get; }
 
-        public int Priority { get; set; } = BindingComponentPriority.ParameterPostInitializer;
+        public int Priority { get; init; } = BindingComponentPriority.ParameterPostInitializer;
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {

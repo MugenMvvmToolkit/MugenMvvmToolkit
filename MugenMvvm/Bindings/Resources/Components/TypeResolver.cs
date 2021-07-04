@@ -60,7 +60,7 @@ namespace MugenMvvm.Bindings.Resources.Components
 
         public IDictionary<string, Type> Types { get; }
 
-        public int Priority { get; set; } = ResourceComponentPriority.TypeResolver;
+        public int Priority { get; init; } = ResourceComponentPriority.TypeResolver;
 
         public void AddType(Type type, string? alias = null)
         {

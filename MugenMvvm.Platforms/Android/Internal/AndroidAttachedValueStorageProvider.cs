@@ -13,7 +13,7 @@ namespace MugenMvvm.Android.Internal
 {
     public sealed class AndroidAttachedValueStorageProvider : AttachedValueStorageProviderBase<Object>, IHasPriority
     {
-        public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
 
         protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) =>
             item is Object v && ViewMugenExtensions.IsSupportAttachedValues(v);

@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public Dictionary<char, ItemOrArray<UnaryTokenType>> Mapping { get; }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Unary;
+        public int Priority { get; init; } = ParsingComponentPriority.Unary;
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {

@@ -53,7 +53,7 @@ namespace MugenMvvm.Entities.Components
             }
         }
 
-        public int Priority { get; set; } = EntityComponentPriority.SnapshotProvider;
+        public int Priority { get; init; } = EntityComponentPriority.SnapshotProvider;
 
         private static object GetUnderlyingValue(object key)
         {

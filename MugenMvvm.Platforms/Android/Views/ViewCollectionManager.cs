@@ -17,7 +17,7 @@ namespace MugenMvvm.Android.Views
 {
     public sealed class ViewCollectionManager : IViewCollectionManagerComponent, IHasPriority
     {
-        public int Priority { get; set; } = ViewComponentPriority.ViewCollectionManager;
+        public int Priority { get; init; } = ViewComponentPriority.ViewCollectionManager;
 
         public bool TryGetItemsSource(IViewManager viewManager, object view, IReadOnlyMetadataContext? metadata, out IEnumerable? itemsSource)
         {

@@ -18,7 +18,7 @@ namespace MugenMvvm.Entities.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
-        public int Priority { get; set; } = EntityComponentPriority.TrackingCollectionProvider;
+        public int Priority { get; init; } = EntityComponentPriority.TrackingCollectionProvider;
 
         public IEntityTrackingCollection TryGetTrackingCollection(IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata)
         {

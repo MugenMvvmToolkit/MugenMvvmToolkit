@@ -11,7 +11,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class ConditionTokenParser : ITokenParserComponent, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Condition;
+        public int Priority { get; init; } = ParsingComponentPriority.Condition;
 
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {

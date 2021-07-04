@@ -220,7 +220,7 @@ namespace MugenMvvm.Extensions
         public static ActionToken AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
-            return command.GetOrAddComponent<PropertyChangedCommandNotifier>().AddNotifier(notifier);
+            return command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
         }
 
         public static ValueTask<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
@@ -344,7 +344,7 @@ namespace MugenMvvm.Extensions
 
         internal static void CommandNotifierOnPropertyChangedHandler(this IWeakReference weakReference, object? sender, PropertyChangedEventArgs args)
         {
-            var handler = (PropertyChangedCommandNotifier?)weakReference.Target;
+            var handler = (PropertyChangedCommandObserver?)weakReference.Target;
             if (handler == null)
             {
                 if (sender is INotifyPropertyChanged propertyChanged)

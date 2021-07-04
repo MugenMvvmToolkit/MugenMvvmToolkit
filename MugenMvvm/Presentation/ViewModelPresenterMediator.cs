@@ -34,7 +34,7 @@ namespace MugenMvvm.Presentation
 
         public IViewPresenterMediator ViewPresenterMediator { get; }
 
-        public int Priority { get; set; } = ComponentPriority.Min;
+        public int Priority { get; init; } = ComponentPriority.Min;
 
         protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
         {

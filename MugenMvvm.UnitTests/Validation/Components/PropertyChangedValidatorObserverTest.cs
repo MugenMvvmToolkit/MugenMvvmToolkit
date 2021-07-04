@@ -20,14 +20,14 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Validation.Components
 {
-    public class ObservableValidatorBehaviorTest : UnitTestBase
+    public class PropertyChangedValidatorObserverTest : UnitTestBase
     {
         private readonly TestViewModelBase _vm;
 
-        public ObservableValidatorBehaviorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public PropertyChangedValidatorObserverTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _vm = new TestViewModelBase(ViewModelManager) { ThreadDispatcher = ThreadDispatcher };
-            Validator.AddComponent(new ObservableValidatorBehavior(_vm));
+            Validator.AddComponent(new PropertyChangedValidatorObserver(_vm));
         }
 
         [Fact]

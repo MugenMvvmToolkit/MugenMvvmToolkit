@@ -17,7 +17,7 @@ namespace MugenMvvm.Busy.Components
     {
         private BusyToken? _busyTail;
 
-        public int Priority { get; set; } = BusyComponentPriority.BusyManager;
+        public int Priority { get; init; } = BusyComponentPriority.BusyManager;
 
         private object Locker => this;
 

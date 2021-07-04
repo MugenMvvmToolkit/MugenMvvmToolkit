@@ -50,7 +50,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>> Mapping { get; }
 
-        public int Priority { get; set; } = CompilingComponentPriority.Binary;
+        public int Priority { get; init; } = CompilingComponentPriority.Binary;
 
         private static Expression GeneratePlusExpression(Expression left, Expression right)
         {

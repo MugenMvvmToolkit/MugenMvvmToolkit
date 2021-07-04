@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _selectorDictionary = new Dictionary<IMemberInfo, MemberList>(17, this);
         }
 
-        public int Priority { get; set; } = MemberComponentPriority.Selector;
+        public int Priority { get; init; } = MemberComponentPriority.Selector;
 
         private static int GetPriority(IMemberInfo member, Type requestedType)
         {

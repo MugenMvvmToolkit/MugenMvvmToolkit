@@ -45,7 +45,7 @@ namespace MugenMvvm.Bindings.Core.Components
             set => _memberExpressionVisitor.MemberFlags = value;
         }
 
-        public int Priority { get; set; } = BindingComponentPriority.ParameterInitializer;
+        public int Priority { get; init; } = BindingComponentPriority.ParameterInitializer;
 
         private static IComponent<IBinding> GetParametersComponent(
             (BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression) state,

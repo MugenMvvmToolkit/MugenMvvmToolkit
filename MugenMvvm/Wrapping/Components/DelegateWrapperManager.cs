@@ -21,7 +21,7 @@ namespace MugenMvvm.Wrapping.Components
             _wrapperFactory = wrapperFactory;
         }
 
-        public int Priority { get; set; } = WrappingComponentPriority.WrapperManger;
+        public int Priority { get; init; } = WrappingComponentPriority.WrapperManger;
 
         public bool CanWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {

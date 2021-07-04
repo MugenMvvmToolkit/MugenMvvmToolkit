@@ -15,7 +15,7 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
 

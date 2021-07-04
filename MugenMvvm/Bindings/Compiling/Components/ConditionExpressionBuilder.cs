@@ -11,7 +11,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class ConditionExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        public int Priority { get; set; } = CompilingComponentPriority.Condition;
+        public int Priority { get; init; } = CompilingComponentPriority.Condition;
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {

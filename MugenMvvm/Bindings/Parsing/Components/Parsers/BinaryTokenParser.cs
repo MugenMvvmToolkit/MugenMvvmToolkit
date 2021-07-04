@@ -46,7 +46,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public List<BinaryTokenType> Tokens { get; }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Binary;
+        public int Priority { get; init; } = ParsingComponentPriority.Binary;
 
         private static int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
         {

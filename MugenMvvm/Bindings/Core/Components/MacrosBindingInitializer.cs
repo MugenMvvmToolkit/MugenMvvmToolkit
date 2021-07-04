@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public List<IExpressionVisitor> ParameterVisitors { get; }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {

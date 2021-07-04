@@ -9,7 +9,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class ParenTokenParser : ITokenParserComponent, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Paren;
+        public int Priority { get; init; } = ParsingComponentPriority.Paren;
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {

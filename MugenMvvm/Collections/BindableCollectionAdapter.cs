@@ -662,13 +662,14 @@ namespace MugenMvvm.Collections
             internal readonly IWeakReference Reference;
             private readonly int _version;
 
-            public WeakListener(BindableCollectionAdapter adapter, int version, WeakListener? oldListener)
+            public WeakListener(BindableCollectionAdapter adapter, int version, WeakListener? oldListener, int priority = CollectionComponentPriority.BindableAdapter)
             {
                 Reference = oldListener?.Reference ?? adapter.ToWeakReference();
                 _version = version;
+                Priority = priority;
             }
 
-            public int Priority { get; set; } = CollectionComponentPriority.BindableAdapter;
+            public int Priority { get; }
 
             public BindableCollectionAdapter? Target => GetAdapter(null);
 

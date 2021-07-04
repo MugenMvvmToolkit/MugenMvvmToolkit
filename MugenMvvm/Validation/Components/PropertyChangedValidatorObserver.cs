@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
@@ -12,17 +13,19 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class ObservableValidatorBehavior : MultiAttachableComponentBase<IValidator>, IValidatorErrorsChangedListener, IDisposableComponent<IValidator>, IHasPriority
+    public sealed class PropertyChangedValidatorObserver : MultiAttachableComponentBase<IValidator>, IValidatorErrorsChangedListener, IDisposableComponent<IValidator>, IHasPriority
     {
         private readonly INotifyPropertyChanged _target;
 
-        public ObservableValidatorBehavior(INotifyPropertyChanged target)
+        public PropertyChangedValidatorObserver(INotifyPropertyChanged target, int priority = ValidationComponentPriority.PropertyChangedObserver)
         {
+            Should.NotBeNull(target, nameof(target));
             _target = target;
+            Priority = priority;
             target.PropertyChanged += OnPropertyChanged;
         }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {

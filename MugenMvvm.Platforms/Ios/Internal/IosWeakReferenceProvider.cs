@@ -9,7 +9,7 @@ namespace MugenMvvm.Ios.Internal
 {
     public sealed class IosWeakReferenceProvider : IWeakReferenceProviderComponent, IHasPriority
     {
-        public int Priority { get; set; } = InternalComponentPriority.WeakReferenceProvider + 1;
+        public int Priority { get; init; } = InternalComponentPriority.WeakReferenceProvider + 1;
 
         public IWeakReference? TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {

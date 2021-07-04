@@ -28,7 +28,7 @@ namespace MugenMvvm.Views.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
-        public int Priority { get; set; } = ViewComponentPriority.Initializer;
+        public int Priority { get; init; } = ViewComponentPriority.Initializer;
 
         public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)

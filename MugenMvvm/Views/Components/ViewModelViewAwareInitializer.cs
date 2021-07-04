@@ -37,7 +37,7 @@ namespace MugenMvvm.Views.Components
             _reflectionManager = reflectionManager;
         }
 
-        public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
+        public int Priority { get; init; } = ViewComponentPriority.PreInitializer;
 
         [Preserve(Conditional = true)]
         public void TryUpdateView<TView>(IView view, bool clear, IReadOnlyMetadataContext? metadata) where TView : class

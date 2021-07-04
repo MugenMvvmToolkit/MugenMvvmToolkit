@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             _handledExpressions = new HashSet<IExpressionNode>();
         }
 
-        public int Priority { get; set; } = CompilingComponentPriority.NullConditionalMember;
+        public int Priority { get; init; } = CompilingComponentPriority.NullConditionalMember;
 
         private static bool HasNullCondition(IHasTargetExpressionNode<IExpressionNode>? target, [NotNullWhen(true)] out NullConditionalMemberExpressionNode? result)
         {

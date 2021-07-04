@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _registeredMembers = new Dictionary<string, List<IMemberInfo>>(59, StringComparer.Ordinal);
         }
 
-        public int Priority { get; set; } = MemberComponentPriority.Attached;
+        public int Priority { get; init; } = MemberComponentPriority.Attached;
 
         public ItemOrIReadOnlyList<IMemberInfo> GetAttachedMembers()
         {

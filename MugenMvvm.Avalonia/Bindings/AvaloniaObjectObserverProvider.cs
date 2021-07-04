@@ -29,7 +29,7 @@ namespace MugenMvvm.Avalonia.Bindings
             _memberObserverHandler = TryObserve;
         }
 
-        public int Priority { get; set; } = ObservationComponentPriority.PropertyChangedObserverProvider;
+        public int Priority { get; init; } = ObservationComponentPriority.PropertyChangedObserverProvider;
 
         private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
         {

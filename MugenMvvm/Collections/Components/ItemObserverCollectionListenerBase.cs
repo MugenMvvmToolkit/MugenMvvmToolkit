@@ -34,7 +34,7 @@ namespace MugenMvvm.Collections.Components
 
         public event EventHandler? Changed;
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         public ActionToken AddObserver<TState>(TState state, Func<TState, ChangedEventInfo, bool> canInvoke, Action<TState, T?> invokeAction, int delay = 0)
         {

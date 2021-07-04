@@ -10,7 +10,7 @@ namespace MugenMvvm.Internal.Components
     {
         public bool TrackResurrection { get; set; }
 
-        public int Priority { get; set; } = InternalComponentPriority.WeakReferenceProvider;
+        public int Priority { get; init; } = InternalComponentPriority.WeakReferenceProvider;
 
         public IWeakReference TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata) =>
             new WeakReferenceImpl(item, TrackResurrection);

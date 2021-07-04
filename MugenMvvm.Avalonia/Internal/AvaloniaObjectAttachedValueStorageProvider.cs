@@ -12,7 +12,7 @@ namespace MugenMvvm.Avalonia.Internal
         private static readonly AttachedProperty<IDictionary<string, object?>> DictionaryProperty =
             AvaloniaProperty.RegisterAttached<AvaloniaObjectAttachedValueStorageProvider, IAvaloniaObject, IDictionary<string, object?>>("AttachedDictionary");
 
-        public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(IAvaloniaObject item, bool optional)
         {

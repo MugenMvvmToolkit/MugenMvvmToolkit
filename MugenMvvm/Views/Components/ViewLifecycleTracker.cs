@@ -22,7 +22,7 @@ namespace MugenMvvm.Views.Components
             Trackers.Add(TrackViewState);
         }
 
-        public int Priority { get; set; } = ViewComponentPriority.LifecycleTracker;
+        public int Priority { get; init; } = ViewComponentPriority.LifecycleTracker;
 
         private static void TrackViewState(object view, HashSet<ViewLifecycleState> states, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {

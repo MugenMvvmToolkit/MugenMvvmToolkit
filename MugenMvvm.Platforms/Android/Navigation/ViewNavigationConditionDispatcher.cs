@@ -11,7 +11,7 @@ namespace MugenMvvm.Android.Navigation
 {
     public sealed class ViewNavigationConditionDispatcher : INavigationConditionComponent, IHasPriority
     {
-        public int Priority { get; set; } = NavigationComponentPriority.Condition;
+        public int Priority { get; init; } = NavigationComponentPriority.Condition;
 
         public async ValueTask<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {

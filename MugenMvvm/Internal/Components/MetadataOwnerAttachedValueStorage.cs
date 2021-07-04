@@ -10,7 +10,7 @@ namespace MugenMvvm.Internal.Components
 {
     public sealed class MetadataOwnerAttachedValueStorage : AttachedValueStorageProviderBase<IMetadataOwner<IMetadataContext>>, IHasPriority
     {
-        public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(IMetadataOwner<IMetadataContext> item, bool optional)
         {

@@ -30,7 +30,7 @@ namespace MugenMvvm.Internal.Components
         {
         }
 
-        public int Priority { get; set; } = InternalComponentPriority.DelegateProvider;
+        public int Priority { get; init; } = InternalComponentPriority.DelegateProvider;
 
         public static Func<ItemOrArray<object?>, object> GetActivator(ConstructorInfo constructor) =>
             Expression

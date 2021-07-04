@@ -56,7 +56,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public EnumFlags<MemberFlags> MemberFlags { get; set; } = Enums.MemberFlags.All & ~Enums.MemberFlags.NonPublic;
 
-        public int Priority { get; set; } = CompilingComponentPriority.Member;
+        public int Priority { get; init; } = CompilingComponentPriority.Member;
 
         private static void GetBestMethodCandidates(ref ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> arguments)
         {

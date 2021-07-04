@@ -42,7 +42,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
         public Dictionary<ExpressionType, Func<BinaryExpression, BinaryTokenType>> Mapping { get; }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Binary;
+        public int Priority { get; init; } = ParsingComponentPriority.Binary;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {

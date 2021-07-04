@@ -25,7 +25,7 @@ namespace MugenMvvm.Threading.Components
                 synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
-        public int Priority { get; set; } = ThreadingComponentPriority.Dispatcher;
+        public int Priority { get; init; } = ThreadingComponentPriority.Dispatcher;
 
         private static SendOrPostCallback GetSendOrPostCallback(IThreadDispatcherHandler handler)
         {

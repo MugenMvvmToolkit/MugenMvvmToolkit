@@ -13,7 +13,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class LambdaExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Lambda;
+        public int Priority { get; init; } = ParsingComponentPriority.Lambda;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {

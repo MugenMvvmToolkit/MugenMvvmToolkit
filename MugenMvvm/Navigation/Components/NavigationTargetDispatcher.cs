@@ -10,7 +10,7 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationTargetDispatcher : INavigationConditionComponent, INavigationListener, IHasPriority
     {
-        public int Priority { get; set; } = NavigationComponentPriority.Condition;
+        public int Priority { get; init; } = NavigationComponentPriority.Condition;
 
         private static ValueTask<bool> CanNavigateFromAsync(INavigationDispatcher navigationDispatcher, object? target, object? toTarget, INavigationContext navigationContext,
             CancellationToken cancellationToken)

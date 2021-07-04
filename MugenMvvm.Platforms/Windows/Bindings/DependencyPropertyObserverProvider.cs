@@ -14,7 +14,7 @@ namespace MugenMvvm.Windows.Bindings
     {
         private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = Observe;
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         private static MemberObserver GetMemberObserver(DependencyProperty dp) => new(MemberObserverHandler, dp.Name);
 

@@ -33,7 +33,7 @@ namespace MugenMvvm.Bindings.Observation.Components
             _memberObserverHandler = TryObserve;
         }
 
-        public int Priority { get; set; } = ObservationComponentPriority.PropertyChangedObserverProvider;
+        public int Priority { get; init; } = ObservationComponentPriority.PropertyChangedObserverProvider;
 
         private static ActionToken TryObserveHolder(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {

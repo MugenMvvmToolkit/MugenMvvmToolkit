@@ -23,7 +23,7 @@ namespace MugenMvvm.Navigation.Components
             _attachedValueManager = attachedValueManager;
         }
 
-        public int Priority { get; set; } = NavigationComponentPriority.CallbackManager;
+        public int Priority { get; init; } = NavigationComponentPriority.CallbackManager;
 
         private static void AddCallback(IMetadataContextKey<List<NavigationCallback?>> key, NavigationCallback callback, IMetadataContext? metadata)
         {

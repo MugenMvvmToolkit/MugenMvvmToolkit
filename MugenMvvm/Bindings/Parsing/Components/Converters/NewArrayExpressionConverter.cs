@@ -13,7 +13,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class NewArrayExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Convert;
+        public int Priority { get; init; } = ParsingComponentPriority.Convert;
 
         [Preserve]
         public static T[] NewArrayInit<T>(params T[] items) => items;

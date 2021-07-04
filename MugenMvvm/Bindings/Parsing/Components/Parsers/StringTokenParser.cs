@@ -45,7 +45,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public List<string> QuoteTokens { get; }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Constant;
+        public int Priority { get; init; } = ParsingComponentPriority.Constant;
 
         private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)
         {

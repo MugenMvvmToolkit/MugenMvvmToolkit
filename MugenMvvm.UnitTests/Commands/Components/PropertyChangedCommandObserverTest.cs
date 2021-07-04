@@ -13,9 +13,9 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Commands.Components
 {
     [Collection(SharedContext)]
-    public class PropertyChangedCommandNotifierTest : UnitTestBase
+    public class PropertyChangedCommandObserverTest : UnitTestBase
     {
-        public PropertyChangedCommandNotifierTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public PropertyChangedCommandObserverTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             Command.AddComponent(new CommandEventHandler(ThreadDispatcher, ThreadExecutionMode.Current));
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
@@ -33,9 +33,9 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 ((PropertyChangedEventArgs)o!).PropertyName.ShouldEqual(propertyName);
                 return canNotifyValue;
             };
-            var commandNotifier = new PropertyChangedCommandNotifier { CanNotify = canNotify };
+            var commandNotifier = new PropertyChangedCommandObserver { CanNotify = canNotify };
             Command.AddComponent(commandNotifier);
-            commandNotifier.AddNotifier(propertyChangedModel);
+            commandNotifier.Add(propertyChangedModel);
 
             var executed = 0;
             EventHandler handler = (_, _) => ++executed;
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(5)]
         public void ShouldListenPropertyChangedEvent(int listenersCount)
         {
-            var commandNotifier = new PropertyChangedCommandNotifier();
+            var commandNotifier = new PropertyChangedCommandObserver();
             Command.AddComponent(commandNotifier);
 
             var models = new List<TestNotifyPropertyChangedModel>();
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             {
                 var notifier = new TestNotifyPropertyChangedModel();
                 models.Add(notifier);
-                var token = commandNotifier.AddNotifier(notifier);
+                var token = commandNotifier.Add(notifier);
                 token.IsEmpty.ShouldBeFalse();
                 tokens.Add(token);
             }
@@ -97,9 +97,9 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
         private WeakReference ShouldListenPropertyChangedWeakImpl(TestNotifyPropertyChangedModel propertyChangedModel)
         {
-            var commandNotifier = new PropertyChangedCommandNotifier();
+            var commandNotifier = new PropertyChangedCommandObserver();
             Command.AddComponent(commandNotifier);
-            commandNotifier.AddNotifier(propertyChangedModel);
+            commandNotifier.Add(propertyChangedModel);
             var executed = 0;
             EventHandler handler = (_, _) => ++executed;
             Command.CanExecuteChanged += handler;

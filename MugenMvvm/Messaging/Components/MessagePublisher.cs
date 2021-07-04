@@ -34,7 +34,7 @@ namespace MugenMvvm.Messaging.Components
 
         public ThreadExecutionMode DefaultExecutionMode { get; set; }
 
-        public int Priority { get; set; } = MessengerComponentPriority.Publisher;
+        public int Priority { get; init; } = MessengerComponentPriority.Publisher;
 
         private static Dictionary<ThreadExecutionMode, MessageThreadExecutor>? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode,
             IReadOnlyMetadataContext? metadata)

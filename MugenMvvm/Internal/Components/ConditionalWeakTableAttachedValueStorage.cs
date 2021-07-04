@@ -19,7 +19,7 @@ namespace MugenMvvm.Internal.Components
             _weakTable = new ConditionalWeakTable<object, SortedList<string, object?>>();
         }
 
-        public int Priority { get; set; } = InternalComponentPriority.WeakTableAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.WeakTableAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {

@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleHandler>((components, state, _) => state._components = components, this);
         }
 
-        public int Priority { get; set; } = BindingComponentPriority.LifecyclePostInitializer;
+        public int Priority { get; init; } = BindingComponentPriority.LifecyclePostInitializer;
 
         public void OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {

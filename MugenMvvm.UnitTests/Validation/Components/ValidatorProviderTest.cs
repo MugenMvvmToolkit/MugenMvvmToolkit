@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             validator.ShouldBeType<Validator>();
             validator.Components.Count.ShouldEqual(3);
             validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);
-            validator.Components.Get<ObservableValidatorBehavior>().Count.ShouldEqual(1);
+            validator.Components.Get<PropertyChangedValidatorObserver>().Count.ShouldEqual(1);
             validator.Components.Get<ValidatorErrorManager>().Count.ShouldEqual(1);
         }
 

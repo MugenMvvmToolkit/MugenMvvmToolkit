@@ -12,7 +12,7 @@ namespace MugenMvvm.Bindings.Converting.Components
     {
         public Func<IFormatProvider>? FormatProvider { get; set; }
 
-        public int Priority { get; set; } = ConverterComponentPriority.Converter;
+        public int Priority { get; init; } = ConverterComponentPriority.Converter;
 
         public bool TryConvert(IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata) =>
             BindingMugenExtensions.TryConvert(ref value, targetType, FormatProvider);

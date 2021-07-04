@@ -27,7 +27,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public Dictionary<UnaryTokenType, Func<Expression, Expression>> Mapping { get; }
 
-        public int Priority { get; set; } = CompilingComponentPriority.Unary;
+        public int Priority { get; init; } = CompilingComponentPriority.Unary;
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {

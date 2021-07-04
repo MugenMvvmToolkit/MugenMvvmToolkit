@@ -37,7 +37,7 @@ namespace MugenMvvm.ViewModels.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
-        public int Priority { get; set; } = ViewModelComponentPriority.ServiceProvider;
+        public int Priority { get; init; } = ViewModelComponentPriority.ServiceProvider;
 
         public object? TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {

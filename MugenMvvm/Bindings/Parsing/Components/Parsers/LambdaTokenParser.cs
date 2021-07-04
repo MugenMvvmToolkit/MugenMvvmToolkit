@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             _currentParameters = new Dictionary<string, IParameterExpressionNode>(StringComparer.Ordinal);
         }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Lambda;
+        public int Priority { get; init; } = ParsingComponentPriority.Lambda;
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {

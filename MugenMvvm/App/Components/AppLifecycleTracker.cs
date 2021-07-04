@@ -23,15 +23,15 @@ namespace MugenMvvm.App.Components
         private INavigationContext? _backgroundCloseContext;
         private INavigationContext? _backgroundNewContext;
 
-        public AppLifecycleTracker(INavigationDispatcher? navigationDispatcher = null, IMessenger? messenger = null, IAttachedValueManager? attachedValueManager = null) :
-            base(attachedValueManager)
+        public AppLifecycleTracker(INavigationDispatcher? navigationDispatcher = null, IMessenger? messenger = null, IAttachedValueManager? attachedValueManager = null)
+            : base(attachedValueManager)
         {
             _navigationDispatcher = navigationDispatcher;
             _messenger = messenger;
             Trackers.Add(TrackAppState);
         }
 
-        public int Priority { get; set; } = AppComponentPriority.LifecycleTracker;
+        public int Priority { get; init; } = AppComponentPriority.LifecycleTracker;
 
         private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
         {

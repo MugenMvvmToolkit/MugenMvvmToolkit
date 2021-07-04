@@ -57,7 +57,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public bool ToggleEnabledState { get; set; }
 
-        public int Priority { get; set; } = BindingComponentPriority.BindingInitializer;
+        public int Priority { get; init; } = BindingComponentPriority.BindingInitializer;
 
         private static IComponent<IBinding> GetEventHandlerComponent((BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target,
             object? source,

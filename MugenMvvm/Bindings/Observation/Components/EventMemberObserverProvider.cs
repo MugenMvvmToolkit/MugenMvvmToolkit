@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         public Func<Type, object, IReadOnlyMetadataContext?, IObservableMemberInfo?>? EventFinder { get; set; }
 
-        public int Priority { get; set; } = ObservationComponentPriority.EventObserverProvider;
+        public int Priority { get; init; } = ObservationComponentPriority.EventObserverProvider;
 
         public static IObservableMemberInfo? TryFindEventByMember(IMemberManager? memberManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {

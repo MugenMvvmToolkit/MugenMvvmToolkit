@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public Dictionary<string, IExpressionNode> LiteralToExpression { get; }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Constant;
+        public int Priority { get; init; } = ParsingComponentPriority.Constant;
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {

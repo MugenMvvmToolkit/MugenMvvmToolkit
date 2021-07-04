@@ -31,7 +31,7 @@ namespace MugenMvvm.Bindings.Parsing.Components
             _componentTracker.AddListener<ITokenParserComponent, StringTokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
-        public int Priority { get; set; } = ParsingComponentPriority.TokenParser;
+        public int Priority { get; init; } = ParsingComponentPriority.TokenParser;
 
         protected override void OnAttached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {

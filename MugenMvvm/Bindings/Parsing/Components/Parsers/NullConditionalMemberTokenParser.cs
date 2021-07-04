@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class NullConditionalMemberTokenParser : ITokenParserComponent, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Member;
+        public int Priority { get; init; } = ParsingComponentPriority.Member;
 
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {

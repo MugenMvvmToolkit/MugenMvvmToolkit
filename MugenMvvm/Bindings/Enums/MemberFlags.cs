@@ -49,6 +49,6 @@ namespace MugenMvvm.Bindings.Enums
         {
         }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
     }
 }

@@ -11,7 +11,7 @@ namespace MugenMvvm.Serialization.Components
 {
     public sealed class SerializationManager : ISerializationManagerComponent, IHasPriority
     {
-        public int Priority { get; set; } = SerializationComponentPriority.Serializer;
+        public int Priority { get; init; } = SerializationComponentPriority.Serializer;
 
         public bool IsSupported<TRequest, TResult>(ISerializer serializer, ISerializationFormatBase<TRequest, TResult> format, TRequest? request,
             IReadOnlyMetadataContext? metadata)

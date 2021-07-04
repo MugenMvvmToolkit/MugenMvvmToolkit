@@ -14,7 +14,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class LambdaExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        public int Priority { get; set; } = CompilingComponentPriority.Lambda;
+        public int Priority { get; init; } = CompilingComponentPriority.Lambda;
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {

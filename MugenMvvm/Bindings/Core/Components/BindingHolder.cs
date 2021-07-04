@@ -24,7 +24,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _attachedValueManager = attachedValueManager;
         }
 
-        public int Priority { get; set; } = BindingComponentPriority.BindingHolder;
+        public int Priority { get; init; } = BindingComponentPriority.BindingHolder;
 
         private static string GetPath(IMemberPath memberPath)
         {

@@ -19,7 +19,7 @@ namespace MugenMvvm.Components
         private Listener _listener;
         private List<Listener>? _listeners;
 
-        public int Priority { get; set; } = ComponentPriority.PreInitializer;
+        public int Priority { get; init; } = ComponentPriority.PreInitializer;
 
         public void AddListener<T, TState>(Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?> listener, TState state)
             where T : class

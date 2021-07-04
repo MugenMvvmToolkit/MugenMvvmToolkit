@@ -56,7 +56,7 @@ namespace MugenMvvm.Bindings.Enums
         }
 
         [DataMember(Name = "P")]
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         [DataMember(Name = "A")]
         public ItemOrArray<string> Aliases { get; set; }

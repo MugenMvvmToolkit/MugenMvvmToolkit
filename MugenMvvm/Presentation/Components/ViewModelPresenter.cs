@@ -27,7 +27,7 @@ namespace MugenMvvm.Presentation.Components
             _locker = new object();
         }
 
-        public int Priority { get; set; } = PresenterComponentPriority.Presenter;
+        public int Priority { get; init; } = PresenterComponentPriority.Presenter;
 
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {

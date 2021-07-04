@@ -9,7 +9,7 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationContextProvider : INavigationContextProviderComponent, IHasPriority
     {
-        public int Priority { get; set; } = NavigationComponentPriority.ContextProvider;
+        public int Priority { get; init; } = NavigationComponentPriority.ContextProvider;
 
         public INavigationContext TryGetNavigationContext(INavigationDispatcher navigationDispatcher, object? target, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null) =>

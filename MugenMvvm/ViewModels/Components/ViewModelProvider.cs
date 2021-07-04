@@ -20,7 +20,7 @@ namespace MugenMvvm.ViewModels.Components
             _serviceProvider = serviceProvider;
         }
 
-        public int Priority { get; set; } = ViewModelComponentPriority.Provider;
+        public int Priority { get; init; } = ViewModelComponentPriority.Provider;
 
         public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {

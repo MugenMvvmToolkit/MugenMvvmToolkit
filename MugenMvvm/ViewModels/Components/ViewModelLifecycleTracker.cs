@@ -12,7 +12,7 @@ namespace MugenMvvm.ViewModels.Components
 {
     public sealed class ViewModelLifecycleTracker : IViewModelLifecycleListener, ILifecycleTrackerComponent<IViewModelManager, ViewModelLifecycleState>, IHasPriority
     {
-        public int Priority { get; set; } = ViewModelComponentPriority.LifecycleTracker;
+        public int Priority { get; init; } = ViewModelComponentPriority.LifecycleTracker;
 
         public bool IsInState(IViewModelManager owner, object target, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata)
         {

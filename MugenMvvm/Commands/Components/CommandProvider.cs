@@ -37,7 +37,7 @@ namespace MugenMvvm.Commands.Components
 
         public bool CacheCommandNotifier { get; set; }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         public ICompositeCommand TryGetCommand<TParameter>(ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -58,20 +58,20 @@ namespace MugenMvvm.Commands.Components
             return command;
         }
 
-        private static PropertyChangedCommandNotifier? GetCommandCommandNotifierInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        private static PropertyChangedCommandObserver? GetCommandCommandNotifierInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
-            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandNotifier { CanNotify = commandRequest.CanNotify };
+            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver { CanNotify = commandRequest.CanNotify };
             var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIEnumerable.FromItem(owner) : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
             {
                 if (notifier is INotifyPropertyChanged propertyChanged)
-                    (commandNotifier ??= new PropertyChangedCommandNotifier()).AddNotifier(propertyChanged);
+                    (commandNotifier ??= new PropertyChangedCommandObserver()).Add(propertyChanged);
             }
 
             return commandNotifier;
         }
 
-        private PropertyChangedCommandNotifier? GetCommandCommandNotifier(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        private PropertyChangedCommandObserver? GetCommandCommandNotifier(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
             if (CacheCommandNotifier && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 &&
                 owner is IMetadataOwner<IMetadataContext> m and INotifyPropertyChanged)

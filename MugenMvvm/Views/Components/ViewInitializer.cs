@@ -15,7 +15,7 @@ namespace MugenMvvm.Views.Components
     {
         public bool SetDataContext { get; set; } = true;
 
-        public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
+        public int Priority { get; init; } = ViewComponentPriority.PreInitializer;
 
         public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {

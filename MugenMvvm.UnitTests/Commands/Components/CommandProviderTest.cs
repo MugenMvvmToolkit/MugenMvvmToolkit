@@ -36,8 +36,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var propertyChangedModel = new TestNotifyPropertyChangedModel();
             var cmd1 = CommandManager.TryGetCommand<object>(propertyChangedModel, request)!;
             var cmd2 = CommandManager.TryGetCommand<object>(this, request)!;
-            cmd1.GetComponentOptional<PropertyChangedCommandNotifier>().ShouldNotBeNull();
-            cmd2.GetComponentOptional<PropertyChangedCommandNotifier>().ShouldBeNull();
+            cmd1.GetComponentOptional<PropertyChangedCommandObserver>().ShouldNotBeNull();
+            cmd2.GetComponentOptional<PropertyChangedCommandObserver>().ShouldBeNull();
         }
 
         [Theory]
@@ -53,18 +53,18 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command1 = CommandManager.TryGetCommand<object>(metadataOwner, request)!;
             var command2 = CommandManager.TryGetCommand<object>(metadataOwner, request)!;
             if (cache)
-                command1.GetComponent<PropertyChangedCommandNotifier>().ShouldEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
+                command1.GetComponent<PropertyChangedCommandObserver>().ShouldEqual(command2.GetComponent<PropertyChangedCommandObserver>());
             else
-                command1.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
+                command1.GetComponent<PropertyChangedCommandObserver>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandObserver>());
 
             var propertyChangedModel = new TestNotifyPropertyChangedModel();
             var command3 = CommandManager.TryGetCommand<object>(propertyChangedModel, request)!;
             var command4 = CommandManager.TryGetCommand<object>(propertyChangedModel, request)!;
-            command3.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command4.GetComponent<PropertyChangedCommandNotifier>());
+            command3.GetComponent<PropertyChangedCommandObserver>().ShouldNotEqual(command4.GetComponent<PropertyChangedCommandObserver>());
 
             command1 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, metadataOwner, null))!;
             command2 = CommandManager.TryGetCommand<object>(metadataOwner, DelegateCommandRequest.Get(execute, canExecute, null, null, metadataOwner, null))!;
-            command1.GetComponent<PropertyChangedCommandNotifier>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandNotifier>());
+            command1.GetComponent<PropertyChangedCommandObserver>().ShouldNotEqual(command2.GetComponent<PropertyChangedCommandObserver>());
         }
 
         [Fact]

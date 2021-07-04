@@ -28,7 +28,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 
         public Dictionary<ExpressionType, Func<UnaryExpression, UnaryTokenType?>> Mapping { get; }
 
-        public int Priority { get; set; } = ParsingComponentPriority.Unary;
+        public int Priority { get; init; } = ParsingComponentPriority.Unary;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {

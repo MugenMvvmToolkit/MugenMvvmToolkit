@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class ConstantExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Constant;
+        public int Priority { get; init; } = ParsingComponentPriority.Constant;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {

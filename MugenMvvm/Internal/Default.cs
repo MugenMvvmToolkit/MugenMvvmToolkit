@@ -66,7 +66,7 @@ namespace MugenMvvm.Internal
             public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new(new Dictionary<TKey, TValue>());
         }
 
-        private sealed class SingleItemEnumerableImpl<T> : IEnumerable<T>, IEnumerator<T>
+        private sealed class SingleItemEnumerableImpl<T> : IReadOnlyList<T>, IEnumerator<T>
         {
             private bool _moved;
 
@@ -77,7 +77,19 @@ namespace MugenMvvm.Internal
 
             public T Current { get; }
 
+            public int Count => 1;
+
             object? IEnumerator.Current => Current;
+
+            public T this[int index]
+            {
+                get
+                {
+                    if (index != 0)
+                        ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+                    return Current;
+                }
+            }
 
             public void Dispose()
             {
@@ -98,7 +110,7 @@ namespace MugenMvvm.Internal
             IEnumerator IEnumerable.GetEnumerator() => this;
         }
 
-        private sealed class EmptyEnumerableImpl<T> : IEnumerable<T>, IEnumerator<T>
+        private sealed class EmptyEnumerableImpl<T> : IReadOnlyCollection<T>, IEnumerator<T>
         {
             public static readonly EmptyEnumerableImpl<T> Instance = new();
 
@@ -107,6 +119,8 @@ namespace MugenMvvm.Internal
             }
 
             public T Current => default!;
+
+            public int Count => 0;
 
             object? IEnumerator.Current => null;
 

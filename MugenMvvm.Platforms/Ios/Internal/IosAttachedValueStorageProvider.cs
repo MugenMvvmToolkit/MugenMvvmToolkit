@@ -8,7 +8,7 @@ namespace MugenMvvm.Ios.Internal
 {
     public class IosAttachedValueStorageProvider : AttachedValueStorageProviderBase<NSObject>, IHasPriority
     {
-        public int Priority { get; set; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.MetadataOwnerAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(NSObject item, bool optional) => IosAttachedValueHolder.Get(item, optional)?.GetValues(optional);
 

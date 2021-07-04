@@ -18,7 +18,7 @@ namespace MugenMvvm.Bindings.Resources.Components
 
         public IDictionary<string, object?> Resources { get; }
 
-        public int Priority { get; set; } = ResourceComponentPriority.ResourceResolver;
+        public int Priority { get; init; } = ResourceComponentPriority.ResourceResolver;
 
         public void Add(string name, object? resource)
         {

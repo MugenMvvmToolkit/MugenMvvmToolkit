@@ -11,7 +11,7 @@ namespace MugenMvvm.Avalonia.Views
 {
     public sealed class ItemsControlCollectionManager : IViewCollectionManagerComponent, IHasPriority
     {
-        public int Priority { get; set; } = ViewComponentPriority.ViewCollectionManager;
+        public int Priority { get; init; } = ViewComponentPriority.ViewCollectionManager;
 
         public bool TryGetItemsSource(IViewManager viewManager, object view, IReadOnlyMetadataContext? metadata, out IEnumerable? itemsSource)
         {

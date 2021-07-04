@@ -10,7 +10,7 @@ namespace MugenMvvm.Commands.Components
 {
     public sealed class CommandCleaner : ICommandManagerListener, IHasPriority
     {
-        public int Priority { get; set; } = CommandComponentPriority.CommandCleaner;
+        public int Priority { get; init; } = CommandComponentPriority.CommandCleaner;
 
         public void OnCommandCreated<TParameter>(ICommandManager commandManager, ICompositeCommand command, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {

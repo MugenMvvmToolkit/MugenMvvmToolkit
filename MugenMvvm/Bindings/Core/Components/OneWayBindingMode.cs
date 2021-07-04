@@ -19,7 +19,7 @@ namespace MugenMvvm.Bindings.Core.Components
         {
         }
 
-        public int Priority { get; set; } = BindingComponentPriority.Mode;
+        public int Priority { get; init; } = BindingComponentPriority.Mode;
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 

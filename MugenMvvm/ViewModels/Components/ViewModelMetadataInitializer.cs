@@ -21,7 +21,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public List<IMetadataContextKey> MetadataMergeKeys { get; }
 
-        public int Priority { get; set; } = ViewModelComponentPriority.PreInitializer;
+        public int Priority { get; init; } = ViewModelComponentPriority.PreInitializer;
 
         private static bool ContainsKey(IViewModelBase viewModel, IMetadataContextKey key) => viewModel.HasMetadata && viewModel.Metadata.Contains(key);
 

@@ -9,7 +9,7 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationEntryDateTracker : INavigationEntryListener, IHasPriority
     {
-        public int Priority { get; set; } = NavigationComponentPriority.EntryTracker;
+        public int Priority { get; init; } = NavigationComponentPriority.EntryTracker;
 
         public void OnNavigationEntryAdded(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, IHasNavigationInfo? navigationInfo) =>
             navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow, out _);

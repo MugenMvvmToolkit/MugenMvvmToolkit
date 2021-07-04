@@ -31,7 +31,7 @@ namespace MugenMvvm.Bindings.Members.Components
             };
         }
 
-        public int Priority { get; set; } = MemberComponentPriority.Extension;
+        public int Priority { get; init; } = MemberComponentPriority.Extension;
 
         public void Add(Type type)
         {

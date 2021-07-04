@@ -12,7 +12,7 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationCallbackInvoker : SuspendableNavigationListenerBase, IHasPriority
     {
-        public int Priority { get; set; } = NavigationComponentPriority.CallbackInvoker;
+        public int Priority { get; init; } = NavigationComponentPriority.CallbackInvoker;
 
         protected override void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {

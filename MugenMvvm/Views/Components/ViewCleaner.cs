@@ -23,7 +23,7 @@ namespace MugenMvvm.Views.Components
 
         public bool ClearDataContext { get; set; }
 
-        public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
+        public int Priority { get; init; } = ViewComponentPriority.PostInitializer;
 
         protected IAttachedValueManager AttachedValueManager => _attachedValueManager.DefaultIfNull();
 

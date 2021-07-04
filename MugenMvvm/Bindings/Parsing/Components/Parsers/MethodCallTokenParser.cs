@@ -12,7 +12,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 {
     public sealed class MethodCallTokenParser : ITokenParserComponent, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Method;
+        public int Priority { get; init; } = ParsingComponentPriority.Method;
 
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {

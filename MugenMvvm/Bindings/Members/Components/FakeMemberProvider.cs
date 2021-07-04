@@ -26,7 +26,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _cache = new Dictionary<string, ConstantMemberInfo>(7, StringComparer.Ordinal);
         }
 
-        public int Priority { get; set; } = MemberComponentPriority.Dynamic;
+        public int Priority { get; init; } = MemberComponentPriority.Dynamic;
 
         public static bool IsFakeMember(string name) => name.Length != 0 && (name[0] == FakeMemberPrefixSymbol || name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal));
 

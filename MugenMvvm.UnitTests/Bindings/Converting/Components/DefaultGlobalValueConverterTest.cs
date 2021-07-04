@@ -22,12 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Converting.Components
         }
 
         [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            _component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
-            _component.Priority = int.MaxValue;
-            _component.Priority.ShouldEqual(int.MaxValue);
-        }
+        public void ConstructorShouldInitializeValues() => _component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
 
         [Fact]
         public void TryConvertShouldHandleConvertible()

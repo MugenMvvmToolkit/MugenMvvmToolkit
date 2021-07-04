@@ -19,7 +19,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public bool UseOneTimeModeForStaticMembersImplicit { get; set; } = true;
 
-        public int Priority { get; set; } = BindingComponentPriority.ParameterInitializer;
+        public int Priority { get; init; } = BindingComponentPriority.ParameterInitializer;
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {

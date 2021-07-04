@@ -27,7 +27,7 @@ namespace MugenMvvm.Android.Views
 
         public bool FinishNotInitializedView { get; set; } = true;
 
-        public int Priority { get; set; } = ViewComponentPriority.PostInitializer - 1;
+        public int Priority { get; init; } = ViewComponentPriority.PostInitializer - 1;
 
         public bool IsInState(IViewManager owner, object target, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {

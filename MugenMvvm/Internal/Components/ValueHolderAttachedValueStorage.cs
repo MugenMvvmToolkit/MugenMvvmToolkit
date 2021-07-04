@@ -8,7 +8,7 @@ namespace MugenMvvm.Internal.Components
 {
     public sealed class ValueHolderAttachedValueStorage : AttachedValueStorageProviderBase<IValueHolder<IDictionary<string, object?>>>, IHasPriority
     {
-        public int Priority { get; set; } = InternalComponentPriority.ValueHolderAttachedValueProvider;
+        public int Priority { get; init; } = InternalComponentPriority.ValueHolderAttachedValueProvider;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(IValueHolder<IDictionary<string, object?>> item, bool optional)
         {

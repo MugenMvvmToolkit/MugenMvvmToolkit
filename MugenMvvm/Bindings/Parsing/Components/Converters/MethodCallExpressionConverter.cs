@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class MethodCallExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Method;
+        public int Priority { get; init; } = ParsingComponentPriority.Method;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {

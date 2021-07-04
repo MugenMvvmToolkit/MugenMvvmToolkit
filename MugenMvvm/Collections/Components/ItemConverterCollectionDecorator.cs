@@ -19,7 +19,7 @@ namespace MugenMvvm.Collections.Components
 
         public Func<object?, object?> Converter { get; }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items) => items.Select(Converter);
 

@@ -10,7 +10,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 {
     public sealed class ConstantExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
-        public int Priority { get; set; } = CompilingComponentPriority.Constant;
+        public int Priority { get; init; } = CompilingComponentPriority.Constant;
 
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {

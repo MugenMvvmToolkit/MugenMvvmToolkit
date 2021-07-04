@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 #if !NET_CORE
 // ReSharper disable CheckNamespace
@@ -195,4 +196,11 @@ namespace MugenMvvm.Attributes
     public class LinkerSafeAttribute : Attribute
     {
     }
+}
+
+// ReSharper disable once CheckNamespace
+namespace System.Runtime.CompilerServices
+{
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    internal class IsExternalInit{}
 }

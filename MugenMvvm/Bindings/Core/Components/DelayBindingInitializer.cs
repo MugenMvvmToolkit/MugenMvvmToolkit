@@ -7,7 +7,7 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class DelayBindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
-        public int Priority { get; set; } = BindingComponentPriority.ParameterPostInitializer;
+        public int Priority { get; init; } = BindingComponentPriority.ParameterPostInitializer;
 
         private static void TryAddDelay(IBindingExpressionInitializerContext context, string parameterName)
         {

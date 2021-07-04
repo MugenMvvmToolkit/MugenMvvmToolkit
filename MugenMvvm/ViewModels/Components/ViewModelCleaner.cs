@@ -23,7 +23,7 @@ namespace MugenMvvm.ViewModels.Components
             _attachedValueManager = attachedValueManager;
         }
 
-        public int Priority { get; set; } = ViewModelComponentPriority.PostInitializer;
+        public int Priority { get; init; } = ViewModelComponentPriority.PostInitializer;
 
         public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)

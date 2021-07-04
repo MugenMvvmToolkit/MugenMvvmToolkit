@@ -21,7 +21,7 @@ namespace MugenMvvm.Internal.Components
             _canLog = canLog;
         }
 
-        public int Priority { get; set; } = InternalComponentPriority.Logger;
+        public int Priority { get; init; } = InternalComponentPriority.Logger;
 
         public bool CanLog(ILogger logger, LogLevel level, IReadOnlyMetadataContext? metadata) => _canLog(level, metadata);
 

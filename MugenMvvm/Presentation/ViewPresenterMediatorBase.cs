@@ -14,7 +14,7 @@ namespace MugenMvvm.Presentation
     {
         public abstract NavigationType NavigationType { get; }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         protected abstract Task ActivateAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
 

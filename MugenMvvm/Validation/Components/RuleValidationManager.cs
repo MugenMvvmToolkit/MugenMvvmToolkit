@@ -17,10 +17,10 @@ namespace MugenMvvm.Validation.Components
         public RuleValidationManager()
         {
             _rules = new List<(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition)>();
-            Priority = ValidationComponentPriority.ValidatorProvider;
+            Priority = ValidationComponentPriority.ValidatorRulesProvider;
         }
 
-        public int Priority { get; set; }
+        public int Priority { get; init; }
 
         public void AddRule(IValidationRule rule, Func<IValidator, object, IReadOnlyMetadataContext?, bool> condition) => AddRules(ItemOrIReadOnlyList.FromItem(rule), condition);
 

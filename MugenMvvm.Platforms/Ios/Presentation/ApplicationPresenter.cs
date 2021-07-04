@@ -37,7 +37,7 @@ namespace MugenMvvm.Ios.Presentation
             _navigationDispatcher = navigationDispatcher;
         }
 
-        public int Priority { get; set; } = ComponentPriority.Max;
+        public int Priority { get; init; } = ComponentPriority.Max;
 
         private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
         {

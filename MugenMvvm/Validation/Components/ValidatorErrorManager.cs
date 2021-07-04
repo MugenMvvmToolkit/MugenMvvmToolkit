@@ -3,55 +3,27 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
+using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class ValidatorErrorManager : IValidatorErrorManagerComponent
+    public sealed class ValidatorErrorManager : IValidatorErrorManagerComponent, IHasPriority
     {
         private readonly Dictionary<CacheKey, List<ValidationErrorInfo>> _errors;
 
         public ValidatorErrorManager()
         {
             _errors = new Dictionary<CacheKey, List<ValidationErrorInfo>>();
+            Priority = ValidationComponentPriority.ValidatorErrorManager;
         }
 
-        private static bool RemoveError(List<ValidationErrorInfo> errors, ValidationErrorInfo error)
-        {
-            for (var i = 0; i < errors.Count; i++)
-            {
-                var e = errors[i];
-                if (Equals(e.Target, error.Target) && Equals(e.Error, error.Error))
-                {
-                    errors.RemoveAt(i);
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void Add(ref ItemOrListEditor<string> members, string member)
-        {
-            if (!members.Contains(member))
-                members.Add(member);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool HasErrors(KeyValuePair<CacheKey, List<ValidationErrorInfo>> error, object? source, string member) =>
-            error.Value.Count != 0 && (source == null || source.Equals(error.Key.Source)) && (member == "" || error.Key.Member == member);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void AddErrors(ref ItemOrListEditor<object> errors, List<ValidationErrorInfo> value)
-        {
-            for (var i = 0; i < value.Count; i++)
-                errors.Add(value[i].Error!);
-        }
+        public int Priority { get; init; }
 
         public bool HasErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)
         {
@@ -217,6 +189,39 @@ namespace MugenMvvm.Validation.Components
 
             if (toNotify.Count != 0)
                 validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, toNotify, metadata);
+        }
+
+        private static bool RemoveError(List<ValidationErrorInfo> errors, ValidationErrorInfo error)
+        {
+            for (var i = 0; i < errors.Count; i++)
+            {
+                var e = errors[i];
+                if (Equals(e.Target, error.Target) && Equals(e.Error, error.Error))
+                {
+                    errors.RemoveAt(i);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void Add(ref ItemOrListEditor<string> members, string member)
+        {
+            if (!members.Contains(member))
+                members.Add(member);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool HasErrors(KeyValuePair<CacheKey, List<ValidationErrorInfo>> error, object? source, string member) =>
+            error.Value.Count != 0 && (source == null || source.Equals(error.Key.Source)) && (member == "" || error.Key.Member == member);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void AddErrors(ref ItemOrListEditor<object> errors, List<ValidationErrorInfo> value)
+        {
+            for (var i = 0; i < value.Count; i++)
+                errors.Add(value[i].Error!);
         }
 
         [StructLayout(LayoutKind.Auto)]

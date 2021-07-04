@@ -36,7 +36,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _context = new BindingExpressionInitializerContext(this);
         }
 
-        public int Priority { get; set; } = BindingComponentPriority.ExpressionParser;
+        public int Priority { get; init; } = BindingComponentPriority.ExpressionParser;
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {

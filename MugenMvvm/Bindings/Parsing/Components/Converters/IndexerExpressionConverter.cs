@@ -12,7 +12,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
 {
     public sealed class IndexerExpressionConverter : IExpressionConverterComponent<Expression>, IHasPriority
     {
-        public int Priority { get; set; } = ParsingComponentPriority.Indexer;
+        public int Priority { get; init; } = ParsingComponentPriority.Indexer;
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {

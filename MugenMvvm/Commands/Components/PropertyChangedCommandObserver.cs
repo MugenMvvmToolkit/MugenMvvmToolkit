@@ -12,12 +12,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class PropertyChangedCommandNotifier : MultiAttachableComponentBase<ICompositeCommand>, IHasDisposeCondition, IHasPriority,
+    public sealed class PropertyChangedCommandObserver : MultiAttachableComponentBase<ICompositeCommand>, IHasDisposeCondition, IHasPriority,
         IDisposableComponent<ICompositeCommand>
     {
         private PropertyChangedEventHandler? _handler;
 
-        public PropertyChangedCommandNotifier()
+        public PropertyChangedCommandObserver()
         {
             IsDisposable = true;
         }
@@ -26,11 +26,11 @@ namespace MugenMvvm.Commands.Components
 
         public bool IsDisposable { get; set; }
 
-        public int Priority => CommandComponentPriority.Notifier;
+        public int Priority => CommandComponentPriority.PropertyChangedObserver;
 
         private PropertyChangedEventHandler PropertyChangedEventHandler => _handler ??= this.ToWeakReference().CommandNotifierOnPropertyChangedHandler;
 
-        public ActionToken AddNotifier(INotifyPropertyChanged notifier)
+        public ActionToken Add(INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(notifier, nameof(notifier));
             notifier.PropertyChanged += PropertyChangedEventHandler;

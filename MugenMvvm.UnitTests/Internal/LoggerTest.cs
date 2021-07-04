@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Internal
             for (var i = 0; i < count; i++)
             {
                 var canLog = count - 1 == i;
-                var component = new DelegateLogger((level, s, arg3, arg4) => { }, (level, metadata) =>
+                Logger.AddComponent(new DelegateLogger((level, s, arg3, arg4) => { }, (level, metadata) =>
                 {
                     ++invokeCount;
                     level.ShouldEqual(logLevel);
@@ -43,9 +43,7 @@ namespace MugenMvvm.UnitTests.Internal
                     else
                         metadata.ShouldBeNull();
                     return canLog;
-                });
-                component.Priority = -i;
-                Logger.AddComponent(component);
+                }) { Priority = -i });
             }
 
             Logger.CanLog(logLevel, withMetadata ? DefaultMetadata : null).ShouldEqual(true);
@@ -67,7 +65,7 @@ namespace MugenMvvm.UnitTests.Internal
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
-                var component = new DelegateLogger((level, m, exc, metadata) =>
+                Logger.AddComponent(new DelegateLogger((level, m, exc, metadata) =>
                 {
                     ++invokeCount;
                     message.ShouldEqual(m);
@@ -77,9 +75,7 @@ namespace MugenMvvm.UnitTests.Internal
                         metadata.ShouldEqual(DefaultMetadata);
                     else
                         metadata.ShouldBeNull();
-                }, (level, context) => true);
-                component.Priority = -i;
-                Logger.AddComponent(component);
+                }, (level, context) => true) { Priority = -i });
             }
 
             Logger.Log(logLevel, message, exception, withMetadata ? DefaultMetadata : null);

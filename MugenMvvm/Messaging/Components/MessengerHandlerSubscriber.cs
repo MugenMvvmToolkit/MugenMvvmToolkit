@@ -32,7 +32,7 @@ namespace MugenMvvm.Messaging.Components
             _reflectionManager = reflectionManager;
         }
 
-        public int Priority { get; set; } = MessengerComponentPriority.Subscriber;
+        public int Priority { get; init; } = MessengerComponentPriority.Subscriber;
 
         private static MessengerResult Handle(object subscriber, IMessageContext context, object? handler)
         {

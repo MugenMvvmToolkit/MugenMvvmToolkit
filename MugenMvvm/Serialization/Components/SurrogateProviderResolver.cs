@@ -21,7 +21,7 @@ namespace MugenMvvm.Serialization.Components
             _cache = new Dictionary<Type, ISurrogateProvider?>(InternalEqualityComparer.Type);
         }
 
-        public int Priority { get; set; } = SerializationComponentPriority.SurrogateProvider;
+        public int Priority { get; init; } = SerializationComponentPriority.SurrogateProvider;
 
         public void Add<TFrom, TSurrogate>(DelegateSurrogateProvider<TFrom, TSurrogate> surrogateProvider)
             where TFrom : class

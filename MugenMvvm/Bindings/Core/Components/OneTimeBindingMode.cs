@@ -23,7 +23,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _disposeBinding = disposeBinding;
         }
 
-        public int Priority { get; set; } = BindingComponentPriority.Mode;
+        public int Priority { get; init; } = BindingComponentPriority.Mode;
 
         private bool Invoke(IBinding binding, bool attached)
         {

@@ -24,7 +24,7 @@ namespace MugenMvvm.Bindings.Members.Components
             _dynamicMembers = new List<Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?>>();
         }
 
-        public int Priority { get; set; } = MemberComponentPriority.Attached;
+        public int Priority { get; init; } = MemberComponentPriority.Attached;
 
         public void Register(Func<Type, string, EnumFlags<MemberType>, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {

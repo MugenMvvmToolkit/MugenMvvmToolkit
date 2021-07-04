@@ -23,7 +23,7 @@ namespace MugenMvvm.Validation.Components
 
         public bool AsyncValidationEnabled { get; set; }
 
-        public int Priority { get; set; } = ValidationComponentPriority.ValidatorProvider;
+        public int Priority { get; init; } = ValidationComponentPriority.ValidatorProvider;
 
         public IValidator TryGetValidator(IValidationManager validationManager, ItemOrIReadOnlyList<object> targets, IReadOnlyMetadataContext? metadata)
         {
@@ -35,7 +35,7 @@ namespace MugenMvvm.Validation.Components
             foreach (var target in targets)
             {
                 if (target is INotifyPropertyChanged propertyChanged)
-                    validator.AddComponent(new ObservableValidatorBehavior(propertyChanged));
+                    validator.AddComponent(new PropertyChangedValidatorObserver(propertyChanged));
             }
 
             return validator;

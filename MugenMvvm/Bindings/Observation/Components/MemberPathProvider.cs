@@ -8,7 +8,7 @@ namespace MugenMvvm.Bindings.Observation.Components
 {
     public sealed class MemberPathProvider : IMemberPathProviderComponent, IHasPriority
     {
-        public int Priority { get; set; } = ObservationComponentPriority.PathProvider;
+        public int Priority { get; init; } = ObservationComponentPriority.PathProvider;
 
         public IMemberPath? TryGetMemberPath(IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {

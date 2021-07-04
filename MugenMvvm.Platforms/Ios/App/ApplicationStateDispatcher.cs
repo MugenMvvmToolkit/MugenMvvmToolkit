@@ -38,7 +38,7 @@ namespace MugenMvvm.Ios.App
             _serviceProvider = serviceProvider;
         }
 
-        public int Priority { get; set; } = ViewComponentPriority.StateManager;
+        public int Priority { get; init; } = ViewComponentPriority.StateManager;
 
         public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
