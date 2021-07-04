@@ -43,7 +43,7 @@ namespace MugenMvvm.Extensions
         public static void RemoveChildValidator(this IValidator owner, IValidator validator)
         {
             Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<ChildValidatorAdapter>().Add(validator);
+            owner.GetOrAddComponent<ChildValidatorAdapter>().Remove(validator);
         }
 
         public static bool Contains(this ItemOrIReadOnlyList<ValidationErrorInfo> errors, string? member)

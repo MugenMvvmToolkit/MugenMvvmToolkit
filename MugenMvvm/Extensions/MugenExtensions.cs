@@ -241,7 +241,7 @@ namespace MugenMvvm.Extensions
         public static void RemoveChildCommand(this ICompositeCommand owner, ICompositeCommand command)
         {
             Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<ChildCommandAdapter>().Add(command);
+            owner.GetOrAddComponent<ChildCommandAdapter>().Remove(command);
         }
 
         public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)

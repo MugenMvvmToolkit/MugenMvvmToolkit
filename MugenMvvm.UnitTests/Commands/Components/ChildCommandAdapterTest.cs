@@ -19,8 +19,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Command.AddComponent(_adapter);
         }
 
-        [Fact]
-        public void AddRemoveCommandShouldRaiseCommandChanged()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddRemoveCommandShouldRaiseCommandChanged(bool extMethod)
         {
             var cmd = CompositeCommand.Create(this, commandManager: CommandManager);
             var invokeCount = 0;
@@ -30,11 +32,17 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 ++invokeCount;
             };
 
-            _adapter.Add(cmd);
+            if (extMethod)
+                Command.AddChildCommand(cmd);
+            else
+                _adapter.Add(cmd);
             _adapter.Contains(cmd).ShouldBeTrue();
             invokeCount.ShouldEqual(1);
 
-            _adapter.Remove(cmd);
+            if (extMethod)
+                Command.RemoveChildCommand(cmd);
+            else
+                _adapter.Remove(cmd);
             _adapter.Contains(cmd).ShouldBeFalse();
             invokeCount.ShouldEqual(2);
         }

@@ -27,8 +27,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
             Validator.AddComponent(_adapter);
         }
 
-        [Fact]
-        public void AddRemoveValidatorShouldRaiseErrorsChanged()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AddRemoveValidatorShouldRaiseErrorsChanged(bool extMethod)
         {
             var validator = new Validator(null, ComponentCollectionManager);
             var invokeCount = 0;
@@ -42,11 +44,17 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 }
             });
 
-            _adapter.Add(validator);
+            if (extMethod)
+                Validator.AddChildValidator(validator);
+            else
+                _adapter.Add(validator);
             _adapter.Contains(validator).ShouldBeTrue();
             invokeCount.ShouldEqual(1);
 
-            _adapter.Remove(validator);
+            if (extMethod)
+                Validator.RemoveChildValidator(validator);
+            else
+                _adapter.Remove(validator);
             _adapter.Contains(validator).ShouldBeFalse();
             invokeCount.ShouldEqual(2);
         }
