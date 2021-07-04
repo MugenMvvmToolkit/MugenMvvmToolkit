@@ -23,7 +23,6 @@ namespace MugenMvvm.Commands.Components
         public ChildCommandAdapter()
         {
             _commands = new CommandListener(this);
-            Priority = CommandComponentPriority.ChildCommandAdapter;
         }
 
         public Func<ActionToken>? ExecutionHandler { get; set; }
@@ -64,7 +63,7 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        public int Priority { get; init; }
+        public int Priority { get; init; } = CommandComponentPriority.ChildCommandAdapter;
 
         public void Add(ICompositeCommand command)
         {

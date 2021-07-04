@@ -34,6 +34,18 @@ namespace MugenMvvm.Extensions
             validator.SetErrors(validator, errors, metadata);
         }
 
+        public static void AddChildValidator(this IValidator owner, IValidator validator)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            owner.GetOrAddComponent<ChildValidatorAdapter>().Add(validator);
+        }
+
+        public static void RemoveChildValidator(this IValidator owner, IValidator validator)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            owner.GetOrAddComponent<ChildValidatorAdapter>().Add(validator);
+        }
+
         public static bool Contains(this ItemOrIReadOnlyList<ValidationErrorInfo> errors, string? member)
         {
             foreach (var error in errors)
@@ -177,17 +189,13 @@ namespace MugenMvvm.Extensions
                 Should.NotBeNull(validator, nameof(validator));
                 Should.NotBeNull(error, nameof(error));
                 Builder.AddValidator(MemberName, Accessor, (validator, error, condition), (t, v, s, m) =>
-                    {
-                        if (s.validator(t, v, m))
-                            return null;
-                        if (s.error is Func<object> func)
-                            return func();
-                        return s.error;
-                    },
-                    condition == null
-                        ? (Func<T, (Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>? condition),
-                            IReadOnlyMetadataContext?, bool>?)null
-                        : (t, s, m) => s.condition!(t, m), dependencyMembers);
+                {
+                    if (s.validator(t, v, m))
+                        return null;
+                    if (s.error is Func<object> func)
+                        return func();
+                    return s.error;
+                }, condition == null ? null : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }
 
@@ -200,20 +208,14 @@ namespace MugenMvvm.Extensions
             {
                 Should.NotBeNull(validator, nameof(validator));
                 Should.NotBeNull(error, nameof(error));
-                Builder.AddAsyncValidator(MemberName, Accessor,
-                    (validator, error, condition), (t, v, s, c, m) => s.validator(t, v, c, m).ContinueWith((task, o) =>
-                        {
-                            if (task.Result)
-                                return null;
-                            if (o is Func<object> func)
-                                return func();
-                            return o;
-                        }, s.error, c, TaskContinuationOptions.ExecuteSynchronously,
-                        TaskScheduler.Current),
-                    condition == null
-                        ? (Func<T, (Func<T, TMember, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> validator, object error, Func<T, IReadOnlyMetadataContext?, bool>?
-                            condition), IReadOnlyMetadataContext?, bool>?)null
-                        : (t, s, m) => s.condition!(t, m), dependencyMembers);
+                Builder.AddAsyncValidator(MemberName, Accessor, (validator, error, condition), (t, v, s, c, m) => s.validator(t, v, c, m).ContinueWith((task, o) =>
+                {
+                    if (task.Result)
+                        return null;
+                    if (o is Func<object> func)
+                        return func();
+                    return o;
+                }, s.error, c, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current), condition == null ? null : (t, s, m) => s.condition!(t, m), dependencyMembers);
                 return this;
             }
         }
