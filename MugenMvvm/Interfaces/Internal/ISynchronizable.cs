@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Internal;
+﻿using JetBrains.Annotations;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal
 {
@@ -8,6 +9,7 @@ namespace MugenMvvm.Interfaces.Internal
 
         void UpdateLocker(ILocker locker);
 
+        [MustUseReturnValue]
         ActionToken Lock();
     }
 }

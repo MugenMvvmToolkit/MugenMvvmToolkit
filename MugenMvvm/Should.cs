@@ -14,10 +14,10 @@ namespace MugenMvvm
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
 #if DEBUG
-        public static void NotBeNull<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
+        public static void NotBeNull<T>([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] [NoEnumeration]
             T? argumentValue, [InvokerParameterName] string paramName) where T : class
 #else
-        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull]
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [NotNull] [NoEnumeration]
             object? argumentValue, [InvokerParameterName] string paramName)
 #endif
         {
@@ -57,7 +57,7 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType([NotNull] object? instance, [NotNull] Type? requiredType, string paramName)
+        public static void BeOfType([NotNull] [NoEnumeration] object? instance, [NotNull] Type? requiredType, string paramName)
         {
             NotBeNull(instance, paramName);
             NotBeNull(requiredType, nameof(requiredType));
@@ -66,7 +66,7 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([NotNull] object? instance, string paramName)
+        public static void BeOfType<T>([NotNull] [NoEnumeration] object? instance, string paramName)
         {
             NotBeNull(instance, paramName);
             if (instance is not T)

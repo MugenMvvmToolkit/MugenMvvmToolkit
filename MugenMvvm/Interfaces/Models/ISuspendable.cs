@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using JetBrains.Annotations;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Models
@@ -7,6 +8,7 @@ namespace MugenMvvm.Interfaces.Models
     {
         bool IsSuspended { get; }
 
+        [MustUseReturnValue]
         ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

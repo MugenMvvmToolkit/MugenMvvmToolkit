@@ -89,18 +89,11 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int itemResourceId = _provider.getItemViewType(position);
-        if (convertView == null || !isValidView(convertView, itemResourceId)) {
-            convertView = _inflater.inflate(itemResourceId, parent, false);
-            ViewMugenExtensions.getNativeAttachedValues(convertView, true).setListResourceId(itemResourceId);
-            _provider.onViewCreated(convertView);
-        }
+        int viewType = _provider.getItemViewType(position);
+        if (convertView == null || !isValidView(convertView, viewType))
+            convertView = createView(parent, viewType);
         _provider.onBindView(convertView, position);
         return convertView;
-    }
-
-    private boolean isValidView(View convertView, int itemResourceId) {
-        return ViewMugenExtensions.getNativeAttachedValues(convertView, true).getListResourceId() == itemResourceId;
     }
 
     @Override
@@ -146,5 +139,17 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
     @Override
     public void onReset() {
         notifyDataSetChanged();
+    }
+
+    @NonNull
+    protected View createView(@NonNull ViewGroup parent, int viewType) {
+        View convertView = _inflater.inflate(viewType, parent, false);
+        ViewMugenExtensions.getNativeAttachedValues(convertView, true).setListResourceId(viewType);
+        _provider.onViewCreated(convertView);
+        return convertView;
+    }
+
+    private boolean isValidView(View convertView, int viewType) {
+        return ViewMugenExtensions.getNativeAttachedValues(convertView, true).getListResourceId() == viewType;
     }
 }

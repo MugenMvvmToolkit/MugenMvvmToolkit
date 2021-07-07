@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
@@ -10,6 +11,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         new T this[int index] { get; set; }
 
+        [MustUseReturnValue]
         ActionToken BatchUpdate();
 
         void Move(int oldIndex, int newIndex);

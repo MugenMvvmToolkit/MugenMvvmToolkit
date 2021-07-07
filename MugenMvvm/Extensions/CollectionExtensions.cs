@@ -5,6 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -57,6 +58,7 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        [MustUseReturnValue]
         public static ActionToken TryLock(this IReadOnlyObservableCollection? collection) => TryLock(target: collection);
 
         public static void AddRange<T>(this ICollection<T> items, IEnumerable<T> value)

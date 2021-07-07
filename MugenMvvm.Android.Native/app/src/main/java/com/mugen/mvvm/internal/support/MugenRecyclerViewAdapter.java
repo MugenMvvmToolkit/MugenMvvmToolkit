@@ -23,9 +23,7 @@ public class MugenRecyclerViewAdapter extends MugenRecyclerViewAdapterBase<IReso
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = _inflater.inflate(viewType, parent, false);
-        _provider.onViewCreated(view);
-        return new ViewHolderIml(view);
+        return new ViewHolderIml(createView(parent, viewType));
     }
 
     @Override
@@ -43,6 +41,13 @@ public class MugenRecyclerViewAdapter extends MugenRecyclerViewAdapterBase<IReso
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         _provider.onBindView(holder.itemView, position);
+    }
+
+    @NonNull
+    protected View createView(@NonNull ViewGroup parent, int viewType) {
+        View view = _inflater.inflate(viewType, parent, false);
+        _provider.onViewCreated(view);
+        return view;
     }
 
     private static final class ViewHolderIml extends RecyclerView.ViewHolder {
