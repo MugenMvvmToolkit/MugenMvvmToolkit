@@ -21,7 +21,7 @@ namespace MugenMvvm.Ios.Collections
             _targetRef = collectionView.ToWeakReference();
         }
 
-        public UICollectionView? CollectionView => (UICollectionView?) _targetRef.Target;
+        public UICollectionView? CollectionView => (UICollectionView?)_targetRef.Target;
 
         public bool IsAlive => _targetRef.IsAlive;
 
@@ -64,7 +64,7 @@ namespace MugenMvvm.Ios.Collections
         void IThreadDispatcherHandler.Execute(object? state)
         {
             CollectionView?.LayoutIfNeeded();
-            ((Action) state!).Invoke();
+            ((Action)state!).Invoke();
         }
     }
 }

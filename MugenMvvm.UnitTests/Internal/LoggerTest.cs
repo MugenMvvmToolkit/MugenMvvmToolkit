@@ -14,12 +14,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class LoggerTest : ComponentOwnerTestBase<Logger>
     {
-        [Fact]
-        public void CanLogShouldReturnFalseNoComponents() => Logger.CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
-
-        [Fact]
-        public void LogShouldNotThrowNoComponents() => Logger.Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
-
         [Theory]
         [InlineData(1, "Info", true)]
         [InlineData(1, "Info", false)]
@@ -47,6 +41,40 @@ namespace MugenMvvm.UnitTests.Internal
             }
 
             Logger.CanLog(logLevel, withMetadata ? DefaultMetadata : null).ShouldEqual(true);
+            invokeCount.ShouldEqual(count);
+        }
+
+        [Fact]
+        public void CanLogShouldReturnFalseNoComponents() => Logger.CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetLoggerShouldBeHandledByComponents(int count)
+        {
+            var request = new object();
+            var result = new Logger(ComponentCollectionManager);
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = count - 1 == i;
+                Logger.AddComponent(new TestLoggerProviderComponent
+                {
+                    Priority = -i,
+                    TryGetLogger = (l, o, context) =>
+                    {
+                        l.ShouldEqual(Logger);
+                        o.ShouldEqual(request);
+                        context.ShouldEqual(DefaultMetadata);
+                        ++invokeCount;
+                        if (isLast)
+                            return result;
+                        return null;
+                    }
+                });
+            }
+
+            Logger.GetLogger(request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -82,36 +110,8 @@ namespace MugenMvvm.UnitTests.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void GetLoggerShouldBeHandledByComponents(int count)
-        {
-            var request = new object();
-            var result = new Logger(ComponentCollectionManager);
-            var invokeCount = 0;
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = count - 1 == i;
-                Logger.AddComponent(new TestLoggerProviderComponent
-                {
-                    Priority = -i,
-                    TryGetLogger = (l, o, context) =>
-                    {
-                        l.ShouldEqual(Logger);
-                        o.ShouldEqual(request);
-                        context.ShouldEqual(DefaultMetadata);
-                        ++invokeCount;
-                        if (isLast)
-                            return result;
-                        return null;
-                    }
-                });
-            }
-
-            Logger.GetLogger(request, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(count);
-        }
+        [Fact]
+        public void LogShouldNotThrowNoComponents() => Logger.Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
 
         protected override ILogger GetLogger() => GetComponentOwner(ComponentCollectionManager);
 

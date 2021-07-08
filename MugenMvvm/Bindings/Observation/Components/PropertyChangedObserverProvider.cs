@@ -35,6 +35,15 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         public int Priority { get; init; } = ObservationComponentPriority.PropertyChangedObserverProvider;
 
+        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        {
+            if (member is PropertyInfo p && !p.IsStatic())
+                return TryGetMemberObserver(p.Name, type);
+            if (member is IAccessorMemberInfo accessor && !accessor.MemberFlags.HasFlag(MemberFlags.Static))
+                return TryGetMemberObserver(accessor.Name, type);
+            return default;
+        }
+
         private static ActionToken TryObserveHolder(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
@@ -48,15 +57,6 @@ namespace MugenMvvm.Bindings.Observation.Components
             var listener = new MainThreadMemberListenerCollection();
             ((INotifyPropertyChanged)item).PropertyChanged += listener.RaisePropertyChanged;
             return listener;
-        }
-
-        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
-        {
-            if (member is PropertyInfo p && !p.IsStatic())
-                return TryGetMemberObserver(p.Name, type);
-            if (member is IAccessorMemberInfo accessor && !accessor.MemberFlags.HasFlag(MemberFlags.Static))
-                return TryGetMemberObserver(accessor.Name, type);
-            return default;
         }
 
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)

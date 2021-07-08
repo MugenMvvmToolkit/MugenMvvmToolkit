@@ -14,7 +14,6 @@ using MugenMvvm.Tests.Navigation;
 using MugenMvvm.Tests.Presentation;
 using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Tests.Views;
-using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
 using MugenMvvm.Wrapping;
@@ -286,14 +285,6 @@ namespace MugenMvvm.UnitTests.Presentation
             cleanupCount.ShouldEqual(1);
         }
 
-        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
-
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
-
-        protected override IWrapperManager GetWrapperManager() => new WrapperManager(ComponentCollectionManager);
-
-        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(nameof(ViewLifecycleState.Initialized))]
         [InlineData(nameof(ViewLifecycleState.Closed))]
@@ -352,5 +343,13 @@ namespace MugenMvvm.UnitTests.Presentation
                 navigatedCount.ShouldEqual(1);
             }
         }
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
+
+        protected override IWrapperManager GetWrapperManager() => new WrapperManager(ComponentCollectionManager);
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
     }
 }

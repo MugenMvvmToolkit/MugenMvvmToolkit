@@ -17,9 +17,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
         {
             LiteralToExpression = new Dictionary<string, IExpressionNode>(3, StringComparer.Ordinal)
             {
-                {InternalConstant.Null, ConstantExpressionNode.Null},
-                {InternalConstant.True, ConstantExpressionNode.True},
-                {InternalConstant.False, ConstantExpressionNode.False}
+                { InternalConstant.Null, ConstantExpressionNode.Null },
+                { InternalConstant.True, ConstantExpressionNode.True },
+                { InternalConstant.False, ConstantExpressionNode.False }
             };
         }
 

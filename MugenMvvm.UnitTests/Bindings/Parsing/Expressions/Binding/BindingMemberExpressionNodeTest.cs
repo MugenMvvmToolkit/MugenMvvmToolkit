@@ -108,45 +108,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
         }
 
         [Theory]
-        [InlineData("Test", "DataContext.Test")]
-        [InlineData("[test]", "DataContext[test]")]
-        [InlineData("", "DataContext")]
-        public void GetSourceShouldRespectTargetType(string inputPath, string dataContextInputPath)
-        {
-            var expectedPath = inputPath;
-            var path = MemberPath.Get(Path);
-
-            ObservationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (_, o, arg3) =>
-                {
-                    o.ShouldEqual(expectedPath);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return path;
-                }
-            });
-
-            var target = new object();
-            var source = new object();
-
-            var exp = new BindingMemberExpressionNode(inputPath, 0, BindingMemberExpressionFlags.Target, MemberFlags.All);
-            exp.GetSource(target, source, DefaultMetadata, out var p).ShouldEqual(target);
-            p.ShouldEqual(path);
-
-            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
-            p.ShouldEqual(path);
-
-            expectedPath = inputPath;
-            exp = new BindingMemberExpressionNode(inputPath, 0, default, MemberFlags.All);
-            exp.GetSource(target, source, DefaultMetadata, out p).ShouldEqual(source);
-            p.ShouldEqual(path);
-
-            expectedPath = dataContextInputPath;
-            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
-            p.ShouldEqual(path);
-        }
-
-        [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -196,6 +157,45 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode)exp1.Expression!).EqualsCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData("Test", "DataContext.Test")]
+        [InlineData("[test]", "DataContext[test]")]
+        [InlineData("", "DataContext")]
+        public void GetSourceShouldRespectTargetType(string inputPath, string dataContextInputPath)
+        {
+            var expectedPath = inputPath;
+            var path = MemberPath.Get(Path);
+
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (_, o, arg3) =>
+                {
+                    o.ShouldEqual(expectedPath);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return path;
+                }
+            });
+
+            var target = new object();
+            var source = new object();
+
+            var exp = new BindingMemberExpressionNode(inputPath, 0, BindingMemberExpressionFlags.Target, MemberFlags.All);
+            exp.GetSource(target, source, DefaultMetadata, out var p).ShouldEqual(target);
+            p.ShouldEqual(path);
+
+            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
+            p.ShouldEqual(path);
+
+            expectedPath = inputPath;
+            exp = new BindingMemberExpressionNode(inputPath, 0, default, MemberFlags.All);
+            exp.GetSource(target, source, DefaultMetadata, out p).ShouldEqual(source);
+            p.ShouldEqual(path);
+
+            expectedPath = dataContextInputPath;
+            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
+            p.ShouldEqual(path);
         }
 
         protected override BindingMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) => new(Path, 0, default, default, metadata: metadata);

@@ -5,7 +5,6 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.Collections;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -85,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                 }
             };
             var result = new BinaryExpressionNode(binaryToken, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
-            context.Initialize($"{binaryToken.Value} {((IConstantExpressionNode) result.Right).Value}", DefaultMetadata);
+            context.Initialize($"{binaryToken.Value} {((IConstantExpressionNode)result.Right).Value}", DefaultMetadata);
             return new object[]
             {
                 context, result.Left, result

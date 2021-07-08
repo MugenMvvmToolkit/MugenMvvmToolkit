@@ -16,7 +16,7 @@ namespace MugenMvvm.Internal.Components
         {
             if (internalState == null)
                 return 0;
-            return ((IDictionary<string, object?>) internalState).Count;
+            return ((IDictionary<string, object?>)internalState).Count;
         }
 
         public ItemOrIReadOnlyList<KeyValuePair<string, object?>> GetValues<TState>(object item, TState state, Func<object, string, object?, TState, bool>? predicate,
@@ -24,7 +24,7 @@ namespace MugenMvvm.Internal.Components
         {
             if (internalState == null)
                 return default;
-            var dictionary = (IDictionary<string, object?>) internalState;
+            var dictionary = (IDictionary<string, object?>)internalState;
             lock (dictionary)
             {
                 if (dictionary.Count == 0)
@@ -54,7 +54,7 @@ namespace MugenMvvm.Internal.Components
                 return false;
             lock (internalState)
             {
-                return ((IDictionary<string, object?>) internalState).ContainsKey(path);
+                return ((IDictionary<string, object?>)internalState).ContainsKey(path);
             }
         }
 
@@ -68,7 +68,7 @@ namespace MugenMvvm.Internal.Components
 
             lock (internalState)
             {
-                return ((IDictionary<string, object?>) internalState).TryGetValue(path, out value);
+                return ((IDictionary<string, object?>)internalState).TryGetValue(path, out value);
             }
         }
 
@@ -80,9 +80,9 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, path, (TValue) value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, path, (TValue)value!, state));
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -98,14 +98,14 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, path, (TValue) value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, path, (TValue)value!, state));
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 value = BoxingExtensions.Box(addValueFactory(item, state));
                 dictionary.Add(path, value);
-                return (TValue) value!;
+                return (TValue)value!;
             }
         }
 
@@ -115,10 +115,10 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 oldValue = BoxingExtensions.Box(valueFactory(item, state));
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue!;
+                return (TValue)oldValue!;
             }
         }
 
@@ -128,7 +128,7 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 dictionary.Add(path, BoxingExtensions.Box(value));
                 return value;
             }
@@ -152,7 +152,7 @@ namespace MugenMvvm.Internal.Components
                 return false;
             }
 
-            var dictionary = (IDictionary<string, object?>) internalState;
+            var dictionary = (IDictionary<string, object?>)internalState;
             lock (dictionary)
             {
                 return dictionary.Remove(path, out oldValue);
@@ -164,13 +164,13 @@ namespace MugenMvvm.Internal.Components
             if (internalState == null)
                 return false;
             internalState = null;
-            return ClearInternal((T) item);
+            return ClearInternal((T)item);
         }
 
         public AttachedValueStorage TryGetAttachedValues(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             if (IsSupported(attachedValueManager, item, metadata))
-                return new AttachedValueStorage(item, this, GetAttachedDictionary((T) item, true));
+                return new AttachedValueStorage(item, this, GetAttachedDictionary((T)item, true));
             return default;
         }
 
@@ -183,8 +183,8 @@ namespace MugenMvvm.Internal.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private IDictionary<string, object?> GetDictionary(object item, ref object? internalState)
         {
-            internalState ??= GetAttachedDictionary((T) item, false)!;
-            return (IDictionary<string, object?>) internalState;
+            internalState ??= GetAttachedDictionary((T)item, false)!;
+            return (IDictionary<string, object?>)internalState;
         }
     }
 }

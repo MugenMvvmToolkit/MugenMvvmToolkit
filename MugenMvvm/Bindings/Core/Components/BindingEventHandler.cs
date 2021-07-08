@@ -133,7 +133,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding) owner).Target.GetLastMember(metadata);
+            var targetMember = ((IBinding)owner).Target.GetLastMember(metadata);
             if (targetMember.Member is not IObservableMemberInfo eventInfo || eventInfo.MemberType != MemberType.Event)
                 return false;
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding) owner;
+            var binding = (IBinding)owner;
             binding.UpdateTarget();
             if (!BindingMugenExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
                 binding.Components.TryAdd(OneTimeBindingMode.NonDisposeInstance);

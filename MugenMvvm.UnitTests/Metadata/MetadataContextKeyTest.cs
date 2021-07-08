@@ -164,75 +164,6 @@ namespace MugenMvvm.UnitTests.Metadata
             invokeCount.ShouldEqual(1);
         }
 
-        [Fact]
-        public void FromKeyShouldCreateMetadataKeyFromString()
-        {
-            var meta = new Dictionary<string, object?>();
-            var key = MetadataContextKey.FromKey<int>("test", meta);
-            key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            key.IsSerializable.ShouldBeFalse();
-            key.ValueType.ShouldEqual(typeof(int));
-        }
-
-        public static IMetadataContextKey<int>? ContextKeyProperty { get; set; }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void FromMemberShouldCreateMetadataKeyFromField(bool serializable)
-        {
-            var meta = new Dictionary<string, object?>();
-            var key = MetadataContextKey.FromMember<int>(GetType(), nameof(ContextKeyField), serializable, meta);
-            key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            key.IsSerializable.ShouldEqual(serializable);
-            if (!serializable)
-            {
-                (key as IHasMemento)?.GetMemento().ShouldBeNull();
-                return;
-            }
-
-            var memento = ((IHasMemento)key).GetMemento()!;
-            memento.TargetType.ShouldEqual(key.GetType());
-            memento.Preserve(EmptySerializationContext);
-            ContextKeyField = MetadataContextKey.FromKey<int>("121");
-            var restore = memento.Restore(EmptySerializationContext);
-            restore.IsRestored.ShouldBeTrue();
-            restore.Target.ShouldEqual(ContextKeyField);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void FromMemberShouldCreateMetadataKeyFromProperty(bool serializable)
-        {
-            var meta = new Dictionary<string, object?>();
-            var key = MetadataContextKey.FromMember<int>(GetType(), nameof(ContextKeyProperty), serializable, meta);
-            key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
-            key.IsSerializable.ShouldEqual(serializable);
-            if (!serializable)
-            {
-                (key as IHasMemento)?.GetMemento().ShouldBeNull();
-                return;
-            }
-
-            var memento = ((IHasMemento)key).GetMemento()!;
-            memento.TargetType.ShouldEqual(key.GetType());
-            memento.Preserve(EmptySerializationContext);
-            ContextKeyProperty = MetadataContextKey.FromKey<int>("121");
-            var restore = memento.Restore(EmptySerializationContext);
-            restore.IsRestored.ShouldBeTrue();
-            restore.Target.ShouldEqual(ContextKeyProperty);
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -291,6 +222,75 @@ namespace MugenMvvm.UnitTests.Metadata
             restore.IsRestored.ShouldBeTrue();
             restore.Target.ShouldEqual(ContextKeyProperty);
         }
+
+        [Fact]
+        public void FromKeyShouldCreateMetadataKeyFromString()
+        {
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromKey<int>("test", meta);
+            key.Metadata.ShouldEqual(meta);
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.IsSerializable.ShouldBeFalse();
+            key.ValueType.ShouldEqual(typeof(int));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void FromMemberShouldCreateMetadataKeyFromField(bool serializable)
+        {
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromMember<int>(GetType(), nameof(ContextKeyField), serializable, meta);
+            key.Metadata.ShouldEqual(meta);
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.IsSerializable.ShouldEqual(serializable);
+            if (!serializable)
+            {
+                (key as IHasMemento)?.GetMemento().ShouldBeNull();
+                return;
+            }
+
+            var memento = ((IHasMemento)key).GetMemento()!;
+            memento.TargetType.ShouldEqual(key.GetType());
+            memento.Preserve(EmptySerializationContext);
+            ContextKeyField = MetadataContextKey.FromKey<int>("121");
+            var restore = memento.Restore(EmptySerializationContext);
+            restore.IsRestored.ShouldBeTrue();
+            restore.Target.ShouldEqual(ContextKeyField);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void FromMemberShouldCreateMetadataKeyFromProperty(bool serializable)
+        {
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromMember<int>(GetType(), nameof(ContextKeyProperty), serializable, meta);
+            key.Metadata.ShouldEqual(meta);
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.IsSerializable.ShouldEqual(serializable);
+            if (!serializable)
+            {
+                (key as IHasMemento)?.GetMemento().ShouldBeNull();
+                return;
+            }
+
+            var memento = ((IHasMemento)key).GetMemento()!;
+            memento.TargetType.ShouldEqual(key.GetType());
+            memento.Preserve(EmptySerializationContext);
+            ContextKeyProperty = MetadataContextKey.FromKey<int>("121");
+            var restore = memento.Restore(EmptySerializationContext);
+            restore.IsRestored.ShouldBeTrue();
+            restore.Target.ShouldEqual(ContextKeyProperty);
+        }
+
+        public static IMetadataContextKey<int>? ContextKeyProperty { get; set; }
 
         private static string GenerateKey(Type declaredType, string fieldOrPropertyName) =>
             declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +

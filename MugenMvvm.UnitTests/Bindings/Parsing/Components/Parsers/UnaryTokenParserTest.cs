@@ -24,12 +24,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             const string memberName = "test";
             Parser.Mapping.Clear();
 
-            Context.Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new MemberTokenParser()};
+            Context.Parsers = new ITokenParserComponent[] { new DigitTokenParser(), new MemberTokenParser() };
 
             Context.Initialize("-1", DefaultMetadata);
             Parser.TryParse(Context, null).ShouldBeNull();
 
-            Parser.Mapping['-'] = new[] {token};
+            Parser.Mapping['-'] = new[] { token };
             Context.Initialize("-1", DefaultMetadata);
             Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, ConstantExpressionNode.Get(1)));
 

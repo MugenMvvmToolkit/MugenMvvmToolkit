@@ -29,12 +29,12 @@ namespace MugenMvvm.Android.Native
         {
         }
 
-        internal new static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
-
         public override JniPeerMembers JniPeerMembers => _members;
 
         protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
         protected override Type ThresholdType => _members.ManagedPeerType;
+
+        internal new static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
     }
 }

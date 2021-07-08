@@ -13,12 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class NullConditionalExpressionBuilderTest : ExpressionBuilderTestBase<NullConditionalExpressionBuilder>
     {
-        [Fact]
-        public void TryBuildShouldIgnoreNotNullConditionalExpression()
-        {
-            Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
         [Theory]
         [InlineData(null, null)]
         [InlineData("t", 1)]
@@ -31,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     return Expression.Constant(constant.Value, constant.Type);
                 if (expressionNode is IMemberExpressionNode memberExpression)
                 {
-                    var target = ((IExpressionBuilderContext) Context).Build(memberExpression.Target!);
+                    var target = ((IExpressionBuilderContext)Context).Build(memberExpression.Target!);
                     return Expression.MakeMemberAccess(target, typeof(string).GetProperty(memberExpression.Member)!);
                 }
 
@@ -55,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     return Expression.Constant(constant.Value, constant.Type);
                 if (expressionNode is IMethodCallExpressionNode methodCall)
                 {
-                    var target = ((IExpressionBuilderContext) Context).Build(methodCall.Target!);
+                    var target = ((IExpressionBuilderContext)Context).Build(methodCall.Target!);
                     return Expression.Call(target.ConvertIfNeed(typeof(object), false), typeof(object).GetMethods().FirstOrDefault(info => info.Name == nameof(ToString))!);
                 }
 
@@ -64,5 +58,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expression = Builder.TryBuild(Context, node)!;
             expression.Invoke().ShouldEqual(result);
         }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotNullConditionalExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
     }
 }

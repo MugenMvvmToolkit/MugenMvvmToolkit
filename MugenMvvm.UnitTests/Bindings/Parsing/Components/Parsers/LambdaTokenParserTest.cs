@@ -25,11 +25,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             Parser.TryParse(Context, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), default));
 
             Context.Initialize("(p1) => 1", DefaultMetadata);
-            Parser.TryParse(Context, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] {new ParameterExpressionNode("p1")}));
+            Parser.TryParse(Context, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] { new ParameterExpressionNode("p1") }));
 
             Context.Initialize("(p1, p2) => 1", DefaultMetadata);
             Parser.TryParse(Context, null)
-                  .ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] {new ParameterExpressionNode("p1"), new ParameterExpressionNode("p2")}));
+                  .ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] { new ParameterExpressionNode("p1"), new ParameterExpressionNode("p2") }));
         }
     }
 }

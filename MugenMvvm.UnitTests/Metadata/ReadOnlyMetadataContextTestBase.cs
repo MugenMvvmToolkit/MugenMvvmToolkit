@@ -38,25 +38,6 @@ namespace MugenMvvm.UnitTests.Metadata
 
         protected static object? SetterValue { get; set; }
 
-        private static string? Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string?> arg2, object? arg3)
-        {
-            ++GetterCount;
-            arg2.ShouldEqual(CustomGetterKey);
-            CurrentGetterContext = arg1;
-            CurrentGetterValue = arg3;
-            return GetterValue;
-        }
-
-        private static object? Setter(IReadOnlyMetadataContext arg1, IMetadataContextKey<int> arg2, object? arg3, int arg4)
-        {
-            ++SetterCount;
-            arg2.ShouldEqual(CustomSetterKey);
-            CurrentSetterOldValue = arg3;
-            CurrentSetterContext = arg1;
-            CurrentSetterValue = arg4;
-            return SetterValue;
-        }
-
         public void ContainsTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             foreach (var metadataContextValue in values)
@@ -115,6 +96,25 @@ namespace MugenMvvm.UnitTests.Metadata
         {
             metadataContext.Count.ShouldEqual(values.Count);
             metadataContext.GetValues().ShouldEqual(values);
+        }
+
+        private static string? Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string?> arg2, object? arg3)
+        {
+            ++GetterCount;
+            arg2.ShouldEqual(CustomGetterKey);
+            CurrentGetterContext = arg1;
+            CurrentGetterValue = arg3;
+            return GetterValue;
+        }
+
+        private static object? Setter(IReadOnlyMetadataContext arg1, IMetadataContextKey<int> arg2, object? arg3, int arg4)
+        {
+            ++SetterCount;
+            arg2.ShouldEqual(CustomSetterKey);
+            CurrentSetterOldValue = arg3;
+            CurrentSetterContext = arg1;
+            CurrentSetterValue = arg4;
+            return SetterValue;
         }
     }
 }

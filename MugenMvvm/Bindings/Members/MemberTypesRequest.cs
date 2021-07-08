@@ -20,7 +20,7 @@ namespace MugenMvvm.Bindings.Members
         {
             if (Types.IsEmpty)
                 return Name;
-            return $"{Name}({string.Join(",", (object[]) Types.AsList())})";
+            return $"{Name}({string.Join(",", (object[])Types.AsList())})";
         }
     }
 }

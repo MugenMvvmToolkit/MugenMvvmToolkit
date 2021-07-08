@@ -47,6 +47,15 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public int Priority { get; init; } = ParsingComponentPriority.Constant;
 
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
+        {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression);
+            if (node == null)
+                context.Position = p;
+            return node;
+        }
+
         private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)
         {
             var errors = context.TryGetErrors();
@@ -65,15 +74,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 #else
             builder ??= new StringBuilder(context.GetValue(start, end));
 #endif
-        }
-
-        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            var p = context.Position;
-            var node = TryParseInternal(context, expression);
-            if (node == null)
-                context.Position = p;
-            return node;
         }
 
         private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)

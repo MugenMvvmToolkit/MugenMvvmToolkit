@@ -7,7 +7,6 @@ using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -27,8 +26,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
 
             var parameter1 = new ParameterExpressionNode("i");
-            var lambdaExpressionNode = new LambdaExpressionNode(parameter1, new[] {parameter1});
-            var expression = (Expression<Func<int, int>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
+            var lambdaExpressionNode = new LambdaExpressionNode(parameter1, new[] { parameter1 });
+            var expression = (Expression<Func<int, int>>)Builder.TryBuild(Context, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
 
@@ -50,8 +49,8 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var parameter1 = new ParameterExpressionNode("i1");
             var parameter2 = new ParameterExpressionNode("i2");
-            var lambdaExpressionNode = new LambdaExpressionNode(parameter2, new[] {parameter1, parameter2});
-            var expression = (Expression<Func<int, int, int>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
+            var lambdaExpressionNode = new LambdaExpressionNode(parameter2, new[] { parameter1, parameter2 });
+            var expression = (Expression<Func<int, int, int>>)Builder.TryBuild(Context, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
 
@@ -66,7 +65,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc3))!.GetParameters()[0]);
             Context.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
             var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Array.Empty<IParameterExpressionNode>());
-            var expression = (Expression<Func<bool>>) Builder.TryBuild(Context, lambdaExpressionNode)!;
+            var expression = (Expression<Func<bool>>)Builder.TryBuild(Context, lambdaExpressionNode)!;
             expression.ShouldNotBeNull();
             expression.Compile().Invoke().ShouldEqual(false);
         }

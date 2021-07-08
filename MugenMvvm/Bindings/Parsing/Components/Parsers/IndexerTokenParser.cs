@@ -12,6 +12,15 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
     {
         public int Priority { get; init; } = ParsingComponentPriority.Indexer;
 
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
+        {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression);
+            if (node == null)
+                context.Position = p;
+            return node;
+        }
+
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
             if (!context.SkipWhitespaces().IsToken('['))
@@ -24,15 +33,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (args.IsEmpty)
                 return null;
             return new IndexExpressionNode(expression, args);
-        }
-
-        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            var p = context.Position;
-            var node = TryParseInternal(context, expression);
-            if (node == null)
-                context.Position = p;
-            return node;
         }
     }
 }

@@ -13,21 +13,9 @@ namespace MugenMvvm.Windows.Bindings.Markup
     {
         private static Type? _sharedDpType;
 
-        private static void RegisterAttachedProperty(DependencyProperty property, object target)
-        {
-            var targetType = target.GetType();
-            var member = MugenService.MemberManager.TryGetMembers(targetType, MemberType.Accessor, MemberFlags.InstancePublicAll, property.Name).Item;
-            if (member == null || !member.MemberFlags.HasFlag(MemberFlags.Attached))
-            {
-                MugenService.MemberManager
-                            .GetAttachedMemberProvider()
-                            .Register(new DependencyPropertyAccessorMemberInfo(property, property.Name, targetType, MemberFlags.InstancePublic | MemberFlags.Attached));
-            }
-        }
-
         public override object? ProvideValue(IServiceProvider serviceProvider)
         {
-            var provideValueTarget = (IProvideValueTarget?) serviceProvider.GetService(typeof(IProvideValueTarget));
+            var provideValueTarget = (IProvideValueTarget?)serviceProvider.GetService(typeof(IProvideValueTarget));
             if (provideValueTarget == null)
                 return DependencyProperty.UnsetValue;
 
@@ -72,6 +60,18 @@ namespace MugenMvvm.Windows.Bindings.Markup
             return _defaultValue;
         }
 
+        private static void RegisterAttachedProperty(DependencyProperty property, object target)
+        {
+            var targetType = target.GetType();
+            var member = MugenService.MemberManager.TryGetMembers(targetType, MemberType.Accessor, MemberFlags.InstancePublicAll, property.Name).Item;
+            if (member == null || !member.MemberFlags.HasFlag(MemberFlags.Attached))
+            {
+                MugenService.MemberManager
+                            .GetAttachedMemberProvider()
+                            .Register(new DependencyPropertyAccessorMemberInfo(property, property.Name, targetType, MemberFlags.InstancePublic | MemberFlags.Attached));
+            }
+        }
+
         private object? Initialize(object targetObject, object targetProperty)
         {
             if (targetProperty is DependencyProperty depProp)
@@ -80,7 +80,7 @@ namespace MugenMvvm.Windows.Bindings.Markup
                 var descriptor = DependencyPropertyDescriptor.FromProperty(depProp, targetObject.GetType());
                 if (descriptor != null && descriptor.IsAttached)
                     RegisterAttachedProperty(depProp, targetObject);
-                return ((DependencyObject) targetObject).GetValue(depProp);
+                return ((DependencyObject)targetObject).GetValue(depProp);
             }
 
             if (targetProperty is EventInfo eventInfo)
@@ -98,7 +98,7 @@ namespace MugenMvvm.Windows.Bindings.Markup
                     return CreateDelegateForEvent(parameters[1].ParameterType);
             }
 
-            _targetPath = ((MemberInfo) targetProperty).Name;
+            _targetPath = ((MemberInfo)targetProperty).Name;
             return DependencyProperty.UnsetValue;
         }
     }

@@ -24,6 +24,22 @@ namespace MugenMvvm.Android.Bindings
             _cache = new Dictionary<object, object?>(59, this);
         }
 
+        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
+        {
+            if (expression is not NativeStringAccessor s)
+                return Components.TryParseBindingExpression(bindingManager, expression, metadata);
+
+            if (!_cache.TryGetValue(s, out var value))
+            {
+                value = Components.TryParseBindingExpression(bindingManager, expression, metadata).GetRawValue();
+                _cache[s.Span.ToArray()] = value;
+            }
+
+            return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
+        }
+
+        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int ComputeHash32(ReadOnlySpan<char> value)
         {
@@ -43,22 +59,6 @@ namespace MugenMvvm.Android.Bindings
                 return hash1 + hash2 * 1566083941;
             }
         }
-
-        public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
-        {
-            if (expression is not NativeStringAccessor s)
-                return Components.TryParseBindingExpression(bindingManager, expression, metadata);
-
-            if (!_cache.TryGetValue(s, out var value))
-            {
-                value = Components.TryParseBindingExpression(bindingManager, expression, metadata).GetRawValue();
-                _cache[s.Span.ToArray()] = value;
-            }
-
-            return ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(value);
-        }
-
-        protected override void Invalidate(object? state, IReadOnlyMetadataContext? metadata) => _cache.Clear();
 
         bool IEqualityComparer<object>.Equals(object x, object y)
         {

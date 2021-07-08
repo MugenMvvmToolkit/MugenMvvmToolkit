@@ -14,18 +14,6 @@ namespace MugenMvvm.UnitTests.Busy
 {
     public class BusyManagerTest : ComponentOwnerTestBase<BusyManager>
     {
-        [Fact]
-        public void BeginBusyShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BusyManager.BeginBusy(this));
-
-        [Fact]
-        public void GetTokensShouldReturnEmptyNoComponents() => BusyManager.GetTokens().ShouldBeEmpty();
-
-        [Fact]
-        public void ShouldValidateInputArgs() => ShouldThrow<ArgumentNullException>(() => BusyManager.TryGetToken(this, null!));
-
-        [Fact]
-        public void TryGetTokenShouldReturnNullNoComponents() => BusyManager.TryGetToken(this, (_, _, _) => true).ShouldBeNull();
-
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
@@ -55,6 +43,39 @@ namespace MugenMvvm.UnitTests.Busy
             BusyManager.BeginBusy(BusyManager, DefaultMetadata).ShouldEqual(busyToken);
             methodCallCount.ShouldEqual(componentCount);
         }
+
+        [Fact]
+        public void BeginBusyShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BusyManager.BeginBusy(this));
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(100)]
+        public void GetTokensShouldBeHandledByComponents(int componentCount)
+        {
+            var methodCallCount = 0;
+            for (var i = 0; i < componentCount; i++)
+            {
+                BusyManager.AddComponent(new TestBusyManagerComponent
+                {
+                    TryGetTokens = (o, context) =>
+                    {
+                        ++methodCallCount;
+                        o.ShouldEqual(BusyManager);
+                        context.ShouldEqual(DefaultMetadata);
+                        return new[] { new TestBusyToken(), new TestBusyToken() };
+                    }
+                });
+            }
+
+            new HashSet<IBusyToken>(BusyManager.GetTokens(DefaultMetadata)).Count.ShouldEqual(componentCount * 2);
+            methodCallCount.ShouldEqual(componentCount);
+        }
+
+        [Fact]
+        public void GetTokensShouldReturnEmptyNoComponents() => BusyManager.GetTokens().ShouldBeEmpty();
+
+        [Fact]
+        public void ShouldValidateInputArgs() => ShouldThrow<ArgumentNullException>(() => BusyManager.TryGetToken(this, null!));
 
         [Theory]
         [InlineData(1)]
@@ -87,29 +108,8 @@ namespace MugenMvvm.UnitTests.Busy
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(100)]
-        public void GetTokensShouldBeHandledByComponents(int componentCount)
-        {
-            var methodCallCount = 0;
-            for (var i = 0; i < componentCount; i++)
-            {
-                BusyManager.AddComponent(new TestBusyManagerComponent
-                {
-                    TryGetTokens = (o, context) =>
-                    {
-                        ++methodCallCount;
-                        o.ShouldEqual(BusyManager);
-                        context.ShouldEqual(DefaultMetadata);
-                        return new[] { new TestBusyToken(), new TestBusyToken() };
-                    }
-                });
-            }
-
-            new HashSet<IBusyToken>(BusyManager.GetTokens(DefaultMetadata)).Count.ShouldEqual(componentCount * 2);
-            methodCallCount.ShouldEqual(componentCount);
-        }
+        [Fact]
+        public void TryGetTokenShouldReturnNullNoComponents() => BusyManager.TryGetToken(this, (_, _, _) => true).ShouldBeNull();
 
         protected override IBusyManager GetBusyManager() => GetComponentOwner(ComponentCollectionManager);
 

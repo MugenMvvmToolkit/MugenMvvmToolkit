@@ -14,13 +14,53 @@ namespace MugenMvvm.UnitTests.Serialization
 {
     public class SerializerTest : ComponentOwnerTestBase<Serializer>
     {
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void DeserializeShouldBeHandledByComponents(int count)
+        {
+            var format = new DeserializationFormat<string, Stream?>(1, "Test");
+            var request = "test";
+            var ctx = new SerializationContext<string, Stream>(format, request);
+            var result = Stream.Null;
+            Serializer.AddComponent(new TestSerializationContextProvider
+            {
+                TryGetSerializationContext = (s, f, r, arg4) =>
+                {
+                    s.ShouldEqual(Serializer);
+                    f.ShouldEqual(format);
+                    r.ShouldEqual(request);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return ctx;
+                }
+            });
+            var executeCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                var component = new TestSerializationManagerComponent
+                {
+                    TryDeserialize = (s, t, context) =>
+                    {
+                        ++executeCount;
+                        s.ShouldEqual(Serializer);
+                        t.ShouldEqual(request);
+                        context.ShouldEqual(ctx);
+                        if (isLast)
+                            return result;
+                        return null;
+                    },
+                    Priority = -i
+                };
+                Serializer.AddComponent(component);
+            }
+
+            Serializer.Deserialize(format, request, null, DefaultMetadata).ShouldEqual(result);
+            executeCount.ShouldEqual(count);
+        }
+
         [Fact]
         public void DeserializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => Serializer.Deserialize(DeserializationFormat.JsonBytes, null!));
-
-        [Fact]
-        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => Serializer.Serialize(SerializationFormat.JsonBytes!, null!));
-
-        protected override ISerializer GetSerializer() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -100,50 +140,10 @@ namespace MugenMvvm.UnitTests.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void DeserializeShouldBeHandledByComponents(int count)
-        {
-            var format = new DeserializationFormat<string, Stream?>(1, "Test");
-            var request = "test";
-            var ctx = new SerializationContext<string, Stream>(format, request);
-            var result = Stream.Null;
-            Serializer.AddComponent(new TestSerializationContextProvider
-            {
-                TryGetSerializationContext = (s, f, r, arg4) =>
-                {
-                    s.ShouldEqual(Serializer);
-                    f.ShouldEqual(format);
-                    r.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return ctx;
-                }
-            });
-            var executeCount = 0;
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                var component = new TestSerializationManagerComponent
-                {
-                    TryDeserialize = (s, t, context) =>
-                    {
-                        ++executeCount;
-                        s.ShouldEqual(Serializer);
-                        t.ShouldEqual(request);
-                        context.ShouldEqual(ctx);
-                        if (isLast)
-                            return result;
-                        return null;
-                    },
-                    Priority = -i
-                };
-                Serializer.AddComponent(component);
-            }
+        [Fact]
+        public void SerializeShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => Serializer.Serialize(SerializationFormat.JsonBytes!, null!));
 
-            Serializer.Deserialize(format, request, null, DefaultMetadata).ShouldEqual(result);
-            executeCount.ShouldEqual(count);
-        }
+        protected override ISerializer GetSerializer() => GetComponentOwner(ComponentCollectionManager);
 
         protected override Serializer GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

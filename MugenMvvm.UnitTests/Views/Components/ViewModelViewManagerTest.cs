@@ -29,12 +29,6 @@ namespace MugenMvvm.UnitTests.Views.Components
             ViewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ComponentCollectionManager));
         }
 
-        [Fact]
-        public void TryInitializeAsyncShouldIgnoreNull() =>
-            ViewManager.TryInitializeAsync(_view.Mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
-
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -119,6 +113,10 @@ namespace MugenMvvm.UnitTests.Views.Components
             states[ViewLifecycleState.Cleared].Count.ShouldEqual(count * viewCount);
         }
 
+        [Fact]
+        public void TryInitializeAsyncShouldIgnoreNull() =>
+            ViewManager.TryInitializeAsync(_view.Mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldEqual(default);
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -179,5 +177,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             states[ViewLifecycleState.Clearing].Count.ShouldEqual(count);
             states[ViewLifecycleState.Cleared].Count.ShouldEqual(count);
         }
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
     }
 }

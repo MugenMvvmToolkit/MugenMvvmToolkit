@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [Fact]
         public void ShouldInitializeValues2()
         {
-            var strings = new[] {"Test", "Test1", "Test2", "Test3"};
+            var strings = new[] { "Test", "Test1", "Test2", "Test3" };
             string path = string.Join(".", strings);
             var memberPath = MemberPath.Get(path);
             memberPath.Members.ShouldEqual(strings);
@@ -30,8 +30,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [Fact]
         public void ShouldInitializeValues3()
         {
-            var strings = new[] {"[test]", "Test1", "Test2[test]", "Test3"};
-            var items = new[] {"[test]", "Test1", "Test2", "[test]", "Test3"};
+            var strings = new[] { "[test]", "Test1", "Test2[test]", "Test3" };
+            var items = new[] { "[test]", "Test1", "Test2", "[test]", "Test3" };
             string path = string.Join(".", strings);
             var memberPath = MemberPath.Get(path);
             memberPath.Members.ShouldEqual(items);
@@ -41,8 +41,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         [Fact]
         public void ShouldInitializeValues4()
         {
-            var strings = new[] {"[test, test2] ", "Test1 ", "Test2  [test , 10] ", "Test3 "};
-            var items = new[] {"[test, test2]", "Test1", "Test2", "[test , 10]", "Test3"};
+            var strings = new[] { "[test, test2] ", "Test1 ", "Test2  [test , 10] ", "Test3 " };
+            var items = new[] { "[test, test2]", "Test1", "Test2", "[test , 10]", "Test3" };
             string path = string.Join(".", strings);
             var memberPath = MemberPath.Get(path);
             memberPath.Path.ShouldEqual(path);
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             MemberPath.Empty.ShouldEqual(emptyMemberPath);
             emptyMemberPath.Members.IsEmpty.ShouldBeTrue();
             emptyMemberPath.Path.ShouldEqual("");
-            var valueHolder = (IValueHolder<string>) emptyMemberPath;
+            var valueHolder = (IValueHolder<string>)emptyMemberPath;
             valueHolder.Value = nameof(valueHolder);
             valueHolder.Value.ShouldEqual(nameof(valueHolder));
         }

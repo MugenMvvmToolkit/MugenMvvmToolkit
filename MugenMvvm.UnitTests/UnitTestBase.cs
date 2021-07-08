@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests
 
         protected static void WaitCompletion(int milliseconds = 10, Func<bool>? predicate = null, int attemptCount = 20)
         {
-            int count = 0;
+            var count = 0;
             while (true)
             {
                 Thread.Sleep(milliseconds);

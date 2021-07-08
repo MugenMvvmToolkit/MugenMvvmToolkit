@@ -14,11 +14,11 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             BindingModes = new Dictionary<string, object?>
             {
-                {BindingModeNameConstant.None, null},
-                {BindingModeNameConstant.OneTime, OneTimeBindingMode.Instance},
-                {BindingModeNameConstant.OneWay, OneWayBindingMode.Instance},
-                {BindingModeNameConstant.OneWayToSource, OneWayToSourceBindingMode.Instance},
-                {BindingModeNameConstant.TwoWay, TwoWayBindingMode.Instance}
+                { BindingModeNameConstant.None, null },
+                { BindingModeNameConstant.OneTime, OneTimeBindingMode.Instance },
+                { BindingModeNameConstant.OneWay, OneWayBindingMode.Instance },
+                { BindingModeNameConstant.OneWayToSource, OneWayToSourceBindingMode.Instance },
+                { BindingModeNameConstant.TwoWay, TwoWayBindingMode.Instance }
             };
             DefaultMode = OneWayBindingMode.Instance;
         }

@@ -10,16 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class UnaryExpressionBuilderTest : ExpressionBuilderTestBase<UnaryExpressionBuilder>
     {
-        [Fact]
-        public void TryBuildShouldIgnoreNotSupportUnaryExpression()
-        {
-            Builder.Mapping.Clear();
-            Builder.TryBuild(Context, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, ConstantExpressionNode.False)).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotUnaryExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
-
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryBuildShouldBuildUnaryExpression(IUnaryExpressionNode unaryExpression, object result, bool invalid)
@@ -34,6 +24,16 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             expression.ShouldNotBeNull();
             expression.Invoke().ShouldEqual(result);
         }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotSupportUnaryExpression()
+        {
+            Builder.Mapping.Clear();
+            Builder.TryBuild(Context, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, ConstantExpressionNode.False)).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotUnaryExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
 
         public static IEnumerable<object?[]> GetData() =>
             new[]

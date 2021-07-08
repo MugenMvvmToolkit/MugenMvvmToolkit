@@ -20,6 +20,142 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             NavigationDispatcher.AddComponent(new NavigationTargetDispatcher());
         }
 
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public async Task CanNavigateAsyncShouldInvokeCallbackClose(bool includeTarget, bool includePrevTarget)
+        {
+            var tcsPrevTarget = new TaskCompletionSource<bool>();
+            var tcsTarget = new TaskCompletionSource<bool>();
+            var prevTarget = new HasNavigationCondition(NavigationDispatcher);
+            var target = new HasNavigationCondition(NavigationDispatcher);
+            var context = new NavigationContext(includeTarget ? target : new object(), NavigationProvider.System, "-", NavigationType.Page, NavigationMode.Close);
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
+
+            prevTarget.CanNavigateFromAsync = (_, _, _) => throw new NotSupportedException();
+            prevTarget.CanNavigateToAsync = (o, navigationContext, c) =>
+            {
+                ++prevTargetInvokeCount;
+                o.ShouldEqual(navigationContext.Target);
+                navigationContext.ShouldEqual(context);
+                return tcsPrevTarget.Task.AsValueTask();
+            };
+            target.CanNavigateFromAsync = (o, navigationContext, c) =>
+            {
+                ++targetInvokeCount;
+                if (includePrevTarget)
+                    o.ShouldEqual(prevTarget);
+                else
+                    o.ShouldBeNull();
+                navigationContext.ShouldEqual(context);
+                return tcsTarget.Task.AsValueTask();
+            };
+            target.CanNavigateToAsync = (_, _, _) => throw new NotSupportedException();
+
+            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
+            NavigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
+            {
+                TryGetNavigationEntries = (_, m) =>
+                {
+                    if (includePrevTarget)
+                        return prevEntry;
+                    return default;
+                }
+            });
+
+            var task = NavigationDispatcher.OnNavigatingAsync(context);
+            if (includeTarget)
+            {
+                task.IsCompleted.ShouldBeFalse();
+                targetInvokeCount.ShouldEqual(1);
+                prevTargetInvokeCount.ShouldEqual(0);
+                tcsTarget.SetResult(true);
+            }
+
+            if (includePrevTarget)
+            {
+                task.IsCompleted.ShouldBeFalse();
+                tcsPrevTarget.SetResult(true);
+                await task;
+                prevTargetInvokeCount.ShouldEqual(1);
+            }
+
+            await task;
+            task.IsCompleted.ShouldBeTrue();
+            task.Result.ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public async Task CanNavigateAsyncShouldInvokeCallbackNew(bool includeTarget, bool includePrevTarget)
+        {
+            var tcsPrevTarget = new TaskCompletionSource<bool>();
+            var tcsTarget = new TaskCompletionSource<bool>();
+            var prevTarget = new HasNavigationCondition(NavigationDispatcher);
+            var target = new HasNavigationCondition(NavigationDispatcher);
+            var context = new NavigationContext(includeTarget ? target : new object(), NavigationProvider.System, "-", NavigationType.Page, NavigationMode.New);
+            var targetInvokeCount = 0;
+            var prevTargetInvokeCount = 0;
+
+            prevTarget.CanNavigateFromAsync = (o, navigationContext, c) =>
+            {
+                ++prevTargetInvokeCount;
+                o.ShouldEqual(navigationContext.Target);
+                navigationContext.ShouldEqual(context);
+                return tcsPrevTarget.Task.AsValueTask();
+            };
+            prevTarget.CanNavigateToAsync = (_, _, _) => throw new NotSupportedException();
+            target.CanNavigateFromAsync = (_, _, _) => throw new NotSupportedException();
+            target.CanNavigateToAsync = (o, navigationContext, c) =>
+            {
+                ++targetInvokeCount;
+                if (includePrevTarget)
+                    o.ShouldEqual(prevTarget);
+                else
+                    o.ShouldBeNull();
+                navigationContext.ShouldEqual(context);
+                return tcsTarget.Task.AsValueTask();
+            };
+
+            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
+            NavigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
+            {
+                TryGetNavigationEntries = (_, m) =>
+                {
+                    if (includePrevTarget)
+                        return prevEntry;
+                    return default;
+                }
+            });
+
+            var task = NavigationDispatcher.OnNavigatingAsync(context);
+            if (includePrevTarget)
+            {
+                task.IsCompleted.ShouldBeFalse();
+                prevTargetInvokeCount.ShouldEqual(1);
+                targetInvokeCount.ShouldEqual(0);
+                tcsPrevTarget.SetResult(true);
+            }
+
+            if (includeTarget)
+            {
+                task.IsCompleted.ShouldBeFalse();
+                tcsTarget.SetResult(true);
+                await task;
+                targetInvokeCount.ShouldEqual(1);
+            }
+
+            await task;
+            task.IsCompleted.ShouldBeTrue();
+            task.Result.ShouldBeTrue();
+        }
+
         [Fact]
         public async Task NavigationConditionShouldInvokeCallback()
         {
@@ -217,142 +353,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         }
 
         protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public async Task CanNavigateAsyncShouldInvokeCallbackClose(bool includeTarget, bool includePrevTarget)
-        {
-            var tcsPrevTarget = new TaskCompletionSource<bool>();
-            var tcsTarget = new TaskCompletionSource<bool>();
-            var prevTarget = new HasNavigationCondition(NavigationDispatcher);
-            var target = new HasNavigationCondition(NavigationDispatcher);
-            var context = new NavigationContext(includeTarget ? target : new object(), NavigationProvider.System, "-", NavigationType.Page, NavigationMode.Close);
-            var targetInvokeCount = 0;
-            var prevTargetInvokeCount = 0;
-
-            prevTarget.CanNavigateFromAsync = (_, _, _) => throw new NotSupportedException();
-            prevTarget.CanNavigateToAsync = (o, navigationContext, c) =>
-            {
-                ++prevTargetInvokeCount;
-                o.ShouldEqual(navigationContext.Target);
-                navigationContext.ShouldEqual(context);
-                return tcsPrevTarget.Task.AsValueTask();
-            };
-            target.CanNavigateFromAsync = (o, navigationContext, c) =>
-            {
-                ++targetInvokeCount;
-                if (includePrevTarget)
-                    o.ShouldEqual(prevTarget);
-                else
-                    o.ShouldBeNull();
-                navigationContext.ShouldEqual(context);
-                return tcsTarget.Task.AsValueTask();
-            };
-            target.CanNavigateToAsync = (_, _, _) => throw new NotSupportedException();
-
-            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
-            NavigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
-            {
-                TryGetNavigationEntries = (_, m) =>
-                {
-                    if (includePrevTarget)
-                        return prevEntry;
-                    return default;
-                }
-            });
-
-            var task = NavigationDispatcher.OnNavigatingAsync(context);
-            if (includeTarget)
-            {
-                task.IsCompleted.ShouldBeFalse();
-                targetInvokeCount.ShouldEqual(1);
-                prevTargetInvokeCount.ShouldEqual(0);
-                tcsTarget.SetResult(true);
-            }
-
-            if (includePrevTarget)
-            {
-                task.IsCompleted.ShouldBeFalse();
-                tcsPrevTarget.SetResult(true);
-                await task;
-                prevTargetInvokeCount.ShouldEqual(1);
-            }
-
-            await task;
-            task.IsCompleted.ShouldBeTrue();
-            task.Result.ShouldBeTrue();
-        }
-
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public async Task CanNavigateAsyncShouldInvokeCallbackNew(bool includeTarget, bool includePrevTarget)
-        {
-            var tcsPrevTarget = new TaskCompletionSource<bool>();
-            var tcsTarget = new TaskCompletionSource<bool>();
-            var prevTarget = new HasNavigationCondition(NavigationDispatcher);
-            var target = new HasNavigationCondition(NavigationDispatcher);
-            var context = new NavigationContext(includeTarget ? target : new object(), NavigationProvider.System, "-", NavigationType.Page, NavigationMode.New);
-            var targetInvokeCount = 0;
-            var prevTargetInvokeCount = 0;
-
-            prevTarget.CanNavigateFromAsync = (o, navigationContext, c) =>
-            {
-                ++prevTargetInvokeCount;
-                o.ShouldEqual(navigationContext.Target);
-                navigationContext.ShouldEqual(context);
-                return tcsPrevTarget.Task.AsValueTask();
-            };
-            prevTarget.CanNavigateToAsync = (_, _, _) => throw new NotSupportedException();
-            target.CanNavigateFromAsync = (_, _, _) => throw new NotSupportedException();
-            target.CanNavigateToAsync = (o, navigationContext, c) =>
-            {
-                ++targetInvokeCount;
-                if (includePrevTarget)
-                    o.ShouldEqual(prevTarget);
-                else
-                    o.ShouldBeNull();
-                navigationContext.ShouldEqual(context);
-                return tcsTarget.Task.AsValueTask();
-            };
-
-            var prevEntry = new NavigationEntry(prevTarget, NavigationProvider.System, "-", NavigationType.Page);
-            NavigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
-            {
-                TryGetNavigationEntries = (_, m) =>
-                {
-                    if (includePrevTarget)
-                        return prevEntry;
-                    return default;
-                }
-            });
-
-            var task = NavigationDispatcher.OnNavigatingAsync(context);
-            if (includePrevTarget)
-            {
-                task.IsCompleted.ShouldBeFalse();
-                prevTargetInvokeCount.ShouldEqual(1);
-                targetInvokeCount.ShouldEqual(0);
-                tcsPrevTarget.SetResult(true);
-            }
-
-            if (includeTarget)
-            {
-                task.IsCompleted.ShouldBeFalse();
-                tcsTarget.SetResult(true);
-                await task;
-                targetInvokeCount.ShouldEqual(1);
-            }
-
-            await task;
-            task.IsCompleted.ShouldBeTrue();
-            task.Result.ShouldBeTrue();
-        }
 
         private sealed class HasCloseNavigationCondition : IHasCloseNavigationCondition
         {

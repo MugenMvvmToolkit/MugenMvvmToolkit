@@ -54,38 +54,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _component.Initialize(BindingManager, _context);
         }
 
-        [Fact]
-        public void ShouldUseParentDataContextForDataContextBind()
-        {
-            var sourceVisitCount = 0;
-            var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
-            {
-                MemberFlags = MemberFlags.Instance,
-                GetSource = (o, o1, arg3) => (this, MemberPath.Empty)
-            };
-            var source = new TestExpressionNode
-            {
-                VisitHandler = (visitor, metadataContext) =>
-                {
-                    ++sourceVisitCount;
-                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
-                    expressionVisitor.Flags.HasFlag(BindingMemberExpressionFlags.ParentDataContext);
-                    return null;
-                }
-            };
-            _context.Initialize(this, this, target, source, default, DefaultMetadata);
-            _component.Initialize(null!, _context);
-            sourceVisitCount.ShouldEqual(1);
-            _context.Components.ShouldBeEmpty();
-        }
-
-        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
-
-        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
-
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -379,5 +347,37 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 bindingComponent.CommandParameter.Expression.ShouldEqual(exp);
             }
         }
+
+        [Fact]
+        public void ShouldUseParentDataContextForDataContextBind()
+        {
+            var sourceVisitCount = 0;
+            var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
+            {
+                MemberFlags = MemberFlags.Instance,
+                GetSource = (o, o1, arg3) => (this, MemberPath.Empty)
+            };
+            var source = new TestExpressionNode
+            {
+                VisitHandler = (visitor, metadataContext) =>
+                {
+                    ++sourceVisitCount;
+                    metadataContext.ShouldEqual(_context.GetMetadataOrDefault());
+                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    expressionVisitor.Flags.HasFlag(BindingMemberExpressionFlags.ParentDataContext);
+                    return null;
+                }
+            };
+            _context.Initialize(this, this, target, source, default, DefaultMetadata);
+            _component.Initialize(null!, _context);
+            sourceVisitCount.ShouldEqual(1);
+            _context.Components.ShouldBeEmpty();
+        }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
+
+        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

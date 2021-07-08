@@ -1,6 +1,11 @@
 ﻿#if !ANDROID
 #define TRACE
 #endif
+#if ANDROID
+using Android.Util;
+#else
+using System.Diagnostics;
+#endif
 using System;
 using System.Text;
 using System.Threading;
@@ -30,13 +35,6 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
-#if ANDROID
-using Android.Util;
-
-#else
-using System.Diagnostics;
-
-#endif
 
 namespace MugenMvvm.Internal
 {
@@ -405,6 +403,13 @@ namespace MugenMvvm.Internal
             {
             }
 
+            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            {
+                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
+                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
+                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
+            }
+
             private static string Dump(IViewManager viewManager, object view)
             {
                 var views = viewManager.GetViews(view);
@@ -417,13 +422,6 @@ namespace MugenMvvm.Internal
                 foreach (var v in views)
                     stringBuilder.Append($"view_{count++}={v.Target}, viewmodel={v.ViewModel}; ");
                 return stringBuilder.ToString();
-            }
-
-            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-            {
-                Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
-                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-                Logger.Trace()?.Log($"{ViewTag}after ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
             }
         }
     }

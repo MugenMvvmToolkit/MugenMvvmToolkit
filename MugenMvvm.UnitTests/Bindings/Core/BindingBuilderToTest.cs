@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var param1 = "p1";
             var param2 = "p2";
             var builder = new BindingBuilderTo<string, object>(new BindingBuilderFrom<string, object>(from), to, default);
-            var request = (BindingExpressionRequest) builder;
+            var request = (BindingExpressionRequest)builder;
             request.Target.ShouldEqual(from);
             request.Source.ShouldEqual(to);
             request.Parameters.Count.ShouldEqual(0);
@@ -24,12 +24,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             request = builder.BindingParameter(param1, param1);
             request.Target.ShouldEqual(from);
             request.Source.ShouldEqual(to);
-            request.Parameters.ShouldEqual(new[] {new KeyValuePair<string?, object>(param1, param1)});
+            request.Parameters.ShouldEqual(new[] { new KeyValuePair<string?, object>(param1, param1) });
 
             request = builder.BindingParameter(param2, param2);
             request.Target.ShouldEqual(from);
             request.Source.ShouldEqual(to);
-            request.Parameters.ShouldEqual(new[] {new KeyValuePair<string?, object>(param1, param1), new KeyValuePair<string?, object>(param2, param2)});
+            request.Parameters.ShouldEqual(new[] { new KeyValuePair<string?, object>(param1, param1), new KeyValuePair<string?, object>(param2, param2) });
         }
     }
 }

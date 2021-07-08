@@ -79,7 +79,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             if (memberInfo == null)
                 return this;
             return ObservableHandler(memberInfo.TryObserve,
-                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
+                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : null);
         }
 
         public MethodBuilder<TTarget, TReturn> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve,
@@ -157,7 +157,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                 return member.State._invoke!(member, target, args, metadata);
             }, _getParameters, (member, target, listener, metadata) =>
             {
-                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo) member, member.State._attachedHandler, metadata);
+                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo)member, member.State._attachedHandler, metadata);
                 if (member.State.id == null)
                     return member.State._tryObserve!(member, target, listener, metadata);
                 return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);

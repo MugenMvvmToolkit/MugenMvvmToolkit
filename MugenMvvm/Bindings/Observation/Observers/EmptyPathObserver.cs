@@ -11,6 +11,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
         private static readonly object Disposed = new();
         internal static readonly EmptyPathObserver Empty = new(Disposed);
 
+
         private object? _target;
 
         public EmptyPathObserver(object target)

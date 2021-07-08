@@ -33,15 +33,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
             _flags = memberFlags.Value();
         }
 
-        protected internal interface IMethodPathObserver : IMemberPathObserver
-        {
-            EnumFlags<MemberFlags> MemberFlags { get; }
-
-            string Method { get; }
-
-            IEventListener GetMethodListener();
-        }
-
         public abstract IMemberPath Path { get; }
 
         public EnumFlags<MemberFlags> MemberFlags
@@ -107,13 +98,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _listeners == DisposedItems;
-        }
-
-        private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
-        {
-            if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
-                return metadataOwner.Metadata;
-            return null;
         }
 
         public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
@@ -246,9 +230,25 @@ namespace MugenMvvm.Bindings.Observation.Observers
         protected bool CheckFlag(byte flag) => (_state & flag) == flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetFlag(byte flag) => _state = (byte) (_state | flag);
+        protected void SetFlag(byte flag) => _state = (byte)(_state | flag);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ClearFlag(byte flag) => _state = (byte) (_state & ~flag);
+        protected void ClearFlag(byte flag) => _state = (byte)(_state & ~flag);
+
+        private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
+        {
+            if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
+                return metadataOwner.Metadata;
+            return null;
+        }
+
+        protected internal interface IMethodPathObserver : IMemberPathObserver
+        {
+            EnumFlags<MemberFlags> MemberFlags { get; }
+
+            string Method { get; }
+
+            IEventListener GetMethodListener();
+        }
     }
 }

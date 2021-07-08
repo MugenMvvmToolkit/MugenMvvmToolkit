@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Enums
             var testEnum = new TestEnum(1, value.ToUpper());
             TestEnum.SetEnums(new Dictionary<int, TestEnum>
             {
-                {testEnum.Value, testEnum}
+                { testEnum.Value, testEnum }
             });
 
             TestEnum.TryGetByName(value.ToLower(), out var result, true).ShouldBeTrue();
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Enums
             ShouldThrow<ArgumentException>(() => TestEnum.GetByName(value.ToLower()));
             ShouldThrow<ArgumentException>(() =>
             {
-                var lower = (TestEnum) value.ToLower()!;
+                var lower = (TestEnum)value.ToLower()!;
             });
         }
 
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Enums
             ShouldThrow<ArgumentException>(() => TestEnum.Get(v1));
             ShouldThrow<ArgumentException>(() =>
             {
-                var @enum = (TestEnum) v1;
+                var @enum = (TestEnum)v1;
             });
             TestEnum.TryGet(v1, out var r).ShouldBeFalse();
             EnumBase.TryGet<TestEnum, int>(v1).ShouldBeNull();
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Enums
             EnumBase.TryGet<TestEnum, int>(v1).ShouldEqual(testEnum);
             EnumBase.TryGet(typeof(TestEnum), v1).ShouldEqual(testEnum);
             TestEnum.Get(v1).ShouldEqual(testEnum);
-            ((TestEnum) v1!).ShouldEqual(testEnum);
+            ((TestEnum)v1!).ShouldEqual(testEnum);
             TestEnum.TryGet(v1, out r).ShouldBeTrue();
             r.ShouldEqual(testEnum);
 
@@ -129,7 +129,7 @@ namespace MugenMvvm.UnitTests.Enums
             EnumBase.TryGet<TestEnum, int>(v2).ShouldEqual(testEnum2);
             EnumBase.TryGet(typeof(TestEnum), v2).ShouldEqual(testEnum2);
             TestEnum.Get(v3).ShouldEqual(testEnum2);
-            ((TestEnum) v3).ShouldEqual(testEnum2);
+            ((TestEnum)v3).ShouldEqual(testEnum2);
             TestEnum.TryGet(v3, out r).ShouldBeTrue();
             r.ShouldEqual(testEnum2);
         }

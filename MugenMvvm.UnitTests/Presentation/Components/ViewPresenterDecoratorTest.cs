@@ -13,7 +13,6 @@ using MugenMvvm.Tests.Navigation;
 using MugenMvvm.Tests.Presentation;
 using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Tests.Views;
-using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
 using Should;
@@ -67,6 +66,65 @@ namespace MugenMvvm.UnitTests.Presentation.Components
             closedVms.Count.ShouldEqual(2);
             closedVms.Contains(v1.ViewModel).ShouldBeTrue();
             closedVms.Contains(v2.ViewModel).ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldCreateViewModelForViewBasedOnMapping(bool disposeViewModel)
+        {
+            var disposeCount = 0;
+            var view = new object();
+            var viewModel = new TestViewModel { Dispose = () => ++disposeCount };
+            var mapping = new ViewMapping("d", typeof(TestViewModel), typeof(object));
+            var presenterResult = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Alert);
+            var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
+            var request = view;
+
+            ViewManager.AddComponent(new TestViewMappingProviderComponent
+            {
+                TryGetMappings = (_, o, arg4) =>
+                {
+                    o.ShouldEqual(request);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return mapping;
+                }
+            });
+            ViewModelManager.AddComponent(new TestViewModelProviderComponent
+            {
+                TryGetViewModel = (_, o, arg4) =>
+                {
+                    o.ShouldEqual(mapping.ViewModelType);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return viewModel;
+                }
+            });
+            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+            {
+                TryGetNavigationCallbacks = (_, o, arg4) =>
+                {
+                    o.ShouldEqual(presenterResult);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return callback;
+                }
+            });
+
+            _viewPresenterDecorator.DisposeViewModelOnClose = disposeViewModel;
+            Presenter.AddComponent(new TestPresenterComponent
+            {
+                TryShow = (_, o, arg4, arg5) =>
+                {
+                    var viewRequest = (ViewModelViewRequest)o;
+                    viewRequest.ViewModel.ShouldEqual(viewModel);
+                    viewRequest.View.ShouldEqual(view);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return presenterResult;
+                }
+            });
+            Presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
+            disposeCount.ShouldEqual(0);
+            callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
+            disposeCount.ShouldEqual(disposeViewModel ? 1 : 0);
         }
 
         [Fact]
@@ -147,73 +205,6 @@ namespace MugenMvvm.UnitTests.Presentation.Components
             Presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
         }
 
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
-
-        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
-
-        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
-
-        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ShouldCreateViewModelForViewBasedOnMapping(bool disposeViewModel)
-        {
-            var disposeCount = 0;
-            var view = new object();
-            var viewModel = new TestViewModel { Dispose = () => ++disposeCount };
-            var mapping = new ViewMapping("d", typeof(TestViewModel), typeof(object));
-            var presenterResult = new PresenterResult(viewModel, "t", NavigationProvider.System, NavigationType.Alert);
-            var callback = new NavigationCallback(NavigationCallbackType.Close, "id", NavigationType.Alert);
-            var request = view;
-
-            ViewManager.AddComponent(new TestViewMappingProviderComponent
-            {
-                TryGetMappings = (_, o, arg4) =>
-                {
-                    o.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return mapping;
-                }
-            });
-            ViewModelManager.AddComponent(new TestViewModelProviderComponent
-            {
-                TryGetViewModel = (_, o, arg4) =>
-                {
-                    o.ShouldEqual(mapping.ViewModelType);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return viewModel;
-                }
-            });
-            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
-            {
-                TryGetNavigationCallbacks = (_, o, arg4) =>
-                {
-                    o.ShouldEqual(presenterResult);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return callback;
-                }
-            });
-
-            _viewPresenterDecorator.DisposeViewModelOnClose = disposeViewModel;
-            Presenter.AddComponent(new TestPresenterComponent
-            {
-                TryShow = (_, o, arg4, arg5) =>
-                {
-                    var viewRequest = (ViewModelViewRequest)o;
-                    viewRequest.ViewModel.ShouldEqual(viewModel);
-                    viewRequest.View.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return presenterResult;
-                }
-            });
-            Presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
-            disposeCount.ShouldEqual(0);
-            callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
-            disposeCount.ShouldEqual(disposeViewModel ? 1 : 0);
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -264,5 +255,13 @@ namespace MugenMvvm.UnitTests.Presentation.Components
             callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(0);
         }
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
+
+        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
     }
 }

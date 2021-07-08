@@ -176,12 +176,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
         }
 
-        protected new IMetadataContext DefaultMetadata { get; set; }
-
-        public object? Test { get; set; }
-
-        public string? StringProperty { get; set; }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -211,6 +205,97 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
 
             ExpressionParser.TryParse(request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1, 0)]
+        [InlineData(1, 1)]
+        [InlineData(1, 5)]
+        [InlineData(5, 0)]
+        [InlineData(5, 1)]
+        [InlineData(5, 5)]
+        public void ParseShouldConvertExpression1(int count, int parameterCount)
+        {
+            var expectedResult = new ConditionExpressionNode(
+                new BinaryExpressionNode(BinaryTokenType.Equality,
+                    new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(StringProperty)), "IndexOf",
+                        new IExpressionNode[] { ConstantExpressionNode.Get("1", typeof(string)) }, new string[0]),
+                    ConstantExpressionNode.Get(0, typeof(int))),
+                new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
+                    new IExpressionNode[]
+                        { ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1, typeof(int)), ConstantExpressionNode.Get(2, typeof(int)) },
+                    new string[0]),
+                new ConditionExpressionNode(
+                    new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual,
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
+                        ConstantExpressionNode.Get(10, typeof(int))), ConstantExpressionNode.Get("test", typeof(string)),
+                    new BinaryExpressionNode(BinaryTokenType.NullCoalescing,
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get("v", typeof(string)), "ToString", new IExpressionNode[0], new string[0]),
+                        ConstantExpressionNode.Get("value", typeof(string)))));
+
+            // ReSharper disable once RedundantToStringCall
+            ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(Test), o => o.Test,
+                test => test.StringProperty!.IndexOf("1") == 0 ? string.Format("{0} - {1}", 1, 2) : 2.GetHashCode() >= 10 ? "test" : "v".ToString() ?? "value", expectedResult,
+                count, parameterCount);
+        }
+
+        [Theory]
+        [InlineData(1, 0)]
+        [InlineData(1, 1)]
+        [InlineData(1, 5)]
+        [InlineData(5, 0)]
+        [InlineData(5, 1)]
+        [InlineData(5, 5)]
+        public void ParseShouldConvertExpression2(int count, int parameterCount)
+        {
+            var expectedResult = new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual,
+                new BinaryExpressionNode(BinaryTokenType.Addition,
+                    new BinaryExpressionNode(BinaryTokenType.Multiplication,
+                        new BinaryExpressionNode(BinaryTokenType.Subtraction,
+                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
+                            new BinaryExpressionNode(BinaryTokenType.Division,
+                                new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
+                                new MethodCallExpressionNode(ConstantExpressionNode.Get(3, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]))),
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0])),
+                    new BinaryExpressionNode(BinaryTokenType.Subtraction,
+                        new BinaryExpressionNode(BinaryTokenType.Multiplication,
+                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1000, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
+                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0])),
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]))),
+                new MethodCallExpressionNode(ConstantExpressionNode.Get(100, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]));
+            ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(StringProperty), test => test.StringProperty,
+                test => (1.GetHashCode() - 2.GetHashCode() / 3.GetHashCode()) * 1.GetHashCode() + (1000.GetHashCode() * 1.GetHashCode() - 1.GetHashCode()) >= 100.GetHashCode(),
+                expectedResult, count, parameterCount);
+        }
+
+        [Theory]
+        [InlineData(1, 0)]
+        [InlineData(1, 1)]
+        [InlineData(1, 5)]
+        [InlineData(5, 0)]
+        [InlineData(5, 1)]
+        [InlineData(5, 5)]
+        public void ParseShouldConvertExpression3(int count, int parameterCount)
+        {
+            var expectedResult = new MethodCallExpressionNode(
+                new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(Test)), "Where",
+                    new IExpressionNode[]
+                    {
+                        new LambdaExpressionNode(
+                            new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
+                            new IParameterExpressionNode[] { new ParameterExpressionNode("x") })
+                    }, new[] { typeof(string).AssemblyQualifiedName! }), "Aggregate",
+                new IExpressionNode[]
+                {
+                    new MemberExpressionNode(null, nameof(StringProperty)),
+                    new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
+                        new IParameterExpressionNode[] { new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2") }),
+                    new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"),
+                        new IParameterExpressionNode[] { new ParameterExpressionNode("s1") })
+                }, new[] { typeof(string).AssemblyQualifiedName!, typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName! });
+            ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(Test), test => test.Test,
+                test => ((string[])test.Test!).Where(x => x == "test").Aggregate(test.StringProperty, (s1, s2) => s1 + s2, s1 => s1!.Length), expectedResult, count,
+                parameterCount);
         }
 
         [Theory]
@@ -415,96 +500,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             ValidateExpression(source, expectedResult, count, parameterCount);
         }
 
-        [Theory]
-        [InlineData(1, 0)]
-        [InlineData(1, 1)]
-        [InlineData(1, 5)]
-        [InlineData(5, 0)]
-        [InlineData(5, 1)]
-        [InlineData(5, 5)]
-        public void ParseShouldConvertExpression1(int count, int parameterCount)
-        {
-            var expectedResult = new ConditionExpressionNode(
-                new BinaryExpressionNode(BinaryTokenType.Equality,
-                    new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(StringProperty)), "IndexOf",
-                        new IExpressionNode[] { ConstantExpressionNode.Get("1", typeof(string)) }, new string[0]),
-                    ConstantExpressionNode.Get(0, typeof(int))),
-                new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
-                    new IExpressionNode[]
-                        { ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1, typeof(int)), ConstantExpressionNode.Get(2, typeof(int)) },
-                    new string[0]),
-                new ConditionExpressionNode(
-                    new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual,
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
-                        ConstantExpressionNode.Get(10, typeof(int))), ConstantExpressionNode.Get("test", typeof(string)),
-                    new BinaryExpressionNode(BinaryTokenType.NullCoalescing,
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get("v", typeof(string)), "ToString", new IExpressionNode[0], new string[0]),
-                        ConstantExpressionNode.Get("value", typeof(string)))));
+        protected new IMetadataContext DefaultMetadata { get; set; }
 
-            // ReSharper disable once RedundantToStringCall
-            ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(Test), o => o.Test,
-                test => test.StringProperty!.IndexOf("1") == 0 ? string.Format("{0} - {1}", 1, 2) : 2.GetHashCode() >= 10 ? "test" : "v".ToString() ?? "value", expectedResult,
-                count, parameterCount);
-        }
+        public object? Test { get; set; }
 
-        [Theory]
-        [InlineData(1, 0)]
-        [InlineData(1, 1)]
-        [InlineData(1, 5)]
-        [InlineData(5, 0)]
-        [InlineData(5, 1)]
-        [InlineData(5, 5)]
-        public void ParseShouldConvertExpression2(int count, int parameterCount)
-        {
-            var expectedResult = new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual,
-                new BinaryExpressionNode(BinaryTokenType.Addition,
-                    new BinaryExpressionNode(BinaryTokenType.Multiplication,
-                        new BinaryExpressionNode(BinaryTokenType.Subtraction,
-                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
-                            new BinaryExpressionNode(BinaryTokenType.Division,
-                                new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
-                                new MethodCallExpressionNode(ConstantExpressionNode.Get(3, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]))),
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0])),
-                    new BinaryExpressionNode(BinaryTokenType.Subtraction,
-                        new BinaryExpressionNode(BinaryTokenType.Multiplication,
-                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1000, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
-                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0])),
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]))),
-                new MethodCallExpressionNode(ConstantExpressionNode.Get(100, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]));
-            ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(StringProperty), test => test.StringProperty,
-                test => (1.GetHashCode() - 2.GetHashCode() / 3.GetHashCode()) * 1.GetHashCode() + (1000.GetHashCode() * 1.GetHashCode() - 1.GetHashCode()) >= 100.GetHashCode(),
-                expectedResult, count, parameterCount);
-        }
-
-        [Theory]
-        [InlineData(1, 0)]
-        [InlineData(1, 1)]
-        [InlineData(1, 5)]
-        [InlineData(5, 0)]
-        [InlineData(5, 1)]
-        [InlineData(5, 5)]
-        public void ParseShouldConvertExpression3(int count, int parameterCount)
-        {
-            var expectedResult = new MethodCallExpressionNode(
-                new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(Test)), "Where",
-                    new IExpressionNode[]
-                    {
-                        new LambdaExpressionNode(
-                            new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
-                            new IParameterExpressionNode[] { new ParameterExpressionNode("x") })
-                    }, new[] { typeof(string).AssemblyQualifiedName! }), "Aggregate",
-                new IExpressionNode[]
-                {
-                    new MemberExpressionNode(null, nameof(StringProperty)),
-                    new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
-                        new IParameterExpressionNode[] { new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2") }),
-                    new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"),
-                        new IParameterExpressionNode[] { new ParameterExpressionNode("s1") })
-                }, new[] { typeof(string).AssemblyQualifiedName!, typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName! });
-            ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(Test), test => test.Test,
-                test => ((string[])test.Test!).Where(x => x == "test").Aggregate(test.StringProperty, (s1, s2) => s1 + s2, s1 => s1!.Length), expectedResult, count,
-                parameterCount);
-        }
+        public string? StringProperty { get; set; }
 
         protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
 
@@ -523,7 +523,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             }
 
             var parser = GetParser();
-            var list = (requests.Count == 1 ? parser.TryParse(requests[0], DefaultMetadata) : parser.TryParse(requests, DefaultMetadata));
+            var list = requests.Count == 1 ? parser.TryParse(requests[0], DefaultMetadata) : parser.TryParse(requests, DefaultMetadata);
             list.Count.ShouldEqual(count);
             for (var i = 0; i < count; i++)
             {

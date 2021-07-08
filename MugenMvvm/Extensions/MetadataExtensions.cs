@@ -34,7 +34,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(context), context);
-            return (IMetadataContext) metadata!;
+            return (IMetadataContext)metadata!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

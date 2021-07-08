@@ -153,14 +153,14 @@ namespace MugenMvvm.Extensions
 
         public static TDelegate GetActivator<TDelegate>(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate =>
-            (TDelegate) reflectionManager.DefaultIfNull().GetActivator(constructor, typeof(TDelegate));
+            (TDelegate)reflectionManager.DefaultIfNull().GetActivator(constructor, typeof(TDelegate));
 
         public static Delegate GetActivator(this ConstructorInfo constructor, Type delegateType, IReflectionManager? reflectionManager = null) =>
             reflectionManager.DefaultIfNull().GetActivator(constructor, delegateType);
 
         public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate =>
-            (TDelegate) reflectionManager.DefaultIfNull().GetMethodInvoker(method, typeof(TDelegate));
+            (TDelegate)reflectionManager.DefaultIfNull().GetMethodInvoker(method, typeof(TDelegate));
 
         public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionManager? reflectionManager = null) =>
             reflectionManager.DefaultIfNull().GetMethodInvoker(method, delegateType);
@@ -169,16 +169,16 @@ namespace MugenMvvm.Extensions
             reflectionManager.DefaultIfNull().GetMethodInvoker(method);
 
         public static TDelegate GetMemberGetter<TDelegate>(this MemberInfo member, IReflectionManager? reflectionManager = null) where TDelegate : Delegate =>
-            (TDelegate) reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));
+            (TDelegate)reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));
 
         public static TDelegate GetMemberSetter<TDelegate>(this MemberInfo member, IReflectionManager? reflectionManager = null) where TDelegate : Delegate =>
-            (TDelegate) reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(TDelegate));
+            (TDelegate)reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(TDelegate));
 
         public static Func<TTarget, TType> GetMemberGetter<TTarget, TType>(this MemberInfo member, IReflectionManager? reflectionManager = null) =>
-            (Func<TTarget, TType>) reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(Func<TTarget, TType>));
+            (Func<TTarget, TType>)reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(Func<TTarget, TType>));
 
         public static Action<TTarget, TType> GetMemberSetter<TTarget, TType>(this MemberInfo member, IReflectionManager? reflectionManager = null) =>
-            (Action<TTarget, TType>) reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(Action<TTarget, TType>));
+            (Action<TTarget, TType>)reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(Action<TTarget, TType>));
 
         internal static Type GetCollectionItemType(object owner)
         {

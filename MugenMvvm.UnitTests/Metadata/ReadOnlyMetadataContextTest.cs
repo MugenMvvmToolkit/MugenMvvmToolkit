@@ -9,20 +9,6 @@ namespace MugenMvvm.UnitTests.Metadata
 {
     public class ReadOnlyMetadataContextTest : ReadOnlyMetadataContextTestBase
     {
-        [Fact]
-        public void TryGetShouldUseCustomGetter()
-        {
-            var context = new ReadOnlyMetadataContext(new[] {CustomGetterKey.ToValue(DefaultGetterValue)});
-            TryGetGetterTest(context);
-        }
-
-        [Fact]
-        public void TryGetShouldUseDefaultValues()
-        {
-            var context = new ReadOnlyMetadataContext(Array.Empty<KeyValuePair<IMetadataContextKey, object?>>());
-            TryGetDefaultTest(context);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -43,6 +29,20 @@ namespace MugenMvvm.UnitTests.Metadata
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
                 TryGetTest(context, valueTuple.Item1, valueTuple.Item2);
+        }
+
+        [Fact]
+        public void TryGetShouldUseCustomGetter()
+        {
+            var context = new ReadOnlyMetadataContext(new[] { CustomGetterKey.ToValue(DefaultGetterValue) });
+            TryGetGetterTest(context);
+        }
+
+        [Fact]
+        public void TryGetShouldUseDefaultValues()
+        {
+            var context = new ReadOnlyMetadataContext(Array.Empty<KeyValuePair<IMetadataContextKey, object?>>());
+            TryGetDefaultTest(context);
         }
     }
 }

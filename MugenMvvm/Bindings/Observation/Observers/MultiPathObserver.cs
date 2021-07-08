@@ -72,7 +72,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
             public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
-                var observer = (MultiPathObserver?) _observer.Target;
+                var observer = (MultiPathObserver?)_observer.Target;
                 if (observer == null)
                     return false;
                 observer.OnLastMemberChanged();

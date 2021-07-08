@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
             {
-                TryGetService = (_,_, _, _) => Messenger
+                TryGetService = (_, _, _, _) => Messenger
             });
 
             _vm.Messenger.ShouldEqual(Messenger);

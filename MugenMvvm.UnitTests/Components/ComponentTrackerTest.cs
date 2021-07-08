@@ -26,6 +26,38 @@ namespace MugenMvvm.UnitTests.Components
         [InlineData(1, 10)]
         [InlineData(10, 1)]
         [InlineData(10, 10)]
+        public void AddShouldUpdateComponents(int listenersCount, int componentCount)
+        {
+            _componentTracker.Attach(_componentCollection, DefaultMetadata);
+            var executed = 0;
+            var expectedCount = 0;
+
+            for (var i = 0; i < listenersCount; i++)
+            {
+                _componentTracker.AddListener<IComponent, ComponentTrackerTest>((components, s, arg3) =>
+                {
+                    ++executed;
+                    s.ShouldEqual(this);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    components.Count.ShouldEqual(expectedCount);
+                    _componentCollection.Get<IComponent>().ShouldEqual(components);
+                }, this);
+            }
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                ++expectedCount;
+                executed = 0;
+                _componentCollection.TryAdd(new TestAttachableComponent<object>(), DefaultMetadata);
+                executed.ShouldEqual(listenersCount);
+            }
+        }
+
+        [Theory]
+        [InlineData(1, 1)]
+        [InlineData(1, 10)]
+        [InlineData(10, 1)]
+        [InlineData(10, 10)]
         public void AttachDetachShouldUpdateComponents(int listenersCount, int componentCount)
         {
             var executed = 0;
@@ -53,38 +85,6 @@ namespace MugenMvvm.UnitTests.Components
             expectedComponents = Array.Empty<IComponent>();
             _componentTracker.Detach(_componentCollection, DefaultMetadata);
             executed.ShouldEqual(listenersCount);
-        }
-
-        [Theory]
-        [InlineData(1, 1)]
-        [InlineData(1, 10)]
-        [InlineData(10, 1)]
-        [InlineData(10, 10)]
-        public void AddShouldUpdateComponents(int listenersCount, int componentCount)
-        {
-            _componentTracker.Attach(_componentCollection, DefaultMetadata);
-            var executed = 0;
-            var expectedCount = 0;
-
-            for (var i = 0; i < listenersCount; i++)
-            {
-                _componentTracker.AddListener<IComponent, ComponentTrackerTest>((components, s, arg3) =>
-                {
-                    ++executed;
-                    s.ShouldEqual(this);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    components.Count.ShouldEqual(expectedCount);
-                    _componentCollection.Get<IComponent>().ShouldEqual(components);
-                }, this);
-            }
-
-            for (var i = 0; i < componentCount; i++)
-            {
-                ++expectedCount;
-                executed = 0;
-                _componentCollection.TryAdd(new TestAttachableComponent<object>(), DefaultMetadata);
-                executed.ShouldEqual(listenersCount);
-            }
         }
 
         [Theory]

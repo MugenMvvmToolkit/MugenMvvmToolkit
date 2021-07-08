@@ -21,6 +21,41 @@ namespace MugenMvvm.UnitTests.Commands.Components
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(5)]
+        public void ShouldListenPropertyChangedEvent(int listenersCount)
+        {
+            var commandNotifier = new PropertyChangedCommandObserver();
+            Command.AddComponent(commandNotifier);
+
+            var models = new List<TestNotifyPropertyChangedModel>();
+            var tokens = new List<ActionToken>();
+            for (var i = 0; i < listenersCount; i++)
+            {
+                var notifier = new TestNotifyPropertyChangedModel();
+                models.Add(notifier);
+                var token = commandNotifier.Add(notifier);
+                token.IsEmpty.ShouldBeFalse();
+                tokens.Add(token);
+            }
+
+            var executed = 0;
+            EventHandler handler = (_, _) => ++executed;
+            Command.CanExecuteChanged += handler;
+
+            executed.ShouldEqual(0);
+            foreach (var model in models)
+                model.OnPropertyChanged("Test");
+            executed.ShouldEqual(listenersCount);
+
+            foreach (var token in tokens)
+                token.Dispose();
+            foreach (var model in models)
+                model.OnPropertyChanged("Test");
+            executed.ShouldEqual(listenersCount);
+        }
+
         [Fact]
         public void ShouldListenPropertyChangedEventCanNotify()
         {
@@ -58,41 +93,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
             GcCollect();
             propertyChangedModel.OnPropertyChanged("test");
             reference.IsAlive.ShouldBeFalse();
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(5)]
-        public void ShouldListenPropertyChangedEvent(int listenersCount)
-        {
-            var commandNotifier = new PropertyChangedCommandObserver();
-            Command.AddComponent(commandNotifier);
-
-            var models = new List<TestNotifyPropertyChangedModel>();
-            var tokens = new List<ActionToken>();
-            for (var i = 0; i < listenersCount; i++)
-            {
-                var notifier = new TestNotifyPropertyChangedModel();
-                models.Add(notifier);
-                var token = commandNotifier.Add(notifier);
-                token.IsEmpty.ShouldBeFalse();
-                tokens.Add(token);
-            }
-
-            var executed = 0;
-            EventHandler handler = (_, _) => ++executed;
-            Command.CanExecuteChanged += handler;
-
-            executed.ShouldEqual(0);
-            foreach (var model in models)
-                model.OnPropertyChanged("Test");
-            executed.ShouldEqual(listenersCount);
-
-            foreach (var token in tokens)
-                token.Dispose();
-            foreach (var model in models)
-                model.OnPropertyChanged("Test");
-            executed.ShouldEqual(listenersCount);
         }
 
         private WeakReference ShouldListenPropertyChangedWeakImpl(TestNotifyPropertyChangedModel propertyChangedModel)

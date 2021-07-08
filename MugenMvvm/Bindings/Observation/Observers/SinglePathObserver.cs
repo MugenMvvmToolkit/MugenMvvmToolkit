@@ -149,7 +149,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         private void SetLastMember(IMemberInfo? lastMember, Exception? exception)
         {
-            _lastMemberOrException = (object?) exception ?? lastMember;
+            _lastMemberOrException = (object?)exception ?? lastMember;
             if (exception == null)
                 SetFlag(InitializedFlag);
             OnLastMemberChanged();

@@ -75,7 +75,7 @@ namespace MugenMvvm.Validation
 
                 if (_validator is Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator)
                     return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(ToError(target, validator(target, _memberAccessor(target), _state, metadata)));
-                return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>) _validator)
+                return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>)_validator)
                        .Invoke(target, _memberAccessor(target), _state, cancellationToken, metadata)
                        .ContinueWith(_converterDelegate!, target, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current)
                        .AsValueTask();

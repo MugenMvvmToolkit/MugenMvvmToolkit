@@ -18,11 +18,11 @@ namespace MugenMvvm.Serialization.Components
         {
             if (format.IsSerialization)
             {
-                return serializer.Components.Get<ISerializerComponent<TRequest, TResult>>(metadata)!.IsSupported(serializer, (ISerializationFormat<TRequest, TResult>) format,
+                return serializer.Components.Get<ISerializerComponent<TRequest, TResult>>(metadata)!.IsSupported(serializer, (ISerializationFormat<TRequest, TResult>)format,
                     request, metadata);
             }
 
-            return serializer.Components.Get<IDeserializerComponent<TRequest, TResult>>(metadata)!.IsSupported(serializer, (IDeserializationFormat<TRequest, TResult>) format,
+            return serializer.Components.Get<IDeserializerComponent<TRequest, TResult>>(metadata)!.IsSupported(serializer, (IDeserializationFormat<TRequest, TResult>)format,
                 request, metadata);
         }
 

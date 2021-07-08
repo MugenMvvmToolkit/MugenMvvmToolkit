@@ -27,9 +27,9 @@ namespace MugenMvvm.Serialization
             Func<TSurrogate?, ISerializationContext, TFrom?> getDeserializedObject)
             => new(getObjectToSerialize, getDeserializedObject);
 
-        public object? GetObjectToSerialize(object? instance, ISerializationContext serializationContext) => _getObjectToSerialize((TFrom?) instance, serializationContext);
+        public object? GetObjectToSerialize(object? instance, ISerializationContext serializationContext) => _getObjectToSerialize((TFrom?)instance, serializationContext);
 
         public object? GetDeserializedObject(object? surrogate, ISerializationContext serializationContext) =>
-            _getDeserializedObject((TSurrogate?) surrogate, serializationContext);
+            _getDeserializedObject((TSurrogate?)surrogate, serializationContext);
     }
 }

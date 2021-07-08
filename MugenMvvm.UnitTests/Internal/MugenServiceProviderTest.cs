@@ -23,17 +23,17 @@ namespace MugenMvvm.UnitTests.Internal
         public void ShouldCreateClassNoParameters() => _serviceProvider.GetService(typeof(TestClassNoParameters)).ShouldBeType<TestClassNoParameters>();
 
         [Fact]
-        public void ShouldCreateClassWithViewModelManager()
+        public void ShouldCreateClassWithMetadata()
         {
-            var manager = (TestClassViewModelManager) _serviceProvider.GetService(typeof(TestClassViewModelManager))!;
-            manager.ViewModelManager.ShouldEqual(_viewModelManager);
+            var manager = (TestClassMetadata)_serviceProvider.GetService(typeof(TestClassMetadata), DefaultMetadata)!;
+            manager.Metadata.ShouldEqual(DefaultMetadata);
         }
 
         [Fact]
-        public void ShouldCreateClassWithMetadata()
+        public void ShouldCreateClassWithViewModelManager()
         {
-            var manager = (TestClassMetadata) _serviceProvider.GetService(typeof(TestClassMetadata), DefaultMetadata)!;
-            manager.Metadata.ShouldEqual(DefaultMetadata);
+            var manager = (TestClassViewModelManager)_serviceProvider.GetService(typeof(TestClassViewModelManager))!;
+            manager.ViewModelManager.ShouldEqual(_viewModelManager);
         }
 
         [Fact]

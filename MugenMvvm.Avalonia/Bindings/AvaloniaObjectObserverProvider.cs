@@ -31,13 +31,6 @@ namespace MugenMvvm.Avalonia.Bindings
 
         public int Priority { get; init; } = ObservationComponentPriority.PropertyChangedObserverProvider;
 
-        private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
-        {
-            var listener = new MemberListenerCollection();
-            ((IAvaloniaObject) item).PropertyChanged += listener.RaisePropertyChanged;
-            return listener;
-        }
-
         public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             if (member is PropertyInfo p && !p.IsStatic())
@@ -47,13 +40,20 @@ namespace MugenMvvm.Avalonia.Bindings
             return default;
         }
 
+        private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
+        {
+            var listener = new MemberListenerCollection();
+            ((IAvaloniaObject)item).PropertyChanged += listener.RaisePropertyChanged;
+            return listener;
+        }
+
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return default;
             return target.AttachedValues(metadata, _attachedValueManager)
                          .GetOrAdd(BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                         .Add(listener, (string) member);
+                         .Add(listener, (string)member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)

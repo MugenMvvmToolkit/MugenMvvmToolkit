@@ -27,7 +27,8 @@ namespace MugenMvvm.Bindings.Parsing.Components
             _context = new ExpressionConverterContext<Expression>();
             _parserContext = new StringTokenParserContext();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
+            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>(
+                (components, state, _) => state.Converters = components, _context);
             _componentTracker.AddListener<ITokenParserComponent, StringTokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 

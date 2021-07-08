@@ -48,27 +48,6 @@ namespace MugenMvvm.Avalonia.Extensions
             return configuration;
         }
 
-        private static void OnActiveChanged(WindowBase owner, AvaloniaPropertyChangedEventArgs args)
-        {
-            var newValue = (bool?)args.NewValue;
-            if (newValue.GetValueOrDefault())
-            {
-                if (Interlocked.Increment(ref _activeWindowCount) == 1)
-                {
-                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activating, args);
-                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, args);
-                }
-            }
-            else
-            {
-                if (Interlocked.Decrement(ref _activeWindowCount) == 0)
-                {
-                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, args);
-                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, args);
-                }
-            }
-        }
-
         public static MugenApplicationConfiguration AvaloniaBindingConfiguration(this MugenApplicationConfiguration configuration)
         {
             configuration.ServiceConfiguration<IObservationManager>()
@@ -127,5 +106,26 @@ namespace MugenMvvm.Avalonia.Extensions
         [Preserve(Conditional = true)]
         public static void RaisePropertyChanged(this MemberListenerCollection collection, object? sender, AvaloniaPropertyChangedEventArgs args) =>
             collection.Raise(sender, args, args.Property.Name, null);
+
+        private static void OnActiveChanged(WindowBase owner, AvaloniaPropertyChangedEventArgs args)
+        {
+            var newValue = (bool?)args.NewValue;
+            if (newValue.GetValueOrDefault())
+            {
+                if (Interlocked.Increment(ref _activeWindowCount) == 1)
+                {
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activating, args);
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, args);
+                }
+            }
+            else
+            {
+                if (Interlocked.Decrement(ref _activeWindowCount) == 0)
+                {
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, args);
+                    MugenService.Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, args);
+                }
+            }
+        }
     }
 }

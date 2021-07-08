@@ -15,52 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 {
     public class BindingManagerTest : ComponentOwnerTestBase<BindingManager>
     {
-        [Fact]
-        public void ParseBindingExpressionShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BindingManager.ParseBindingExpression(this, DefaultMetadata));
-
-        [Fact]
-        public void TryParseBindingExpressionShouldHandleBuildersList()
-        {
-            var bindingExpressions = new List<IBindingBuilder> { new TestBindingBuilder(), new TestBindingBuilder() };
-            BindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
-            BindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
-        protected override IBindingManager GetBindingManager() => GetComponentOwner(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ParseBindingExpressionShouldBeHandledByComponents(int count)
-        {
-            var request = "t";
-            var expression = new TestBindingBuilder();
-            var invokeCount = 0;
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                BindingManager.AddComponent(new TestBindingExpressionParserComponent
-                {
-                    Priority = -i,
-                    TryParseBindingExpression = (bm, r, m) =>
-                    {
-                        ++invokeCount;
-                        bm.ShouldEqual(BindingManager);
-                        r.ShouldEqual(request);
-                        m.ShouldEqual(DefaultMetadata);
-                        if (isLast)
-                            return expression;
-                        return default;
-                    }
-                });
-            }
-
-            var result = BindingManager.ParseBindingExpression(request, DefaultMetadata);
-            result.Count.ShouldEqual(1);
-            result.Item.ShouldEqual(expression);
-            invokeCount.ShouldEqual(count);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -122,6 +76,52 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             BindingManager.OnLifecycleChanged(Binding, lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ParseBindingExpressionShouldBeHandledByComponents(int count)
+        {
+            var request = "t";
+            var expression = new TestBindingBuilder();
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                BindingManager.AddComponent(new TestBindingExpressionParserComponent
+                {
+                    Priority = -i,
+                    TryParseBindingExpression = (bm, r, m) =>
+                    {
+                        ++invokeCount;
+                        bm.ShouldEqual(BindingManager);
+                        r.ShouldEqual(request);
+                        m.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return expression;
+                        return default;
+                    }
+                });
+            }
+
+            var result = BindingManager.ParseBindingExpression(request, DefaultMetadata);
+            result.Count.ShouldEqual(1);
+            result.Item.ShouldEqual(expression);
+            invokeCount.ShouldEqual(count);
+        }
+
+        [Fact]
+        public void ParseBindingExpressionShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BindingManager.ParseBindingExpression(this, DefaultMetadata));
+
+        [Fact]
+        public void TryParseBindingExpressionShouldHandleBuildersList()
+        {
+            var bindingExpressions = new List<IBindingBuilder> { new TestBindingBuilder(), new TestBindingBuilder() };
+            BindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
+            BindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        }
+
+        protected override IBindingManager GetBindingManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override BindingManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

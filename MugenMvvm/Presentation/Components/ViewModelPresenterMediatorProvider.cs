@@ -44,11 +44,11 @@ namespace MugenMvvm.Presentation.Components
         public static ViewModelPresenterMediatorProvider Get(Type viewType, bool isExactlyEqual,
             Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
             int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null) =>
-            new(viewType, isExactlyEqual, getMediator, wrapperManager) {Priority = priority};
+            new(viewType, isExactlyEqual, getMediator, wrapperManager) { Priority = priority };
 
         public static ViewModelPresenterMediatorProvider Get(Func<IPresenter, IViewModelBase, IViewMapping, IReadOnlyMetadataContext?, IViewModelPresenterMediator?> getMediator,
             int priority = PresenterComponentPriority.ViewModelPresenterMediatorProvider, IWrapperManager? wrapperManager = null) =>
-            new(typeof(object), false, getMediator, wrapperManager) {Priority = priority};
+            new(typeof(object), false, getMediator, wrapperManager) { Priority = priority };
 
         public IViewModelPresenterMediator? TryGetPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
         {

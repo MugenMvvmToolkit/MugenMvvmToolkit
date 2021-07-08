@@ -32,33 +32,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             DefaultMetadata.Set(CompilingMetadata.CompilingErrors, new List<string>());
         }
 
-        [Fact]
-        public void CompileShouldCompileComplexExpression6()
-        {
-            var result = ((-1 + 2 * ~1 / 8 % 1) << 4) >> 5 < 10;
-            var node = new BinaryExpressionNode(BinaryTokenType.LessThan,
-                new BinaryExpressionNode(BinaryTokenType.RightShift,
-                    new BinaryExpressionNode(BinaryTokenType.LeftShift,
-                        new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.Minus, ConstantExpressionNode.Get(1, typeof(int))),
-                            new BinaryExpressionNode(BinaryTokenType.Remainder,
-                                new BinaryExpressionNode(BinaryTokenType.Division,
-                                    new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(2, typeof(int)),
-                                        new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, ConstantExpressionNode.Get(1, typeof(int)))),
-                                    ConstantExpressionNode.Get(8, typeof(int))),
-                                ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
-                ConstantExpressionNode.Get(10, typeof(int)));
-            var compiler = GetInitializedCompiler();
-            compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
-        }
-
-        [Fact]
-        public void CompileShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => ExpressionCompiler.Compile(ConstantExpressionNode.False));
-        }
-
-        protected new IMetadataContext DefaultMetadata { get; set; }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -71,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             {
                 var component = new TestExpressionCompilerComponent
                 {
-                    TryCompile = (c,node, metadata) =>
+                    TryCompile = (c, node, metadata) =>
                     {
                         ++count;
                         c.ShouldEqual(ExpressionCompiler);
@@ -215,6 +188,25 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
 
+        [Fact]
+        public void CompileShouldCompileComplexExpression6()
+        {
+            var result = ((-1 + 2 * ~1 / 8 % 1) << 4) >> 5 < 10;
+            var node = new BinaryExpressionNode(BinaryTokenType.LessThan,
+                new BinaryExpressionNode(BinaryTokenType.RightShift,
+                    new BinaryExpressionNode(BinaryTokenType.LeftShift,
+                        new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.Minus, ConstantExpressionNode.Get(1, typeof(int))),
+                            new BinaryExpressionNode(BinaryTokenType.Remainder,
+                                new BinaryExpressionNode(BinaryTokenType.Division,
+                                    new BinaryExpressionNode(BinaryTokenType.Multiplication, ConstantExpressionNode.Get(2, typeof(int)),
+                                        new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, ConstantExpressionNode.Get(1, typeof(int)))),
+                                    ConstantExpressionNode.Get(8, typeof(int))),
+                                ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
+                ConstantExpressionNode.Get(10, typeof(int)));
+            var compiler = GetInitializedCompiler();
+            compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
+        }
+
         [Theory]
         [InlineData(null, null, null)]
         [InlineData("nn", null, null)]
@@ -259,6 +251,11 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             var compiler = GetInitializedCompiler();
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
+
+        [Fact]
+        public void CompileShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => ExpressionCompiler.Compile(ConstantExpressionNode.False));
+
+        protected new IMetadataContext DefaultMetadata { get; set; }
 
         protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
 

@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Models.Internal
             Id = Interlocked.Increment(ref _idGenerator);
             StableId = Id;
             if (StableId % 10 == 0)
-                Items = new object[] {Guid.NewGuid(), Guid.NewGuid()};
+                Items = new object[] { Guid.NewGuid(), Guid.NewGuid() };
         }
 
         public static IEqualityComparer<TestCollectionItem> IdComparer { get; } = new IdEqualityComparer();

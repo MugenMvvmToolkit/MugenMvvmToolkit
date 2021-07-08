@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         {
             var target = MemberExpressionNode.Source;
             var source = MemberExpressionNode.EventArgs;
-            var parameter = new[] {MemberExpressionNode.Self, MemberExpressionNode.Binding};
+            var parameter = new[] { MemberExpressionNode.Self, MemberExpressionNode.Binding };
             var memberManagerRequest = new ExpressionParserResult(target, source, parameter, DefaultMetadata);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
@@ -28,9 +28,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         {
             var target = MemberExpressionNode.Source;
             var source = MemberExpressionNode.EventArgs;
-            var parameter = new[] {MemberExpressionNode.Self, MemberExpressionNode.Binding};
+            var parameter = new[] { MemberExpressionNode.Self, MemberExpressionNode.Binding };
             var memberManagerRequest = new ExpressionParserResult(target, source, parameter,
-                new TestMetadataOwner<IReadOnlyMetadataContext> {Metadata = DefaultMetadata, HasMetadata = true});
+                new TestMetadataOwner<IReadOnlyMetadataContext> { Metadata = DefaultMetadata, HasMetadata = true });
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.IsEmpty.ShouldBeFalse();

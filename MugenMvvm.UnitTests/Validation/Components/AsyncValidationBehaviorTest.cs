@@ -41,31 +41,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
             Validator.HasErrors(expectedMember).ShouldBeFalse();
         }
 
-        [Fact]
-        public async Task ValidateAsyncShouldCancelPreviousValidation()
-        {
-            var expectedMember = "test";
-            var tcs = new TaskCompletionSource<object>();
-            Validator.AddComponent(new TestValidationHandlerComponent
-            {
-                TryValidateAsync = (v, s, token, arg3) =>
-                {
-                    v.ShouldEqual(Validator);
-                    token.Register(() => tcs.SetCanceled());
-                    return tcs.Task;
-                }
-            });
-
-            var task = Validator.ValidateAsync(expectedMember, CancellationToken.None)!;
-            task.IsCompleted.ShouldBeFalse();
-
-#pragma warning disable 4014
-            Validator.ValidateAsync(expectedMember, CancellationToken.None);
-#pragma warning restore 4014
-            await task.WaitSafeAsync();
-            task.IsCanceled.ShouldBeTrue();
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -103,6 +78,31 @@ namespace MugenMvvm.UnitTests.Validation.Components
             invokeCount.ShouldEqual(count);
             tcs.TrySetResult(null);
             await task;
+        }
+
+        [Fact]
+        public async Task ValidateAsyncShouldCancelPreviousValidation()
+        {
+            var expectedMember = "test";
+            var tcs = new TaskCompletionSource<object>();
+            Validator.AddComponent(new TestValidationHandlerComponent
+            {
+                TryValidateAsync = (v, s, token, arg3) =>
+                {
+                    v.ShouldEqual(Validator);
+                    token.Register(() => tcs.SetCanceled());
+                    return tcs.Task;
+                }
+            });
+
+            var task = Validator.ValidateAsync(expectedMember, CancellationToken.None)!;
+            task.IsCompleted.ShouldBeFalse();
+
+#pragma warning disable 4014
+            Validator.ValidateAsync(expectedMember, CancellationToken.None);
+#pragma warning restore 4014
+            await task.WaitSafeAsync();
+            task.IsCanceled.ShouldBeTrue();
         }
     }
 }

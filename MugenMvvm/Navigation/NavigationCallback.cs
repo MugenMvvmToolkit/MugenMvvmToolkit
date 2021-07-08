@@ -68,7 +68,7 @@ namespace MugenMvvm.Navigation
                 if (_callbacks is List<INavigationCallbackListener> callbacks)
                     return callbacks.ToItemOrList(false);
 
-                return ItemOrIReadOnlyList.FromItem((INavigationCallbackListener) _callbacks!);
+                return ItemOrIReadOnlyList.FromItem((INavigationCallbackListener)_callbacks!);
             }
         }
 

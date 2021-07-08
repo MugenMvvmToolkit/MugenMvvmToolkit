@@ -39,100 +39,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             invokedCount.ShouldEqual(0);
         }
 
-        [Fact]
-        public void TryGetMessengerHandlersShouldUnsubscribeIfSubscriberIsNotAlive()
-        {
-            var handler = new TestMessengerHandler();
-            var weakRef = handler.ToWeakReference(WeakReferenceManager);
-            Messenger.TrySubscribe(weakRef);
-
-            _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), null)!.Count.ShouldEqual(1);
-            weakRef.Release();
-            _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), null).ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void TrySubscribeUnsubscribeShouldReturnFalseNotSupported()
-        {
-            Messenger.TrySubscribe(this, null, DefaultMetadata).ShouldBeFalse();
-            Messenger.GetSubscribers().ShouldBeEmpty();
-            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldBeFalse();
-        }
-
-        protected override IMessenger GetMessenger() => new Messenger(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TrySubscribeUnsubscribeGetAllTest(int count)
-        {
-            var hashSet = new HashSet<MessengerSubscriberInfo>();
-            for (var i = 0; i < count; i++)
-            {
-                var handler = new TestMessengerHandler();
-                ThreadExecutionMode.TryGet(i, out var mode);
-                Messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
-
-                var info = new MessengerSubscriberInfo(handler, mode);
-                hashSet.Add(info);
-            }
-
-            var subscribers = Messenger.GetSubscribers(DefaultMetadata)!;
-            subscribers.Count.ShouldEqual(hashSet.Count);
-            foreach (var messengerSubscriberInfo in subscribers)
-                hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
-            hashSet.Count.ShouldEqual(0);
-
-            foreach (var messengerSubscriberInfo in subscribers)
-                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
-            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
-        }
-
-        [Theory]
-        [InlineData(1, true)]
-        [InlineData(1, false)]
-        [InlineData(10, true)]
-        [InlineData(10, false)]
-        public void TrySubscribeUnsubscribeGetAllTestWeakReference(int count, bool keepAlive)
-        {
-            var list = new List<object>();
-            var hashSet = new HashSet<MessengerSubscriberInfo>();
-            for (var i = 0; i < count; i++)
-            {
-                var handler = new TestMessengerHandler().ToWeakReference(WeakReferenceManager);
-                if (keepAlive)
-                    list.Add(handler.Target!);
-                ThreadExecutionMode.TryGet(i, out var mode);
-                Messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
-                var info = new MessengerSubscriberInfo(handler, mode);
-                hashSet.Add(info);
-            }
-
-            var subscribers = Messenger.GetSubscribers(DefaultMetadata)!;
-            subscribers.Count.ShouldEqual(hashSet.Count);
-            foreach (var messengerSubscriberInfo in subscribers)
-                hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
-            hashSet.Count.ShouldEqual(0);
-
-            GcCollect();
-
-            foreach (var messengerSubscriberInfo in subscribers)
-                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
-            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryUnsubscribeAllShouldRemoveAllSubscribers(int count)
-        {
-            for (var i = 0; i < count; i++)
-                Messenger.TrySubscribe(new TestMessengerHandler(), ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
-
-            _messengerHandlerComponent.TryUnsubscribeAll(Messenger, DefaultMetadata);
-            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -269,5 +175,99 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(2);
         }
+
+        [Fact]
+        public void TryGetMessengerHandlersShouldUnsubscribeIfSubscriberIsNotAlive()
+        {
+            var handler = new TestMessengerHandler();
+            var weakRef = handler.ToWeakReference(WeakReferenceManager);
+            Messenger.TrySubscribe(weakRef);
+
+            _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), null)!.Count.ShouldEqual(1);
+            weakRef.Release();
+            _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), null).ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void TrySubscribeUnsubscribeGetAllTest(int count)
+        {
+            var hashSet = new HashSet<MessengerSubscriberInfo>();
+            for (var i = 0; i < count; i++)
+            {
+                var handler = new TestMessengerHandler();
+                ThreadExecutionMode.TryGet(i, out var mode);
+                Messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
+
+                var info = new MessengerSubscriberInfo(handler, mode);
+                hashSet.Add(info);
+            }
+
+            var subscribers = Messenger.GetSubscribers(DefaultMetadata)!;
+            subscribers.Count.ShouldEqual(hashSet.Count);
+            foreach (var messengerSubscriberInfo in subscribers)
+                hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
+            hashSet.Count.ShouldEqual(0);
+
+            foreach (var messengerSubscriberInfo in subscribers)
+                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
+            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void TrySubscribeUnsubscribeGetAllTestWeakReference(int count, bool keepAlive)
+        {
+            var list = new List<object>();
+            var hashSet = new HashSet<MessengerSubscriberInfo>();
+            for (var i = 0; i < count; i++)
+            {
+                var handler = new TestMessengerHandler().ToWeakReference(WeakReferenceManager);
+                if (keepAlive)
+                    list.Add(handler.Target!);
+                ThreadExecutionMode.TryGet(i, out var mode);
+                Messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
+                var info = new MessengerSubscriberInfo(handler, mode);
+                hashSet.Add(info);
+            }
+
+            var subscribers = Messenger.GetSubscribers(DefaultMetadata)!;
+            subscribers.Count.ShouldEqual(hashSet.Count);
+            foreach (var messengerSubscriberInfo in subscribers)
+                hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
+            hashSet.Count.ShouldEqual(0);
+
+            GcCollect();
+
+            foreach (var messengerSubscriberInfo in subscribers)
+                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
+            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void TrySubscribeUnsubscribeShouldReturnFalseNotSupported()
+        {
+            Messenger.TrySubscribe(this, null, DefaultMetadata).ShouldBeFalse();
+            Messenger.GetSubscribers().ShouldBeEmpty();
+            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldBeFalse();
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void TryUnsubscribeAllShouldRemoveAllSubscribers(int count)
+        {
+            for (var i = 0; i < count; i++)
+                Messenger.TrySubscribe(new TestMessengerHandler(), ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
+
+            _messengerHandlerComponent.TryUnsubscribeAll(Messenger, DefaultMetadata);
+            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+        }
+
+        protected override IMessenger GetMessenger() => new Messenger(ComponentCollectionManager);
     }
 }

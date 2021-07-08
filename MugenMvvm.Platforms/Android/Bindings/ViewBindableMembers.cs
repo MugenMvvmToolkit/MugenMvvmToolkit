@@ -119,7 +119,7 @@ namespace MugenMvvm.Android.Bindings
         [BindingMember(nameof(ContentTemplateSelector))]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IContentTemplateSelector? ContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View =>
-            (IContentTemplateSelector?) ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
+            (IContentTemplateSelector?)ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void SetContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IContentTemplateSelector? value) where T : View =>

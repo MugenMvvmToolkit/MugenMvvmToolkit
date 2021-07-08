@@ -22,8 +22,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
     [Collection(SharedContext)]
     public class BindingResourceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest<BindingResourceMemberExpressionNode>
     {
-        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
-
         public BindingResourceMemberExpressionNodeTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             RegisterDisposeToken(WithGlobalService(ResourceManager));
@@ -193,42 +191,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
         }
 
-        [Fact]
-        public void GetSourceShouldReturnResource()
-        {
-            var path = MemberPath.Get(Path);
-            var t = "r";
-            var src = new object();
-            var resource = new object();
-
-
-            ResourceManager.AddComponent(new TestResourceResolverComponent
-            {
-                TryGetResource = (_, s, o, arg4) =>
-                {
-                    s.ShouldEqual(ResourceName);
-                    o.ShouldEqual(t);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    return new ResourceResolverResult(resource);
-                }
-            });
-
-            ObservationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (_, o, arg3) =>
-                {
-                    o.ShouldEqual(Path);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return path;
-                }
-            });
-
-            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, 0, default, MemberFlags.All);
-            var target = exp.GetSource(t, src, DefaultMetadata, out var p);
-            target.ShouldEqual(resource);
-            p.ShouldEqual(path);
-        }
-
         [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
@@ -286,6 +248,44 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode)exp1.Expression!).EqualsCount.ShouldEqual(1);
         }
+
+        [Fact]
+        public void GetSourceShouldReturnResource()
+        {
+            var path = MemberPath.Get(Path);
+            var t = "r";
+            var src = new object();
+            var resource = new object();
+
+
+            ResourceManager.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResource = (_, s, o, arg4) =>
+                {
+                    s.ShouldEqual(ResourceName);
+                    o.ShouldEqual(t);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return new ResourceResolverResult(resource);
+                }
+            });
+
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (_, o, arg3) =>
+                {
+                    o.ShouldEqual(Path);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return path;
+                }
+            });
+
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, 0, default, MemberFlags.All);
+            var target = exp.GetSource(t, src, DefaultMetadata, out var p);
+            target.ShouldEqual(resource);
+            p.ShouldEqual(path);
+        }
+
+        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
 
         protected override BindingResourceMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) =>
             new(ResourceName, Path, 0, default, default, metadata: metadata);

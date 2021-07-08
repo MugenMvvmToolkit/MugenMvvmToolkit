@@ -31,7 +31,7 @@ namespace MugenMvvm.Metadata
         public static IMetadataContextKey<IViewModelBase?> ParentViewModel
         {
             get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
-                                        .Getter((context, key, v) => (IViewModelBase?) ((IWeakReference?) v)?.Target)
+                                        .Getter((context, key, v) => (IViewModelBase?)((IWeakReference?)v)?.Target)
                                         .Setter((context, key, oldValue, v) => v.ToWeakReference())
                                         .Serializable()
                                         .Build();

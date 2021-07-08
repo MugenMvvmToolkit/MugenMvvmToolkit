@@ -28,6 +28,38 @@ namespace MugenMvvm.Bindings.Members.Components
 
         public int Priority { get; init; } = MemberComponentPriority.Selector;
 
+        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
+            object request, IReadOnlyMetadataContext? metadata)
+        {
+            if (request is not IReadOnlyList<IMemberInfo> members)
+                return default;
+
+            _selectorDictionary.Clear();
+            for (var i = 0; i < members.Count; i++)
+            {
+                var member = members[i];
+                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlag(member.MemberFlags))
+                    continue;
+
+                if (_selectorDictionary.TryGetValue(member, out var list))
+                {
+                    if (list.AddMember(member, GetPriority(member, type)))
+                        _selectorDictionary[member] = list;
+                }
+                else
+                    _selectorDictionary[member] = new MemberList(member, GetPriority(member, type));
+            }
+
+            if (_selectorDictionary.Count == 0)
+                return default;
+
+            var result = ItemOrArray.Get<IMemberInfo>(_selectorDictionary.Count);
+            var index = 0;
+            foreach (var pair in _selectorDictionary)
+                result.SetAt(index++, pair.Value.GetBestMember());
+            return result;
+        }
+
         private static int GetPriority(IMemberInfo member, Type requestedType)
         {
             var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
@@ -61,43 +93,11 @@ namespace MugenMvvm.Bindings.Members.Components
             return priority;
         }
 
-        public ItemOrIReadOnlyList<IMemberInfo> TryGetMembers(IMemberManager memberManager, Type type, EnumFlags<MemberType> memberTypes, EnumFlags<MemberFlags> flags,
-            object request, IReadOnlyMetadataContext? metadata)
-        {
-            if (request is not IReadOnlyList<IMemberInfo> members)
-                return default;
-
-            _selectorDictionary.Clear();
-            for (var i = 0; i < members.Count; i++)
-            {
-                var member = members[i];
-                if (!memberTypes.HasFlag(member.MemberType) || !flags.HasFlag(member.MemberFlags))
-                    continue;
-
-                if (_selectorDictionary.TryGetValue(member, out var list))
-                {
-                    if (list.AddMember(member, GetPriority(member, type)))
-                        _selectorDictionary[member] = list;
-                }
-                else
-                    _selectorDictionary[member] = new MemberList(member, GetPriority(member, type));
-            }
-
-            if (_selectorDictionary.Count == 0)
-                return default;
-
-            var result = ItemOrArray.Get<IMemberInfo>(_selectorDictionary.Count);
-            var index = 0;
-            foreach (var pair in _selectorDictionary)
-                result.SetAt(index++, pair.Value.GetBestMember());
-            return result;
-        }
-
         int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo key)
         {
             if (key is IMethodMemberInfo method)
-                return HashCode.Combine((int) key.MemberType, method.GetParameters().Count);
-            return HashCode.Combine((int) key!.MemberType);
+                return HashCode.Combine((int)key.MemberType, method.GetParameters().Count);
+            return HashCode.Combine((int)key!.MemberType);
         }
 
         bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo? x, IMemberInfo? y)
@@ -111,8 +111,8 @@ namespace MugenMvvm.Bindings.Members.Components
             if (x.MemberType != MemberType.Method)
                 return true;
 
-            var xM = ((IMethodMemberInfo) x).GetParameters();
-            var yM = ((IMethodMemberInfo) y).GetParameters();
+            var xM = ((IMethodMemberInfo)x).GetParameters();
+            var yM = ((IMethodMemberInfo)y).GetParameters();
             if (xM.Count != yM.Count)
                 return false;
 
@@ -156,14 +156,14 @@ namespace MugenMvvm.Bindings.Members.Components
                 else if (_members is List<IMemberInfo> list)
                     list.Add(member);
                 else
-                    _members = new List<IMemberInfo> {(IMemberInfo) _members, member};
+                    _members = new List<IMemberInfo> { (IMemberInfo)_members, member };
                 return true;
             }
 
             public IMemberInfo GetBestMember()
             {
                 if (_members is not List<IMemberInfo> members)
-                    return (IMemberInfo) _members!;
+                    return (IMemberInfo)_members!;
 
                 for (var i = 0; i < members.Count; i++)
                 {

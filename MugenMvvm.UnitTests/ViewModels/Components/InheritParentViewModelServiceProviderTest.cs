@@ -41,22 +41,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
-        [Fact]
-        public void TryGetServiceShouldIgnoreNonTypeService()
-        {
-            var vm = new TestViewModelBase(ViewModelManager);
-            ViewModelManager.TryGetService(vm, this).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryGetServiceShouldIgnoreServiceWithoutParentVm()
-        {
-            var vm = new TestViewModelBase(ViewModelManager);
-            ViewModelManager.TryGetService(vm, typeof(IBusyManager)).ShouldBeNull();
-        }
-
-        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -86,5 +70,21 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             ViewModelManager.TryGetService(vm, typeof(IMessenger), meta).ShouldEqual(messenger);
             ViewModelManager.TryGetService(vm, typeof(IBusyManager), meta).ShouldEqual(BusyManager);
         }
+
+        [Fact]
+        public void TryGetServiceShouldIgnoreNonTypeService()
+        {
+            var vm = new TestViewModelBase(ViewModelManager);
+            ViewModelManager.TryGetService(vm, this).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryGetServiceShouldIgnoreServiceWithoutParentVm()
+        {
+            var vm = new TestViewModelBase(ViewModelManager);
+            ViewModelManager.TryGetService(vm, typeof(IBusyManager)).ShouldBeNull();
+        }
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
     }
 }

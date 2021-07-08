@@ -18,11 +18,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
         {
             Mapping = new Dictionary<ExpressionType, Func<UnaryExpression, UnaryTokenType?>>(7)
             {
-                {ExpressionType.Negate, _ => UnaryTokenType.Minus},
-                {ExpressionType.UnaryPlus, _ => UnaryTokenType.Plus},
-                {ExpressionType.Not, expression => expression.Type == typeof(bool) ? UnaryTokenType.LogicalNegation : UnaryTokenType.BitwiseNegation},
-                {ExpressionType.Convert, _ => null},
-                {ExpressionType.ConvertChecked, _ => null}
+                { ExpressionType.Negate, _ => UnaryTokenType.Minus },
+                { ExpressionType.UnaryPlus, _ => UnaryTokenType.Plus },
+                { ExpressionType.Not, expression => expression.Type == typeof(bool) ? UnaryTokenType.LogicalNegation : UnaryTokenType.BitwiseNegation },
+                { ExpressionType.Convert, _ => null },
+                { ExpressionType.ConvertChecked, _ => null }
             };
         }
 

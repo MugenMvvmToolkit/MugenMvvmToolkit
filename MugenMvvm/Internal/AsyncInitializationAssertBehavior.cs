@@ -45,7 +45,7 @@ namespace MugenMvvm.Internal
             }
 
             if (typeof(T) == typeof(IMemberManagerComponent))
-                components.Add((T) (object) this);
+                components.Add((T)(object)this);
         }
 
         public void OnComponentCollectionCreated(IComponentCollectionManager collectionManager, IComponentCollection collection, IReadOnlyMetadataContext? metadata)

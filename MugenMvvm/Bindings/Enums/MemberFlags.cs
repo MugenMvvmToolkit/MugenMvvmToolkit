@@ -24,7 +24,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly MemberFlags Instance = new(1 << 3, DefaultPriority, nameof(Instance));
         public static readonly MemberFlags Attached = new(1 << 4, AttachedPriority, nameof(Attached));
         public static readonly MemberFlags Dynamic = new(1 << 5, DynamicPriority, nameof(Dynamic));
-        public static readonly MemberFlags Extension = new((ushort) (Instance.Value | (1 << 6)), ExtensionPriority, nameof(Extension));
+        public static readonly MemberFlags Extension = new((ushort)(Instance.Value | (1 << 6)), ExtensionPriority, nameof(Extension));
 
         public static readonly EnumFlags<MemberFlags> InstancePublic = Instance | Public;
         public static readonly EnumFlags<MemberFlags> InstanceNonPublic = Instance | NonPublic;

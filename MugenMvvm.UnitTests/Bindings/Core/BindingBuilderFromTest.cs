@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var toValue = "t";
             var target = new BindingBuilderFrom<string, object>(fromValue);
 
-            var converterRequest = (BindingExpressionRequest) target.To(toValue);
+            var converterRequest = (BindingExpressionRequest)target.To(toValue);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(toValue);
             converterRequest.Parameters.Count.ShouldEqual(0);

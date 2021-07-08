@@ -2,7 +2,6 @@
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Tests.Bindings.Parsing;
-using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
@@ -24,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 TraversalType = ExpressionTraversalType.Get(value),
                 Visit = (expressionNode, context) =>
                 {
-                    var memberExpressionNode = (IMemberExpressionNode) expressionNode;
+                    var memberExpressionNode = (IMemberExpressionNode)expressionNode;
                     if (memberExpressionNode.Member == member1)
                         return new MemberExpressionNode(null, member2);
                     if (memberExpressionNode.Member == member2)

@@ -13,92 +13,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class IndexExpressionNodeTest : UnitTestBase
     {
-        [Fact]
-        public void AcceptShouldCreateNewNode2()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var testExpressionVisitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) => target
-            };
-            new IndexExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var exp = new IndexExpressionNode(target, args);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
-            exp.Target.ShouldEqual(target);
-            exp.Arguments.ShouldEqual(args);
-            exp.ToString().ShouldEqual("\"1\"[\"2\"]");
-        }
-
-        [Fact]
-        public void UpdateArgumentsShouldCreateNewNode()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var newArgs = new IExpressionNode[] {new ConstantExpressionNode("3")};
-            var exp = new IndexExpressionNode(target, args);
-            exp.UpdateArguments(args).ShouldEqual(exp);
-
-            var newExp = exp.UpdateArguments(newArgs);
-            newExp.ShouldNotEqual(exp);
-            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
-            newExp.Target.ShouldEqual(target);
-            newExp.Arguments.ShouldEqual(newArgs);
-        }
-
-        [Fact]
-        public void UpdateTargetShouldCreateNewNode()
-        {
-            var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var newTarget = new ConstantExpressionNode("2");
-            var exp = new IndexExpressionNode(target, args);
-            exp.UpdateTarget(target).ShouldEqual(exp);
-
-            var newExp = exp.UpdateTarget(newTarget);
-            newExp.ShouldNotEqual(exp);
-            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
-            newExp.Target.ShouldEqual(newTarget);
-            newExp.Arguments.ShouldEqual(args);
-        }
-
-        [Theory]
-        [InlineData(ExpressionTraversalType.InorderValue)]
-        [InlineData(ExpressionTraversalType.PreorderValue)]
-        [InlineData(ExpressionTraversalType.PostorderValue)]
-        public void AcceptShouldVisitWithCorrectOrder(int value)
-        {
-            var nodes = new List<IExpressionNode>();
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) =>
-                {
-                    nodes.Add(node);
-                    context.ShouldEqual(DefaultMetadata);
-                    return node;
-                },
-                TraversalType = ExpressionTraversalType.Get(value)
-            };
-
-            var target = new ConstantExpressionNode("1");
-            var arg1 = new ConstantExpressionNode("2");
-            var arg2 = new ConstantExpressionNode("3");
-            var exp = new IndexExpressionNode(target, new[] {arg1, arg2});
-
-            var result = visitor.TraversalType == ExpressionTraversalType.Preorder
-                ? new IExpressionNode[] {exp, target, arg1, arg2}
-                : new IExpressionNode[] {target, arg1, arg2, exp};
-            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
-            result.ShouldEqual(nodes);
-        }
-
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -126,32 +40,65 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 },
                 TraversalType = ExpressionTraversalType.Get(value)
             };
-            var exp = new IndexExpressionNode(target, new[] {arg1, arg2});
-            var expressionNode = (IndexExpressionNode) exp.Accept(visitor, DefaultMetadata);
+            var exp = new IndexExpressionNode(target, new[] { arg1, arg2 });
+            var expressionNode = (IndexExpressionNode)exp.Accept(visitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
-            expressionNode.Arguments.ShouldEqual(new[] {arg1Changed, arg2Changed});
+            expressionNode.Arguments.ShouldEqual(new[] { arg1Changed, arg2Changed });
+        }
+
+        [Fact]
+        public void AcceptShouldCreateNewNode2()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var testExpressionVisitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) => target
+            };
+            new IndexExpressionNode(target, args).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
+        {
+            var nodes = new List<IExpressionNode>();
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) =>
+                {
+                    nodes.Add(node);
+                    context.ShouldEqual(DefaultMetadata);
+                    return node;
+                },
+                TraversalType = ExpressionTraversalType.Get(value)
+            };
+
+            var target = new ConstantExpressionNode("1");
+            var arg1 = new ConstantExpressionNode("2");
+            var arg2 = new ConstantExpressionNode("3");
+            var exp = new IndexExpressionNode(target, new[] { arg1, arg2 });
+
+            var result = visitor.TraversalType == ExpressionTraversalType.Preorder
+                ? new IExpressionNode[] { exp, target, arg1, arg2 }
+                : new IExpressionNode[] { target, arg1, arg2, exp };
+            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
+            result.ShouldEqual(nodes);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
         {
             var target = new ConstantExpressionNode("1");
-            var args = new IExpressionNode[] {new ConstantExpressionNode("2")};
-            var node = new IndexExpressionNode(target, args, EmptyDictionary);
-            if (equal)
-                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
-            else
-            {
-                var metadata = new Dictionary<string, object?> {{"k", null}};
-                var updated = (IndexExpressionNode) node.UpdateMetadata(metadata);
-                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
-                updated.Metadata.ShouldEqual(metadata);
-                updated.Target.ShouldEqual(node.Target);
-                updated.Arguments.ShouldEqual(node.Arguments);
-            }
+            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var exp = new IndexExpressionNode(target, args);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
+            exp.Target.ShouldEqual(target);
+            exp.Arguments.ShouldEqual(args);
+            exp.ToString().ShouldEqual("\"1\"[\"2\"]");
         }
 
         [Theory]
@@ -163,16 +110,16 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         {
             var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
             var exp1 = new IndexExpressionNode(hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new IExpressionNode[] {GetTestEqualityExpression(comparer, 2), GetTestEqualityExpression(comparer, 3)},
-                new Dictionary<string, object?> {{"k", null}});
+                new IExpressionNode[] { GetTestEqualityExpression(comparer, 2), GetTestEqualityExpression(comparer, 3) },
+                new Dictionary<string, object?> { { "k", null } });
             var exp2 = new IndexExpressionNode(hasTarget ? GetTestEqualityExpression(comparer, 1) : null,
-                new IExpressionNode[] {GetTestEqualityExpression(comparer, 2), GetTestEqualityExpression(comparer, 3)},
-                new Dictionary<string, object?> {{"k", null}});
+                new IExpressionNode[] { GetTestEqualityExpression(comparer, 2), GetTestEqualityExpression(comparer, 3) },
+                new Dictionary<string, object?> { { "k", null } });
             ;
             if (hasTarget)
             {
                 HashCode.Combine(GetBaseHashCode(exp1), exp1.Arguments.Count, 1).ShouldEqual(exp1.GetHashCode(comparer));
-                ((TestExpressionNode) exp1.Target!).GetHashCodeCount.ShouldEqual(1);
+                ((TestExpressionNode)exp1.Target!).GetHashCodeCount.ShouldEqual(1);
             }
             else
                 HashCode.Combine(GetBaseHashCode(exp1), exp1.Arguments.Count).ShouldEqual(exp1.GetHashCode(comparer));
@@ -180,11 +127,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp1.Arguments.AsEnumerable().Cast<TestExpressionNode>().All(node => node.GetHashCodeCount == 0).ShouldBeTrue();
 
             exp1.Equals(exp2, comparer).ShouldBeTrue();
-            ((TestExpressionNode?) exp1.Target)?.EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode?)exp1.Target)?.EqualsCount.ShouldEqual(1);
             exp1.Arguments.AsEnumerable().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
 
             exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
-            ((TestExpressionNode?) exp1.Target)?.EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode?)exp1.Target)?.EqualsCount.ShouldEqual(1);
             exp1.Arguments.AsEnumerable().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
 
             if (comparer == null || !hasTarget)
@@ -202,8 +149,61 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             };
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
-            ((TestExpressionNode) exp1.Target!).EqualsCount.ShouldEqual(1);
+            ((TestExpressionNode)exp1.Target!).EqualsCount.ShouldEqual(1);
             exp1.Arguments.AsEnumerable().Cast<TestExpressionNode>().All(node => node.EqualsCount == 1).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void UpdateArgumentsShouldCreateNewNode()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var newArgs = new IExpressionNode[] { new ConstantExpressionNode("3") };
+            var exp = new IndexExpressionNode(target, args);
+            exp.UpdateArguments(args).ShouldEqual(exp);
+
+            var newExp = exp.UpdateArguments(newArgs);
+            newExp.ShouldNotEqual(exp);
+            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
+            newExp.Target.ShouldEqual(target);
+            newExp.Arguments.ShouldEqual(newArgs);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var node = new IndexExpressionNode(target, args, EmptyDictionary);
+            if (equal)
+                node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
+            else
+            {
+                var metadata = new Dictionary<string, object?> { { "k", null } };
+                var updated = (IndexExpressionNode)node.UpdateMetadata(metadata);
+                updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
+                updated.Metadata.ShouldEqual(metadata);
+                updated.Target.ShouldEqual(node.Target);
+                updated.Arguments.ShouldEqual(node.Arguments);
+            }
+        }
+
+        [Fact]
+        public void UpdateTargetShouldCreateNewNode()
+        {
+            var target = new ConstantExpressionNode("1");
+            var args = new IExpressionNode[] { new ConstantExpressionNode("2") };
+            var newTarget = new ConstantExpressionNode("2");
+            var exp = new IndexExpressionNode(target, args);
+            exp.UpdateTarget(target).ShouldEqual(exp);
+
+            var newExp = exp.UpdateTarget(newTarget);
+            newExp.ShouldNotEqual(exp);
+            newExp.ExpressionType.ShouldEqual(ExpressionNodeType.Index);
+            newExp.Target.ShouldEqual(newTarget);
+            newExp.Arguments.ShouldEqual(args);
         }
     }
 }

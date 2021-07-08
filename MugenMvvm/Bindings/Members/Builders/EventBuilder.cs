@@ -52,7 +52,7 @@ namespace MugenMvvm.Bindings.Members.Builders
         {
             Should.NotBeNull(memberInfo, nameof(memberInfo));
             return CustomImplementation(memberInfo.TryObserve,
-                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : (RaiseDelegate<IObservableMemberInfo, TTarget>?) null);
+                memberInfo is INotifiableMemberInfo notifiableMember ? notifiableMember.Raise : null);
         }
 
         public EventBuilder<TTarget> CustomImplementation(TryObserveDelegate<INotifiableMemberInfo, TTarget> subscribe, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)

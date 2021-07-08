@@ -21,14 +21,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _context = new BindingExpressionInitializerContext(this);
         }
 
-        [Fact]
-        public void InitializeShouldIgnoreEmptyParameters()
-        {
-            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            _initializer.Initialize(null!, _context);
-            _context.Components.ShouldBeEmpty();
-        }
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -49,9 +41,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 return;
             }
 
-            var provider = (IBindingComponentProvider) _context.Components[BindingParameterNameConstant.Delay]!;
-            var component = (DelayBindingHandler.Source) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
-            component.Delay.ShouldEqual((ushort) delay);
+            var provider = (IBindingComponentProvider)_context.Components[BindingParameterNameConstant.Delay]!;
+            var component = (DelayBindingHandler.Source)provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
+            component.Delay.ShouldEqual((ushort)delay);
         }
 
         [Theory]
@@ -74,9 +66,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 return;
             }
 
-            var provider = (IBindingComponentProvider) _context.Components[BindingParameterNameConstant.TargetDelay]!;
-            var component = (DelayBindingHandler.Target) provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
-            component.Delay.ShouldEqual((ushort) delay);
+            var provider = (IBindingComponentProvider)_context.Components[BindingParameterNameConstant.TargetDelay]!;
+            var component = (DelayBindingHandler.Target)provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
+            component.Delay.ShouldEqual((ushort)delay);
+        }
+
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            _initializer.Initialize(null!, _context);
+            _context.Components.ShouldBeEmpty();
         }
     }
 }

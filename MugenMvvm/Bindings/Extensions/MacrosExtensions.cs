@@ -17,7 +17,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
 {
@@ -127,7 +126,7 @@ namespace MugenMvvm.Bindings.Extensions
                             errors = new List<object>(errors);
                         }
 
-                        ((List<object>) errors).AddRange(list);
+                        ((List<object>)errors).AddRange(list);
                     }
                 }
 
@@ -196,7 +195,7 @@ namespace MugenMvvm.Bindings.Extensions
                     return c;
             }
 
-            var initializer = new MacrosBindingInitializer {Priority = priority};
+            var initializer = new MacrosBindingInitializer { Priority = priority };
             bindingManager.AddComponent(initializer);
             return initializer;
         }

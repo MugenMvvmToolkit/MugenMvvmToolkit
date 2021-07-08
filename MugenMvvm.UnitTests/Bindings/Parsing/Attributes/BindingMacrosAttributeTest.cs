@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -19,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnResourceExpression1()
         {
-            var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingMacrosAttributeTest))!;
+            var attribute = (BindingMacrosAttribute)BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingMacrosAttributeTest))!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, null, out var result).ShouldBeTrue();
             result.ShouldEqual(UnaryExpressionNode.Get(UnaryTokenType.StaticExpression, MemberExpressionNode.Get(null, Name)));
@@ -29,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnResourceExpression2()
         {
             var call = Expression.Call(typeof(BindingMacrosAttributeTest), nameof(StaticMethod), Array.Empty<Type>());
-            var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMacrosAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, MethodName)));
@@ -40,7 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         {
             const string name = "TT";
             var call = Expression.Call(typeof(BindingMacrosAttributeTest), nameof(ResourceMethod), Array.Empty<Type>(), Expression.Constant(name));
-            var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMacrosAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(UnaryExpressionNode.Get(UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, name)));

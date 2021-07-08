@@ -23,22 +23,6 @@ namespace MugenMvvm.Windows.Bindings
             set => SetValue(ValueProperty, value);
         }
 
-        private static void Clear(DependencyPropertyListener listener)
-        {
-            if (!listener._listener.IsEmpty)
-            {
-                listener._listener = default;
-                listener.ClearValue(ValueProperty);
-            }
-        }
-
-        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var listener = (DependencyPropertyListener) d;
-            if (!listener._listener.TryHandle(d, EventArgs.Empty, null))
-                Clear(listener);
-        }
-
         public void SetListener(IEventListener listener, object source, string member)
         {
             Should.BeValid(_listener.IsEmpty, nameof(listener));
@@ -65,6 +49,22 @@ namespace MugenMvvm.Windows.Bindings
                 Clear(this);
             else
                 MugenService.ThreadDispatcher.Execute(ThreadExecutionMode.Main, this, null);
+        }
+
+        private static void Clear(DependencyPropertyListener listener)
+        {
+            if (!listener._listener.IsEmpty)
+            {
+                listener._listener = default;
+                listener.ClearValue(ValueProperty);
+            }
+        }
+
+        private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var listener = (DependencyPropertyListener)d;
+            if (!listener._listener.TryHandle(d, EventArgs.Empty, null))
+                Clear(listener);
         }
 
         void IThreadDispatcherHandler.Execute(object? state) => Clear(this);

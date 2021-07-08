@@ -18,10 +18,31 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
+        [Theory]
+        [InlineData("'test'", "test")]
+        [InlineData("'t'", "t")]
+        [InlineData("\"t\"", "t")]
+        [InlineData("\"test\"", "test")]
+        [InlineData("&amp;test&amp;", "test")]
+        [InlineData("'\\0\\n'", "\0\n")]
+        [InlineData("@'\"\"t\"\"'", "\"t\"")]
+        [InlineData("'t", null)]
+        [InlineData("\"t", null)]
+        [InlineData("t\"", null)]
+        [InlineData("@t\"\"", null)]
+        public void TryParseShouldParseStringExpression(string expression, object result)
+        {
+            Context.Initialize(expression, DefaultMetadata);
+            if (result == null)
+                Parser.TryParse(Context, null).ShouldBeNull();
+            else
+                Parser.TryParse(Context, null).ShouldEqual(ConstantExpressionNode.Get(result));
+        }
+
         [Fact]
         public void TryParseShouldParseStringFormatExpression()
         {
-            Context.Parsers = new ITokenParserComponent[] {new DigitTokenParser(), new BinaryTokenParser()};
+            Context.Parsers = new ITokenParserComponent[] { new DigitTokenParser(), new BinaryTokenParser() };
 
             var expected = new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
                 new IExpressionNode[]
@@ -49,27 +70,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                 }, new string[0]);
             Context.Initialize("$'{1+1:n} {{test}} {2:t}'", DefaultMetadata);
             Parser.TryParse(Context, null).ShouldEqual(expected);
-        }
-
-        [Theory]
-        [InlineData("'test'", "test")]
-        [InlineData("'t'", "t")]
-        [InlineData("\"t\"", "t")]
-        [InlineData("\"test\"", "test")]
-        [InlineData("&amp;test&amp;", "test")]
-        [InlineData("'\\0\\n'", "\0\n")]
-        [InlineData("@'\"\"t\"\"'", "\"t\"")]
-        [InlineData("'t", null)]
-        [InlineData("\"t", null)]
-        [InlineData("t\"", null)]
-        [InlineData("@t\"\"", null)]
-        public void TryParseShouldParseStringExpression(string expression, object result)
-        {
-            Context.Initialize(expression, DefaultMetadata);
-            if (result == null)
-                Parser.TryParse(Context, null).ShouldBeNull();
-            else
-                Parser.TryParse(Context, null).ShouldEqual(ConstantExpressionNode.Get(result));
         }
     }
 }

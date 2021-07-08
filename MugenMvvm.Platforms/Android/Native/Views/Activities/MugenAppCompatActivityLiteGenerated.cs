@@ -43,8 +43,6 @@ namespace MugenMvvm.Android.Native.Views.Activities
         {
         }
 
-        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
-
         public virtual unsafe Object Activity
         {
             // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='getActivity' and count(parameter)=0]"
@@ -107,11 +105,13 @@ namespace MugenMvvm.Android.Native.Views.Activities
         protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
         protected override Type ThresholdType => _members.ManagedPeerType;
+
+        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
 #pragma warning disable 0169
         private static Delegate GetGetContextHandler()
         {
             if (cb_getContext == null)
-                cb_getContext = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_L) n_GetContext);
+                cb_getContext = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_L)n_GetContext);
             return cb_getContext;
         }
 
@@ -124,7 +124,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
         private static Delegate GetGetActivityHandler()
         {
             if (cb_getActivity == null)
-                cb_getActivity = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetActivity);
+                cb_getActivity = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>)n_GetActivity);
             return cb_getActivity;
         }
 
@@ -137,7 +137,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
         private static Delegate GetGetStateHandler()
         {
             if (cb_getState == null)
-                cb_getState = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetState);
+                cb_getState = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>)n_GetState);
             return cb_getState;
         }
 
@@ -150,7 +150,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
         private static Delegate GetSetState_Ljava_lang_Object_Handler()
         {
             if (cb_setState_Ljava_lang_Object_ == null)
-                cb_setState_Ljava_lang_Object_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>) n_SetState_Ljava_lang_Object_);
+                cb_setState_Ljava_lang_Object_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>)n_SetState_Ljava_lang_Object_);
             return cb_setState_Ljava_lang_Object_;
         }
 
@@ -164,7 +164,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
         private static Delegate GetGetViewIdHandler()
         {
             if (cb_getViewId == null)
-                cb_getViewId = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, int>) n_GetViewId);
+                cb_getViewId = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, int>)n_GetViewId);
             return cb_getViewId;
         }
 

@@ -198,7 +198,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         private void SetMembers(IWeakReference? penultimateValue, IMemberInfo[]? members, Exception? exception)
         {
-            PenultimateValueOrException = (object?) exception ?? penultimateValue;
+            PenultimateValueOrException = (object?)exception ?? penultimateValue;
             Members = members;
             if (exception == null)
                 SetFlag(InitializedFlag);

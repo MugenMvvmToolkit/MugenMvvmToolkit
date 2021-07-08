@@ -12,6 +12,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class UnaryExpressionConverterTest : ExpressionConverterTestBase<UnaryExpressionConverter>
     {
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public void TryConvertShouldConvertUnaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
+            Converter.TryConvert(ctx, expression).ShouldEqual(result);
+
         [Fact]
         public void TryConvertShouldIgnoreNotSupportUnaryExpression()
         {
@@ -21,11 +26,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 
         [Fact]
         public void TryConvertShouldIgnoreNotUnaryExpression() => Converter.TryConvert(Context, Expression.Constant("")).ShouldBeNull();
-
-        [Theory]
-        [MemberData(nameof(GetData))]
-        public void TryConvertShouldConvertUnaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
-            Converter.TryConvert(ctx, expression).ShouldEqual(result);
 
         public static IEnumerable<object?[]> GetData() =>
             new[]
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             else
                 result = new UnaryExpressionNode(unaryTokenType, operandExpr);
 
-            return new object[] {context, Expression.MakeUnary(expressionType, operand, unaryTokenType == null ? typeof(T) : null!), result};
+            return new object[] { context, Expression.MakeUnary(expressionType, operand, unaryTokenType == null ? typeof(T) : null!), result };
         }
     }
 }

@@ -9,34 +9,12 @@ namespace MugenMvvm.Collections
 {
     public static class DiffUtil
     {
-        public interface ICallback
-        {
-            public int GetOldListSize();
-
-            public int GetNewListSize();
-
-            public bool AreItemsTheSame(int oldItemPosition, int newItemPosition);
-
-            public bool AreContentsTheSame(int oldItemPosition, int newItemPosition);
-        }
-
-        public interface IListUpdateCallback
-        {
-            void OnInserted(int position, int finalPosition, int count);
-
-            void OnRemoved(int position, int count);
-
-            void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition);
-
-            void OnChanged(int position, int finalPosition, int count, bool isMove);
-        }
-
         public static ValueTask<DiffResult> CalculateDiffAsync(ICallback cb, bool isAsync, bool detectMoves = true)
         {
             if (isAsync)
             {
                 return detectMoves
-                    ? Task.Factory.StartNew(o => CalculateDiff((ICallback)o!, true), cb).AsValueTask()
+                    ? Task.Factory.StartNew(o => CalculateDiff((ICallback)o!), cb).AsValueTask()
                     : Task.Factory.StartNew(o => CalculateDiff((ICallback)o!, false), cb).AsValueTask();
             }
 
@@ -264,6 +242,28 @@ namespace MugenMvvm.Collections
             var foo = list.Items[index];
             list.RemoveAt(index);
             return foo;
+        }
+
+        public interface ICallback
+        {
+            public int GetOldListSize();
+
+            public int GetNewListSize();
+
+            public bool AreItemsTheSame(int oldItemPosition, int newItemPosition);
+
+            public bool AreContentsTheSame(int oldItemPosition, int newItemPosition);
+        }
+
+        public interface IListUpdateCallback
+        {
+            void OnInserted(int position, int finalPosition, int count);
+
+            void OnRemoved(int position, int count);
+
+            void OnMoved(int fromPosition, int toPosition, int fromOriginalPosition, int toFinalPosition);
+
+            void OnChanged(int position, int finalPosition, int count, bool isMove);
         }
 
         [StructLayout(LayoutKind.Auto)]

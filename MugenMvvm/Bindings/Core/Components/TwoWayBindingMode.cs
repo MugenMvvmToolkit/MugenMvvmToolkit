@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
 
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => ((IBinding) owner).UpdateTarget();
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => ((IBinding)owner).UpdateTarget();
 
         void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 

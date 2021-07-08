@@ -18,21 +18,21 @@ namespace MugenMvvm.Bindings.Resources.Components
             Types = new Dictionary<string, Type>();
             Types = new Dictionary<string, Type>
             {
-                {"object", typeof(object)},
-                {"bool", typeof(bool)},
-                {"char", typeof(char)},
-                {"string", typeof(string)},
-                {"sbyte", typeof(sbyte)},
-                {"byte", typeof(byte)},
-                {"short", typeof(short)},
-                {"ushort", typeof(ushort)},
-                {"int", typeof(int)},
-                {"uint", typeof(uint)},
-                {"long", typeof(long)},
-                {"ulong", typeof(ulong)},
-                {"float", typeof(float)},
-                {"double", typeof(double)},
-                {"decimal", typeof(decimal)}
+                { "object", typeof(object) },
+                { "bool", typeof(bool) },
+                { "char", typeof(char) },
+                { "string", typeof(string) },
+                { "sbyte", typeof(sbyte) },
+                { "byte", typeof(byte) },
+                { "short", typeof(short) },
+                { "ushort", typeof(ushort) },
+                { "int", typeof(int) },
+                { "uint", typeof(uint) },
+                { "long", typeof(long) },
+                { "ulong", typeof(ulong) },
+                { "float", typeof(float) },
+                { "double", typeof(double) },
+                { "decimal", typeof(decimal) }
             };
             AddType(typeof(object));
             AddType(typeof(bool));
@@ -53,7 +53,7 @@ namespace MugenMvvm.Bindings.Resources.Components
             AddType(typeof(TimeSpan));
             AddType(typeof(Guid));
             AddType(typeof(Math));
-            AddType(typeof(System.Convert));
+            AddType(typeof(Convert));
             AddType(typeof(Enumerable));
             AddType(typeof(Environment));
         }

@@ -50,28 +50,28 @@ namespace MugenMvvm.Extensions
         public static bool HasFlag<T>(this EnumFlags<T> flags, FlagsEnumBase<T, ulong> flag) where T : FlagsEnumBase<T, ulong> => (flags.Flags & flag.Flag) == flag.Flag;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static byte Value<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => (byte) flags.Flags;
+        public static byte Value<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => (byte)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static sbyte Value<T>(this EnumFlags<T> flags, sbyte _ = 0) where T : FlagsEnumBase<T, sbyte> => (sbyte) flags.Flags;
+        public static sbyte Value<T>(this EnumFlags<T> flags, sbyte _ = 0) where T : FlagsEnumBase<T, sbyte> => (sbyte)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static short Value<T>(this EnumFlags<T> flags, short _ = 0) where T : FlagsEnumBase<T, short> => (short) flags.Flags;
+        public static short Value<T>(this EnumFlags<T> flags, short _ = 0) where T : FlagsEnumBase<T, short> => (short)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ushort Value<T>(this EnumFlags<T> flags, ushort _ = 0) where T : FlagsEnumBase<T, ushort> => (ushort) flags.Flags;
+        public static ushort Value<T>(this EnumFlags<T> flags, ushort _ = 0) where T : FlagsEnumBase<T, ushort> => (ushort)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Value<T>(this EnumFlags<T> flags) where T : FlagsEnumBase<T, int> => (int) flags.Flags;
+        public static int Value<T>(this EnumFlags<T> flags) where T : FlagsEnumBase<T, int> => (int)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint Value<T>(this EnumFlags<T> flags, uint _ = 0) where T : FlagsEnumBase<T, uint> => (uint) flags.Flags;
+        public static uint Value<T>(this EnumFlags<T> flags, uint _ = 0) where T : FlagsEnumBase<T, uint> => (uint)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static long Value<T>(this EnumFlags<T> flags, long _ = 0) where T : FlagsEnumBase<T, long> => flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ulong Value<T>(this EnumFlags<T> flags, ulong _ = 0) where T : FlagsEnumBase<T, ulong> => (ulong) flags.Flags;
+        public static ulong Value<T>(this EnumFlags<T> flags, ulong _ = 0) where T : FlagsEnumBase<T, ulong> => (ulong)flags.Flags;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> GetFlags<T>(this EnumFlags<T> flags, byte _ = 0) where T : FlagsEnumBase<T, byte> => GetFlags<T, byte>(flags);

@@ -12,7 +12,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presentation;
 

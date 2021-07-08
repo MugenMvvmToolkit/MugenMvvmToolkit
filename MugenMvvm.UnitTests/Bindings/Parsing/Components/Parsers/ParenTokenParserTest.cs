@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     new BinaryExpressionNode(BinaryTokenType.Subtraction, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)),
                     new BinaryExpressionNode(BinaryTokenType.Subtraction, ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(2))));
 
-            Context.Parsers = new ITokenParserComponent[] {new BinaryTokenParser(), new DigitTokenParser(), Parser};
+            Context.Parsers = new ITokenParserComponent[] { new BinaryTokenParser(), new DigitTokenParser(), Parser };
 
             Context.Initialize("(1+(1-1+(2-2)))", DefaultMetadata);
             Parser.TryParse(Context, null).ShouldEqual(expected);

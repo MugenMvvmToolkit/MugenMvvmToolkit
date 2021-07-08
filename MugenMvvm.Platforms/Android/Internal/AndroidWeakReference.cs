@@ -14,7 +14,7 @@ namespace MugenMvvm.Android.Internal
         {
             get
             {
-                var target = (Object?) base.Target;
+                var target = (Object?)base.Target;
                 if (target == null || target.Handle == IntPtr.Zero)
                     return null;
                 return target;

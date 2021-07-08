@@ -21,7 +21,7 @@ namespace MugenMvvm.Ios.Internal
             {
                 if (_targetHandle == IntPtr.Zero)
                     return null;
-                var target = (NSObject?) base.Target;
+                var target = (NSObject?)base.Target;
                 if (!target.IsAlive())
                 {
                     target = Runtime.GetNSObject(_targetHandle);

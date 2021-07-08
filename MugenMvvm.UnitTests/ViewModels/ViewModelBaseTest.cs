@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -111,6 +110,28 @@ namespace MugenMvvm.UnitTests.ViewModels
             invokeCount.ShouldEqual(1);
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void RegisterDisposeTokenShouldInvokeTokenOnDispose(int count)
+        {
+            var invokedCount = 0;
+            for (var i = 0; i < count; i++)
+                _viewModel.RegisterDisposeToken(ActionToken.FromDelegate((s1, s2) => ++invokedCount));
+
+            invokedCount.ShouldEqual(0);
+            _viewModel.Dispose();
+            invokedCount.ShouldEqual(count);
+
+            _viewModel.Dispose();
+            invokedCount.ShouldEqual(count);
+
+            invokedCount = 0;
+            for (var i = 0; i < count; i++)
+                _viewModel.RegisterDisposeToken(ActionToken.FromDelegate((s1, s2) => ++invokedCount));
+            invokedCount.ShouldEqual(count);
+        }
+
         [Fact]
         public void ShouldNotifyLifecycle()
         {
@@ -164,7 +185,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             var stateChangedCount = 0;
             var isBusyCount = 0;
             var busyTokenCount = 0;
-            
+
             BusyManager.ClearComponents();
             BusyManager.AddComponent(new BusyTokenManager());
 
@@ -216,27 +237,5 @@ namespace MugenMvvm.UnitTests.ViewModels
         }
 
         protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RegisterDisposeTokenShouldInvokeTokenOnDispose(int count)
-        {
-            var invokedCount = 0;
-            for (var i = 0; i < count; i++)
-                _viewModel.RegisterDisposeToken(ActionToken.FromDelegate((s1, s2) => ++invokedCount));
-
-            invokedCount.ShouldEqual(0);
-            _viewModel.Dispose();
-            invokedCount.ShouldEqual(count);
-
-            _viewModel.Dispose();
-            invokedCount.ShouldEqual(count);
-
-            invokedCount = 0;
-            for (var i = 0; i < count; i++)
-                _viewModel.RegisterDisposeToken(ActionToken.FromDelegate((s1, s2) => ++invokedCount));
-            invokedCount.ShouldEqual(count);
-        }
     }
 }

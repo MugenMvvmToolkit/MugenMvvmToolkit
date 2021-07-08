@@ -199,6 +199,254 @@ namespace MugenMvvm.UnitTests.Presentation
             clearCount.ShouldEqual(1);
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(3)]
+        public void TryCloseShouldNotifyNavigationDispatcher(int state)
+        {
+            var exception = new Exception();
+            var cts = new CancellationTokenSource();
+            string? navigationId = null;
+            var navigatedCount = 0;
+            var navigatingCount = 0;
+            var navigatingConditionCount = 0;
+            var errorCount = 0;
+            var cancelCount = 0;
+            var contextCount = 0;
+            var ignore = true;
+            var metadata = DefaultMetadata;
+
+            var mediator = GetMediator<object>(_vm, _mapping);
+            mediator.ShowViewHandler = context =>
+            {
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.CloseViewHandler = context =>
+            {
+                if (state == 3)
+                    throw exception;
+                mediator.OnViewClosed(DefaultMetadata);
+                return null;
+            };
+            NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
+            NavigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
+            {
+                TryGetNavigationContext = (_, o, provider, nId, type, mode, m) =>
+                {
+                    ++contextCount;
+                    o.ShouldEqual(_vm);
+                    provider.ShouldEqual(mediator);
+                    navigationId = nId;
+                    type.ShouldEqual(mediator.NavigationType);
+                    if (!ignore)
+                        mode.ShouldEqual(NavigationMode.Close);
+                    m.ShouldEqual(metadata);
+                    return _navigationContext;
+                }
+            });
+            NavigationDispatcher.AddComponent(new TestNavigationErrorListener
+            {
+                OnNavigationCanceled = (_, context, arg3) =>
+                {
+                    ++cancelCount;
+                    context.ShouldEqual(_navigationContext);
+                    arg3.ShouldEqual(cts.Token);
+                },
+                OnNavigationFailed = (_, context, arg3) =>
+                {
+                    ++errorCount;
+                    context.ShouldEqual(_navigationContext);
+                    arg3.ShouldEqual(exception);
+                }
+            });
+            NavigationDispatcher.AddComponent(new TestNavigationConditionComponent
+            {
+                CanNavigateAsync = (_, context, t) =>
+                {
+                    ++navigatingConditionCount;
+                    context.ShouldEqual(_navigationContext);
+                    return null;
+                }
+            });
+            NavigationDispatcher.AddComponent(new TestNavigationListener
+            {
+                OnNavigating = (_, context) =>
+                {
+                    ++navigatingCount;
+                    context.ShouldEqual(_navigationContext);
+                },
+                OnNavigated = (_, context) =>
+                {
+                    ++navigatedCount;
+                    context.ShouldEqual(_navigationContext);
+                }
+            });
+
+            mediator.TryShow(null, cts.Token, metadata);
+            contextCount = 0;
+            navigatedCount = 0;
+            navigatingCount = 0;
+            navigatingConditionCount = 0;
+            cancelCount = 0;
+            errorCount = 0;
+            ignore = false;
+            if (state == 2)
+                cts.Cancel();
+            var presenterResult = mediator.TryClose(null, cts.Token, metadata)!;
+            contextCount.ShouldEqual(1);
+            presenterResult.NavigationProvider.ShouldEqual(mediator);
+            presenterResult.NavigationType.ShouldEqual(mediator.NavigationType);
+            presenterResult.Target.ShouldEqual(_vm);
+            presenterResult.NavigationId.ShouldEqual(navigationId);
+            navigatingCount.ShouldEqual(state == 2 ? 0 : 1);
+            navigatingConditionCount.ShouldEqual(state == 2 ? 0 : 1);
+
+            if (state == 1)
+            {
+                navigatedCount.ShouldEqual(1);
+                cancelCount.ShouldEqual(0);
+                errorCount.ShouldEqual(0);
+            }
+            else if (state == 2)
+            {
+                navigatedCount.ShouldEqual(0);
+                cancelCount.ShouldEqual(1);
+                errorCount.ShouldEqual(0);
+            }
+            else
+            {
+                navigatedCount.ShouldEqual(0);
+                cancelCount.ShouldEqual(0);
+                errorCount.ShouldEqual(1);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryCloseShouldWaitNavigationDispatcherOnNavigating(bool result)
+        {
+            var closeCount = 0;
+            var cancelCount = 0;
+            var canClose = true;
+            var tcs = new TaskCompletionSource<bool>();
+
+            NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
+            NavigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
+            {
+                TryGetNavigationContext = (_, o, provider, arg3, arg4, arg5, arg6) => _navigationContext
+            });
+            NavigationDispatcher.AddComponent(new TestNavigationConditionComponent
+            {
+                CanNavigateAsync = (_, context, t) =>
+                {
+                    context.ShouldEqual(_navigationContext);
+                    t.CanBeCanceled.ShouldBeTrue();
+                    if (canClose)
+                        return new ValueTask<bool>(true);
+                    return tcs.Task.AsValueTask();
+                }
+            });
+            NavigationDispatcher.AddComponent(new TestNavigationErrorListener
+            {
+                OnNavigationCanceled = (_, context, t) =>
+                {
+                    ++cancelCount;
+                    context.ShouldEqual(_navigationContext);
+                    t.ShouldEqual(DefaultCancellationToken);
+                }
+            });
+
+            var mediator = GetMediator<object>(_vm, _mapping);
+            mediator.ShowViewHandler = context =>
+            {
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.CloseViewHandler = context =>
+            {
+                ++closeCount;
+                mediator.OnViewClosed(DefaultMetadata);
+                return null;
+            };
+            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+
+            canClose = false;
+            mediator.TryClose(null, DefaultCancellationToken, DefaultMetadata);
+            tcs.SetResult(result);
+            if (result)
+            {
+                WaitCompletion(20, () => closeCount == 1);
+                closeCount.ShouldEqual(1);
+            }
+            else
+            {
+                WaitCompletion(20, () => cancelCount == 1);
+                closeCount.ShouldEqual(0);
+                cancelCount.ShouldEqual(1);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void TryShowShouldActivateView(bool result)
+        {
+            var showCount = 0;
+            var activateCount = 0;
+            var navigateCount = 0;
+            var cancelCount = 0;
+
+            var mediator = GetMediator<object>(_vm, _mapping);
+            mediator.ShowViewHandler = context =>
+            {
+                ++showCount;
+                context.NavigationMode.ShouldEqual(NavigationMode.New);
+                mediator.OnViewShown(DefaultMetadata);
+                return null;
+            };
+            mediator.ActivateViewHandler = context =>
+            {
+                ++activateCount;
+                context.NavigationMode.ShouldEqual(NavigationMode.Refresh);
+                if (result)
+                    mediator.OnViewActivated(DefaultMetadata);
+                return new ValueTask<bool>(result);
+            };
+            mediator.OnNavigatedHandler = context =>
+            {
+                ++navigateCount;
+                return true;
+            };
+            mediator.OnNavigationCanceledHandler = (context, token) =>
+            {
+                ++cancelCount;
+                return true;
+            };
+
+            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            showCount.ShouldEqual(1);
+            navigateCount.ShouldEqual(1);
+            cancelCount.ShouldEqual(0);
+            activateCount.ShouldEqual(0);
+
+            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            showCount.ShouldEqual(1);
+            activateCount.ShouldEqual(1);
+            if (result)
+            {
+                navigateCount.ShouldEqual(2);
+                cancelCount.ShouldEqual(0);
+            }
+            else
+            {
+                navigateCount.ShouldEqual(1);
+                cancelCount.ShouldEqual(1);
+            }
+        }
+
         [Fact]
         public void TryShowShouldCheckNavigationType()
         {
@@ -279,72 +527,6 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
             showCount.ShouldEqual(1);
         }
-
-        [Fact]
-        public void TryShowShouldUpdateView()
-        {
-            var newView = new View(_mapping, new object(), _vm);
-            var cleanupCount = 0;
-            var showCount = 0;
-            var activateCount = 0;
-
-            var mediator = GetMediator<object>(_vm, _mapping);
-            mediator.CleanupViewHandler = context => { ++cleanupCount; };
-            mediator.ShowViewHandler = context =>
-            {
-                ++showCount;
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.ActivateViewHandler = context =>
-            {
-                ++activateCount;
-                mediator.OnViewActivated(DefaultMetadata);
-                return new ValueTask<bool>(true);
-            };
-
-            var cleanupViewCount = 0;
-            ViewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryInitializeAsync = (_, _, r, _, _) =>
-                {
-                    MugenExtensions.TryGetViewModelView(r, out object? v);
-                    if (v == null)
-                        return new ValueTask<IView?>(_view);
-                    return new ValueTask<IView?>(newView);
-                },
-                TryCleanupAsync = (_, v, _, _, _) =>
-                {
-                    ++cleanupViewCount;
-                    v.ShouldEqual(_view);
-                    return new ValueTask<bool>(true);
-                }
-            });
-
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
-            mediator.View.ShouldEqual(_view);
-            mediator.CurrentView.ShouldEqual(_view.Target);
-            cleanupCount.ShouldEqual(0);
-            activateCount.ShouldEqual(0);
-            showCount.ShouldEqual(1);
-            cleanupViewCount.ShouldEqual(0);
-
-            mediator.TryShow(newView.Target, DefaultCancellationToken, default);
-            mediator.View.ShouldEqual(newView);
-            mediator.CurrentView.ShouldEqual(newView.Target);
-            cleanupCount.ShouldEqual(1);
-            showCount.ShouldEqual(1);
-            activateCount.ShouldEqual(1);
-            cleanupViewCount.ShouldEqual(1);
-        }
-
-        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
-
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
-
-        protected override IWrapperManager GetWrapperManager() => new WrapperManager(ComponentCollectionManager);
-
-        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -506,91 +688,62 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.CurrentView.ShouldEqual(_view.Target);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryShowShouldWrapView(bool includeView)
+        [Fact]
+        public void TryShowShouldUpdateView()
         {
-            var initCount = 0;
-            var wrappedView = "v";
-
-            var mediator = GetMediator<string>(_vm, _mapping);
-            mediator.InitializeViewHandler = context => ++initCount;
-            mediator.ShowViewHandler = context =>
-            {
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-
-            WrapperManager.AddComponent(new DelegateWrapperManager<Type, object>((type, type1, arg4) => true, (type, request, __) =>
-            {
-                type.ShouldEqual(typeof(string));
-                request.ShouldEqual(_view);
-                return wrappedView;
-            }));
-
-            mediator.TryShow(includeView ? _view.Target : null, DefaultCancellationToken, DefaultMetadata);
-            initCount.ShouldEqual(1);
-            mediator.View.ShouldEqual(_view);
-            mediator.CurrentView.ShouldEqual(wrappedView);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryShowShouldActivateView(bool result)
-        {
+            var newView = new View(_mapping, new object(), _vm);
+            var cleanupCount = 0;
             var showCount = 0;
             var activateCount = 0;
-            var navigateCount = 0;
-            var cancelCount = 0;
 
             var mediator = GetMediator<object>(_vm, _mapping);
+            mediator.CleanupViewHandler = context => { ++cleanupCount; };
             mediator.ShowViewHandler = context =>
             {
                 ++showCount;
-                context.NavigationMode.ShouldEqual(NavigationMode.New);
                 mediator.OnViewShown(DefaultMetadata);
                 return null;
             };
             mediator.ActivateViewHandler = context =>
             {
                 ++activateCount;
-                context.NavigationMode.ShouldEqual(NavigationMode.Refresh);
-                if (result)
-                    mediator.OnViewActivated(DefaultMetadata);
-                return new ValueTask<bool>(result);
-            };
-            mediator.OnNavigatedHandler = context =>
-            {
-                ++navigateCount;
-                return true;
-            };
-            mediator.OnNavigationCanceledHandler = (context, token) =>
-            {
-                ++cancelCount;
-                return true;
+                mediator.OnViewActivated(DefaultMetadata);
+                return new ValueTask<bool>(true);
             };
 
+            var cleanupViewCount = 0;
+            ViewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryInitializeAsync = (_, _, r, _, _) =>
+                {
+                    MugenExtensions.TryGetViewModelView(r, out object? v);
+                    if (v == null)
+                        return new ValueTask<IView?>(_view);
+                    return new ValueTask<IView?>(newView);
+                },
+                TryCleanupAsync = (_, v, _, _, _) =>
+                {
+                    ++cleanupViewCount;
+                    v.ShouldEqual(_view);
+                    return new ValueTask<bool>(true);
+                }
+            });
+
             mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
-            showCount.ShouldEqual(1);
-            navigateCount.ShouldEqual(1);
-            cancelCount.ShouldEqual(0);
+            mediator.View.ShouldEqual(_view);
+            mediator.CurrentView.ShouldEqual(_view.Target);
+            cleanupCount.ShouldEqual(0);
             activateCount.ShouldEqual(0);
+            showCount.ShouldEqual(1);
+            cleanupViewCount.ShouldEqual(0);
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(newView.Target, DefaultCancellationToken, default);
+            mediator.View.ShouldEqual(newView);
+            mediator.CurrentView.ShouldEqual(newView.Target);
+            cleanupCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
             activateCount.ShouldEqual(1);
-            if (result)
-            {
-                navigateCount.ShouldEqual(2);
-                cancelCount.ShouldEqual(0);
-            }
-            else
-            {
-                navigateCount.ShouldEqual(1);
-                cancelCount.ShouldEqual(1);
-            }
+            cleanupViewCount.ShouldEqual(1);
         }
 
         [Theory]
@@ -647,192 +800,39 @@ namespace MugenMvvm.UnitTests.Presentation
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void TryCloseShouldWaitNavigationDispatcherOnNavigating(bool result)
+        public void TryShowShouldWrapView(bool includeView)
         {
-            var closeCount = 0;
-            var cancelCount = 0;
-            var canClose = true;
-            var tcs = new TaskCompletionSource<bool>();
+            var initCount = 0;
+            var wrappedView = "v";
 
-            NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
-            NavigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
-            {
-                TryGetNavigationContext = (_, o, provider, arg3, arg4, arg5, arg6) => _navigationContext
-            });
-            NavigationDispatcher.AddComponent(new TestNavigationConditionComponent
-            {
-                CanNavigateAsync = (_, context, t) =>
-                {
-                    context.ShouldEqual(_navigationContext);
-                    t.CanBeCanceled.ShouldBeTrue();
-                    if (canClose)
-                        return new ValueTask<bool>(true);
-                    return tcs.Task.AsValueTask();
-                }
-            });
-            NavigationDispatcher.AddComponent(new TestNavigationErrorListener
-            {
-                OnNavigationCanceled = (_, context, t) =>
-                {
-                    ++cancelCount;
-                    context.ShouldEqual(_navigationContext);
-                    t.ShouldEqual(DefaultCancellationToken);
-                }
-            });
-
-            var mediator = GetMediator<object>(_vm, _mapping);
+            var mediator = GetMediator<string>(_vm, _mapping);
+            mediator.InitializeViewHandler = context => ++initCount;
             mediator.ShowViewHandler = context =>
             {
                 mediator.OnViewShown(DefaultMetadata);
                 return null;
             };
-            mediator.CloseViewHandler = context =>
-            {
-                ++closeCount;
-                mediator.OnViewClosed(DefaultMetadata);
-                return null;
-            };
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
 
-            canClose = false;
-            mediator.TryClose(null, DefaultCancellationToken, DefaultMetadata);
-            tcs.SetResult(result);
-            if (result)
+            WrapperManager.AddComponent(new DelegateWrapperManager<Type, object>((type, type1, arg4) => true, (type, request, __) =>
             {
-                WaitCompletion(20, () => closeCount == 1);
-                closeCount.ShouldEqual(1);
-            }
-            else
-            {
-                WaitCompletion(20, () => cancelCount == 1);
-                closeCount.ShouldEqual(0);
-                cancelCount.ShouldEqual(1);
-            }
+                type.ShouldEqual(typeof(string));
+                request.ShouldEqual(_view);
+                return wrappedView;
+            }));
+
+            mediator.TryShow(includeView ? _view.Target : null, DefaultCancellationToken, DefaultMetadata);
+            initCount.ShouldEqual(1);
+            mediator.View.ShouldEqual(_view);
+            mediator.CurrentView.ShouldEqual(wrappedView);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(3)]
-        public void TryCloseShouldNotifyNavigationDispatcher(int state)
-        {
-            var exception = new Exception();
-            var cts = new CancellationTokenSource();
-            string? navigationId = null;
-            var navigatedCount = 0;
-            var navigatingCount = 0;
-            var navigatingConditionCount = 0;
-            var errorCount = 0;
-            var cancelCount = 0;
-            var contextCount = 0;
-            var ignore = true;
-            var metadata = DefaultMetadata;
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
 
-            var mediator = GetMediator<object>(_vm, _mapping);
-            mediator.ShowViewHandler = context =>
-            {
-                mediator.OnViewShown(DefaultMetadata);
-                return null;
-            };
-            mediator.CloseViewHandler = context =>
-            {
-                if (state == 3)
-                    throw exception;
-                mediator.OnViewClosed(DefaultMetadata);
-                return null;
-            };
-            NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
-            NavigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
-            {
-                TryGetNavigationContext = (_, o, provider, nId, type, mode, m) =>
-                {
-                    ++contextCount;
-                    o.ShouldEqual(_vm);
-                    provider.ShouldEqual(mediator);
-                    navigationId = nId;
-                    type.ShouldEqual(mediator.NavigationType);
-                    if (!ignore)
-                        mode.ShouldEqual(NavigationMode.Close);
-                    m.ShouldEqual(metadata);
-                    return _navigationContext;
-                }
-            });
-            NavigationDispatcher.AddComponent(new TestNavigationErrorListener
-            {
-                OnNavigationCanceled = (_, context, arg3) =>
-                {
-                    ++cancelCount;
-                    context.ShouldEqual(_navigationContext);
-                    arg3.ShouldEqual(cts.Token);
-                },
-                OnNavigationFailed = (_, context, arg3) =>
-                {
-                    ++errorCount;
-                    context.ShouldEqual(_navigationContext);
-                    arg3.ShouldEqual(exception);
-                }
-            });
-            NavigationDispatcher.AddComponent(new TestNavigationConditionComponent
-            {
-                CanNavigateAsync = (_, context, t) =>
-                {
-                    ++navigatingConditionCount;
-                    context.ShouldEqual(_navigationContext);
-                    return null;
-                }
-            });
-            NavigationDispatcher.AddComponent(new TestNavigationListener
-            {
-                OnNavigating = (_, context) =>
-                {
-                    ++navigatingCount;
-                    context.ShouldEqual(_navigationContext);
-                },
-                OnNavigated = (_, context) =>
-                {
-                    ++navigatedCount;
-                    context.ShouldEqual(_navigationContext);
-                }
-            });
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
-            mediator.TryShow(null, cts.Token, metadata);
-            contextCount = 0;
-            navigatedCount = 0;
-            navigatingCount = 0;
-            navigatingConditionCount = 0;
-            cancelCount = 0;
-            errorCount = 0;
-            ignore = false;
-            if (state == 2)
-                cts.Cancel();
-            var presenterResult = mediator.TryClose(null, cts.Token, metadata)!;
-            contextCount.ShouldEqual(1);
-            presenterResult.NavigationProvider.ShouldEqual(mediator);
-            presenterResult.NavigationType.ShouldEqual(mediator.NavigationType);
-            presenterResult.Target.ShouldEqual(_vm);
-            presenterResult.NavigationId.ShouldEqual(navigationId);
-            navigatingCount.ShouldEqual(state == 2 ? 0 : 1);
-            navigatingConditionCount.ShouldEqual(state == 2 ? 0 : 1);
+        protected override IWrapperManager GetWrapperManager() => new WrapperManager(ComponentCollectionManager);
 
-            if (state == 1)
-            {
-                navigatedCount.ShouldEqual(1);
-                cancelCount.ShouldEqual(0);
-                errorCount.ShouldEqual(0);
-            }
-            else if (state == 2)
-            {
-                navigatedCount.ShouldEqual(0);
-                cancelCount.ShouldEqual(1);
-                errorCount.ShouldEqual(0);
-            }
-            else
-            {
-                navigatedCount.ShouldEqual(0);
-                cancelCount.ShouldEqual(0);
-                errorCount.ShouldEqual(1);
-            }
-        }
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
 
         protected virtual TestViewModelPresenterMediatorBase<T> GetMediator<T>(IViewModelBase viewModel, IViewMapping viewMapping) where T : class =>
             new(viewModel, viewMapping, ViewManager, WrapperManager, NavigationDispatcher, ThreadDispatcher, ViewModelManager);

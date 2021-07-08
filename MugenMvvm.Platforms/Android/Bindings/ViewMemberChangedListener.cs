@@ -61,6 +61,8 @@ namespace MugenMvvm.Android.Bindings
             return memberObserver._listeners.Add(listener, memberName);
         }
 
+        public void OnChanged(Object target, ICharSequence path, Object? state) => _listeners.Raise(target, state, GetMember(path), null);
+
         private static string GetMember(ICharSequence member)
         {
             if (member == ParentMemberNameNative)
@@ -134,8 +136,6 @@ namespace MugenMvvm.Android.Bindings
 
             return r;
         }
-
-        public void OnChanged(Object target, ICharSequence path, Object? state) => _listeners.Raise(target, state, GetMember(path), null);
 
         private sealed class AndroidViewMemberListenerCollection : MemberListenerCollection
         {

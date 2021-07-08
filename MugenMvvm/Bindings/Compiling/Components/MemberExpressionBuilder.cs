@@ -36,17 +36,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public int Priority { get; init; } = CompilingComponentPriority.Member;
 
-        private static Expression? TryCompile(Expression? target, object? member)
-        {
-            if (member == null)
-                return null;
-            if (member is PropertyInfo property)
-                return Expression.Property(target, property);
-            if (member is FieldInfo field)
-                return Expression.Field(target, field);
-            return null;
-        }
-
         [Preserve(Conditional = true)]
         public object? GetValueDynamic(object? target, string member, IReadOnlyMetadataContext? metadata)
         {
@@ -107,6 +96,17 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return Expression
                    .Call(Expression.Constant(member), GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression)
                    .ConvertIfNeed(member.Type, false);
+        }
+
+        private static Expression? TryCompile(Expression? target, object? member)
+        {
+            if (member == null)
+                return null;
+            if (member is PropertyInfo property)
+                return Expression.Property(target, property);
+            if (member is FieldInfo field)
+                return Expression.Field(target, field);
+            return null;
         }
     }
 }

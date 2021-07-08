@@ -31,8 +31,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
             _member2Error = new ValidationErrorInfo(new object(), Member2, Member2);
             _sourceErrors = new Dictionary<object, List<ValidationErrorInfo>>
             {
-                [TwoErrorSource] = new() {_member1Error, _member2Error},
-                [SingleErrorSource] = new() {_member1Error},
+                [TwoErrorSource] = new() { _member1Error, _member2Error },
+                [SingleErrorSource] = new() { _member1Error },
                 [NoErrorSource] = new()
             };
             _allErrors = new List<ValidationErrorInfo>();
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Fact]
         public void ClearErrorsShouldNotifyListeners()
         {
-            string[] members = {Member1, Member2};
+            string[] members = { Member1, Member2 };
             var invokeCount = 0;
             var ignore = true;
             Validator.AddComponent(new TestValidatorErrorsChangedListener
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             AddDefaultErrors();
             invokeCount = 0;
             ignore = false;
-            members = new[] {Member1};
+            members = new[] { Member1 };
             Validator.ClearErrors(Member1, null, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             AddDefaultErrors();
             errors.Clear();
-            Validator.ClearErrors(new[] {Member1, Member2});
+            Validator.ClearErrors(new[] { Member1, Member2 });
             Validator.GetErrors(default, ref errors);
             errors.Count.ShouldEqual(0);
 
@@ -145,22 +145,22 @@ namespace MugenMvvm.UnitTests.Validation.Components
             errors.Count.ShouldEqual(0);
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors);
             errors.Count.ShouldEqual(3);
             errors.AsList().ShouldContain(_allErrors.Select(info => info.Error));
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors, TwoErrorSource);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors, TwoErrorSource);
             errors.Count.ShouldEqual(2);
             errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource].Select(info => info.Error));
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors, SingleErrorSource);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors, SingleErrorSource);
             errors.Count.ShouldEqual(1);
             errors.AsList().ShouldContain(_sourceErrors[SingleErrorSource].Select(info => info.Error));
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors, NoErrorSource);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors, NoErrorSource);
             errors.Count.ShouldEqual(0);
 
             errors.Clear();
@@ -227,22 +227,22 @@ namespace MugenMvvm.UnitTests.Validation.Components
             errors.Count.ShouldEqual(0);
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors);
             errors.Count.ShouldEqual(3);
             errors.AsList().ShouldContain(_allErrors);
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors, TwoErrorSource);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors, TwoErrorSource);
             errors.Count.ShouldEqual(2);
             errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource]);
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors, SingleErrorSource);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors, SingleErrorSource);
             errors.Count.ShouldEqual(1);
             errors.AsList().ShouldContain(_sourceErrors[SingleErrorSource]);
 
             errors.Clear();
-            Validator.GetErrors(new[] {Member1, Member2}, ref errors, NoErrorSource);
+            Validator.GetErrors(new[] { Member1, Member2 }, ref errors, NoErrorSource);
             errors.Count.ShouldEqual(0);
 
             errors.Clear();
@@ -293,10 +293,10 @@ namespace MugenMvvm.UnitTests.Validation.Components
             Validator.HasErrors(default, SingleErrorSource).ShouldBeTrue();
             Validator.HasErrors(default, NoErrorSource).ShouldBeFalse();
 
-            Validator.HasErrors(new[] {Member1, Member2}).ShouldBeTrue();
-            Validator.HasErrors(new[] {Member1, Member2}, TwoErrorSource).ShouldBeTrue();
-            Validator.HasErrors(new[] {Member1, Member2}, SingleErrorSource).ShouldBeTrue();
-            Validator.HasErrors(new[] {Member1, Member2}, NoErrorSource).ShouldBeFalse();
+            Validator.HasErrors(new[] { Member1, Member2 }).ShouldBeTrue();
+            Validator.HasErrors(new[] { Member1, Member2 }, TwoErrorSource).ShouldBeTrue();
+            Validator.HasErrors(new[] { Member1, Member2 }, SingleErrorSource).ShouldBeTrue();
+            Validator.HasErrors(new[] { Member1, Member2 }, NoErrorSource).ShouldBeFalse();
 
             Validator.HasErrors(Member2).ShouldBeTrue();
             Validator.HasErrors(Member2, TwoErrorSource).ShouldBeTrue();
@@ -326,13 +326,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
             errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource]);
 
             errors.Clear();
-            Validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member1Error}, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member1Error }, DefaultMetadata);
             Validator.GetErrors(Member1, ref errors);
             errors.Count.ShouldEqual(2);
             errors.AsList().ShouldContain(_member1Error, _member1Error);
 
             errors.Clear();
-            Validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member1Error}, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member1Error }, DefaultMetadata);
             Validator.SetErrors(TwoErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), DefaultMetadata);
             Validator.GetErrors(Member1, ref errors);
             errors.Count.ShouldEqual(0);
@@ -341,7 +341,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [Fact]
         public void SetErrorsShouldNotifyListeners()
         {
-            string[] members = {Member1, Member2};
+            string[] members = { Member1, Member2 };
             var invokeCount = 0;
             Validator.AddComponent(new TestValidatorErrorsChangedListener
             {
@@ -355,21 +355,21 @@ namespace MugenMvvm.UnitTests.Validation.Components
             });
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error, _member2Error}, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error, _member2Error }, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error, _member2Error, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null)},
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error, _member2Error, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null) },
                 DefaultMetadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
-            members = new[] {Member2};
-            Validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error}, DefaultMetadata);
+            members = new[] { Member2 };
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error }, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, new[] {_member1Error, _member2Error}, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error }, DefaultMetadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
@@ -381,7 +381,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
-            members = new[] {Member1};
+            members = new[] { Member1 };
             Validator.SetErrors(SingleErrorSource, _member1Error, DefaultMetadata);
             invokeCount.ShouldEqual(1);
 
@@ -390,7 +390,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
-            members = new[] {Member1};
+            members = new[] { Member1 };
             Validator.SetErrors(SingleErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }

@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldParseNullConditionalExpression()
         {
             const string memberName = "Test";
-            Context.Parsers = new ITokenParserComponent[] {new MemberTokenParser(), new IndexerTokenParser()};
+            Context.Parsers = new ITokenParserComponent[] { new MemberTokenParser(), new IndexerTokenParser() };
             Context.Initialize($"?.{memberName}", DefaultMetadata);
 
             Parser.TryParse(Context, ConstantExpressionNode.Null)

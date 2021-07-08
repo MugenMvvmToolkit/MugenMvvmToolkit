@@ -25,13 +25,13 @@ namespace MugenMvvm.Bindings.Core.Components
         {
             BindingMemberPriorities = new Dictionary<string, int>
             {
-                {nameof(BindableMembers.DataContext), BindableMemberPriority.DataContext},
-                {BindingInternalConstant.ItemTemplate, BindableMemberPriority.Template},
-                {BindingInternalConstant.ItemTemplateSelector, BindableMemberPriority.Template},
-                {BindingInternalConstant.ContentTemplate, BindableMemberPriority.Template},
-                {BindingInternalConstant.ContentTemplateSelector, BindableMemberPriority.Template},
-                {BindingInternalConstant.StableIdProvider, BindableMemberPriority.Template},
-                {BindingInternalConstant.ItemsSource, BindableMemberPriority.ItemsSource}
+                { nameof(BindableMembers.DataContext), BindableMemberPriority.DataContext },
+                { BindingInternalConstant.ItemTemplate, BindableMemberPriority.Template },
+                { BindingInternalConstant.ItemTemplateSelector, BindableMemberPriority.Template },
+                { BindingInternalConstant.ContentTemplate, BindableMemberPriority.Template },
+                { BindingInternalConstant.ContentTemplateSelector, BindableMemberPriority.Template },
+                { BindingInternalConstant.StableIdProvider, BindableMemberPriority.Template },
+                { BindingInternalConstant.ItemsSource, BindableMemberPriority.ItemsSource }
             };
         }
 

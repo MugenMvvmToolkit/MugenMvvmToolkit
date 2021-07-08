@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         public void ConstructorShouldInitializeValues3()
         {
             var parameter = new ParameterBuilder("", typeof(object)).WithState(this).Build();
-            ((DelegateParameterInfo<object?>) parameter).State.ShouldEqual(this);
+            ((DelegateParameterInfo<object?>)parameter).State.ShouldEqual(this);
         }
     }
 }

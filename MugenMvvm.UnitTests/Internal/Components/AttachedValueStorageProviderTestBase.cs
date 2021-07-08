@@ -100,6 +100,55 @@ namespace MugenMvvm.UnitTests.Internal.Components
             invokeCount.ShouldEqual(1);
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public virtual void ClearShouldClearAll(int count)
+        {
+            var item = GetSupportedItem();
+
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            for (var i = 0; i < count; i++)
+            {
+                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
+                attachedValues.Set(pair.Key, pair.Value, out _);
+            }
+
+            attachedValues.Clear();
+            for (var i = 0; i < count; i++)
+            {
+                attachedValues.TryGet(TestPath + i, out var v).ShouldBeFalse();
+                v.ShouldNotEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public virtual void ClearShouldClearByPath(int count)
+        {
+            var item = GetSupportedItem();
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+
+            for (var i = 0; i < count; i++)
+            {
+                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
+                attachedValues.Set(pair.Key, pair.Value, out _);
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                attachedValues.TryGet(TestPath + i, out var v).ShouldBeTrue();
+                v.ShouldEqual(i + 1);
+
+                attachedValues.Remove(TestPath + i, out var old).ShouldBeTrue();
+                old.ShouldEqual(i + 1);
+
+                attachedValues.TryGet(TestPath + i, out v).ShouldBeFalse();
+                v.ShouldNotEqual(i + 1);
+            }
+        }
+
         [Fact(Skip = ReleaseTest)]
         public virtual void ClearShouldNotKeepRef()
         {
@@ -211,13 +260,6 @@ namespace MugenMvvm.UnitTests.Internal.Components
             old.ShouldEqual(this);
         }
 
-        protected override IAttachedValueManager GetAttachedValueManager()
-        {
-            var attachedValueManager = new AttachedValueManager(ComponentCollectionManager);
-            attachedValueManager.AddComponent(GetComponent());
-            return attachedValueManager;
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -246,53 +288,11 @@ namespace MugenMvvm.UnitTests.Internal.Components
             attachedValues.GetValues().ShouldEqual(values);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public virtual void ClearShouldClearByPath(int count)
+        protected override IAttachedValueManager GetAttachedValueManager()
         {
-            var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
-
-            for (var i = 0; i < count; i++)
-            {
-                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
-                attachedValues.Set(pair.Key, pair.Value, out _);
-            }
-
-            for (var i = 0; i < count; i++)
-            {
-                attachedValues.TryGet(TestPath + i, out var v).ShouldBeTrue();
-                v.ShouldEqual(i + 1);
-
-                attachedValues.Remove(TestPath + i, out var old).ShouldBeTrue();
-                old.ShouldEqual(i + 1);
-
-                attachedValues.TryGet(TestPath + i, out v).ShouldBeFalse();
-                v.ShouldNotEqual(i + 1);
-            }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public virtual void ClearShouldClearAll(int count)
-        {
-            var item = GetSupportedItem();
-
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
-            for (var i = 0; i < count; i++)
-            {
-                var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
-                attachedValues.Set(pair.Key, pair.Value, out _);
-            }
-
-            attachedValues.Clear();
-            for (var i = 0; i < count; i++)
-            {
-                attachedValues.TryGet(TestPath + i, out var v).ShouldBeFalse();
-                v.ShouldNotEqual(i + 1);
-            }
+            var attachedValueManager = new AttachedValueManager(ComponentCollectionManager);
+            attachedValueManager.AddComponent(GetComponent());
+            return attachedValueManager;
         }
 
         protected abstract object GetSupportedItem();

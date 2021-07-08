@@ -34,32 +34,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void UpdateTargetShouldNotifyListeners(int count)
-        {
-            var updateFailed = 0;
-            for (var i = 0; i < count; i++)
-            {
-                _binding.AddComponent(new TestBindingTargetListener
-                {
-                    OnTargetUpdateFailed = (b, e, m) =>
-                    {
-                        ++updateFailed;
-                        b.ShouldEqual(_binding);
-                        e.ShouldEqual(_exception);
-                        m.ShouldEqual(_binding);
-                    },
-                    OnTargetUpdateCanceled = (b, m) => throw new NotSupportedException(),
-                    OnTargetUpdated = (b, v, m) => throw new NotSupportedException()
-                });
-            }
-
-            _binding.UpdateTarget();
-            updateFailed.ShouldEqual(count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
         public void UpdateSourceShouldNotifyListeners(int count)
         {
             var updateFailed = 0;
@@ -80,6 +54,32 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             }
 
             _binding.UpdateSource();
+            updateFailed.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void UpdateTargetShouldNotifyListeners(int count)
+        {
+            var updateFailed = 0;
+            for (var i = 0; i < count; i++)
+            {
+                _binding.AddComponent(new TestBindingTargetListener
+                {
+                    OnTargetUpdateFailed = (b, e, m) =>
+                    {
+                        ++updateFailed;
+                        b.ShouldEqual(_binding);
+                        e.ShouldEqual(_exception);
+                        m.ShouldEqual(_binding);
+                    },
+                    OnTargetUpdateCanceled = (b, m) => throw new NotSupportedException(),
+                    OnTargetUpdated = (b, v, m) => throw new NotSupportedException()
+                });
+            }
+
+            _binding.UpdateTarget();
             updateFailed.ShouldEqual(count);
         }
     }

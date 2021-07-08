@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             BindingBuilderTarget<string, object> target = default;
             Expression<Func<IBindingBuilderContext<string, object>, object?>> expression1 = context => context.Source;
-            var converterRequest = (BindingExpressionRequest) target.Action(expression1);
+            var converterRequest = (BindingExpressionRequest)target.Action(expression1);
             converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
             converterRequest.Source.ShouldEqual(expression1);
             converterRequest.Parameters.Count.ShouldEqual(0);

@@ -10,8 +10,8 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class UnaryTokenType : EnumBase<UnaryTokenType, string>
     {
-        public static readonly UnaryTokenType DynamicExpression = new("$") {IsSingleExpression = true};
-        public static readonly UnaryTokenType StaticExpression = new("$$") {IsSingleExpression = true};
+        public static readonly UnaryTokenType DynamicExpression = new("$") { IsSingleExpression = true };
+        public static readonly UnaryTokenType StaticExpression = new("$$") { IsSingleExpression = true };
         public static readonly UnaryTokenType Minus = new("-");
         public static readonly UnaryTokenType Plus = new("+");
         public static readonly UnaryTokenType LogicalNegation = new("!");

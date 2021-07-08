@@ -4,7 +4,6 @@ using MugenMvvm.Bindings.Attributes;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Converters;
 using MugenMvvm.Bindings.Parsing.Expressions;
-using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -31,7 +30,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnMemberExpression1()
         {
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingMemberAttributeTest))!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingMemberAttributeTest))!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, null, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(null, Name));
@@ -41,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression2()
         {
             var call = Expression.Call(typeof(BindingMemberAttributeTest), nameof(StaticMethod), Array.Empty<Type>());
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(MemberExpressionNode.Get(null, Name), MethodName));
@@ -52,7 +51,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         {
             const string name = "TT";
             var call = Expression.Call(typeof(BindingMemberAttributeTest), nameof(StaticMemberMethod), Array.Empty<Type>(), Expression.Constant(name));
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(MemberExpressionNode.Get(null, Name), name));
@@ -62,10 +61,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression4()
         {
             var call = Expression.Call(Expression.Constant(this), nameof(Method), Array.Empty<Type>());
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
-                Converters = new[] {new ConstantExpressionConverter()}
+                Converters = new[] { new ConstantExpressionConverter() }
             };
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(this), MethodName));
@@ -76,10 +75,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         {
             const string name = "TT";
             var call = Expression.Call(Expression.Constant(this), nameof(MemberMethod), Array.Empty<Type>(), Expression.Constant(name));
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
-                Converters = new[] {new ConstantExpressionConverter()}
+                Converters = new[] { new ConstantExpressionConverter() }
             };
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(this), name));
@@ -89,7 +88,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression6()
         {
             var access = Expression.MakeMemberAccess(null, GetType().GetProperty(nameof(StaticProperty))!);
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, access, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(MemberExpressionNode.Get(null, Name), PropertyName));
@@ -99,10 +98,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression7()
         {
             var access = Expression.MakeMemberAccess(Expression.Constant(this), GetType().GetProperty(nameof(Property))!);
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(access.Member)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
-                Converters = new[] {new ConstantExpressionConverter()}
+                Converters = new[] { new ConstantExpressionConverter() }
             };
             attribute.TryConvert(ctx, access, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(this), PropertyName));
@@ -112,10 +111,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         public void TryConvertShouldReturnMemberExpression8()
         {
             var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.L), Array.Empty<Type>(), Expression.Constant(""));
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
-                Converters = new[] {new ConstantExpressionConverter()}
+                Converters = new[] { new ConstantExpressionConverter() }
             };
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(""), BindingMemberAttributeTestExt.Name));
@@ -127,10 +126,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
             const string name = "TT";
             var call = Expression.Call(typeof(BindingMemberAttributeTestExt), nameof(BindingMemberAttributeTestExt.M), Array.Empty<Type>(), Expression.Constant(""),
                 Expression.Constant(name));
-            var attribute = (BindingMemberAttribute) BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
+            var attribute = (BindingMemberAttribute)BindingSyntaxExtensionAttributeBase.TryGet(call.Method)!;
             var ctx = new ExpressionConverterContext<Expression>
             {
-                Converters = new[] {new ConstantExpressionConverter()}
+                Converters = new[] { new ConstantExpressionConverter() }
             };
             attribute.TryConvert(ctx, call, out var result).ShouldBeTrue();
             result.ShouldEqual(MemberExpressionNode.Get(ConstantExpressionNode.Get(""), name));

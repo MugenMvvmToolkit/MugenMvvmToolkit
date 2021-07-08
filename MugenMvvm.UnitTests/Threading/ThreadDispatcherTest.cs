@@ -13,17 +13,6 @@ namespace MugenMvvm.UnitTests.Threading
 {
     public class ThreadDispatcherTest : ComponentOwnerTestBase<ThreadDispatcher>
     {
-        [Fact]
-        public void CanExecuteInlineShouldReturnFalseNoComponents() =>
-            ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
-
-        [Fact]
-        public void ExecuteShouldThrowNoComponents()
-        {
-            ShouldThrow<InvalidOperationException>(() => ThreadDispatcher.Execute(ThreadExecutionMode.Background, t => { }, ThreadDispatcher));
-            ShouldThrow<InvalidOperationException>(() => ThreadDispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), ThreadDispatcher));
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -58,6 +47,10 @@ namespace MugenMvvm.UnitTests.Threading
             ThreadDispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
+
+        [Fact]
+        public void CanExecuteInlineShouldReturnFalseNoComponents() =>
+            ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.MainAsync).ShouldBeFalse();
 
         [Theory]
         [InlineData(1)]
@@ -94,6 +87,13 @@ namespace MugenMvvm.UnitTests.Threading
             handler = new TestThreadDispatcherHandler();
             ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
+        }
+
+        [Fact]
+        public void ExecuteShouldThrowNoComponents()
+        {
+            ShouldThrow<InvalidOperationException>(() => ThreadDispatcher.Execute(ThreadExecutionMode.Background, t => { }, ThreadDispatcher));
+            ShouldThrow<InvalidOperationException>(() => ThreadDispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), ThreadDispatcher));
         }
 
         protected override IThreadDispatcher GetThreadDispatcher() => GetComponentOwner(ComponentCollectionManager);

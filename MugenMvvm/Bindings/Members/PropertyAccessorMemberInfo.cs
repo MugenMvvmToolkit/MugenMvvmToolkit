@@ -58,7 +58,7 @@ namespace MugenMvvm.Bindings.Members
                 _setterFunc = CompileSetter;
             }
 
-            _modifiers = (ushort) ((getMethod ?? setMethod).GetAccessModifiers().Value() | propertyInfo.GetObservableFlags().Value());
+            _modifiers = (ushort)((getMethod ?? setMethod).GetAccessModifiers().Value() | propertyInfo.GetObservableFlags().Value());
             if (setMethod == null && getMethod != null && getMethod.IsDefined(typeof(CompilerGeneratedAttribute), false))
                 _modifiers |= Enums.MemberFlags.NonObservable.Value;
         }

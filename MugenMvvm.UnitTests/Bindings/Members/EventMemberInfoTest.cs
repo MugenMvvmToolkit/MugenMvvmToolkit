@@ -12,10 +12,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 {
     public class EventMemberInfoTest : UnitTestBase
     {
-        public event Action? Event1;
-
-        public event Action<object>? Event2;
-
         [Theory]
         [InlineData(nameof(Event1))]
         [InlineData(nameof(Event2))]
@@ -48,5 +44,9 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
         }
+
+        public event Action? Event1;
+
+        public event Action<object>? Event2;
     }
 }

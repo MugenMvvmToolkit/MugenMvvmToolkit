@@ -14,10 +14,10 @@ namespace MugenMvvm.UnitTests
         public static T UpdateMetadata<T>(this T expression, string key1, object? value1, string? key2 = null, object? value2 = null)
             where T : class, IExpressionNode
         {
-            var dictionary = new Dictionary<string, object?> {[key1] = value1};
+            var dictionary = new Dictionary<string, object?> { [key1] = value1 };
             if (key2 != null)
                 dictionary[key2] = value2;
-            return (T) expression.UpdateMetadata(dictionary);
+            return (T)expression.UpdateMetadata(dictionary);
         }
 
         public static async Task WaitSafeAsync<T>(this ValueTask<T> task)

@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTests.Extensions
         [Fact]
         public void BoxBoolShouldUseCache()
         {
-            BoxingExtensions.Box((bool?) null).ShouldBeNull();
+            BoxingExtensions.Box((bool?)null).ShouldBeNull();
 
             var boxTrue = BoxingExtensions.Box(true);
             boxTrue.ShouldEqual(true);
@@ -20,11 +20,11 @@ namespace MugenMvvm.UnitTests.Extensions
             boxFalse.ShouldEqual(false);
             ReferenceEquals(BoxingExtensions.Box(false), boxFalse);
 
-            boxTrue = BoxingExtensions.Box((bool?) true);
+            boxTrue = BoxingExtensions.Box((bool?)true);
             boxTrue.ShouldEqual(true);
             ReferenceEquals(BoxingExtensions.Box(true), boxTrue);
 
-            boxFalse = BoxingExtensions.Box((bool?) false);
+            boxFalse = BoxingExtensions.Box((bool?)false);
             boxFalse.ShouldEqual(false);
             ReferenceEquals(BoxingExtensions.Box(false), boxFalse);
         }
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Extensions
         [Fact]
         public void BoxIntShouldUseCache()
         {
-            BoxingExtensions.Box((int?) null).ShouldBeNull();
+            BoxingExtensions.Box((int?)null).ShouldBeNull();
             var objects = new HashSet<object>(ReferenceEqualityComparer.Instance);
             for (var i = -BoxingExtensions.CacheSize; i < BoxingExtensions.CacheSize; i++)
             {
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Extensions
 
                 objects.Add(item);
                 objects.Add(BoxingExtensions.Box(i));
-                objects.Add(BoxingExtensions.Box((int?) i)!);
+                objects.Add(BoxingExtensions.Box((int?)i)!);
             }
 
             objects.Count.ShouldEqual(BoxingExtensions.CacheSize * 2);

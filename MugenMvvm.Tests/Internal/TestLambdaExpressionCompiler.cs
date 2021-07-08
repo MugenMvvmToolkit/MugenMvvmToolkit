@@ -13,6 +13,6 @@ namespace MugenMvvm.Tests.Internal
         Delegate ILambdaExpressionCompiler.Compile(LambdaExpression lambdaExpression) => Compile?.Invoke(lambdaExpression) ?? lambdaExpression.Compile();
 
         TDelegate ILambdaExpressionCompiler.Compile<TDelegate>(Expression<TDelegate> lambdaExpression) =>
-            (TDelegate) CompileGeneric?.Invoke(lambdaExpression, typeof(TDelegate))! ?? lambdaExpression.Compile();
+            (TDelegate)CompileGeneric?.Invoke(lambdaExpression, typeof(TDelegate))! ?? lambdaExpression.Compile();
     }
 }

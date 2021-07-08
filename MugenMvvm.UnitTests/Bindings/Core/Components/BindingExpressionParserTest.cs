@@ -20,7 +20,6 @@ using MugenMvvm.Tests.Bindings.Parsing;
 using MugenMvvm.Tests.Components;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
-using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -36,43 +35,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _builder = new BindingExpressionParser(ExpressionParser, ExpressionCompiler);
             BindingManager.AddComponent(_builder);
         }
-
-        [Fact]
-        public void TryParseBindingExpressionShouldThrowUnsupportedExpression()
-        {
-            ExpressionParser.AddComponent(new TestExpressionParserComponent
-            {
-                TryParse = (_, o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
-            });
-            var expression = _builder.TryParseBindingExpression(null!, "", DefaultMetadata).Item!;
-            expression.ShouldNotBeNull();
-            ShouldThrow<InvalidOperationException>(() => expression.Build(this, this, DefaultMetadata));
-        }
-
-        [Fact]
-        public void TryParseBindingExpressionShouldUseExpressionParser()
-        {
-            var count = 0;
-            var st = "";
-            ExpressionParser.AddComponent(new TestExpressionParserComponent
-            {
-                TryParse = (_, o, arg3) =>
-                {
-                    ++count;
-                    o.ShouldEqual(st);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return default;
-                }
-            });
-            _builder.TryParseBindingExpression(null!, st, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            count.ShouldEqual(1);
-        }
-
-        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
-
-        protected override IExpressionParser GetExpressionParser() => new ExpressionParser(ComponentCollectionManager);
-
-        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1, 1, true, true)]
@@ -347,6 +309,43 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.GetComponents<object>().ShouldContain(components);
             }
         }
+
+        [Fact]
+        public void TryParseBindingExpressionShouldThrowUnsupportedExpression()
+        {
+            ExpressionParser.AddComponent(new TestExpressionParserComponent
+            {
+                TryParse = (_, o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
+            });
+            var expression = _builder.TryParseBindingExpression(null!, "", DefaultMetadata).Item!;
+            expression.ShouldNotBeNull();
+            ShouldThrow<InvalidOperationException>(() => expression.Build(this, this, DefaultMetadata));
+        }
+
+        [Fact]
+        public void TryParseBindingExpressionShouldUseExpressionParser()
+        {
+            var count = 0;
+            var st = "";
+            ExpressionParser.AddComponent(new TestExpressionParserComponent
+            {
+                TryParse = (_, o, arg3) =>
+                {
+                    ++count;
+                    o.ShouldEqual(st);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return default;
+                }
+            });
+            _builder.TryParseBindingExpression(null!, st, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            count.ShouldEqual(1);
+        }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
+
+        protected override IExpressionParser GetExpressionParser() => new ExpressionParser(ComponentCollectionManager);
+
+        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
 
         private static IExpressionNode GetBindingSourceExpression(int index, out TestBindingMemberExpressionNode node1, out TestBindingMemberExpressionNode node2)
         {

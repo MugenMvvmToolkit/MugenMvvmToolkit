@@ -10,8 +10,8 @@ namespace MugenMvvm.Enums
     public class ThreadExecutionMode : EnumBase<ThreadExecutionMode, int>
     {
         public static readonly ThreadExecutionMode Current = new(0);
-        public static readonly ThreadExecutionMode Main = new(1) {IsSynchronized = true};
-        public static readonly ThreadExecutionMode MainAsync = new(2) {IsSynchronized = true};
+        public static readonly ThreadExecutionMode Main = new(1) { IsSynchronized = true };
+        public static readonly ThreadExecutionMode MainAsync = new(2) { IsSynchronized = true };
         public static readonly ThreadExecutionMode Background = new(3);
         public static readonly ThreadExecutionMode BackgroundAsync = new(4);
 

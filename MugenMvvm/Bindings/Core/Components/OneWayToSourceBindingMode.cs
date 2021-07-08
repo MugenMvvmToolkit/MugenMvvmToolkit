@@ -25,7 +25,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding) owner;
+            var binding = (IBinding)owner;
             binding.UpdateSource();
             if (!BindingMugenExtensions.IsAllMembersAvailable(binding.Source))
                 binding.AddComponent(OneTimeHandlerComponent.Instance, metadata);

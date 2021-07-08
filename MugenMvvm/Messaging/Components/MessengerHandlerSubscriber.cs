@@ -34,52 +34,6 @@ namespace MugenMvvm.Messaging.Components
 
         public int Priority { get; init; } = MessengerComponentPriority.Subscriber;
 
-        private static MessengerResult Handle(object subscriber, IMessageContext context, object? handler)
-        {
-            if (subscriber is IWeakReference weakReference)
-                subscriber = weakReference.Target!;
-            if (subscriber == null || handler == null)
-                return MessengerResult.Invalid;
-
-            ((Action<object?, object?, IMessageContext>)handler).Invoke(subscriber, context.Message, context);
-            return MessengerResult.Handled;
-        }
-
-        private static MessengerResult HandleRaw(object subscriber, IMessageContext context, object? _)
-        {
-            if (subscriber is IWeakReference weakReference)
-                subscriber = weakReference.Target!;
-            if (subscriber == null)
-                return MessengerResult.Invalid;
-            return ((IMessengerHandler)subscriber).Handle(context);
-        }
-
-        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
-        {
-            var key = new KeyValuePair<Type, Type>(handlerType, messageType);
-            lock (Cache)
-            {
-                if (!Cache.TryGetValue(key, out var action))
-                {
-                    var interfaces = key.Key.GetInterfaces();
-                    for (var index = 0; index < interfaces.Length; index++)
-                    {
-                        var @interface = interfaces[index];
-                        if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != typeof(IMessengerHandler<>))
-                            continue;
-                        var typeMessage = @interface.GetGenericArguments()[0];
-                        var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
-                        if (method != null && typeMessage.IsAssignableFrom(key.Value))
-                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionManager);
-                    }
-
-                    Cache[key] = action;
-                }
-
-                return action;
-            }
-        }
-
         public bool TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
             if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandlerBase handler)
@@ -164,6 +118,52 @@ namespace MugenMvvm.Messaging.Components
                 foreach (var item in this)
                     array.SetAt(index++, new MessengerSubscriberInfo(item.Subscriber, item.ExecutionMode));
                 return array;
+            }
+        }
+
+        private static MessengerResult Handle(object subscriber, IMessageContext context, object? handler)
+        {
+            if (subscriber is IWeakReference weakReference)
+                subscriber = weakReference.Target!;
+            if (subscriber == null || handler == null)
+                return MessengerResult.Invalid;
+
+            ((Action<object?, object?, IMessageContext>)handler).Invoke(subscriber, context.Message, context);
+            return MessengerResult.Handled;
+        }
+
+        private static MessengerResult HandleRaw(object subscriber, IMessageContext context, object? _)
+        {
+            if (subscriber is IWeakReference weakReference)
+                subscriber = weakReference.Target!;
+            if (subscriber == null)
+                return MessengerResult.Invalid;
+            return ((IMessengerHandler)subscriber).Handle(context);
+        }
+
+        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
+        {
+            var key = new KeyValuePair<Type, Type>(handlerType, messageType);
+            lock (Cache)
+            {
+                if (!Cache.TryGetValue(key, out var action))
+                {
+                    var interfaces = key.Key.GetInterfaces();
+                    for (var index = 0; index < interfaces.Length; index++)
+                    {
+                        var @interface = interfaces[index];
+                        if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != typeof(IMessengerHandler<>))
+                            continue;
+                        var typeMessage = @interface.GetGenericArguments()[0];
+                        var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
+                        if (method != null && typeMessage.IsAssignableFrom(key.Value))
+                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionManager);
+                    }
+
+                    Cache[key] = action;
+                }
+
+                return action;
             }
         }
 

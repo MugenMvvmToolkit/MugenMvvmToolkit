@@ -7,7 +7,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Tests.Bindings.Parsing;
-using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Metadata;
 using Should;
 using Xunit;
@@ -27,10 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         }
 
         [Fact]
-        public void GetValueShouldSubstring()
-        {
-            _context.GetValue(1, 3).ShouldEqual("es");
-        }
+        public void GetValueShouldSubstring() => _context.GetValue(1, 3).ShouldEqual("es");
 
         [Fact]
         public void InitializeShouldClearPrevValues()
@@ -139,7 +135,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             _context.TryParse(constantExpression, (parserContext, component) =>
             {
                 parserContext.ShouldEqual(_context);
-                return ((IHasPriority) component).Priority == 0;
+                return ((IHasPriority)component).Priority == 0;
             }).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }

@@ -93,219 +93,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             invokeCount.ShouldEqual(1);
         }
 
-        [Fact]
-        public void TryBuildShouldBuildMethodCallInstanceNoArgs()
-        {
-            var invokeCount = 0;
-            const string memberName = nameof(InstanceMethod1);
-            var metadataContext = _context.Metadata;
-            var result = new TestMethodMemberInfo
-            {
-                Type = typeof(object),
-                Invoke = (o, objects, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(this);
-                    objects.IsEmpty.ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return this;
-                }
-            };
-            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
-            {
-                t.ShouldEqual(GetType());
-                r.ShouldEqual(memberName);
-                m.ShouldEqual(MemberType.Method);
-                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                meta.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(_context, expressionNode)!;
-
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMethodCallInstanceNoArgsDynamic()
-        {
-            var invokeCount = 0;
-            const string memberName = nameof(InstanceMethod1);
-            var metadataContext = _context.Metadata;
-            var result = new TestMethodMemberInfo
-            {
-                Type = typeof(object),
-                Invoke = (o, objects, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(this);
-                    objects.IsEmpty.ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return this;
-                }
-            };
-
-            var members = Array.Empty<IMemberInfo>();
-            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
-            {
-                t.ShouldEqual(GetType());
-                r.ShouldEqual(memberName);
-                m.ShouldEqual(MemberType.Method);
-                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                meta.ShouldEqual(metadataContext);
-                return members;
-            };
-
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(_context, expressionNode)!;
-
-            members = new[] { result };
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMethodCallInstanceNoArgsUnderlyingMember()
-        {
-            const string memberName = nameof(InstanceMethod1);
-            var metadataContext = _context.Metadata;
-            var result = new TestMethodMemberInfo
-            {
-                UnderlyingMember = GetType().GetMethod(memberName)
-            };
-            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
-            {
-                t.ShouldEqual(GetType());
-                r.ShouldEqual(memberName);
-                m.ShouldEqual(MemberType.Method);
-                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                meta.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(_context, expressionNode)!;
-
-            var invokeCount = 0;
-            InstanceMethod1Delegate = () =>
-            {
-                ++invokeCount;
-                return this;
-            };
-
-            build.Invoke().ShouldEqual(this);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMethodCallStaticNoArgs()
-        {
-            var invokeCount = 0;
-            const string memberName = nameof(StaticMethod1);
-            var metadataContext = _context.Metadata;
-            var result = new TestMethodMemberInfo
-            {
-                Type = typeof(object),
-                Invoke = (o, objects, arg3) =>
-                {
-                    ++invokeCount;
-                    o.ShouldBeNull();
-                    objects.IsEmpty.ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return this;
-                }
-            };
-            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
-            {
-                t.ShouldEqual(GetType());
-                r.ShouldEqual(memberName);
-                m.ShouldEqual(MemberType.Method);
-                f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                meta.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
-            var build = _component.TryBuild(_context, expressionNode)!;
-
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMethodCallStaticNoArgsUnderlyingMember()
-        {
-            const string memberName = nameof(StaticMethod1);
-            var metadataContext = _context.Metadata;
-            var result = new TestMethodMemberInfo
-            {
-                UnderlyingMember = GetType().GetMethod(memberName)
-            };
-            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
-            {
-                t.ShouldEqual(GetType());
-                r.ShouldEqual(memberName);
-                m.ShouldEqual(MemberType.Method);
-                f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                meta.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
-            var build = _component.TryBuild(_context, expressionNode)!;
-
-            var invokeCount = 0;
-            StaticMethod1Delegate = () =>
-            {
-                ++invokeCount;
-                return this;
-            };
-
-            build.Invoke().ShouldEqual(this);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotNullMethodCallExpression()
-        {
-            var component = new MethodCallIndexerExpressionBuilder();
-            var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldThrowInstanceNoArgsDynamic()
-        {
-            const string memberName = nameof(InstanceMethod1);
-            var metadataContext = _context.Metadata;
-
-            var members = Array.Empty<IMemberInfo>();
-            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
-            {
-                t.ShouldEqual(GetType());
-                r.ShouldEqual(memberName);
-                m.ShouldEqual(MemberType.Method);
-                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                meta.ShouldEqual(metadataContext);
-                return members;
-            };
-
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
-            var build = _component.TryBuild(_context, expressionNode)!;
-
-            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata));
-        }
-
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
-        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
-
-        public Func<object?>? InstanceMethod1Delegate { get; set; }
-
-        public static Func<object?>? StaticMethod1Delegate { get; set; }
-
         [Theory]
         [InlineData(true, ConstantParameterTypeState)]
         [InlineData(true, BindingParameterTypeState)]
@@ -467,6 +254,112 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             instance.Assert(() => instance.Method4<decimal>(1), 1M);
         }
 
+        [Fact]
+        public void TryBuildShouldBuildMethodCallInstanceNoArgs()
+        {
+            var invokeCount = 0;
+            const string memberName = nameof(InstanceMethod1);
+            var metadataContext = _context.Metadata;
+            var result = new TestMethodMemberInfo
+            {
+                Type = typeof(object),
+                Invoke = (o, objects, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(this);
+                    objects.IsEmpty.ShouldBeTrue();
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return this;
+                }
+            };
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
+            {
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
+            var build = _component.TryBuild(_context, expressionNode)!;
+
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryBuildShouldBuildMethodCallInstanceNoArgsDynamic()
+        {
+            var invokeCount = 0;
+            const string memberName = nameof(InstanceMethod1);
+            var metadataContext = _context.Metadata;
+            var result = new TestMethodMemberInfo
+            {
+                Type = typeof(object),
+                Invoke = (o, objects, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(this);
+                    objects.IsEmpty.ShouldBeTrue();
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return this;
+                }
+            };
+
+            var members = Array.Empty<IMemberInfo>();
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
+            {
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
+                return members;
+            };
+
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
+            var build = _component.TryBuild(_context, expressionNode)!;
+
+            members = new[] { result };
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryBuildShouldBuildMethodCallInstanceNoArgsUnderlyingMember()
+        {
+            const string memberName = nameof(InstanceMethod1);
+            var metadataContext = _context.Metadata;
+            var result = new TestMethodMemberInfo
+            {
+                UnderlyingMember = GetType().GetMethod(memberName)
+            };
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
+            {
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
+            var build = _component.TryBuild(_context, expressionNode)!;
+
+            var invokeCount = 0;
+            InstanceMethod1Delegate = () =>
+            {
+                ++invokeCount;
+                return this;
+            };
+
+            build.Invoke().ShouldEqual(this);
+            invokeCount.ShouldEqual(1);
+        }
+
         [Theory]
         [InlineData(true, ConstantParameterTypeState)]
         [InlineData(true, BindingParameterTypeState)]
@@ -613,6 +506,113 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method4<decimal>(1), 1M);
         }
 
+        [Fact]
+        public void TryBuildShouldBuildMethodCallStaticNoArgs()
+        {
+            var invokeCount = 0;
+            const string memberName = nameof(StaticMethod1);
+            var metadataContext = _context.Metadata;
+            var result = new TestMethodMemberInfo
+            {
+                Type = typeof(object),
+                Invoke = (o, objects, arg3) =>
+                {
+                    ++invokeCount;
+                    o.ShouldBeNull();
+                    objects.IsEmpty.ShouldBeTrue();
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return this;
+                }
+            };
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
+            {
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
+            var build = _component.TryBuild(_context, expressionNode)!;
+
+            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryBuildShouldBuildMethodCallStaticNoArgsUnderlyingMember()
+        {
+            const string memberName = nameof(StaticMethod1);
+            var metadataContext = _context.Metadata;
+            var result = new TestMethodMemberInfo
+            {
+                UnderlyingMember = GetType().GetMethod(memberName)
+            };
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
+            {
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
+            var build = _component.TryBuild(_context, expressionNode)!;
+
+            var invokeCount = 0;
+            StaticMethod1Delegate = () =>
+            {
+                ++invokeCount;
+                return this;
+            };
+
+            build.Invoke().ShouldEqual(this);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotNullMethodCallExpression()
+        {
+            var component = new MethodCallIndexerExpressionBuilder();
+            var ctx = new TestExpressionBuilderContext();
+            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
+        }
+
+        [Fact]
+        public void TryBuildShouldThrowInstanceNoArgsDynamic()
+        {
+            const string memberName = nameof(InstanceMethod1);
+            var metadataContext = _context.Metadata;
+
+            var members = Array.Empty<IMemberInfo>();
+            _memberManagerComponent.TryGetMembers = (_, t, m, f, r, meta) =>
+            {
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlag(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
+                return members;
+            };
+
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
+            var build = _component.TryBuild(_context, expressionNode)!;
+
+            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata));
+        }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
+
+        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
+
+        public Func<object?>? InstanceMethod1Delegate { get; set; }
+
+        public static Func<object?>? StaticMethod1Delegate { get; set; }
+
         public object? InstanceMethod1() => InstanceMethod1Delegate?.Invoke();
 
         public static object? StaticMethod1() => StaticMethod1Delegate?.Invoke();
@@ -726,29 +726,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             public static object?[]? Args { get; private set; }
 
-            private static void SetMethod(Expression<Action> expression, params object?[] args)
-            {
-                LastMethod = GetMethodInfo(expression);
-                var objects = new List<object>();
-                foreach (var o in args)
-                {
-                    var array = o as Array;
-                    if (array == null)
-                        objects.Add(o!);
-                    else
-                        objects.AddRange(array.OfType<object>());
-                }
-
-                Args = objects.ToArray();
-            }
-
-            private static MethodInfo GetMethodInfo(LambdaExpression expression)
-            {
-                if (expression.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MethodCallExpression memberExpression)
-                    return memberExpression.Method;
-                return ((MethodCallExpression)expression.Body).Method;
-            }
-
             public void Assert(Expression<Action> expression, params object?[] args)
             {
                 var m = GetMethodInfo(expression);
@@ -784,6 +761,29 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             public void Method3(object x1, object x2, IReadOnlyMetadataContext? metadata = null) => SetMethod(() => Method3(x1, x2, metadata), x1, x2, metadata);
 
             public void Method4<T>(T value) => SetMethod(() => Method4(value), value);
+
+            private static void SetMethod(Expression<Action> expression, params object?[] args)
+            {
+                LastMethod = GetMethodInfo(expression);
+                var objects = new List<object>();
+                foreach (var o in args)
+                {
+                    var array = o as Array;
+                    if (array == null)
+                        objects.Add(o!);
+                    else
+                        objects.AddRange(array.OfType<object>());
+                }
+
+                Args = objects.ToArray();
+            }
+
+            private static MethodInfo GetMethodInfo(LambdaExpression expression)
+            {
+                if (expression.Body is UnaryExpression unaryExpression && unaryExpression.Operand is MethodCallExpression memberExpression)
+                    return memberExpression.Method;
+                return ((MethodCallExpression)expression.Body).Method;
+            }
         }
 
         public static class MethodInvokerStatic

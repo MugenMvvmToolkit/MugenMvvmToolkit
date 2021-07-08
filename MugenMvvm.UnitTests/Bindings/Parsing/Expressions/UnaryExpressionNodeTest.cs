@@ -13,6 +13,31 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
 {
     public class UnaryExpressionNodeTest : UnitTestBase
     {
+        [Theory]
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldCreateNewNode1(int value)
+        {
+            var target = new ConstantExpressionNode("1");
+            var targetChanged = new ConstantExpressionNode("1-");
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) =>
+                {
+                    if (node == target)
+                        return targetChanged;
+                    return node;
+                },
+                TraversalType = ExpressionTraversalType.Get(value)
+            };
+            var exp = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target);
+            var expressionNode = (UnaryExpressionNode)exp.Accept(visitor, DefaultMetadata);
+            expressionNode.ShouldNotEqual(exp);
+            expressionNode.Operand.ShouldEqual(targetChanged);
+            expressionNode.Token.ShouldEqual(UnaryTokenType.BitwiseNegation);
+        }
+
         [Fact]
         public void AcceptShouldCreateNewNode2()
         {
@@ -24,6 +49,32 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
         }
 
+        [Theory]
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
+        {
+            var nodes = new List<IExpressionNode>();
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) =>
+                {
+                    nodes.Add(node);
+                    context.ShouldEqual(DefaultMetadata);
+                    return node;
+                },
+                TraversalType = ExpressionTraversalType.Get(value)
+            };
+
+            var target = new ConstantExpressionNode("1");
+            var exp = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target);
+
+            var result = visitor.TraversalType == ExpressionTraversalType.Preorder ? new IExpressionNode[] { exp, target } : new IExpressionNode[] { target, exp };
+            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
+            result.ShouldEqual(nodes);
+        }
+
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
@@ -33,6 +84,41 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             exp.Operand.ShouldEqual(target);
             exp.Token.ShouldEqual(UnaryTokenType.BitwiseNegation);
             exp.ToString().ShouldEqual("~\"1\"");
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GetHashCodeEqualsShouldBeValid(bool withComparer)
+        {
+            var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
+            var exp1 = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> { { "k", null } });
+            var exp2 = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> { { "k", null } });
+            HashCode.Combine(GetBaseHashCode(exp1), UnaryTokenType.BitwiseNegation.GetHashCode(), 1).ShouldEqual(exp1.GetHashCode(comparer));
+            ((TestExpressionNode)exp1.Operand).GetHashCodeCount.ShouldEqual(1);
+
+            exp1.Equals(exp2, comparer).ShouldBeTrue();
+            ((TestExpressionNode)exp1.Operand).EqualsCount.ShouldEqual(1);
+
+            exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
+            ((TestExpressionNode)exp1.Operand).EqualsCount.ShouldEqual(1);
+
+            if (comparer == null)
+                return;
+            comparer.GetHashCode = node =>
+            {
+                ReferenceEquals(node, exp1).ShouldBeTrue();
+                return int.MaxValue;
+            };
+            comparer.Equals = (x1, x2) =>
+            {
+                ReferenceEquals(x1, exp1).ShouldBeTrue();
+                ReferenceEquals(x2, exp2).ShouldBeTrue();
+                return false;
+            };
+            exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
+            exp1.Equals(exp2, comparer).ShouldBeFalse();
+            ((TestExpressionNode)exp1.Operand).EqualsCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -62,57 +148,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Theory]
-        [InlineData(ExpressionTraversalType.InorderValue)]
-        [InlineData(ExpressionTraversalType.PreorderValue)]
-        [InlineData(ExpressionTraversalType.PostorderValue)]
-        public void AcceptShouldVisitWithCorrectOrder(int value)
-        {
-            var nodes = new List<IExpressionNode>();
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) =>
-                {
-                    nodes.Add(node);
-                    context.ShouldEqual(DefaultMetadata);
-                    return node;
-                },
-                TraversalType = ExpressionTraversalType.Get(value)
-            };
-
-            var target = new ConstantExpressionNode("1");
-            var exp = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target);
-
-            var result = visitor.TraversalType == ExpressionTraversalType.Preorder ? new IExpressionNode[] {exp, target} : new IExpressionNode[] {target, exp};
-            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
-            result.ShouldEqual(nodes);
-        }
-
-        [Theory]
-        [InlineData(ExpressionTraversalType.InorderValue)]
-        [InlineData(ExpressionTraversalType.PreorderValue)]
-        [InlineData(ExpressionTraversalType.PostorderValue)]
-        public void AcceptShouldCreateNewNode1(int value)
-        {
-            var target = new ConstantExpressionNode("1");
-            var targetChanged = new ConstantExpressionNode("1-");
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) =>
-                {
-                    if (node == target)
-                        return targetChanged;
-                    return node;
-                },
-                TraversalType = ExpressionTraversalType.Get(value)
-            };
-            var exp = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, target);
-            var expressionNode = (UnaryExpressionNode) exp.Accept(visitor, DefaultMetadata);
-            expressionNode.ShouldNotEqual(exp);
-            expressionNode.Operand.ShouldEqual(targetChanged);
-            expressionNode.Token.ShouldEqual(UnaryTokenType.BitwiseNegation);
-        }
-
-        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
@@ -123,48 +158,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
             else
             {
-                var metadata = new Dictionary<string, object?> {{"k", null}};
-                var updated = (UnaryExpressionNode) node.UpdateMetadata(metadata);
+                var metadata = new Dictionary<string, object?> { { "k", null } };
+                var updated = (UnaryExpressionNode)node.UpdateMetadata(metadata);
                 updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
                 updated.Metadata.ShouldEqual(metadata);
                 updated.Token.ShouldEqual(node.Token);
                 updated.Operand.ShouldEqual(node.Operand);
             }
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetHashCodeEqualsShouldBeValid(bool withComparer)
-        {
-            var comparer = withComparer ? new TestExpressionEqualityComparer() : null;
-            var exp1 = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> {{"k", null}});
-            var exp2 = new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, GetTestEqualityExpression(comparer, 1), new Dictionary<string, object?> {{"k", null}});
-            HashCode.Combine(GetBaseHashCode(exp1), UnaryTokenType.BitwiseNegation.GetHashCode(), 1).ShouldEqual(exp1.GetHashCode(comparer));
-            ((TestExpressionNode) exp1.Operand).GetHashCodeCount.ShouldEqual(1);
-
-            exp1.Equals(exp2, comparer).ShouldBeTrue();
-            ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
-
-            exp1.Equals(exp2.UpdateMetadata(null), comparer).ShouldBeFalse();
-            ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
-
-            if (comparer == null)
-                return;
-            comparer.GetHashCode = node =>
-            {
-                ReferenceEquals(node, exp1).ShouldBeTrue();
-                return int.MaxValue;
-            };
-            comparer.Equals = (x1, x2) =>
-            {
-                ReferenceEquals(x1, exp1).ShouldBeTrue();
-                ReferenceEquals(x2, exp2).ShouldBeTrue();
-                return false;
-            };
-            exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
-            exp1.Equals(exp2, comparer).ShouldBeFalse();
-            ((TestExpressionNode) exp1.Operand).EqualsCount.ShouldEqual(1);
         }
     }
 }

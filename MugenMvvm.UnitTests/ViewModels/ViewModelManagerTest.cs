@@ -14,11 +14,42 @@ namespace MugenMvvm.UnitTests.ViewModels
 {
     public class ViewModelManagerTest : ComponentOwnerTestBase<ViewModelManager>
     {
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetServiceShouldBeHandledByComponents(int count)
+        {
+            var viewModel = new TestViewModel();
+            var service = new object();
+            var executeCount = 0;
+            var serviceType = typeof(bool);
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
+                {
+                    TryGetService = (m, vm, r, ctx) =>
+                    {
+                        ++executeCount;
+                        m.ShouldEqual(ViewModelManager);
+                        vm.ShouldEqual(viewModel);
+                        r.ShouldEqual(serviceType);
+                        ctx.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return service;
+                        return null;
+                    },
+                    Priority = -i
+                });
+            }
+
+            ViewModelManager.GetService(viewModel, serviceType, DefaultMetadata).ShouldEqual(service);
+            executeCount.ShouldEqual(count);
+        }
+
         [Fact]
         public void GetServiceShouldThrowNoComponents() =>
             ShouldThrow<InvalidOperationException>(() => ViewModelManager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
-
-        protected override IViewModelManager GetViewModelManager() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -88,39 +119,6 @@ namespace MugenMvvm.UnitTests.ViewModels
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void GetServiceShouldBeHandledByComponents(int count)
-        {
-            var viewModel = new TestViewModel();
-            var service = new object();
-            var executeCount = 0;
-            var serviceType = typeof(bool);
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                ViewModelManager.AddComponent(new TestViewModelServiceProviderComponent
-                {
-                    TryGetService = (m, vm, r, ctx) =>
-                    {
-                        ++executeCount;
-                        m.ShouldEqual(ViewModelManager);
-                        vm.ShouldEqual(viewModel);
-                        r.ShouldEqual(serviceType);
-                        ctx.ShouldEqual(DefaultMetadata);
-                        if (isLast)
-                            return service;
-                        return null;
-                    },
-                    Priority = -i
-                });
-            }
-
-            ViewModelManager.GetService(viewModel, serviceType, DefaultMetadata).ShouldEqual(service);
-            executeCount.ShouldEqual(count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
         public void TryGetViewModelShouldBeHandledByComponents(int count)
         {
             var viewModel = new TestViewModel();
@@ -147,6 +145,8 @@ namespace MugenMvvm.UnitTests.ViewModels
             ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldEqual(viewModel);
             executeCount.ShouldEqual(count);
         }
+
+        protected override IViewModelManager GetViewModelManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override ViewModelManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

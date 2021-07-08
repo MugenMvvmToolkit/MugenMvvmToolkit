@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
+using MugenMvvm.Extensions;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Core;
@@ -10,8 +10,8 @@ using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
+
 #if AVALONIA
 using Avalonia.Data;
 using Avalonia.Data.Converters;

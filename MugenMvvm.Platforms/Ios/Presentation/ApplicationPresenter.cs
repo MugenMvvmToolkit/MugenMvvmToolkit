@@ -39,13 +39,6 @@ namespace MugenMvvm.Ios.Presentation
 
         public int Priority { get; init; } = ComponentPriority.Max;
 
-        private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
-        {
-            presenter.AddComponent(new NavigationControllerViewPresenterMediator(controller) {Priority = ComponentPriority.Min});
-            window.RootViewController = controller;
-            window.MakeKeyAndVisible();
-        }
-
         public ItemOrIReadOnlyList<IPresenterResult> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var isAppRequest = request is UIApplication;
@@ -77,7 +70,7 @@ namespace MugenMvvm.Ios.Presentation
                     return presenter.Show(viewModel, cancellationToken, metadata);
                 }
 
-                SetRootController(window, viewModel, (UIViewController) viewModel.GetOrCreateView(metadata, _viewManager).Target, metadata);
+                SetRootController(window, viewModel, (UIViewController)viewModel.GetOrCreateView(metadata, _viewManager).Target, metadata);
                 return default;
             }
 
@@ -100,6 +93,13 @@ namespace MugenMvvm.Ios.Presentation
 
         public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             default;
+
+        private static void SetNavigationController(IPresenter presenter, UIWindow window, UINavigationController controller)
+        {
+            presenter.AddComponent(new NavigationControllerViewPresenterMediator(controller) { Priority = ComponentPriority.Min });
+            window.RootViewController = controller;
+            window.MakeKeyAndVisible();
+        }
 
         private void SetRootController(UIWindow window, IViewModelBase viewModel, UIViewController view, IReadOnlyMetadataContext? metadata)
         {

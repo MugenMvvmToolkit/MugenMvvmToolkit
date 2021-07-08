@@ -46,12 +46,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
             private bool _hasParameter;
             private bool _visiting;
 
-            private static bool IsItemOrList(Type type) => type.IsGenericType && MugenExtensions.RawMethodMapping.ContainsKey(type.GetGenericTypeDefinition());
-
-            private static bool IsValid(ExpressionType type) =>
-                type != ExpressionType.Parameter && type != ExpressionType.Constant && type != ExpressionType.Convert && type != ExpressionType.ConvertChecked &&
-                type != ExpressionType.Lambda;
-
             public override Expression? Visit(Expression? node)
             {
                 if (node != null && !_visiting && IsValid(node.NodeType) && !IsItemOrList(node.Type))
@@ -79,6 +73,12 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 _hasParameter = true;
                 return base.VisitParameter(node);
             }
+
+            private static bool IsItemOrList(Type type) => type.IsGenericType && MugenExtensions.RawMethodMapping.ContainsKey(type.GetGenericTypeDefinition());
+
+            private static bool IsValid(ExpressionType type) =>
+                type != ExpressionType.Parameter && type != ExpressionType.Constant && type != ExpressionType.Convert && type != ExpressionType.ConvertChecked &&
+                type != ExpressionType.Lambda;
         }
     }
 }

@@ -18,7 +18,7 @@ namespace MugenMvvm.Internal.Components
         IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent, IHasPriority
     {
         public static readonly ParameterExpression TargetParameter = MugenExtensions.GetParameterExpression<object>();
-        private static readonly ParameterExpression[] TargetArgsParameters = {TargetParameter, MugenExtensions.GetParameterExpression<ItemOrArray<object>>()};
+        private static readonly ParameterExpression[] TargetArgsParameters = { TargetParameter, MugenExtensions.GetParameterExpression<ItemOrArray<object>>() };
         private static readonly ParameterExpression[] ArgsParameters = MugenExtensions.GetParametersExpression<ItemOrArray<object>>();
         private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new(17, InternalEqualityComparer.TypeMethod);
 

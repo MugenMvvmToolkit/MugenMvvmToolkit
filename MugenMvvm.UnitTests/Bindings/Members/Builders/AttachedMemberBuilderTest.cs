@@ -3,7 +3,6 @@ using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Members.Builders;
 using MugenMvvm.Bindings.Members.Descriptors;
-using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -72,7 +71,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            var request = new MemberTypesRequest(name, new[] {typeof(int)});
+            var request = new MemberTypesRequest(name, new[] { typeof(int) });
             var descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
@@ -90,7 +89,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            var request = new MemberTypesRequest(name, new[] {typeof(byte), typeof(char)});
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char) });
             var descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
@@ -109,7 +108,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            var request = new MemberTypesRequest(name, new[] {typeof(byte), typeof(char), typeof(short)});
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char), typeof(short) });
             var descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
@@ -129,7 +128,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            var request = new MemberTypesRequest(name, new[] {typeof(byte), typeof(char), typeof(short), typeof(int)});
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char), typeof(short), typeof(int) });
             var descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
@@ -150,7 +149,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            var request = new MemberTypesRequest(name, new[] {typeof(byte), typeof(char), typeof(short), typeof(int), typeof(long)});
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char), typeof(short), typeof(int), typeof(long) });
             var descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();

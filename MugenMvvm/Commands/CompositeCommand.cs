@@ -107,8 +107,6 @@ namespace MugenMvvm.Commands
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
-
         public void Execute(object? parameter = null) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 
         public ValueTask<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
@@ -137,6 +135,8 @@ namespace MugenMvvm.Commands
         private new ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class =>
             IsDisposed ? default : base.GetComponents<TComponent>(metadata);
+
+        bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
 
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {

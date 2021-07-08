@@ -111,43 +111,6 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             tryGetMessengerHandlersCount.ShouldEqual(3);
         }
 
-        protected override IMessenger GetMessenger() => new Messenger(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryPublishShouldUseTryGetMessengerHandlers(int count)
-        {
-            var messageContext = new MessageContext(new object(), this, DefaultMetadata);
-
-            var result = MessengerResult.Handled;
-            var invokedCount = 0;
-            var messengerHandlers = new MessengerHandler[count];
-            for (var i = 0; i < messengerHandlers.Length; i++)
-            {
-                messengerHandlers[i] = new MessengerHandler((o, arg3, o1) =>
-                {
-                    ++invokedCount;
-                    messageContext.ShouldEqual(arg3);
-                    return result;
-                }, this, ThreadExecutionMode.Current);
-            }
-
-            Messenger.AddComponent(new TestMessengerSubscriberComponent
-            {
-                TryGetMessengerHandlers = (m, type, context) =>
-                {
-                    m.ShouldEqual(Messenger);
-                    type.ShouldEqual(messageContext.Message.GetType());
-                    context.ShouldEqual(DefaultMetadata);
-                    return messengerHandlers;
-                }
-            });
-
-            Messenger.Publish(messageContext);
-            invokedCount.ShouldEqual(count);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -200,5 +163,42 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             invokeAction?.Invoke();
             invokedCount.ShouldEqual(1);
         }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void TryPublishShouldUseTryGetMessengerHandlers(int count)
+        {
+            var messageContext = new MessageContext(new object(), this, DefaultMetadata);
+
+            var result = MessengerResult.Handled;
+            var invokedCount = 0;
+            var messengerHandlers = new MessengerHandler[count];
+            for (var i = 0; i < messengerHandlers.Length; i++)
+            {
+                messengerHandlers[i] = new MessengerHandler((o, arg3, o1) =>
+                {
+                    ++invokedCount;
+                    messageContext.ShouldEqual(arg3);
+                    return result;
+                }, this, ThreadExecutionMode.Current);
+            }
+
+            Messenger.AddComponent(new TestMessengerSubscriberComponent
+            {
+                TryGetMessengerHandlers = (m, type, context) =>
+                {
+                    m.ShouldEqual(Messenger);
+                    type.ShouldEqual(messageContext.Message.GetType());
+                    context.ShouldEqual(DefaultMetadata);
+                    return messengerHandlers;
+                }
+            });
+
+            Messenger.Publish(messageContext);
+            invokedCount.ShouldEqual(count);
+        }
+
+        protected override IMessenger GetMessenger() => new Messenger(ComponentCollectionManager);
     }
 }

@@ -6,7 +6,7 @@ namespace MugenMvvm.Tests.Bindings.Parsing
 {
     public class TestExpressionEqualityComparer : IExpressionEqualityComparer
     {
-        public new Func<IExpressionNode, IExpressionNode, bool?>? Equals { get; set; }
+        public Func<IExpressionNode, IExpressionNode, bool?>? Equals { get; set; }
 
         public new Func<IExpressionNode, int?>? GetHashCode { get; set; }
 

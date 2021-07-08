@@ -32,8 +32,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryGetMembersShouldSelectMethod(IMemberInfo[] members, Type[] memberTypes, IMemberInfo[] expectedResult)
@@ -78,6 +76,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         public static IEnumerable<object?[]> GetData()
         {

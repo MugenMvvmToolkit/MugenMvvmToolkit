@@ -24,46 +24,6 @@ namespace MugenMvvm.Bindings.Observation
 
         public int Count => _size - _removedSize;
 
-        private static bool MemberNameEqual(string changedMember, string listenedMember)
-        {
-            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
-                return true;
-            if (string.IsNullOrEmpty(listenedMember))
-                return true;
-
-            if (listenedMember[0] == '[')
-            {
-                if (InternalConstant.IndexerName.Equals(changedMember))
-                    return true;
-                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
-                {
-                    int i = 4, j = 0;
-                    while (i < changedMember.Length)
-                    {
-                        if (j >= listenedMember.Length)
-                            return false;
-                        var c1 = changedMember[i];
-                        var c2 = listenedMember[j];
-                        if (c1 == c2)
-                        {
-                            ++i;
-                            ++j;
-                        }
-                        else if (c1 == '"')
-                            ++i;
-                        else if (c2 == '"')
-                            ++j;
-                        else
-                            return false;
-                    }
-
-                    return j == listenedMember.Length;
-                }
-            }
-
-            return false;
-        }
-
         public virtual void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
@@ -148,6 +108,46 @@ namespace MugenMvvm.Bindings.Observation
 
         protected virtual void OnListenerRemoved(string memberName)
         {
+        }
+
+        private static bool MemberNameEqual(string changedMember, string listenedMember)
+        {
+            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
+                return true;
+            if (string.IsNullOrEmpty(listenedMember))
+                return true;
+
+            if (listenedMember[0] == '[')
+            {
+                if (InternalConstant.IndexerName.Equals(changedMember))
+                    return true;
+                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
+                {
+                    int i = 4, j = 0;
+                    while (i < changedMember.Length)
+                    {
+                        if (j >= listenedMember.Length)
+                            return false;
+                        var c1 = changedMember[i];
+                        var c2 = listenedMember[j];
+                        if (c1 == c2)
+                        {
+                            ++i;
+                            ++j;
+                        }
+                        else if (c1 == '"')
+                            ++i;
+                        else if (c2 == '"')
+                            ++j;
+                        else
+                            return false;
+                    }
+
+                    return j == listenedMember.Length;
+                }
+            }
+
+            return false;
         }
 
         private void ClearDeadReferences()

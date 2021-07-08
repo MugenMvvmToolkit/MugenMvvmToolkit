@@ -24,8 +24,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [Fact]
         public void ShouldIgnoreNonStringRequest() => ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
 
-        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -84,5 +82,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             for (var i = 0; i < count; i++)
                 ViewModelManager.TryGetViewModel(array[i]!).ShouldBeNull();
         }
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
     }
 }

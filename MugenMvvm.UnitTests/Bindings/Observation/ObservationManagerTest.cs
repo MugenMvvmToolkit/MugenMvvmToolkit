@@ -15,49 +15,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 {
     public class ObservationManagerTest : ComponentOwnerTestBase<IObservationManager>
     {
-        [Fact]
-        public void GetMemberObserverShouldReturnEmptyObserver() => ObservationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
-
-        [Fact]
-        public void GetMemberPathObserverShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPathObserver(this, this, DefaultMetadata));
-
-        [Fact]
-        public void GetMemberPathShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPath(this, DefaultMetadata));
-
-        protected override IObservationManager GetObservationManager() => GetComponentOwner(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void GetMemberPathShouldBeHandledByComponents(int componentCount)
-        {
-            var request = this;
-            var result = MemberPath.Empty;
-            var invokeCount = 0;
-            for (var i = 0; i < componentCount; i++)
-            {
-                var isLast = i == componentCount - 1;
-                var component = new TestMemberPathProviderComponent
-                {
-                    Priority = -i,
-                    TryGetMemberPath = (om, o, arg4) =>
-                    {
-                        ++invokeCount;
-                        om.ShouldEqual(ObservationManager);
-                        o.ShouldEqual(request);
-                        arg4.ShouldEqual(DefaultMetadata);
-                        if (isLast)
-                            return result;
-                        return null;
-                    }
-                };
-                ObservationManager.AddComponent(component);
-            }
-
-            ObservationManager.GetMemberPath(request, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(componentCount);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -92,6 +49,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             invokeCount.ShouldEqual(componentCount);
         }
 
+        [Fact]
+        public void GetMemberObserverShouldReturnEmptyObserver() => ObservationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -125,6 +85,46 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             ObservationManager.GetMemberPathObserver(target, request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
+
+        [Fact]
+        public void GetMemberPathObserverShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPathObserver(this, this, DefaultMetadata));
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetMemberPathShouldBeHandledByComponents(int componentCount)
+        {
+            var request = this;
+            var result = MemberPath.Empty;
+            var invokeCount = 0;
+            for (var i = 0; i < componentCount; i++)
+            {
+                var isLast = i == componentCount - 1;
+                var component = new TestMemberPathProviderComponent
+                {
+                    Priority = -i,
+                    TryGetMemberPath = (om, o, arg4) =>
+                    {
+                        ++invokeCount;
+                        om.ShouldEqual(ObservationManager);
+                        o.ShouldEqual(request);
+                        arg4.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return result;
+                        return null;
+                    }
+                };
+                ObservationManager.AddComponent(component);
+            }
+
+            ObservationManager.GetMemberPath(request, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(componentCount);
+        }
+
+        [Fact]
+        public void GetMemberPathShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPath(this, DefaultMetadata));
+
+        protected override IObservationManager GetObservationManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override IObservationManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) =>
             new ObservationManager(componentCollectionManager);

@@ -16,37 +16,6 @@ namespace MugenMvvm.UnitTests.Messaging
 {
     public class MessengerTest : ComponentOwnerTestBase<Messenger>
     {
-        [Fact]
-        public void GetSubscribersShouldReturnEmptyListNoComponents() => Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
-
-        [Fact]
-        public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
-        {
-            var invokedCount = 0;
-            var hasCache = new TestHasCacheComponent<IMessenger> { Invalidate = (_, _, _) => { ++invokedCount; } };
-            Messenger.AddComponent(new MessengerHandlerSubscriber());
-            Messenger.Components.TryAdd(hasCache);
-
-            invokedCount.ShouldEqual(0);
-            var handler = new TestMessengerHandler();
-            Messenger.TrySubscribe(handler);
-            invokedCount.ShouldEqual(1);
-
-            Messenger.TryUnsubscribe(handler);
-            invokedCount.ShouldEqual(2);
-
-            Messenger.TrySubscribe(handler);
-            invokedCount = 0;
-
-            Messenger.UnsubscribeAll();
-            invokedCount.ShouldEqual(1);
-
-            Messenger.UnsubscribeAll();
-            invokedCount.ShouldEqual(1);
-        }
-
-        protected override IMessenger GetMessenger() => GetComponentOwner(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -77,6 +46,67 @@ namespace MugenMvvm.UnitTests.Messaging
             }
 
             Messenger.GetMessageContext(sender, message, DefaultMetadata).ShouldEqual(ctx);
+            invokeCount.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetSubscribersShouldBeHandledByComponents(int count)
+        {
+            var subscribers = new HashSet<MessengerSubscriberInfo>();
+            for (var i = 0; i < count; i++)
+                subscribers.Add(new MessengerSubscriberInfo(new object(), ThreadExecutionMode.Background));
+            for (var i = 0; i < count; i++)
+            {
+                var info = subscribers.ElementAt(i);
+                Messenger.AddComponent(new TestMessengerSubscriberComponent
+                {
+                    Priority = -i,
+                    TryGetSubscribers = (m, arg3) =>
+                    {
+                        m.ShouldEqual(Messenger);
+                        arg3.ShouldEqual(DefaultMetadata);
+                        return new[] { info };
+                    }
+                });
+            }
+
+            var result = Messenger.GetSubscribers(DefaultMetadata);
+            result.Count.ShouldEqual(count);
+            foreach (var messengerSubscriberInfo in result)
+                subscribers.Remove(messengerSubscriberInfo);
+            subscribers.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void GetSubscribersShouldReturnEmptyListNoComponents() => Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void HasSubscribersShouldBeHandledByComponents(int count)
+        {
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                Messenger.AddComponent(new TestMessengerSubscriberComponent
+                {
+                    Priority = -i,
+                    HasSubscribers = (m, meta) =>
+                    {
+                        ++invokeCount;
+                        m.ShouldEqual(Messenger);
+                        meta.ShouldEqual(DefaultMetadata);
+                        if (isLast)
+                            return true;
+                        return false;
+                    }
+                });
+            }
+
+            Messenger.HasSubscribers(DefaultMetadata).ShouldEqual(true);
             invokeCount.ShouldEqual(count);
         }
 
@@ -148,36 +178,30 @@ namespace MugenMvvm.UnitTests.Messaging
             invokeCount.ShouldEqual(count);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void UnsubscribeShouldBeHandledByComponents(int count)
+        [Fact]
+        public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
         {
-            var invokeCount = 0;
-            var result = false;
-            for (var i = 0; i < count; i++)
-            {
-                Messenger.AddComponent(new TestMessengerSubscriberComponent
-                {
-                    Priority = -i,
-                    TryUnsubscribe = (m, o, arg3) =>
-                    {
-                        ++invokeCount;
-                        m.ShouldEqual(Messenger);
-                        o.ShouldEqual(this);
-                        arg3.ShouldEqual(DefaultMetadata);
-                        return result;
-                    }
-                });
-            }
+            var invokedCount = 0;
+            var hasCache = new TestHasCacheComponent<IMessenger> { Invalidate = (_, _, _) => { ++invokedCount; } };
+            Messenger.AddComponent(new MessengerHandlerSubscriber());
+            Messenger.Components.TryAdd(hasCache);
 
-            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(count);
+            invokedCount.ShouldEqual(0);
+            var handler = new TestMessengerHandler();
+            Messenger.TrySubscribe(handler);
+            invokedCount.ShouldEqual(1);
 
-            invokeCount = 0;
-            result = true;
-            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldEqual(result);
-            invokeCount.ShouldEqual(count);
+            Messenger.TryUnsubscribe(handler);
+            invokedCount.ShouldEqual(2);
+
+            Messenger.TrySubscribe(handler);
+            invokedCount = 0;
+
+            Messenger.UnsubscribeAll();
+            invokedCount.ShouldEqual(1);
+
+            Messenger.UnsubscribeAll();
+            invokedCount.ShouldEqual(1);
         }
 
         [Theory]
@@ -214,60 +238,36 @@ namespace MugenMvvm.UnitTests.Messaging
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void HasSubscribersShouldBeHandledByComponents(int count)
+        public void UnsubscribeShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
+            var result = false;
             for (var i = 0; i < count; i++)
             {
-                var isLast = i == count - 1;
                 Messenger.AddComponent(new TestMessengerSubscriberComponent
                 {
                     Priority = -i,
-                    HasSubscribers = (m, meta) =>
+                    TryUnsubscribe = (m, o, arg3) =>
                     {
                         ++invokeCount;
                         m.ShouldEqual(Messenger);
-                        meta.ShouldEqual(DefaultMetadata);
-                        if (isLast)
-                            return true;
-                        return false;
+                        o.ShouldEqual(this);
+                        arg3.ShouldEqual(DefaultMetadata);
+                        return result;
                     }
                 });
             }
 
-            Messenger.HasSubscribers(DefaultMetadata).ShouldEqual(true);
+            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(count);
+
+            invokeCount = 0;
+            result = true;
+            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void GetSubscribersShouldBeHandledByComponents(int count)
-        {
-            var subscribers = new HashSet<MessengerSubscriberInfo>();
-            for (var i = 0; i < count; i++)
-                subscribers.Add(new MessengerSubscriberInfo(new object(), ThreadExecutionMode.Background));
-            for (var i = 0; i < count; i++)
-            {
-                var info = subscribers.ElementAt(i);
-                Messenger.AddComponent(new TestMessengerSubscriberComponent
-                {
-                    Priority = -i,
-                    TryGetSubscribers = (m, arg3) =>
-                    {
-                        m.ShouldEqual(Messenger);
-                        arg3.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
-                    }
-                });
-            }
-
-            var result = Messenger.GetSubscribers(DefaultMetadata);
-            result.Count.ShouldEqual(count);
-            foreach (var messengerSubscriberInfo in result)
-                subscribers.Remove(messengerSubscriberInfo);
-            subscribers.Count.ShouldEqual(0);
-        }
+        protected override IMessenger GetMessenger() => GetComponentOwner(ComponentCollectionManager);
 
         protected override Messenger GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

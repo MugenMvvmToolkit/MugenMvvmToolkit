@@ -48,6 +48,23 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
 
         public int Priority { get; init; } = ParsingComponentPriority.Binary;
 
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
+        {
+            try
+            {
+                ++_nestedIndex;
+                var p = context.Position;
+                var node = TryParseInternal(context, expression);
+                if (node == null)
+                    context.Position = p;
+                return node;
+            }
+            finally
+            {
+                --_nestedIndex;
+            }
+        }
+
         private static int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
         {
             if (tokens.Count == 0)
@@ -66,23 +83,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             }
 
             return index;
-        }
-
-        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            try
-            {
-                ++_nestedIndex;
-                var p = context.Position;
-                var node = TryParseInternal(context, expression);
-                if (node == null)
-                    context.Position = p;
-                return node;
-            }
-            finally
-            {
-                --_nestedIndex;
-            }
         }
 
         private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)

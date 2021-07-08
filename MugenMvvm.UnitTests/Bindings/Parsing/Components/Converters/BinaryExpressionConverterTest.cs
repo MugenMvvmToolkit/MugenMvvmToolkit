@@ -12,11 +12,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
 {
     public class BinaryExpressionConverterTest : ExpressionConverterTestBase<BinaryExpressionConverter>
     {
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
+            Converter.TryConvert(ctx, expression).ShouldEqual(result);
+
         [Fact]
-        public void TryConvertShouldIgnoreNotBinaryExpression()
-        {
-            Converter.TryConvert(Context, Expression.Constant("")).ShouldBeNull();
-        }
+        public void TryConvertShouldIgnoreNotBinaryExpression() => Converter.TryConvert(Context, Expression.Constant("")).ShouldBeNull();
 
         [Fact]
         public void TryConvertShouldIgnoreNotSupportBinaryExpression()
@@ -24,11 +26,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             Converter.Mapping.Clear();
             Converter.TryConvert(Context, Expression.MakeBinary(ExpressionType.Add, Expression.Constant(1), Expression.Constant(1))).ShouldBeNull();
         }
-
-        [Theory]
-        [MemberData(nameof(GetData))]
-        public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result) =>
-            Converter.TryConvert(ctx, expression).ShouldEqual(result);
 
         public static IEnumerable<object?[]> GetData() =>
             new[]
@@ -64,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var result = new BinaryExpressionNode(binaryTokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
             context.SetExpression(left, result.Left);
             context.SetExpression(right, result.Right);
-            return new object[] {context, Expression.MakeBinary(expressionType, left, right), result};
+            return new object[] { context, Expression.MakeBinary(expressionType, left, right), result };
         }
     }
 }

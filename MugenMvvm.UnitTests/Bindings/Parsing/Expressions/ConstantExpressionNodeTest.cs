@@ -6,7 +6,6 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Tests.Bindings.Parsing;
-using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;
 using Xunit;
 
@@ -25,6 +24,45 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             new ConstantExpressionNode("1").Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
         }
 
+        [Theory]
+        [InlineData(ExpressionTraversalType.InorderValue)]
+        [InlineData(ExpressionTraversalType.PreorderValue)]
+        [InlineData(ExpressionTraversalType.PostorderValue)]
+        public void AcceptShouldVisitWithCorrectOrder(int value)
+        {
+            var nodes = new List<IExpressionNode>();
+            var visitor = new TestExpressionVisitor
+            {
+                Visit = (node, context) =>
+                {
+                    nodes.Add(node);
+                    context.ShouldEqual(DefaultMetadata);
+                    return node;
+                },
+                TraversalType = ExpressionTraversalType.Get(value)
+            };
+
+            var exp = new ConstantExpressionNode("-");
+            var result = new IExpressionNode[] { exp };
+            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
+            result.ShouldEqual(nodes);
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData(typeof(string))]
+        public void ConstructorShouldInitializeValues(Type type)
+        {
+            var value = "d";
+            var constantExpression = Expression.Constant(value);
+            var exp = new ConstantExpressionNode(value, type, constantExpression);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Constant);
+            exp.Value.ShouldEqual(value);
+            exp.Type.ShouldEqual(value.GetType());
+            exp.ConstantExpression.ShouldEqual(constantExpression);
+            exp.ToString().ShouldEqual("\"d\"");
+        }
+
         [Fact]
         public void ConstructorShouldThrowWrongType() => ShouldThrow<ArgumentException>(() => new ConstantExpressionNode("", typeof(int)));
 
@@ -38,8 +76,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         [Fact]
         public void GetHashCodeEqualsShouldBeValid()
         {
-            var exp1 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
-            var exp2 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> {{"k", null}});
+            var exp1 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> { { "k", null } });
+            var exp2 = new ConstantExpressionNode("1", metadata: new Dictionary<string, object?> { { "k", null } });
             HashCode.Combine(GetBaseHashCode(exp1), exp1.Type, exp1.Value).ShouldEqual(exp1.GetHashCode());
 
             exp1.Equals(exp2).ShouldBeTrue();
@@ -73,8 +111,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         [Fact]
         public void GetShouldUseCacheBool()
         {
-            ConstantExpressionNode.Get((object) true).ShouldEqual(ConstantExpressionNode.True);
-            ConstantExpressionNode.Get((object) false).ShouldEqual(ConstantExpressionNode.False);
+            ConstantExpressionNode.Get((object)true).ShouldEqual(ConstantExpressionNode.True);
+            ConstantExpressionNode.Get((object)false).ShouldEqual(ConstantExpressionNode.False);
         }
 
         [Fact]
@@ -108,45 +146,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData(typeof(string))]
-        public void ConstructorShouldInitializeValues(Type type)
-        {
-            var value = "d";
-            var constantExpression = Expression.Constant(value);
-            var exp = new ConstantExpressionNode(value, type, constantExpression);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Constant);
-            exp.Value.ShouldEqual(value);
-            exp.Type.ShouldEqual(value.GetType());
-            exp.ConstantExpression.ShouldEqual(constantExpression);
-            exp.ToString().ShouldEqual("\"d\"");
-        }
-
-        [Theory]
-        [InlineData(ExpressionTraversalType.InorderValue)]
-        [InlineData(ExpressionTraversalType.PreorderValue)]
-        [InlineData(ExpressionTraversalType.PostorderValue)]
-        public void AcceptShouldVisitWithCorrectOrder(int value)
-        {
-            var nodes = new List<IExpressionNode>();
-            var visitor = new TestExpressionVisitor
-            {
-                Visit = (node, context) =>
-                {
-                    nodes.Add(node);
-                    context.ShouldEqual(DefaultMetadata);
-                    return node;
-                },
-                TraversalType = ExpressionTraversalType.Get(value)
-            };
-
-            var exp = new ConstantExpressionNode("-");
-            var result = new IExpressionNode[] {exp};
-            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
-            result.ShouldEqual(nodes);
-        }
-
-        [Theory]
         [InlineData(true)]
         [InlineData(false)]
         public void UpdateMetadataShouldCheckMetadataEquality(bool equal)
@@ -156,8 +155,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 node.UpdateMetadata(EmptyDictionary).ShouldEqual(node, ReferenceEqualityComparer.Instance);
             else
             {
-                var metadata = new Dictionary<string, object?> {{"k", null}};
-                var updated = (ConstantExpressionNode) node.UpdateMetadata(metadata);
+                var metadata = new Dictionary<string, object?> { { "k", null } };
+                var updated = (ConstantExpressionNode)node.UpdateMetadata(metadata);
                 updated.ShouldNotEqual(node, ReferenceEqualityComparer.Instance);
                 updated.Metadata.ShouldEqual(metadata);
                 updated.Type.ShouldEqual(node.Type);

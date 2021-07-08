@@ -48,7 +48,7 @@ namespace MugenMvvm.Avalonia.Bindings.Markup
 
         private static void OnBindChanged(AvaloniaObject target, AvaloniaPropertyChangedEventArgs e)
         {
-            var bind = (string?) e.NewValue;
+            var bind = (string?)e.NewValue;
             if (string.IsNullOrEmpty(bind))
                 return;
 

@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var source = new object();
             var targetExp = MemberExpressionNode.Self;
             var sourceExp = MemberExpressionNode.Source;
-            var parameters = new[] {MemberExpressionNode.Self, MemberExpressionNode.Source};
+            var parameters = new[] { MemberExpressionNode.Self, MemberExpressionNode.Source };
             context.Initialize(target, source, targetExp, sourceExp, parameters, DefaultMetadata);
 
             context.Target.ShouldEqual(target);
@@ -44,27 +44,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.TargetExpression.ShouldBeNull();
             context.SourceExpression.ShouldBeNull();
             context.ParameterExpressions.IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void TryGetParameterValueShouldReturnCorrectValues()
-        {
-            const string parameter1 = "p1";
-            var context = new BindingExpressionInitializerContext(this);
-
-            context.TryGetParameterValue(parameter1, int.MaxValue).ShouldEqual(int.MaxValue);
-
-            context.AssignmentParameters[parameter1] = ConstantExpressionNode.Get(1);
-            context.TryGetParameterValue<int>(parameter1).ShouldEqual(1);
-
-            context.AssignmentParameters[parameter1] = ConstantExpressionNode.Get(parameter1);
-            context.TryGetParameterValue<string>(parameter1).ShouldEqual(parameter1);
-
-            context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
-            context.TryGetParameterValue<string>(parameter1).ShouldEqual(parameter1);
-
-            context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
-            ShouldThrow<InvalidOperationException>(() => context.TryGetParameterValue<int>(parameter1));
         }
 
         [Theory]
@@ -105,9 +84,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.TryGetParameterValue<bool?>(parameter3).ShouldEqual(parameterValue3);
 
             if (reinitialize)
-                context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, new[] {new MemberExpressionNode(null, parameter4)}, null);
+                context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, new[] { new MemberExpressionNode(null, parameter4) }, null);
             else
-                context.ParameterExpressions = new[] {new MemberExpressionNode(null, parameter4)};
+                context.ParameterExpressions = new[] { new MemberExpressionNode(null, parameter4) };
 
             context.AssignmentParameters.Count.ShouldEqual(0);
             context.TryGetParameterValue<IExpressionNode>(parameter1).ShouldBeNull();
@@ -124,6 +103,27 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             context.InlineParameters[parameter4].ShouldEqual(parameterValue4);
             context.TryGetParameterValue<bool>(parameter4).ShouldEqual(parameterValue4);
             context.TryGetParameterValue<bool?>(parameter4).ShouldEqual(parameterValue4);
+        }
+
+        [Fact]
+        public void TryGetParameterValueShouldReturnCorrectValues()
+        {
+            const string parameter1 = "p1";
+            var context = new BindingExpressionInitializerContext(this);
+
+            context.TryGetParameterValue(parameter1, int.MaxValue).ShouldEqual(int.MaxValue);
+
+            context.AssignmentParameters[parameter1] = ConstantExpressionNode.Get(1);
+            context.TryGetParameterValue<int>(parameter1).ShouldEqual(1);
+
+            context.AssignmentParameters[parameter1] = ConstantExpressionNode.Get(parameter1);
+            context.TryGetParameterValue<string>(parameter1).ShouldEqual(parameter1);
+
+            context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
+            context.TryGetParameterValue<string>(parameter1).ShouldEqual(parameter1);
+
+            context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
+            ShouldThrow<InvalidOperationException>(() => context.TryGetParameterValue<int>(parameter1));
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)

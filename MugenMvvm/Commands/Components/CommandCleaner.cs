@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Constants;
+﻿using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;

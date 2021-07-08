@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Validation
                     v.ShouldEqual(Validator);
                     members.Item.ShouldEqual(propertyName);
                     source.ShouldBeNull();
-                    editor.AddRange(value: errors);
+                    editor.AddRange(errors);
                 }
             });
             _adapter.GetErrors(propertyName).ShouldEqual(errors);

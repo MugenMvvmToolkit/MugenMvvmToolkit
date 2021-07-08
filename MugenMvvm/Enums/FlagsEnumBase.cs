@@ -35,6 +35,9 @@ namespace MugenMvvm.Enums
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EnumFlags<TEnum> operator ~(FlagsEnumBase<TEnum, TValue> value) => new(~value.Flag);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public EnumFlags<TEnum> AsFlags() => new(Flag);
+
         private static long ConvertValue(TValue value)
         {
             if (typeof(TValue) == typeof(int))
@@ -52,13 +55,10 @@ namespace MugenMvvm.Enums
             if (typeof(TValue) == typeof(long))
                 return Cast<long>(value);
             if (typeof(TValue) == typeof(ulong))
-                return (long) Cast<ulong>(value);
+                return (long)Cast<ulong>(value);
             return Convert.ToInt64(value);
         }
 
         private static T Cast<T>(TValue value) => MugenExtensions.CastGeneric<TValue, T>(value);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public EnumFlags<TEnum> AsFlags() => new(Flag);
     }
 }

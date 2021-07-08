@@ -20,27 +20,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ConstructorShouldInitializeValues(bool isStatic)
-        {
-            string name = "t";
-            Type declaringType = typeof(object);
-            var eventType = typeof(Action);
-            var member = new object();
-            var builder = new EventBuilder<object>(name, declaringType, eventType).UnderlyingMember(member);
-            if (isStatic)
-                builder = builder.Static();
-            var build = builder.Build();
-            build.MemberType.ShouldEqual(MemberType.Event);
-            build.Type.ShouldEqual(eventType);
-            build.DeclaringType.ShouldEqual(declaringType);
-            build.MemberFlags.ShouldEqual(isStatic ? MemberFlags.Attached | MemberFlags.StaticPublic : MemberFlags.Attached | MemberFlags.InstancePublic);
-            build.UnderlyingMember.ShouldEqual(member);
-            build.Name.ShouldEqual(name);
-        }
-
-        [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
         [InlineData(false, true)]
@@ -90,6 +69,27 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
                 attachedInvokeCount.ShouldEqual(1);
             }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ConstructorShouldInitializeValues(bool isStatic)
+        {
+            string name = "t";
+            Type declaringType = typeof(object);
+            var eventType = typeof(Action);
+            var member = new object();
+            var builder = new EventBuilder<object>(name, declaringType, eventType).UnderlyingMember(member);
+            if (isStatic)
+                builder = builder.Static();
+            var build = builder.Build();
+            build.MemberType.ShouldEqual(MemberType.Event);
+            build.Type.ShouldEqual(eventType);
+            build.DeclaringType.ShouldEqual(declaringType);
+            build.MemberFlags.ShouldEqual(isStatic ? MemberFlags.Attached | MemberFlags.StaticPublic : MemberFlags.Attached | MemberFlags.InstancePublic);
+            build.UnderlyingMember.ShouldEqual(member);
+            build.Name.ShouldEqual(name);
         }
 
         [Theory]

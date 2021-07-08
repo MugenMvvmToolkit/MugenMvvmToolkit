@@ -12,12 +12,6 @@ namespace MugenMvvm.UnitTests.Internal
 {
     public class WeakReferenceManagerTest : ComponentOwnerTestBase<WeakReferenceManager>
     {
-        [Fact]
-        public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull() => WeakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(WeakReferenceImpl.Empty);
-
-        [Fact]
-        public void GetWeakReferenceShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => WeakReferenceManager.GetWeakReference(this, DefaultMetadata));
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -48,6 +42,12 @@ namespace MugenMvvm.UnitTests.Internal
             WeakReferenceManager.GetWeakReference(this, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
+
+        [Fact]
+        public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull() => WeakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(WeakReferenceImpl.Empty);
+
+        [Fact]
+        public void GetWeakReferenceShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => WeakReferenceManager.GetWeakReference(this, DefaultMetadata));
 
         protected override IWeakReferenceManager GetWeakReferenceManager() => GetComponentOwner(ComponentCollectionManager);
 

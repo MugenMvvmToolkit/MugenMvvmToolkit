@@ -18,25 +18,28 @@ namespace MugenMvvm.UnitTests.Commands
 {
     public class CompositeCommandTest : SuspendableComponentOwnerTestBase<ICompositeCommand>
     {
-        private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void AddCanExecuteChangedShouldBeHandledByComponents(int componentCount)
         {
-            if (value)
-                return (_, _) => true;
-            return null;
-        }
+            var count = 0;
+            EventHandler eventHandler = (sender, args) => { };
+            for (var i = 0; i < componentCount; i++)
+            {
+                Command.AddComponent(new TestCommandEventHandlerComponent
+                {
+                    AddCanExecuteChanged = (c, handler) =>
+                    {
+                        ++count;
+                        c.ShouldEqual(Command);
+                        handler.ShouldEqual(eventHandler);
+                    }
+                });
+            }
 
-        private static Func<IReadOnlyMetadataContext?, bool>? GetCanExecuteNoObject(bool value)
-        {
-            if (value)
-                return m => true;
-            return null;
-        }
-
-        private static Func<object?, IReadOnlyMetadataContext?, bool>? GetCanExecute(bool value)
-        {
-            if (value)
-                return (t, m) => true;
-            return null;
+            Command.CanExecuteChanged += eventHandler;
+            count.ShouldEqual(componentCount);
         }
 
         [Theory]
@@ -70,146 +73,85 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void AddCanExecuteChangedShouldBeHandledByComponents(int componentCount)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
+            bool hasMetadata)
         {
-            var count = 0;
-            EventHandler eventHandler = (sender, args) => { };
-            for (var i = 0; i < componentCount; i++)
+            var owner = new object();
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
+            var canExecute = GetCanExecuteNoObject(hasCanExecute);
+            var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var canNotify = GetHasCanNotify(hasCanNotify);
+            var metadata = hasMetadata ? DefaultMetadata : null;
+
+            object? r = null;
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                Command.AddComponent(new TestCommandEventHandlerComponent
+                TryGetCommand = (manager, s, o, arg3) =>
                 {
-                    AddCanExecuteChanged = (c, handler) =>
-                    {
-                        ++count;
-                        c.ShouldEqual(Command);
-                        handler.ShouldEqual(eventHandler);
-                    }
-                });
-            }
+                    manager.ShouldEqual(CommandManager);
+                    s.ShouldEqual(owner);
+                    r = o;
+                    arg3.ShouldEqual(metadata);
+                    return new CompositeCommand();
+                }
+            });
 
-            Command.CanExecuteChanged += eventHandler;
-            count.ShouldEqual(componentCount);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RemoveCanExecuteChangedShouldBeHandledByComponents(int componentCount)
-        {
-            var count = 0;
-            EventHandler eventHandler = (sender, args) => { };
-            for (var i = 0; i < componentCount; i++)
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
+            if (r is DelegateCommandRequest request)
             {
-                Command.AddComponent(new TestCommandEventHandlerComponent
-                {
-                    RemoveCanExecuteChanged = (c, handler) =>
-                    {
-                        ++count;
-                        c.ShouldEqual(Command);
-                        handler.ShouldEqual(eventHandler);
-                    }
-                });
-            }
-
-            Command.CanExecuteChanged -= eventHandler;
-            count.ShouldEqual(componentCount);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RaiseCanExecuteChangedShouldBeHandledByComponents(int componentCount)
-        {
-            var count = 0;
-            for (var i = 0; i < componentCount; i++)
-            {
-                Command.AddComponent(new TestCommandEventHandlerComponent
-                {
-                    RaiseCanExecuteChanged = c =>
-                    {
-                        c.ShouldEqual(Command);
-                        ++count;
-                    }
-                });
-            }
-
-            Command.RaiseCanExecuteChanged();
-            count.ShouldEqual(componentCount);
-        }
-
-        [Theory]
-        [InlineData(1, true)]
-        [InlineData(10, true)]
-        [InlineData(1, false)]
-        [InlineData(10, false)]
-        public void DisposeShouldBeHandledByComponents(int componentCount, bool canDispose)
-        {
-            var count = 0;
-            Command.IsDisposable = canDispose;
-            for (var i = 0; i < componentCount; i++)
-            {
-                Command.AddComponent(new TestDisposableComponent<ICompositeCommand>
-                {
-                    Dispose = (o, _) =>
-                    {
-                        o.ShouldEqual(Command);
-                        ++count;
-                    }
-                });
-            }
-
-            Command.IsDisposed.ShouldBeFalse();
-            Command.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
-            Command.Dispose();
-            if (canDispose)
-            {
-                Command.IsDisposed.ShouldBeTrue();
-                count.ShouldEqual(componentCount);
-                Command.Components.Count.ShouldEqual(0);
-                Command.Metadata.Count.ShouldEqual(0);
+                request.Execute.ShouldEqual(execute);
+                request.CanExecute.ShouldEqual(canExecute);
+                request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
+                request.EventThreadMode.ShouldEqual(threadMode);
+                request.Notifiers.ShouldEqual(notifiers);
+                request.CanNotify.ShouldEqual(canNotify);
             }
             else
-            {
-                Command.IsDisposed.ShouldBeFalse();
-                count.ShouldEqual(0);
-                Command.Components.Count.ShouldEqual(componentCount);
-            }
+                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public async Task ExecuteShouldBeHandledByComponents(int componentCount)
+        [InlineData(false, null, false, false, false, false)]
+        [InlineData(true, true, true, true, true, true)]
+        public void CreateFromTaskShouldGenerateValidRequest2(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
+            bool hasMetadata)
         {
-            var invokeCount = 0;
-            var tcs = new TaskCompletionSource<bool>[componentCount];
-            for (var i = 0; i < componentCount; i++)
+            var owner = new object();
+            Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
+            var canExecute = GetCanExecute(hasCanExecute);
+            var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var canNotify = GetHasCanNotify(hasCanNotify);
+            var metadata = hasMetadata ? DefaultMetadata : null;
+
+            object? r = null;
+            CommandManager.AddComponent(new TestCommandProviderComponent
             {
-                var tc = new TaskCompletionSource<bool>();
-                tcs[i] = tc;
-                Command.AddComponent(new TestCommandExecutorComponent
+                TryGetCommand = (manager, s, o, arg3) =>
                 {
-                    ExecuteAsync = (cmd, p, c, m) =>
-                    {
-                        cmd.ShouldEqual(Command);
-                        p.ShouldEqual(this);
-                        c.ShouldEqual(DefaultCancellationToken);
-                        m.ShouldEqual(DefaultMetadata);
-                        ++invokeCount;
-                        return tc.Task.AsValueTask();
-                    },
-                    Priority = -i
-                });
+                    manager.ShouldEqual(CommandManager);
+                    s.ShouldEqual(owner);
+                    r = o;
+                    arg3.ShouldEqual(metadata);
+                    return new CompositeCommand();
+                }
+            });
+
+            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
+            if (r is DelegateCommandRequest request)
+            {
+                request.Execute.ShouldEqual(execute);
+                request.CanExecute.ShouldEqual(canExecute);
+                request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
+                request.EventThreadMode.ShouldEqual(threadMode);
+                request.Notifiers.ShouldEqual(notifiers);
+                request.CanNotify.ShouldEqual(canNotify);
             }
-
-            var task = Command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
-            for (var i = 0; i < tcs.Length; i++)
-                tcs[i].SetResult(i == componentCount - 1);
-
-            (await task).ShouldBeTrue();
-            invokeCount.ShouldEqual(componentCount);
+            else
+                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
         }
 
         [Theory]
@@ -295,85 +237,143 @@ namespace MugenMvvm.UnitTests.Commands
         }
 
         [Theory]
-        [InlineData(false, null, false, false, false, false)]
-        [InlineData(true, true, true, true, true, true)]
-        public void CreateFromTaskShouldGenerateValidRequest1(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
-            bool hasMetadata)
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(1, false)]
+        [InlineData(10, false)]
+        public void DisposeShouldBeHandledByComponents(int componentCount, bool canDispose)
         {
-            var owner = new object();
-            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
-            var canExecute = GetCanExecuteNoObject(hasCanExecute);
-            var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
-            var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
-
-            object? r = null;
-            CommandManager.AddComponent(new TestCommandProviderComponent
+            var count = 0;
+            Command.IsDisposable = canDispose;
+            for (var i = 0; i < componentCount; i++)
             {
-                TryGetCommand = (manager, s, o, arg3) =>
+                Command.AddComponent(new TestDisposableComponent<ICompositeCommand>
                 {
-                    manager.ShouldEqual(CommandManager);
-                    s.ShouldEqual(owner);
-                    r = o;
-                    arg3.ShouldEqual(metadata);
-                    return new CompositeCommand();
-                }
-            });
+                    Dispose = (o, _) =>
+                    {
+                        o.ShouldEqual(Command);
+                        ++count;
+                    }
+                });
+            }
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
-            if (r is DelegateCommandRequest request)
+            Command.IsDisposed.ShouldBeFalse();
+            Command.Metadata.Set(MetadataContextKey.FromKey<object?>("t"), "");
+            Command.Dispose();
+            if (canDispose)
             {
-                request.Execute.ShouldEqual(execute);
-                request.CanExecute.ShouldEqual(canExecute);
-                request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
-                request.EventThreadMode.ShouldEqual(threadMode);
-                request.Notifiers.ShouldEqual(notifiers);
-                request.CanNotify.ShouldEqual(canNotify);
+                Command.IsDisposed.ShouldBeTrue();
+                count.ShouldEqual(componentCount);
+                Command.Components.Count.ShouldEqual(0);
+                Command.Metadata.Count.ShouldEqual(0);
             }
             else
-                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
+            {
+                Command.IsDisposed.ShouldBeFalse();
+                count.ShouldEqual(0);
+                Command.Components.Count.ShouldEqual(componentCount);
+            }
         }
 
         [Theory]
-        [InlineData(false, null, false, false, false, false)]
-        [InlineData(true, true, true, true, true, true)]
-        public void CreateFromTaskShouldGenerateValidRequest2(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers, bool hasCanNotify,
-            bool hasMetadata)
+        [InlineData(1)]
+        [InlineData(10)]
+        public async Task ExecuteShouldBeHandledByComponents(int componentCount)
         {
-            var owner = new object();
-            Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
-            var canExecute = GetCanExecute(hasCanExecute);
-            var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
-            var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
-
-            object? r = null;
-            CommandManager.AddComponent(new TestCommandProviderComponent
+            var invokeCount = 0;
+            var tcs = new TaskCompletionSource<bool>[componentCount];
+            for (var i = 0; i < componentCount; i++)
             {
-                TryGetCommand = (manager, s, o, arg3) =>
+                var tc = new TaskCompletionSource<bool>();
+                tcs[i] = tc;
+                Command.AddComponent(new TestCommandExecutorComponent
                 {
-                    manager.ShouldEqual(CommandManager);
-                    s.ShouldEqual(owner);
-                    r = o;
-                    arg3.ShouldEqual(metadata);
-                    return new CompositeCommand();
-                }
-            });
-
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
-            if (r is DelegateCommandRequest request)
-            {
-                request.Execute.ShouldEqual(execute);
-                request.CanExecute.ShouldEqual(canExecute);
-                request.AllowMultipleExecution.ShouldEqual(allowMultipleExecution);
-                request.EventThreadMode.ShouldEqual(threadMode);
-                request.Notifiers.ShouldEqual(notifiers);
-                request.CanNotify.ShouldEqual(canNotify);
+                    ExecuteAsync = (cmd, p, c, m) =>
+                    {
+                        cmd.ShouldEqual(Command);
+                        p.ShouldEqual(this);
+                        c.ShouldEqual(DefaultCancellationToken);
+                        m.ShouldEqual(DefaultMetadata);
+                        ++invokeCount;
+                        return tc.Task.AsValueTask();
+                    },
+                    Priority = -i
+                });
             }
-            else
-                DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify).ShouldEqual(r);
+
+            var task = Command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
+            for (var i = 0; i < tcs.Length; i++)
+                tcs[i].SetResult(i == componentCount - 1);
+
+            (await task).ShouldBeTrue();
+            invokeCount.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void RaiseCanExecuteChangedShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            for (var i = 0; i < componentCount; i++)
+            {
+                Command.AddComponent(new TestCommandEventHandlerComponent
+                {
+                    RaiseCanExecuteChanged = c =>
+                    {
+                        c.ShouldEqual(Command);
+                        ++count;
+                    }
+                });
+            }
+
+            Command.RaiseCanExecuteChanged();
+            count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void RemoveCanExecuteChangedShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            EventHandler eventHandler = (sender, args) => { };
+            for (var i = 0; i < componentCount; i++)
+            {
+                Command.AddComponent(new TestCommandEventHandlerComponent
+                {
+                    RemoveCanExecuteChanged = (c, handler) =>
+                    {
+                        ++count;
+                        c.ShouldEqual(Command);
+                        handler.ShouldEqual(eventHandler);
+                    }
+                });
+            }
+
+            Command.CanExecuteChanged -= eventHandler;
+            count.ShouldEqual(componentCount);
+        }
+
+        private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
+        {
+            if (value)
+                return (_, _) => true;
+            return null;
+        }
+
+        private static Func<IReadOnlyMetadataContext?, bool>? GetCanExecuteNoObject(bool value)
+        {
+            if (value)
+                return m => true;
+            return null;
+        }
+
+        private static Func<object?, IReadOnlyMetadataContext?, bool>? GetCanExecute(bool value)
+        {
+            if (value)
+                return (t, m) => true;
+            return null;
         }
 
         protected override ICompositeCommand GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) =>

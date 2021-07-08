@@ -33,22 +33,6 @@ namespace MugenMvvm.App.Components
 
         public int Priority { get; init; } = AppComponentPriority.LifecycleTracker;
 
-        private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
-        {
-            if (state == ApplicationLifecycleState.Activating || state == ApplicationLifecycleState.Activated ||
-                state == ApplicationLifecycleState.Deactivating || state == ApplicationLifecycleState.Deactivated)
-            {
-                states.Remove(ApplicationLifecycleState.Deactivating);
-                states.Remove(ApplicationLifecycleState.Deactivated);
-                states.Remove(ApplicationLifecycleState.Activating);
-                states.Remove(ApplicationLifecycleState.Activated);
-            }
-            else if (state == ApplicationLifecycleState.Initialized)
-                states.Remove(ApplicationLifecycleState.Initializing);
-
-            states.Add(state);
-        }
-
         public void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             OnLifecycleChanged(application, lifecycleState, metadata);
@@ -78,6 +62,22 @@ namespace MugenMvvm.App.Components
             }
 
             _messenger.DefaultIfNull().Publish(application, lifecycleState, metadata);
+        }
+
+        private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (state == ApplicationLifecycleState.Activating || state == ApplicationLifecycleState.Activated ||
+                state == ApplicationLifecycleState.Deactivating || state == ApplicationLifecycleState.Deactivated)
+            {
+                states.Remove(ApplicationLifecycleState.Deactivating);
+                states.Remove(ApplicationLifecycleState.Deactivated);
+                states.Remove(ApplicationLifecycleState.Activating);
+                states.Remove(ApplicationLifecycleState.Activated);
+            }
+            else if (state == ApplicationLifecycleState.Initialized)
+                states.Remove(ApplicationLifecycleState.Initializing);
+
+            states.Add(state);
         }
 
         private INavigationContext BackgroundNewContext(IMugenApplication application) =>

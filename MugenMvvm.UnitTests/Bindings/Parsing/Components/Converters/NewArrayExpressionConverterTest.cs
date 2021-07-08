@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             {
                 ConstantExpressionNode.Get(1),
                 ConstantExpressionNode.Get(2)
-            }, new[] {typeof(int).AssemblyQualifiedName!});
+            }, new[] { typeof(int).AssemblyQualifiedName! });
 
             Converter.TryConvert(Context, Expression.NewArrayInit(typeof(int), arg1, arg2)).ShouldEqual(expectedResult);
         }

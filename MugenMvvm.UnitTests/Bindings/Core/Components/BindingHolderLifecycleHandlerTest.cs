@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Bindings.Core;
-using MugenMvvm.Bindings.Core.Components;
+﻿using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Extensions;

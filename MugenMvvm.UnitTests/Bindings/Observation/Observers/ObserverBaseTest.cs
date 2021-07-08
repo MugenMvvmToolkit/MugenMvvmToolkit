@@ -45,8 +45,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             observer.Target.ShouldBeNull();
         }
 
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -113,6 +111,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 observer.AddListener(listeners[i]);
             observer.GetListeners().IsEmpty.ShouldBeTrue();
         }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 
         protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1,
             bool ignoreFirstMember = true)

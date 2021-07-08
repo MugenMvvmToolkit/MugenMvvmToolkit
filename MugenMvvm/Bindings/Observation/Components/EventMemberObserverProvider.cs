@@ -60,9 +60,6 @@ namespace MugenMvvm.Bindings.Observation.Components
                    ?? memberManager.TryGetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IObservableMemberInfo;
         }
 
-        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
-            ((IObservableMemberInfo) member).TryObserve(target, listener, metadata);
-
         public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             if (member is MemberInfo reflectionMember && reflectionMember.MemberType == MemberTypes.Event)
@@ -75,5 +72,8 @@ namespace MugenMvvm.Bindings.Observation.Components
                 return default;
             return new MemberObserver(MemberObserverHandler, eventInfo);
         }
+
+        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
+            ((IObservableMemberInfo)member).TryObserve(target, listener, metadata);
     }
 }

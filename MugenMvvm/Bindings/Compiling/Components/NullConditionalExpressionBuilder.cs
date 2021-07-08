@@ -28,23 +28,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public int Priority { get; init; } = CompilingComponentPriority.NullConditionalMember;
 
-        private static bool HasNullCondition(IHasTargetExpressionNode<IExpressionNode>? target, [NotNullWhen(true)] out NullConditionalMemberExpressionNode? result)
-        {
-            while (target != null)
-            {
-                if (target is NullConditionalMemberExpressionNode r)
-                {
-                    result = r;
-                    return true;
-                }
-
-                target = target.Target as IHasTargetExpressionNode<IExpressionNode>;
-            }
-
-            result = null;
-            return false;
-        }
-
         public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             if (expression is not IHasTargetExpressionNode<IExpressionNode> hasTarget || !HasNullCondition(hasTarget, out var nullConditional) ||
@@ -86,6 +69,23 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 context.ClearExpression(nullConditional.Target!);
                 _handledExpressions.Remove(nullConditional);
             }
+        }
+
+        private static bool HasNullCondition(IHasTargetExpressionNode<IExpressionNode>? target, [NotNullWhen(true)] out NullConditionalMemberExpressionNode? result)
+        {
+            while (target != null)
+            {
+                if (target is NullConditionalMemberExpressionNode r)
+                {
+                    result = r;
+                    return true;
+                }
+
+                target = target.Target as IHasTargetExpressionNode<IExpressionNode>;
+            }
+
+            result = null;
+            return false;
         }
     }
 }

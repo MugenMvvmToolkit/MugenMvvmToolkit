@@ -81,29 +81,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         }
 
         [Fact]
-        public void ShouldCloseViews()
-        {
-            var closeCount = 0;
-            var viewModel = new TestCleanerViewModel();
-            Presenter.AddComponent(new TestPresenterComponent
-            {
-                TryClose = (_, o, m, _) =>
-                {
-                    o.ShouldEqual(viewModel);
-                    m!.Get(NavigationMetadata.ForceClose).ShouldBeTrue();
-                    ++closeCount;
-                    return default;
-                }
-            });
-
-            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposing, this, DefaultMetadata);
-            closeCount.ShouldEqual(1);
-
-            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
-            closeCount.ShouldEqual(1);
-        }
-
-        [Fact]
         public void ShouldClearViews()
         {
             var viewModel = new TestCleanerViewModel();
@@ -142,6 +119,29 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             viewModel.Value = new WeakReferenceImpl(viewModel, false);
             ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Value.Target.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldCloseViews()
+        {
+            var closeCount = 0;
+            var viewModel = new TestCleanerViewModel();
+            Presenter.AddComponent(new TestPresenterComponent
+            {
+                TryClose = (_, o, m, _) =>
+                {
+                    o.ShouldEqual(viewModel);
+                    m!.Get(NavigationMetadata.ForceClose).ShouldBeTrue();
+                    ++closeCount;
+                    return default;
+                }
+            });
+
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposing, this, DefaultMetadata);
+            closeCount.ShouldEqual(1);
+
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
+            closeCount.ShouldEqual(1);
         }
 
         protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);

@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
     {
         private static readonly Dictionary<string, object?> AccessorMetadata = new(3)
         {
-            {BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.FalseObject}
+            { BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.FalseObject }
         };
 
         private readonly StringBuilder _memberBuilder;
@@ -34,39 +34,39 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
             var eventArgsImpl = new MethodCallExpressionNode(target, nameof(BindingMugenExtensions.GetEventArgs), default);
             Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>(3)
             {
-                {MacrosConstant.Binding, _ => bindingImpl},
-                {MacrosConstant.EventArgs, _ => eventArgsImpl},
-                {MacrosConstant.Action, _ => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())}
+                { MacrosConstant.Binding, _ => bindingImpl },
+                { MacrosConstant.EventArgs, _ => eventArgsImpl },
+                { MacrosConstant.Action, _ => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString()) }
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>(3)
             {
-                {nameof(string.Format), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), default)},
-                {nameof(Equals), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<object>(), nameof(Equals), default)},
-                {nameof(ReferenceEquals), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<object>(), nameof(ReferenceEquals), default)}
+                { nameof(string.Format), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format), default) },
+                { nameof(Equals), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<object>(), nameof(Equals), default) },
+                { nameof(ReferenceEquals), new MethodCallExpressionNode(TypeAccessExpressionNode.Get<object>(), nameof(ReferenceEquals), default) }
             };
             AccessorMethods = new Dictionary<string, string>(11)
             {
-                {nameof(BindableMembers.GetErrors), nameof(BindableMembers.GetErrors)},
-                {nameof(BindableMembers.GetError), nameof(BindableMembers.GetError)},
-                {nameof(BindableMembers.HasErrors), nameof(BindableMembers.HasErrors)},
-                {"Rel", nameof(BindableMembers.RelativeSource)},
-                {"Relative", nameof(BindableMembers.RelativeSource)},
-                {nameof(BindableMembers.RelativeSource), nameof(BindableMembers.RelativeSource)},
-                {"El", nameof(BindableMembers.ElementSource)},
-                {"Element", nameof(BindableMembers.ElementSource)},
-                {nameof(BindableMembers.ElementSource), nameof(BindableMembers.ElementSource)},
-                {nameof(ICommand.CanExecute), nameof(ICommand.CanExecute)}
+                { nameof(BindableMembers.GetErrors), nameof(BindableMembers.GetErrors) },
+                { nameof(BindableMembers.GetError), nameof(BindableMembers.GetError) },
+                { nameof(BindableMembers.HasErrors), nameof(BindableMembers.HasErrors) },
+                { "Rel", nameof(BindableMembers.RelativeSource) },
+                { "Relative", nameof(BindableMembers.RelativeSource) },
+                { nameof(BindableMembers.RelativeSource), nameof(BindableMembers.RelativeSource) },
+                { "El", nameof(BindableMembers.ElementSource) },
+                { "Element", nameof(BindableMembers.ElementSource) },
+                { nameof(BindableMembers.ElementSource), nameof(BindableMembers.ElementSource) },
+                { nameof(ICommand.CanExecute), nameof(ICommand.CanExecute) }
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>(11)
             {
-                {nameof(BindableMembers.GetErrors), UnaryExpressionNode.ContextMacros},
-                {nameof(BindableMembers.GetError), UnaryExpressionNode.ContextMacros},
-                {nameof(BindableMembers.HasErrors), UnaryExpressionNode.ContextMacros},
-                {"Rel", UnaryExpressionNode.TargetMacros},
-                {nameof(BindableMembers.RelativeSource), UnaryExpressionNode.TargetMacros},
-                {"El", UnaryExpressionNode.TargetMacros},
-                {"Element", UnaryExpressionNode.TargetMacros},
-                {nameof(BindableMembers.ElementSource), UnaryExpressionNode.TargetMacros}
+                { nameof(BindableMembers.GetErrors), UnaryExpressionNode.ContextMacros },
+                { nameof(BindableMembers.GetError), UnaryExpressionNode.ContextMacros },
+                { nameof(BindableMembers.HasErrors), UnaryExpressionNode.ContextMacros },
+                { "Rel", UnaryExpressionNode.TargetMacros },
+                { nameof(BindableMembers.RelativeSource), UnaryExpressionNode.TargetMacros },
+                { "El", UnaryExpressionNode.TargetMacros },
+                { "Element", UnaryExpressionNode.TargetMacros },
+                { nameof(BindableMembers.ElementSource), UnaryExpressionNode.TargetMacros }
             };
         }
 

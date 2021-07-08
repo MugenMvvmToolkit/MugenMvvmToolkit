@@ -9,7 +9,6 @@ using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.Tests.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
-using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
 
@@ -68,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         public void ConstructorShouldInitializeValues3()
         {
             var result = this;
-            var values = new[] {new object(), "", 1};
+            var values = new[] { new object(), "", 1 };
             var compiledExpression = new TestCompiledExpression
             {
                 Invoke = (list, context) =>
@@ -111,7 +110,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             };
 
             var result = this;
-            var values = new[] {observer, new object(), "", 1};
+            var values = new[] { observer, new object(), "", 1 };
             var compiledExpression = new TestCompiledExpression
             {
                 Invoke = (list, context) =>

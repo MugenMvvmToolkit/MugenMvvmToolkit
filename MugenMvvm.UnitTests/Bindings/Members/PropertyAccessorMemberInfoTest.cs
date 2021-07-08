@@ -22,38 +22,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             RegisterDisposeToken(WithGlobalService(ReflectionManager));
         }
 
-        public static string? Property1Static { get; set; }
-
-        public static int Property2Static { get; set; }
-
-        [NonObservable]
-        public static int NonObservableStaticProperty { get; set; }
-
-        public static string ReadOnlyPropertyStaticGenerated { get; } = nameof(ReadOnlyPropertyStaticGenerated);
-
-        public static string ReadOnlyPropertyStatic => nameof(ReadOnlyPropertyStatic);
-
-        public static string WriteOnlyPropertyStatic
-        {
-            set { ; }
-        }
-
-        public string? Property1 { get; set; }
-
-        public int Property2 { get; set; }
-
-        [NonObservable]
-        public int NonObservableProperty { get; set; }
-
-        public string ReadOnlyPropertyGenerated { get; } = nameof(ReadOnlyPropertyGenerated);
-
-        public string ReadOnlyProperty => nameof(ReadOnlyProperty);
-
-        public string WriteOnlyProperty
-        {
-            set { ; }
-        }
-
         [Theory]
         [InlineData(nameof(Property1), false)]
         [InlineData(nameof(Property2), false)]
@@ -238,6 +206,38 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 memberInfo.SetValue(null, int.MaxValue, DefaultMetadata);
                 Property2Static.ShouldEqual(int.MaxValue);
             }
+        }
+
+        public static string? Property1Static { get; set; }
+
+        public static int Property2Static { get; set; }
+
+        [NonObservable]
+        public static int NonObservableStaticProperty { get; set; }
+
+        public static string ReadOnlyPropertyStaticGenerated { get; } = nameof(ReadOnlyPropertyStaticGenerated);
+
+        public static string ReadOnlyPropertyStatic => nameof(ReadOnlyPropertyStatic);
+
+        public static string WriteOnlyPropertyStatic
+        {
+            set { ; }
+        }
+
+        public string? Property1 { get; set; }
+
+        public int Property2 { get; set; }
+
+        [NonObservable]
+        public int NonObservableProperty { get; set; }
+
+        public string ReadOnlyPropertyGenerated { get; } = nameof(ReadOnlyPropertyGenerated);
+
+        public string ReadOnlyProperty => nameof(ReadOnlyProperty);
+
+        public string WriteOnlyProperty
+        {
+            set { ; }
         }
 
         protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);

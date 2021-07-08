@@ -207,7 +207,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                 Should.NotBeNull(target, nameof(target));
                 var attachedValues = target.AttachedValues(metadata);
                 if (attachedValues.TryGet(key, out var value))
-                    return (MemberWrapper) value!;
+                    return (MemberWrapper)value!;
 
                 return attachedValues.GetOrAdd(key, (wrapMemberName, flags, metadata), (o, s) =>
                 {
@@ -223,7 +223,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                 var member = _member;
                 if (member == null)
                     return _value;
-                return (TValue) member.GetValue(target, metadata)!;
+                return (TValue)member.GetValue(target, metadata)!;
             }
 
             public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
@@ -290,7 +290,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 _targetRef = target.ToWeakReference();
                 _member = member;
-                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo) member, target);
+                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo)member, target);
                 InvalidateParent(target!, metadata);
             }
 
@@ -306,11 +306,11 @@ namespace MugenMvvm.Bindings.Members.Builders
 #pragma warning disable 8634
                 var attachedValues = target.AttachedValues(metadata);
                 if (attachedValues.TryGet(member.State.id, out var value))
-                    return (InheritedProperty) value!;
+                    return (InheritedProperty)value!;
                 return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, state) =>
                 {
-                    state.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) state.member, (TTarget) t, state.metadata);
-                    return new InheritedProperty((TTarget) t, state.member, state.metadata);
+                    state.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)state.member, (TTarget)t, state.metadata);
+                    return new InheritedProperty((TTarget)t, state.member, state.metadata);
                 });
 #pragma warning restore 8634
             }
@@ -325,7 +325,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                         _parentToken.Dispose();
                     if (_parentRef != null)
                     {
-                        TryUnsubscribe((TTarget) _parentRef?.Target!, metadata);
+                        TryUnsubscribe((TTarget)_parentRef?.Target!, metadata);
                         _parentRef = null;
                     }
                 }
@@ -337,7 +337,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                 if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
                     return;
                 Value = value;
-                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo) _member, target, oldValue, value, metadata);
+                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo)_member, target, oldValue, value, metadata);
                 Raise(target, this, metadata);
             }
 
@@ -353,7 +353,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                     return;
                 }
 
-                TryUnsubscribe((TTarget) oldParent!, metadata);
+                TryUnsubscribe((TTarget)oldParent!, metadata);
                 if (member != null && _parentToken.IsEmpty)
                     _parentToken = member.TryObserve(target, this, metadata);
                 if (parent == null)
@@ -375,7 +375,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                     SetValue(target, parentProperty.Value, ParentState, metadata);
                 else if (_state == ParentState)
                 {
-                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo) _member, target),
+                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo)_member, target),
                         DefaultState, metadata);
                 }
             }
@@ -390,7 +390,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 try
                 {
-                    var target = (TTarget?) _targetRef.Target;
+                    var target = (TTarget?)_targetRef.Target;
                     if (target == null)
                         return false;
                     if (message is InheritedProperty inheritedProperty)
@@ -426,14 +426,14 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 var attachedValues = member.GetTarget(target).AttachedValues(metadata);
                 if (attachedValues.TryGet(member.State.id, out var value))
-                    return (AutoProperty) value!;
+                    return (AutoProperty)value!;
                 return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, s) =>
                 {
                     if (s.member.MemberFlags.HasFlag(MemberFlags.Static))
                         t = null!;
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) s.member, (TTarget) t, s.metadata);
+                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, (TTarget)t, s.metadata);
                     return new AutoProperty(s.member.State.PropertyChanged,
-                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo) s.member, (TTarget) t));
+                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, (TTarget)t));
                 });
             }
 

@@ -21,21 +21,6 @@ namespace MugenMvvm.UnitTests.Validation.Components
             ValidationManager.AddComponent(_provider);
         }
 
-        [Fact]
-        public void TryGetValidatorShouldReturnValidator2()
-        {
-            var target = new TestViewModelBase(ViewModelManager);
-            _provider.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
-            var validator = ValidationManager.TryGetValidator(target, DefaultMetadata)!;
-            validator.ShouldBeType<Validator>();
-            validator.Components.Count.ShouldEqual(3);
-            validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);
-            validator.Components.Get<PropertyChangedValidatorObserver>().Count.ShouldEqual(1);
-            validator.Components.Get<ValidatorErrorManager>().Count.ShouldEqual(1);
-        }
-
-        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -51,5 +36,20 @@ namespace MugenMvvm.UnitTests.Validation.Components
             if (isAsync)
                 validator.Components.Get<AsyncValidationBehavior>().Count.ShouldEqual(1);
         }
+
+        [Fact]
+        public void TryGetValidatorShouldReturnValidator2()
+        {
+            var target = new TestViewModelBase(ViewModelManager);
+            _provider.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
+            var validator = ValidationManager.TryGetValidator(target, DefaultMetadata)!;
+            validator.ShouldBeType<Validator>();
+            validator.Components.Count.ShouldEqual(3);
+            validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);
+            validator.Components.Get<PropertyChangedValidatorObserver>().Count.ShouldEqual(1);
+            validator.Components.Get<ValidatorErrorManager>().Count.ShouldEqual(1);
+        }
+
+        protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);
     }
 }

@@ -6,10 +6,8 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
-using MugenMvvm.ViewModels;
 using MugenMvvm.Views;
 
 namespace MugenMvvm.Extensions
@@ -30,7 +28,7 @@ namespace MugenMvvm.Extensions
             where TViewModel : class, IViewModelBase
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
-            return (TViewModel) viewModelManager.GetViewModel(typeof(TViewModel), metadata);
+            return (TViewModel)viewModelManager.GetViewModel(typeof(TViewModel), metadata);
         }
 
         public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
@@ -66,7 +64,7 @@ namespace MugenMvvm.Extensions
                     {
                         if (viewModel.IsInState(ViewModelLifecycleState.Disposed))
                             ExceptionManager.ThrowObjectDisposed(viewModel);
-                        service = (T) viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
+                        service = (T)viewModelManager.DefaultIfNull().GetService(viewModel, request ?? typeof(T), metadata);
                         callback?.Invoke(viewModel, service);
                     }
                 }

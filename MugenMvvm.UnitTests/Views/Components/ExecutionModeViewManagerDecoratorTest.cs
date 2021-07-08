@@ -67,6 +67,69 @@ namespace MugenMvvm.UnitTests.Views.Components
             action.ShouldBeNull();
         }
 
+        [Theory]
+        [InlineData(0)] //success
+        [InlineData(1)] //canceled
+        [InlineData(2)] //error
+        public async Task TryCleanupAsyncShouldUseThreadDispatcher(int state)
+        {
+            var result = true;
+            var cancellationTokenSource = new CancellationTokenSource();
+            var cancellationToken = cancellationTokenSource.Token;
+            var ex = new Exception();
+            Action? action = null;
+            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
+            {
+                CanExecuteInline = (_, mode, _) =>
+                {
+                    mode.ShouldEqual(_decorator.CleanupExecutionMode);
+                    return false;
+                },
+                Execute = (_, a, mode, arg3, _) =>
+                {
+                    mode.ShouldEqual(_decorator.CleanupExecutionMode);
+                    action += () => a(arg3);
+                    return true;
+                }
+            });
+
+            ViewManager.AddComponent(new TestViewManagerComponent
+            {
+                TryCleanupAsync = (m, v, r, meta, token) =>
+                {
+                    m.ShouldEqual(ViewManager);
+                    v.ShouldEqual(_view);
+                    r.ShouldEqual(_viewModel);
+                    meta.ShouldEqual(DefaultMetadata);
+                    token.ShouldEqual(cancellationToken);
+                    if (state == 2)
+                        throw ex;
+                    return new ValueTask<bool>(result);
+                }
+            });
+
+            if (state == 1)
+                cancellationTokenSource.Cancel();
+            var task = ViewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, DefaultMetadata);
+            task.IsCompleted.ShouldEqual(state == 1);
+            action?.Invoke();
+            await task.WaitSafeAsync();
+            switch (state)
+            {
+                case 1:
+                    task.IsCanceled.ShouldBeTrue();
+                    break;
+                case 2:
+                    task.IsFaulted.ShouldBeTrue();
+                    task.AsTask().Exception!.GetBaseException().ShouldEqual(ex);
+                    break;
+                default:
+                    task.IsCompleted.ShouldBeTrue();
+                    task.IsCanceled.ShouldBeFalse();
+                    break;
+            }
+        }
+
         [Fact]
         public async Task TryInitializeAsyncShouldBeExecutedInline()
         {
@@ -102,10 +165,6 @@ namespace MugenMvvm.UnitTests.Views.Components
             (await ViewManager.InitializeAsync(_view.Mapping, _viewModel, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
             action.ShouldBeNull();
         }
-
-        protected override IThreadDispatcher GetThreadDispatcher() => new ThreadDispatcher(ComponentCollectionManager);
-
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(0)] //success
@@ -170,67 +229,8 @@ namespace MugenMvvm.UnitTests.Views.Components
             }
         }
 
-        [Theory]
-        [InlineData(0)] //success
-        [InlineData(1)] //canceled
-        [InlineData(2)] //error
-        public async Task TryCleanupAsyncShouldUseThreadDispatcher(int state)
-        {
-            var result = true;
-            var cancellationTokenSource = new CancellationTokenSource();
-            var cancellationToken = cancellationTokenSource.Token;
-            var ex = new Exception();
-            Action? action = null;
-            ThreadDispatcher.AddComponent(new TestThreadDispatcherComponent
-            {
-                CanExecuteInline = (_, mode, _) =>
-                {
-                    mode.ShouldEqual(_decorator.CleanupExecutionMode);
-                    return false;
-                },
-                Execute = (_, a, mode, arg3, _) =>
-                {
-                    mode.ShouldEqual(_decorator.CleanupExecutionMode);
-                    action += () => a(arg3);
-                    return true;
-                }
-            });
+        protected override IThreadDispatcher GetThreadDispatcher() => new ThreadDispatcher(ComponentCollectionManager);
 
-            ViewManager.AddComponent(new TestViewManagerComponent
-            {
-                TryCleanupAsync = (m, v, r, meta, token) =>
-                {
-                    m.ShouldEqual(ViewManager);
-                    v.ShouldEqual(_view);
-                    r.ShouldEqual(_viewModel);
-                    meta.ShouldEqual(DefaultMetadata);
-                    token.ShouldEqual(cancellationToken);
-                    if (state == 2)
-                        throw ex;
-                    return new ValueTask<bool>(result);
-                }
-            });
-
-            if (state == 1)
-                cancellationTokenSource.Cancel();
-            var task = ViewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, DefaultMetadata);
-            task.IsCompleted.ShouldEqual(state == 1);
-            action?.Invoke();
-            await task.WaitSafeAsync();
-            switch (state)
-            {
-                case 1:
-                    task.IsCanceled.ShouldBeTrue();
-                    break;
-                case 2:
-                    task.IsFaulted.ShouldBeTrue();
-                    task.AsTask().Exception!.GetBaseException().ShouldEqual(ex);
-                    break;
-                default:
-                    task.IsCompleted.ShouldBeTrue();
-                    task.IsCanceled.ShouldBeFalse();
-                    break;
-            }
-        }
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
     }
 }

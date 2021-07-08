@@ -14,8 +14,6 @@ namespace MugenMvvm.UnitTests.Internal
         [Fact]
         public void TryGetAttachedValuesShouldReturnEmptyNoComponents() => AttachedValueManager.TryGetAttachedValues(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
-        protected override IAttachedValueManager GetAttachedValueManager() => GetComponentOwner(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -55,6 +53,8 @@ namespace MugenMvvm.UnitTests.Internal
             storage.GetCount().ShouldEqual(int.MaxValue);
             invokeCount.ShouldEqual(componentCount);
         }
+
+        protected override IAttachedValueManager GetAttachedValueManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

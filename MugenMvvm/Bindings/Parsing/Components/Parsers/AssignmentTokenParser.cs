@@ -13,6 +13,15 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
     {
         public int Priority { get; init; } = ParsingComponentPriority.Assignment;
 
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
+        {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression);
+            if (node == null)
+                context.Position = p;
+            return node;
+        }
+
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
             if (expression == null || !context.SkipWhitespaces().IsToken('='))
@@ -22,15 +31,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             if (right == null)
                 return null;
             return new BinaryExpressionNode(BinaryTokenType.Assignment, expression, right);
-        }
-
-        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            var p = context.Position;
-            var node = TryParseInternal(context, expression);
-            if (node == null)
-                context.Position = p;
-            return node;
         }
     }
 }

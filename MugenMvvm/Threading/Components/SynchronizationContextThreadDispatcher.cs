@@ -27,13 +27,6 @@ namespace MugenMvvm.Threading.Components
 
         public int Priority { get; init; } = ThreadingComponentPriority.Dispatcher;
 
-        private static SendOrPostCallback GetSendOrPostCallback(IThreadDispatcherHandler handler)
-        {
-            if (handler is IValueHolder<Delegate> holder)
-                return (SendOrPostCallback)(holder.Value ??= new SendOrPostCallback(handler.Execute));
-            return handler.Execute;
-        }
-
         public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
             => executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread() ||
                executionMode == ThreadExecutionMode.Background && !IsOnMainThread();
@@ -141,6 +134,13 @@ namespace MugenMvvm.Threading.Components
             if (_mainThreadId == null)
                 return SynchronizationContext.Current == _synchronizationContext;
             return _mainThreadId.Value == Environment.CurrentManagedThreadId;
+        }
+
+        private static SendOrPostCallback GetSendOrPostCallback(IThreadDispatcherHandler handler)
+        {
+            if (handler is IValueHolder<Delegate> holder)
+                return (SendOrPostCallback)(holder.Value ??= new SendOrPostCallback(handler.Execute));
+            return handler.Execute;
         }
     }
 }

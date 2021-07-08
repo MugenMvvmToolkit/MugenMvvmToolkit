@@ -12,12 +12,6 @@ namespace MugenMvvm.UnitTests.Commands
 {
     public class CommandManagerTest : ComponentOwnerTestBase<ICommandManager>
     {
-        [Fact]
-        public void GetCommandShouldThrowNoComponents() =>
-            ShouldThrow<InvalidOperationException>(() => CommandManager.GetCommand<string>(CommandManager, CommandManager, DefaultMetadata));
-
-        protected override ICommandManager GetCommandManager() => GetComponentOwner(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -78,6 +72,12 @@ namespace MugenMvvm.UnitTests.Commands
             CommandManager.GetCommand<string>(owner, CommandManager, DefaultMetadata);
             count.ShouldEqual(componentCount);
         }
+
+        [Fact]
+        public void GetCommandShouldThrowNoComponents() =>
+            ShouldThrow<InvalidOperationException>(() => CommandManager.GetCommand<string>(CommandManager, CommandManager, DefaultMetadata));
+
+        protected override ICommandManager GetCommandManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override ICommandManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new CommandManager(componentCollectionManager);
     }

@@ -47,6 +47,20 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }
 
+        [Theory]
+        [InlineData(MacrosConstant.Target)]
+        [InlineData(MacrosConstant.Self)]
+        [InlineData(MacrosConstant.This)]
+        [InlineData(MacrosConstant.Source)]
+        [InlineData(MacrosConstant.Context)]
+        public void VisitShouldCacheMacrosExpression(string macros)
+        {
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)),
+                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)));
+            var expressionNode = (BinaryExpressionNode)_visitor.Visit(expression, true, DefaultMetadata);
+            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
+        }
+
         [Fact]
         public void VisitShouldCacheMember()
         {
@@ -127,119 +141,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
 
             var expressionNode = (BinaryExpressionNode)_visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
-
-        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
-
-        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
-
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleMethodCall1(bool isTarget)
-        {
-            var expression = new MethodCallExpressionNode(null, MethodName, default);
-
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}()", 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
-
-            _visitor.SuppressMethodAccessors = true;
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
-                        expression)));
-
-            _visitor.SuppressMethodAccessors = false;
-            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression)));
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleMethodCall2(bool isTarget)
-        {
-            var expression = new MethodCallExpressionNode(null, MethodName, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) });
-
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}(1,2)", 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
-
-            _visitor.SuppressMethodAccessors = true;
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression)));
-
-            _visitor.SuppressMethodAccessors = false;
-            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
-                        expression)));
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleMethodCall3(bool isTarget)
-        {
-            var expression = new MethodCallExpressionNode(new MemberExpressionNode(null, MemberName), MethodName,
-                new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) });
-
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}.{expression.Method}(1,2)", 0,
-                _visitor.Flags.SetTargetFlags(isTarget),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
-
-            _visitor.SuppressMethodAccessors = true;
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0,
-                _visitor.Flags.SetTargetFlags(isTarget),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
-
-            _visitor.SuppressMethodAccessors = false;
-            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0,
-                _visitor.Flags.SetTargetFlags(isTarget),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleMethodCall4(bool isTarget)
-        {
-            var expression = new MethodCallExpressionNode(new IndexExpressionNode(new MemberExpressionNode(null, MemberName), new[] { ConstantExpressionNode.Get(1) }), MethodName,
-                new[]
-                {
-                    ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)
-                });
-
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}[1].{expression.Method}(1,2)", 0,
-                _visitor.Flags.SetTargetFlags(isTarget),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
-
-            _visitor.SuppressMethodAccessors = true;
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0,
-                _visitor.Flags.SetTargetFlags(isTarget),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
-
-            _visitor.SuppressMethodAccessors = false;
-            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0,
-                _visitor.Flags.SetTargetFlags(isTarget),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
         }
 
         [Theory]
@@ -353,6 +254,260 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
         }
 
         [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleMethodCall1(bool isTarget)
+        {
+            var expression = new MethodCallExpressionNode(null, MethodName, default);
+
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}()", 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+
+            _visitor.SuppressMethodAccessors = true;
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
+                        expression)));
+
+            _visitor.SuppressMethodAccessors = false;
+            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression)));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleMethodCall2(bool isTarget)
+        {
+            var expression = new MethodCallExpressionNode(null, MethodName, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) });
+
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingMemberExpressionNode($"{expression.Method}(1,2)", 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+
+            _visitor.SuppressMethodAccessors = true;
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression)));
+
+            _visitor.SuppressMethodAccessors = false;
+            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName,
+                        expression)));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleMethodCall3(bool isTarget)
+        {
+            var expression = new MethodCallExpressionNode(new MemberExpressionNode(null, MemberName), MethodName,
+                new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) });
+
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}.{expression.Method}(1,2)", 0,
+                _visitor.Flags.SetTargetFlags(isTarget),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+
+            _visitor.SuppressMethodAccessors = true;
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0,
+                _visitor.Flags.SetTargetFlags(isTarget),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
+
+            _visitor.SuppressMethodAccessors = false;
+            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode(MemberName, 0,
+                _visitor.Flags.SetTargetFlags(isTarget),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleMethodCall4(bool isTarget)
+        {
+            var expression = new MethodCallExpressionNode(new IndexExpressionNode(new MemberExpressionNode(null, MemberName), new[] { ConstantExpressionNode.Get(1) }), MethodName,
+                new[]
+                {
+                    ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)
+                });
+
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{MemberName}[1].{expression.Method}(1,2)", 0,
+                _visitor.Flags.SetTargetFlags(isTarget),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+
+            _visitor.SuppressMethodAccessors = true;
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0,
+                _visitor.Flags.SetTargetFlags(isTarget),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
+
+            _visitor.SuppressMethodAccessors = false;
+            expression = expression.UpdateMetadata(BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject);
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(expression.UpdateTarget(new BindingMemberExpressionNode($"{MemberName}[1]", 0,
+                _visitor.Flags.SetTargetFlags(isTarget),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), MethodName, expression.Target)));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleResource1(bool isTarget)
+        {
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName));
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+
+            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, _visitor.Flags.SetTargetFlags(isTarget),
+                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleResource2(bool isTarget)
+        {
+            EnumFlags<MemberFlags> memberFlags = MemberFlags.Attached;
+            EnumFlags<BindingMemberExpressionFlags> bindingMemberFlags = BindingMemberExpressionFlags.Optional;
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName))
+                .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null,
+                        expression));
+
+            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName)
+                .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null,
+                        expression));
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void VisitShouldHandleResourceStatic(bool isTarget, bool wrapToDynamic)
+        {
+            var resource = 1;
+            var invokeCount = 0;
+            ResourceManager.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResource = (_, s, o, arg4) =>
+                {
+                    s.ShouldEqual(ResourceName);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    ++invokeCount;
+                    return new ResourceResolverResult(wrapToDynamic ? new TestDynamicResource { Value = resource } : resource);
+                }
+            });
+            var memberResult = "w";
+            var member = new TestAccessorMemberInfo
+            {
+                GetValue = (o, context) =>
+                {
+                    o.ShouldEqual(resource);
+                    context.ShouldEqual(DefaultMetadata);
+                    return memberResult;
+                }
+            };
+            MemberManager.AddComponent(new TestMemberManagerComponent
+            {
+                TryGetMembers = (_, t, m, f, r, meta) =>
+                {
+                    m.ShouldEqual(MemberType.Accessor);
+                    if (r.Equals(MemberName))
+                    {
+                        t.ShouldEqual(resource.GetType());
+                        f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
+                        return member;
+                    }
+
+                    throw new NotSupportedException();
+                }
+            });
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (_, o, arg3) =>
+                {
+                    var path = (string)o!;
+                    if (path == "")
+                        return MemberPath.Empty;
+                    if (path == MemberName)
+                        return MemberPath.Get(path);
+                    throw new NotSupportedException();
+                }
+            });
+
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName));
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(resource));
+            invokeCount.ShouldEqual(1);
+
+            invokeCount = 0;
+            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(memberResult));
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleSourceContext(bool isTarget)
+        {
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+
+            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context));
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindableMembers.For<object>().DataContext(), 0,
+                _visitor.Flags.SetTargetFlags(true),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+
+            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context)), MemberName);
+            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{BindableMembers.For<object>().DataContext()}.{MemberName}", 0,
+                _visitor.Flags.SetTargetFlags(true),
+                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void VisitShouldHandleSourceMacros(bool isTarget)
+        {
+            _visitor.MemberFlags = MemberFlags.All;
+            _visitor.Flags = BindingMemberExpressionFlags.Observable;
+
+            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source));
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(false), _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                        expression));
+
+            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source)), MemberName);
+            _visitor.Visit(expression, isTarget, DefaultMetadata)
+                    .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, _visitor.Flags.SetTargetFlags(false), _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
+                        expression));
+        }
+
+        [Theory]
         [InlineData(MacrosConstant.Target, true)]
         [InlineData(MacrosConstant.Self, true)]
         [InlineData(MacrosConstant.This, true)]
@@ -402,44 +557,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             _visitor.Visit(expression, isTarget, DefaultMetadata)
                     .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, bindingMemberFlags.SetTargetFlags(true), memberFlags.SetInstanceOrStaticFlags(false), null,
                         expression));
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleSourceMacros(bool isTarget)
-        {
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-
-            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source));
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingMemberExpressionNode(string.Empty, 0, _visitor.Flags.SetTargetFlags(false), _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
-                        expression));
-
-            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Source)), MemberName);
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingMemberExpressionNode(MemberName, 0, _visitor.Flags.SetTargetFlags(false), _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null,
-                        expression));
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleSourceContext(bool isTarget)
-        {
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-
-            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context));
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindableMembers.For<object>().DataContext(), 0,
-                _visitor.Flags.SetTargetFlags(true),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
-
-            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context)), MemberName);
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{BindableMembers.For<object>().DataContext()}.{MemberName}", 0,
-                _visitor.Flags.SetTargetFlags(true),
-                _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
         }
 
         [Theory]
@@ -571,127 +688,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             invokeCount.ShouldEqual(1);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleResource1(bool isTarget)
-        {
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName));
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
+        protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
 
-            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, _visitor.Flags.SetTargetFlags(isTarget),
-                        _visitor.MemberFlags.SetInstanceOrStaticFlags(false), null, expression));
-        }
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void VisitShouldHandleResource2(bool isTarget)
-        {
-            EnumFlags<MemberFlags> memberFlags = MemberFlags.Attached;
-            EnumFlags<BindingMemberExpressionFlags> bindingMemberFlags = BindingMemberExpressionFlags.Optional;
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName))
-                .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, string.Empty, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null,
-                        expression));
-
-            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, ResourceName)), MemberName)
-                .UpdateMetadata(BindingParameterNameConstant.MemberFlags, memberFlags, BindingParameterNameConstant.BindingMemberFlags, bindingMemberFlags);
-            _visitor.Visit(expression, isTarget, DefaultMetadata)
-                    .ShouldEqual(new BindingResourceMemberExpressionNode(ResourceName, MemberName, 0, bindingMemberFlags, memberFlags.SetInstanceOrStaticFlags(false), null,
-                        expression));
-        }
-
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void VisitShouldHandleResourceStatic(bool isTarget, bool wrapToDynamic)
-        {
-            var resource = 1;
-            var invokeCount = 0;
-            ResourceManager.AddComponent(new TestResourceResolverComponent
-            {
-                TryGetResource = (_, s, o, arg4) =>
-                {
-                    s.ShouldEqual(ResourceName);
-                    arg4.ShouldEqual(DefaultMetadata);
-                    ++invokeCount;
-                    return new ResourceResolverResult(wrapToDynamic ? new TestDynamicResource { Value = resource } : resource);
-                }
-            });
-            var memberResult = "w";
-            var member = new TestAccessorMemberInfo
-            {
-                GetValue = (o, context) =>
-                {
-                    o.ShouldEqual(resource);
-                    context.ShouldEqual(DefaultMetadata);
-                    return memberResult;
-                }
-            };
-            MemberManager.AddComponent(new TestMemberManagerComponent
-            {
-                TryGetMembers = (_, t, m, f, r, meta) =>
-                {
-                    m.ShouldEqual(MemberType.Accessor);
-                    if (r.Equals(MemberName))
-                    {
-                        t.ShouldEqual(resource.GetType());
-                        f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
-                        return member;
-                    }
-
-                    throw new NotSupportedException();
-                }
-            });
-            ObservationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (_, o, arg3) =>
-                {
-                    var path = (string)o!;
-                    if (path == "")
-                        return MemberPath.Empty;
-                    if (path == MemberName)
-                        return MemberPath.Get(path);
-                    throw new NotSupportedException();
-                }
-            });
-
-            _visitor.MemberFlags = MemberFlags.All;
-            _visitor.Flags = BindingMemberExpressionFlags.Observable;
-            IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName));
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(resource));
-            invokeCount.ShouldEqual(1);
-
-            invokeCount = 0;
-            expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)), MemberName);
-            _visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(memberResult));
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Theory]
-        [InlineData(MacrosConstant.Target)]
-        [InlineData(MacrosConstant.Self)]
-        [InlineData(MacrosConstant.This)]
-        [InlineData(MacrosConstant.Source)]
-        [InlineData(MacrosConstant.Context)]
-        public void VisitShouldCacheMacrosExpression(string macros)
-        {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)),
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, macros)));
-            var expressionNode = (BinaryExpressionNode)_visitor.Visit(expression, true, DefaultMetadata);
-            ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
-        }
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

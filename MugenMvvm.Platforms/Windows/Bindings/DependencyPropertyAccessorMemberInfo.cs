@@ -32,8 +32,6 @@ namespace MugenMvvm.Windows.Bindings
 
         public bool CanWrite => !_dependencyProperty.ReadOnly;
 
-        int IHasPriority.Priority => 1;
-
         public string Name { get; }
 
         public Type DeclaringType { get; }
@@ -46,13 +44,15 @@ namespace MugenMvvm.Windows.Bindings
 
         public EnumFlags<MemberFlags> MemberFlags { get; }
 
+        int IHasPriority.Priority => 1;
+
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            var value = ((DependencyObject) target!).GetValue(_dependencyProperty);
+            var value = ((DependencyObject)target!).GetValue(_dependencyProperty);
             return DependencyProperty.UnsetValue == value ? BindingMetadata.UnsetValue : value;
         }
 
-        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => ((DependencyObject) target!).SetValue(_dependencyProperty, value);
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null) => ((DependencyObject)target!).SetValue(_dependencyProperty, value);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {

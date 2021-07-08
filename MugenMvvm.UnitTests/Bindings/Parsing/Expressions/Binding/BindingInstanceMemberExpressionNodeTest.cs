@@ -84,31 +84,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(this);
         }
 
-        [Fact]
-        public void GetSourceShouldReturnInstance()
-        {
-            var path = MemberPath.Get(Path);
-            ObservationManager.AddComponent(new TestMemberPathProviderComponent
-            {
-                TryGetMemberPath = (_, o, arg3) =>
-                {
-                    o.ShouldEqual(Path);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return path;
-                }
-            });
-
-            var exp = new BindingInstanceMemberExpressionNode(this, Path, 0, default, MemberFlags.All);
-
-            var target = exp.GetSource("", "", DefaultMetadata, out var p);
-            target.ShouldEqual(this);
-            p.ShouldEqual(path);
-
-            target = exp.GetSource("", "", DefaultMetadata, out p);
-            target.ShouldEqual(this);
-            p.ShouldEqual(path);
-        }
-
         [Theory]
         [InlineData(true, true)]
         [InlineData(true, false)]
@@ -165,6 +140,31 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             exp1.GetHashCode(comparer).ShouldEqual(int.MaxValue);
             exp1.Equals(exp2, comparer).ShouldBeFalse();
             ((TestExpressionNode)exp1.Expression!).EqualsCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void GetSourceShouldReturnInstance()
+        {
+            var path = MemberPath.Get(Path);
+            ObservationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (_, o, arg3) =>
+                {
+                    o.ShouldEqual(Path);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return path;
+                }
+            });
+
+            var exp = new BindingInstanceMemberExpressionNode(this, Path, 0, default, MemberFlags.All);
+
+            var target = exp.GetSource("", "", DefaultMetadata, out var p);
+            target.ShouldEqual(this);
+            p.ShouldEqual(path);
+
+            target = exp.GetSource("", "", DefaultMetadata, out p);
+            target.ShouldEqual(this);
+            p.ShouldEqual(path);
         }
 
         protected override BindingInstanceMemberExpressionNode GetExpression(IReadOnlyDictionary<string, object?>? metadata = null) =>

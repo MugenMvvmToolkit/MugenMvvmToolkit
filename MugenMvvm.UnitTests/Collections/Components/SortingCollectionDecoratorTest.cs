@@ -28,37 +28,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.Changed += Assert;
         }
 
-        private bool? DefaultComparer
-        {
-            get => _defaultComparer;
-            set
-            {
-                _defaultComparer = value;
-                _decorator.Comparer = value == null ? null : this;
-            }
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        [InlineData(null)]
-        public void ReorderShouldTrackChanges1(bool? defaultComparer)
-        {
-            DefaultComparer = defaultComparer;
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5, 6, 6 });
-
-            _decorator.Reorder();
-            Assert();
-
-            DefaultComparer = !defaultComparer;
-            _decorator.Reorder();
-            Assert();
-
-            DefaultComparer = null;
-            _decorator.Reorder();
-            Assert();
-        }
-
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
@@ -102,17 +71,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        [InlineData(null)]
-        public void ReplaceShouldTrackChanges1(bool? defaultComparer)
+        public void ChangeShouldTrackChanges(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
+            _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
             {
-                _collection[i] = i + Guid.NewGuid().GetHashCode();
+                var item = (TestCollectionItem)x1!;
+                var collectionItem = (TestCollectionItem)x2!;
+                if (defaultComparer)
+                    return item.Id.CompareTo(collectionItem.Id);
+                return collectionItem.Id.CompareTo(item.Id);
+            });
+
+            for (var i = 0; i < 100; i++)
+                _collection.Add(new TestCollectionItem { Id = i });
+
+            for (var i = 0; i < 100; i++)
+            {
+                ((TestCollectionItem)_collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                _collection.RaiseItemChanged(_collection[i], null);
                 Assert();
             }
         }
@@ -121,19 +98,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(false)]
         [InlineData(true)]
         [InlineData(null)]
-        public void ReplaceShouldTrackChanges2(bool? defaultComparer)
+        public void ClearShouldTrackChanges(bool? defaultComparer)
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             Assert();
 
-            for (var i = 0; i < 10; i++)
-            for (var j = 10; j < 20; j++)
-            {
-                _collection[i] = _collection[j];
-                Assert();
-            }
+            _collection.Clear();
+            Assert();
         }
 
         [Theory]
@@ -230,6 +203,64 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(false)]
         [InlineData(true)]
         [InlineData(null)]
+        public void ReorderShouldTrackChanges1(bool? defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5, 6, 6 });
+
+            _decorator.Reorder();
+            Assert();
+
+            DefaultComparer = !defaultComparer;
+            _decorator.Reorder();
+            Assert();
+
+            DefaultComparer = null;
+            _decorator.Reorder();
+            Assert();
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void ReplaceShouldTrackChanges1(bool? defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+            for (var i = 0; i < 100; i++)
+                _collection.Add(i);
+            Assert();
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection[i] = i + Guid.NewGuid().GetHashCode();
+                Assert();
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        [InlineData(null)]
+        public void ReplaceShouldTrackChanges2(bool? defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+            for (var i = 0; i < 100; i++)
+                _collection.Add(i);
+            Assert();
+
+            for (var i = 0; i < 10; i++)
+            for (var j = 10; j < 20; j++)
+            {
+                _collection[i] = _collection[j];
+                Assert();
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        [InlineData(null)]
         public void ResetShouldTrackChanges(bool? defaultComparer)
         {
             DefaultComparer = defaultComparer;
@@ -239,47 +270,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        [InlineData(null)]
-        public void ClearShouldTrackChanges(bool? defaultComparer)
-        {
-            DefaultComparer = defaultComparer;
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            _collection.Clear();
-            Assert();
-        }
-
-        [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void ChangeShouldTrackChanges(bool defaultComparer)
-        {
-            DefaultComparer = defaultComparer;
-            _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
-            {
-                var item = (TestCollectionItem)x1!;
-                var collectionItem = (TestCollectionItem)x2!;
-                if (defaultComparer)
-                    return item.Id.CompareTo(collectionItem.Id);
-                return collectionItem.Id.CompareTo(item.Id);
-            });
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(new TestCollectionItem { Id = i });
-
-            for (var i = 0; i < 100; i++)
-            {
-                ((TestCollectionItem)_collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
-                _collection.RaiseItemChanged(_collection[i], null);
-                Assert();
-            }
         }
 
         [Theory]
@@ -357,6 +347,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Clear();
             Assert();
+        }
+
+        private bool? DefaultComparer
+        {
+            get => _defaultComparer;
+            set
+            {
+                _defaultComparer = value;
+                _decorator.Comparer = value == null ? null : this;
+            }
         }
 
         private void Assert()

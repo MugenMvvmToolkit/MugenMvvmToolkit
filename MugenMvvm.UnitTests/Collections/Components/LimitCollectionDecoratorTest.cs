@@ -25,20 +25,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.Changed += Assert;
         }
 
-        [Fact]
-        public void MoveShouldTrackChanges3()
-        {
-            _decorator.Limit = 1;
-            _decorator.Condition = null;
-
-            _collection.Add(1);
-            _collection.Add(2);
-            _collection.Add(3);
-            _collection.Add(4);
-            _collection.Add("st_1");
-            _collection.Move(4, 1);
-        }
-
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -222,6 +208,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
             _decorator.Limit = limit;
             Assert();
+        }
+
+        [Fact]
+        public void MoveShouldTrackChanges3()
+        {
+            _decorator.Limit = 1;
+            _decorator.Condition = null;
+
+            _collection.Add(1);
+            _collection.Add(2);
+            _collection.Add(3);
+            _collection.Add(4);
+            _collection.Add("st_1");
+            _collection.Move(4, 1);
         }
 
         [Theory]

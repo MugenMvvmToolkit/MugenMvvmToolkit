@@ -24,6 +24,11 @@ namespace MugenMvvm.Views.Components
 
         public int Priority { get; init; } = ViewComponentPriority.LifecycleTracker;
 
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            => OnLifecycleChanged(view, lifecycleState, metadata);
+
+        protected override object GetTarget(object target) => MugenExtensions.Unwrap(target);
+
         private static void TrackViewState(object view, HashSet<ViewLifecycleState> states, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
             if (state == ViewLifecycleState.Appeared)
@@ -38,10 +43,5 @@ namespace MugenMvvm.Views.Components
                 states.Add(state);
             }
         }
-
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-            => OnLifecycleChanged(view, lifecycleState, metadata);
-
-        protected override object GetTarget(object target) => MugenExtensions.Unwrap(target);
     }
 }

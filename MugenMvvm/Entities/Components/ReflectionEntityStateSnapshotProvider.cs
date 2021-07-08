@@ -55,13 +55,6 @@ namespace MugenMvvm.Entities.Components
 
         public int Priority { get; init; } = EntityComponentPriority.SnapshotProvider;
 
-        private static object GetUnderlyingValue(object key)
-        {
-            if (key is MemberInfo m)
-                return m.Name;
-            return key;
-        }
-
         public IEntityStateSnapshot? TryGetSnapshot(IEntityManager entityManager, object entity, IReadOnlyMetadataContext? metadata)
         {
             var type = entity.GetType();
@@ -79,6 +72,13 @@ namespace MugenMvvm.Entities.Components
             if (accessors.IsEmpty)
                 return null;
             return new EntityStateSnapshot(entity, accessors, this);
+        }
+
+        private static object GetUnderlyingValue(object key)
+        {
+            if (key is MemberInfo m)
+                return m.Name;
+            return key;
         }
 
         private void ClearCache()

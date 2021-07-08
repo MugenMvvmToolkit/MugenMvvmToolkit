@@ -22,20 +22,6 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackInitializedLifecycle(bool viewModelBase)
-        {
-            var viewModel = viewModelBase ? new TestViewModelBase(ViewModelManager) : (IViewModelBase)new TestViewModel();
-
-            viewModel.IsInState(ViewModelLifecycleState.Created, null, ViewModelManager).ShouldBeTrue();
-            viewModel.IsInState(ViewModelLifecycleState.Initialized, null, ViewModelManager).ShouldBeFalse();
-
-            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initialized);
-            viewModel.IsInState(ViewModelLifecycleState.Initialized, null, ViewModelManager).ShouldBeTrue();
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
         public void ShouldTrackDisposeLifecycle(bool viewModelBase)
         {
             var viewModel = viewModelBase ? new TestViewModelBase(ViewModelManager) : (IViewModelBase)new TestViewModel();
@@ -48,6 +34,20 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             else
                 ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed);
             viewModel.IsInState(ViewModelLifecycleState.Disposed, null, ViewModelManager).ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldTrackInitializedLifecycle(bool viewModelBase)
+        {
+            var viewModel = viewModelBase ? new TestViewModelBase(ViewModelManager) : (IViewModelBase)new TestViewModel();
+
+            viewModel.IsInState(ViewModelLifecycleState.Created, null, ViewModelManager).ShouldBeTrue();
+            viewModel.IsInState(ViewModelLifecycleState.Initialized, null, ViewModelManager).ShouldBeFalse();
+
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initialized);
+            viewModel.IsInState(ViewModelLifecycleState.Initialized, null, ViewModelManager).ShouldBeTrue();
         }
 
         protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);

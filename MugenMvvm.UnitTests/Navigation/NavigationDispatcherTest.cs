@@ -17,27 +17,41 @@ namespace MugenMvvm.UnitTests.Navigation
 {
     public class NavigationDispatcherTest : ComponentOwnerTestBase<NavigationDispatcher>
     {
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetCallbacksShouldBeHandledByComponents(int count)
+        {
+            var navEntry = new NavigationEntry(this, TestNavigationProvider.Instance, "tes", NavigationType.Alert);
+            var callbacks = new HashSet<INavigationCallback>();
+            for (var i = 0; i < count; i++)
+                callbacks.Add(new NavigationCallback(NavigationCallbackType.Close, i.ToString(), NavigationType.Alert));
+            for (var i = 0; i < count; i++)
+            {
+                var info = callbacks.ElementAt(i);
+                NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+                {
+                    Priority = -i,
+                    TryGetNavigationCallbacks = (d, entry, ctx) =>
+                    {
+                        d.ShouldEqual(NavigationDispatcher);
+                        entry.ShouldEqual(navEntry);
+                        ctx.ShouldEqual(DefaultMetadata);
+                        return new[] { info };
+                    }
+                });
+            }
+
+            var result = NavigationDispatcher.GetNavigationCallbacks(navEntry, DefaultMetadata);
+            result.Count.ShouldEqual(count);
+            foreach (var callback in result)
+                callbacks.Remove(callback);
+            callbacks.Count.ShouldEqual(0);
+        }
+
         [Fact]
         public void GetCallbacksShouldReturnEmptyListNoComponents() =>
             NavigationDispatcher.GetNavigationCallbacks(new NavigationEntry(this, TestNavigationProvider.Instance, "tes", NavigationType.Page)).ShouldBeEmpty();
-
-        [Fact]
-        public void GetNavigationContextShouldThrowNoComponents() =>
-            ShouldThrow<InvalidOperationException>(() =>
-                NavigationDispatcher.GetNavigationContext(this, TestNavigationProvider.Instance, "t", NavigationType.Alert, NavigationMode.Close));
-
-        [Fact]
-        public void GetNavigationEntriesShouldReturnEmptyListNoComponents() =>
-            NavigationDispatcher.GetNavigationEntries(DefaultMetadata).ShouldBeEmpty();
-
-        [Fact]
-        public async Task OnNavigatingAsyncShouldReturnTrueNoComponents()
-        {
-            var navigationContext = GetNavigationContext(this);
-            (await NavigationDispatcher.OnNavigatingAsync(navigationContext)).ShouldBeTrue();
-        }
-
-        protected override INavigationDispatcher GetNavigationDispatcher() => GetComponentOwner(ComponentCollectionManager);
 
         [Theory]
         [InlineData(1)]
@@ -74,6 +88,11 @@ namespace MugenMvvm.UnitTests.Navigation
             invokeCount.ShouldEqual(count);
         }
 
+        [Fact]
+        public void GetNavigationContextShouldThrowNoComponents() =>
+            ShouldThrow<InvalidOperationException>(() =>
+                NavigationDispatcher.GetNavigationContext(this, TestNavigationProvider.Instance, "t", NavigationType.Alert, NavigationMode.Close));
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -104,36 +123,33 @@ namespace MugenMvvm.UnitTests.Navigation
             entries.Count.ShouldEqual(0);
         }
 
+        [Fact]
+        public void GetNavigationEntriesShouldReturnEmptyListNoComponents() =>
+            NavigationDispatcher.GetNavigationEntries(DefaultMetadata).ShouldBeEmpty();
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void GetCallbacksShouldBeHandledByComponents(int count)
+        public void OnNavigatedShouldBeHandledByComponents(int count)
         {
-            var navEntry = new NavigationEntry(this, TestNavigationProvider.Instance, "tes", NavigationType.Alert);
-            var callbacks = new HashSet<INavigationCallback>();
-            for (var i = 0; i < count; i++)
-                callbacks.Add(new NavigationCallback(NavigationCallbackType.Close, i.ToString(), NavigationType.Alert));
+            var invokeCount = 0;
+            var navigationContext = GetNavigationContext(this);
             for (var i = 0; i < count; i++)
             {
-                var info = callbacks.ElementAt(i);
-                NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+                NavigationDispatcher.AddComponent(new TestNavigationListener
                 {
                     Priority = -i,
-                    TryGetNavigationCallbacks = (d, entry, ctx) =>
+                    OnNavigated = (d, ctx) =>
                     {
+                        ++invokeCount;
                         d.ShouldEqual(NavigationDispatcher);
-                        entry.ShouldEqual(navEntry);
-                        ctx.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        ctx.ShouldEqual(navigationContext);
                     }
                 });
             }
 
-            var result = NavigationDispatcher.GetNavigationCallbacks(navEntry, DefaultMetadata);
-            result.Count.ShouldEqual(count);
-            foreach (var callback in result)
-                callbacks.Remove(callback);
-            callbacks.Count.ShouldEqual(0);
+            NavigationDispatcher.OnNavigated(navigationContext);
+            invokeCount.ShouldEqual(count);
         }
 
         [Theory]
@@ -220,6 +236,13 @@ namespace MugenMvvm.UnitTests.Navigation
             navigatingCount.ShouldEqual(0);
         }
 
+        [Fact]
+        public async Task OnNavigatingAsyncShouldReturnTrueNoComponents()
+        {
+            var navigationContext = GetNavigationContext(this);
+            (await NavigationDispatcher.OnNavigatingAsync(navigationContext)).ShouldBeTrue();
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -248,25 +271,26 @@ namespace MugenMvvm.UnitTests.Navigation
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void OnNavigatedShouldBeHandledByComponents(int count)
+        public void OnNavigationCanceledShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
             var navigationContext = GetNavigationContext(this);
             for (var i = 0; i < count; i++)
             {
-                NavigationDispatcher.AddComponent(new TestNavigationListener
+                var component = new TestNavigationErrorListener
                 {
-                    Priority = -i,
-                    OnNavigated = (d, ctx) =>
+                    OnNavigationCanceled = (d, ctx, token) =>
                     {
                         ++invokeCount;
                         d.ShouldEqual(NavigationDispatcher);
                         ctx.ShouldEqual(navigationContext);
+                        token.ShouldEqual(DefaultCancellationToken);
                     }
-                });
+                };
+                NavigationDispatcher.AddComponent(component);
             }
 
-            NavigationDispatcher.OnNavigated(navigationContext);
+            NavigationDispatcher.OnNavigationCanceled(navigationContext, DefaultCancellationToken);
             invokeCount.ShouldEqual(count);
         }
 
@@ -296,31 +320,7 @@ namespace MugenMvvm.UnitTests.Navigation
             invokeCount.ShouldEqual(count);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void OnNavigationCanceledShouldBeHandledByComponents(int count)
-        {
-            var invokeCount = 0;
-            var navigationContext = GetNavigationContext(this);
-            for (var i = 0; i < count; i++)
-            {
-                var component = new TestNavigationErrorListener
-                {
-                    OnNavigationCanceled = (d, ctx, token) =>
-                    {
-                        ++invokeCount;
-                        d.ShouldEqual(NavigationDispatcher);
-                        ctx.ShouldEqual(navigationContext);
-                        token.ShouldEqual(DefaultCancellationToken);
-                    }
-                };
-                NavigationDispatcher.AddComponent(component);
-            }
-
-            NavigationDispatcher.OnNavigationCanceled(navigationContext, DefaultCancellationToken);
-            invokeCount.ShouldEqual(count);
-        }
+        protected override INavigationDispatcher GetNavigationDispatcher() => GetComponentOwner(ComponentCollectionManager);
 
         protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

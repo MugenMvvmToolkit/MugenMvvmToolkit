@@ -67,25 +67,6 @@ namespace MugenMvvm.Metadata
             return new Builder<T>(key, declaredType, fieldOrPropertyName);
         }
 
-        private static string GenerateKey(Type declaredType, string fieldOrPropertyName)
-        {
-#if SPAN_API
-            var length = declaredType.Name.Length + 4 + fieldOrPropertyName.Length + 4;
-            if (length < 256)
-            {
-                Span<char> st = stackalloc char[length];
-                declaredType.Name.AsSpan().CopyTo(st);
-                declaredType.FullName!.Length.TryFormat(st.Slice(declaredType.Name.Length), out var written1, default, CultureInfo.InvariantCulture);
-                fieldOrPropertyName.AsSpan().CopyTo(st.Slice(declaredType.Name.Length + written1));
-                declaredType.AssemblyQualifiedName!.Length.TryFormat(st.Slice(declaredType.Name.Length + written1 + fieldOrPropertyName.Length), out var written2, default,
-                    CultureInfo.InvariantCulture);
-                return new string(st.Slice(0, declaredType.Name.Length + written1 + fieldOrPropertyName.Length + written2));
-            }
-#endif
-            return declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
-                   declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
-        }
-
         public sealed override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -104,6 +85,25 @@ namespace MugenMvvm.Metadata
             if (ReferenceEquals(other, this))
                 return true;
             return other is IHasId<string> hasStringId && string.Equals(Id, hasStringId.Id);
+        }
+
+        private static string GenerateKey(Type declaredType, string fieldOrPropertyName)
+        {
+#if SPAN_API
+            var length = declaredType.Name.Length + 4 + fieldOrPropertyName.Length + 4;
+            if (length < 256)
+            {
+                Span<char> st = stackalloc char[length];
+                declaredType.Name.AsSpan().CopyTo(st);
+                declaredType.FullName!.Length.TryFormat(st.Slice(declaredType.Name.Length), out var written1, default, CultureInfo.InvariantCulture);
+                fieldOrPropertyName.AsSpan().CopyTo(st.Slice(declaredType.Name.Length + written1));
+                declaredType.AssemblyQualifiedName!.Length.TryFormat(st.Slice(declaredType.Name.Length + written1 + fieldOrPropertyName.Length), out var written2, default,
+                    CultureInfo.InvariantCulture);
+                return new string(st.Slice(0, declaredType.Name.Length + written1 + fieldOrPropertyName.Length + written2));
+            }
+#endif
+            return declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName +
+                   declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
         }
 
         [StructLayout(LayoutKind.Auto)]

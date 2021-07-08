@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;

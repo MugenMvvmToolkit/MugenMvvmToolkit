@@ -25,63 +25,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
-        [Fact]
-        public void TryGetAccessorHandlerShouldUseDelegate()
-        {
-            var flags = ArgumentFlags.Metadata;
-            var values = new object[] { this };
-            IMethodMemberInfo? memberInfo = null;
-
-            var invokeCount = 0;
-            var accessor = new TestAccessorMemberInfo();
-            memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(object))
-                         .TryGetAccessorHandler((member, argumentFlags, args, metadata) =>
-                         {
-                             ++invokeCount;
-                             member.ShouldEqual(memberInfo);
-                             argumentFlags.ShouldEqual(flags);
-                             args.ShouldEqual(values);
-                             metadata.ShouldEqual(DefaultMetadata);
-                             return accessor;
-                         })
-                         .InvokeHandler((member, target, args, metadata) => "")
-                         .Build();
-            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
-            invokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void WithParametersShouldInitializeParameters1()
-        {
-            var parameterInfos = new IParameterInfo[1] { new TestParameterInfo() };
-            var memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
-                             .WithParameters(parameterInfos)
-                             .InvokeHandler((info, target, args, metadata) => "")
-                             .Build();
-            memberInfo.GetParameters().ShouldEqual(parameterInfos);
-        }
-
-        [Fact]
-        public void WithParametersShouldInitializeParameters2()
-        {
-            var invokeCount = 0;
-            IMethodMemberInfo? method = null;
-            var parameterInfos = new IParameterInfo[] { new TestParameterInfo() };
-            method = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
-                     .GetParametersHandler(info =>
-                     {
-                         ++invokeCount;
-                         info.ShouldEqual(method);
-                         return parameterInfos;
-                     })
-                     .InvokeHandler((info, target, args, metadata) => "")
-                     .Build();
-            method.GetParameters().ShouldEqual(parameterInfos);
-            invokeCount.ShouldEqual(1);
-        }
-
-        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true, true)]
         [InlineData(false, true)]
@@ -108,6 +51,117 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                                           (nonObservable ? MemberFlags.NonObservable : default));
             build.UnderlyingMember.ShouldEqual(member);
             build.Name.ShouldEqual(name);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void InvokeShouldCallAttachedHandler(bool isStatic)
+        {
+            var target = isStatic ? null : new object();
+            var attachedInvokeCount = 0;
+            IMethodMemberInfo? memberInfo = null;
+            var builder = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "")
+                                                                                                          .AttachedHandler((member, t, metadata) =>
+                                                                                                          {
+                                                                                                              ++attachedInvokeCount;
+                                                                                                              member.ShouldEqual(memberInfo);
+                                                                                                              t.ShouldEqual(target);
+                                                                                                              metadata.ShouldEqual(DefaultMetadata);
+                                                                                                          });
+
+            if (isStatic)
+                builder.Static();
+
+            memberInfo = builder.Build();
+            memberInfo.Invoke(target, Array.Empty<object>(), DefaultMetadata);
+            attachedInvokeCount.ShouldEqual(1);
+            memberInfo.Invoke(target, Array.Empty<object>(), DefaultMetadata);
+            attachedInvokeCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        [InlineData(true, true)]
+        public void InvokeShouldUseDelegates(bool withAttachedHandler, bool isStatic)
+        {
+            var target = isStatic ? null : new object();
+            var resultValue = new object();
+            var parameters = new object[] { "" };
+            var invokeCount = 0;
+            IMethodMemberInfo? memberInfo = null;
+            var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
+                .InvokeHandler((member, t, args, metadata) =>
+                {
+                    ++invokeCount;
+                    member.ShouldEqual(memberInfo);
+                    args.ShouldEqual(parameters);
+                    t.ShouldEqual(target);
+                    metadata.ShouldEqual(DefaultMetadata);
+                    return resultValue;
+                });
+            if (withAttachedHandler)
+                builder = builder.AttachedHandler((member, o, metadata) => { });
+            if (isStatic)
+                builder = builder.Static();
+
+            memberInfo = builder.Build();
+            memberInfo.Invoke(target, parameters, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void ObservableShouldRaise(bool withAttachedHandler, bool isStatic)
+        {
+            var message = "m";
+            var target = isStatic ? null : new object();
+            var attachedInvokeCount = 0;
+            IMethodMemberInfo? memberInfo = null;
+            var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").Observable();
+            if (withAttachedHandler)
+            {
+                builder = builder.AttachedHandler((member, t, metadata) =>
+                {
+                    ++attachedInvokeCount;
+                    member.ShouldEqual(memberInfo);
+                    t.ShouldEqual(target);
+                    metadata.ShouldEqual(DefaultMetadata);
+                });
+            }
+
+            if (isStatic)
+                builder.Static();
+            memberInfo = builder.Build();
+            var testEventHandler = new TestWeakEventListener
+            {
+                TryHandle = (t, msg, metadata) =>
+                {
+                    t.ShouldEqual(isStatic ? typeof(object) : target);
+                    message.ShouldEqual(msg);
+                    metadata.ShouldEqual(DefaultMetadata);
+                    return true;
+                }
+            };
+            var actionToken = memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
+            testEventHandler.InvokeCount.ShouldEqual(1);
+            if (withAttachedHandler)
+                attachedInvokeCount.ShouldEqual(1);
+
+            actionToken.Dispose();
+            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
+            testEventHandler.InvokeCount.ShouldEqual(1);
+            if (withAttachedHandler)
+            {
+                memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
+                attachedInvokeCount.ShouldEqual(1);
+            }
         }
 
         [Theory]
@@ -201,115 +255,61 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
             token.ShouldEqual(actionToken);
         }
 
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void ObservableShouldRaise(bool withAttachedHandler, bool isStatic)
+        [Fact]
+        public void TryGetAccessorHandlerShouldUseDelegate()
         {
-            var message = "m";
-            var target = isStatic ? null : new object();
-            var attachedInvokeCount = 0;
+            var flags = ArgumentFlags.Metadata;
+            var values = new object[] { this };
             IMethodMemberInfo? memberInfo = null;
-            var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").Observable();
-            if (withAttachedHandler)
-            {
-                builder = builder.AttachedHandler((member, t, metadata) =>
-                {
-                    ++attachedInvokeCount;
-                    member.ShouldEqual(memberInfo);
-                    t.ShouldEqual(target);
-                    metadata.ShouldEqual(DefaultMetadata);
-                });
-            }
 
-            if (isStatic)
-                builder.Static();
-            memberInfo = builder.Build();
-            var testEventHandler = new TestWeakEventListener
-            {
-                TryHandle = (t, msg, metadata) =>
-                {
-                    t.ShouldEqual(isStatic ? typeof(object) : target);
-                    message.ShouldEqual(msg);
-                    metadata.ShouldEqual(DefaultMetadata);
-                    return true;
-                }
-            };
-            var actionToken = memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
-            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
-            testEventHandler.InvokeCount.ShouldEqual(1);
-            if (withAttachedHandler)
-                attachedInvokeCount.ShouldEqual(1);
-
-            actionToken.Dispose();
-            ((INotifiableMemberInfo)memberInfo).Raise(target, message, DefaultMetadata);
-            testEventHandler.InvokeCount.ShouldEqual(1);
-            if (withAttachedHandler)
-            {
-                memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
-                attachedInvokeCount.ShouldEqual(1);
-            }
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void InvokeShouldCallAttachedHandler(bool isStatic)
-        {
-            var target = isStatic ? null : new object();
-            var attachedInvokeCount = 0;
-            IMethodMemberInfo? memberInfo = null;
-            var builder = new MethodBuilder<object, object>(NewId(), typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "")
-                                                                                                          .AttachedHandler((member, t, metadata) =>
-                                                                                                          {
-                                                                                                              ++attachedInvokeCount;
-                                                                                                              member.ShouldEqual(memberInfo);
-                                                                                                              t.ShouldEqual(target);
-                                                                                                              metadata.ShouldEqual(DefaultMetadata);
-                                                                                                          });
-
-            if (isStatic)
-                builder.Static();
-
-            memberInfo = builder.Build();
-            memberInfo.Invoke(target, Array.Empty<object>(), DefaultMetadata);
-            attachedInvokeCount.ShouldEqual(1);
-            memberInfo.Invoke(target, Array.Empty<object>(), DefaultMetadata);
-            attachedInvokeCount.ShouldEqual(1);
-        }
-
-        [Theory]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        [InlineData(true, true)]
-        public void InvokeShouldUseDelegates(bool withAttachedHandler, bool isStatic)
-        {
-            var target = isStatic ? null : new object();
-            var resultValue = new object();
-            var parameters = new object[] { "" };
             var invokeCount = 0;
-            IMethodMemberInfo? memberInfo = null;
-            var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
-                .InvokeHandler((member, t, args, metadata) =>
-                {
-                    ++invokeCount;
-                    member.ShouldEqual(memberInfo);
-                    args.ShouldEqual(parameters);
-                    t.ShouldEqual(target);
-                    metadata.ShouldEqual(DefaultMetadata);
-                    return resultValue;
-                });
-            if (withAttachedHandler)
-                builder = builder.AttachedHandler((member, o, metadata) => { });
-            if (isStatic)
-                builder = builder.Static();
-
-            memberInfo = builder.Build();
-            memberInfo.Invoke(target, parameters, DefaultMetadata);
+            var accessor = new TestAccessorMemberInfo();
+            memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(object))
+                         .TryGetAccessorHandler((member, argumentFlags, args, metadata) =>
+                         {
+                             ++invokeCount;
+                             member.ShouldEqual(memberInfo);
+                             argumentFlags.ShouldEqual(flags);
+                             args.ShouldEqual(values);
+                             metadata.ShouldEqual(DefaultMetadata);
+                             return accessor;
+                         })
+                         .InvokeHandler((member, target, args, metadata) => "")
+                         .Build();
+            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
             invokeCount.ShouldEqual(1);
         }
+
+        [Fact]
+        public void WithParametersShouldInitializeParameters1()
+        {
+            var parameterInfos = new IParameterInfo[1] { new TestParameterInfo() };
+            var memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
+                             .WithParameters(parameterInfos)
+                             .InvokeHandler((info, target, args, metadata) => "")
+                             .Build();
+            memberInfo.GetParameters().ShouldEqual(parameterInfos);
+        }
+
+        [Fact]
+        public void WithParametersShouldInitializeParameters2()
+        {
+            var invokeCount = 0;
+            IMethodMemberInfo? method = null;
+            var parameterInfos = new IParameterInfo[] { new TestParameterInfo() };
+            method = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler))
+                     .GetParametersHandler(info =>
+                     {
+                         ++invokeCount;
+                         info.ShouldEqual(method);
+                         return parameterInfos;
+                     })
+                     .InvokeHandler((info, target, args, metadata) => "")
+                     .Build();
+            method.GetParameters().ShouldEqual(parameterInfos);
+            invokeCount.ShouldEqual(1);
+        }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
     }
 }

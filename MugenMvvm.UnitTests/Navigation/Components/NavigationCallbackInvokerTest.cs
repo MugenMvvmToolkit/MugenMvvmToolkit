@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Navigation;
@@ -25,8 +23,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             _callbackInvoker = new NavigationCallbackInvoker();
             NavigationDispatcher.AddComponent(_callbackInvoker);
         }
-
-        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true)]
@@ -72,42 +68,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void OnNavigationFailedShouldInvokeCallbacks(bool close)
-        {
-            var exception = new Exception();
-            var navigationContext = GetNavigationContext(this, close ? NavigationMode.Close : NavigationMode.New);
-            var callbackTypes = new List<NavigationCallbackType>();
-            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
-            {
-                TryInvokeCanceledNavigationCallbacks = (_, _, _, _) => throw new NotSupportedException(),
-                TryInvokeExceptionNavigationCallbacks = (_, callbackType, ctx, ex) =>
-                {
-                    callbackTypes.Add(callbackType);
-                    ctx.ShouldEqual(navigationContext);
-                    ex.ShouldEqual(exception);
-                    return true;
-                },
-                TryInvokeNavigationCallbacks = (_, _, _) => throw new NotSupportedException()
-            });
-
-            _callbackInvoker.IsSuspended.ShouldBeFalse();
-
-            var actionToken = NavigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>().TrySuspend(NavigationDispatcher, this, null);
-            _callbackInvoker.IsSuspended.ShouldBeTrue();
-            NavigationDispatcher.OnNavigationFailed(navigationContext, exception);
-
-            callbackTypes.Count.ShouldEqual(0);
-            actionToken.Dispose();
-            _callbackInvoker.IsSuspended.ShouldBeFalse();
-            callbackTypes.Count.ShouldEqual(3);
-            callbackTypes.ShouldContain(NavigationCallbackType.Close);
-            callbackTypes.ShouldContain(NavigationCallbackType.Closing);
-            callbackTypes.ShouldContain(NavigationCallbackType.Showing);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
         public void OnNavigationCanceledShouldInvokeCallbacks(bool close)
         {
             var navigationContext = GetNavigationContext(this, close ? NavigationMode.Close : NavigationMode.New);
@@ -146,5 +106,43 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 callbackTypes.ShouldContain(NavigationCallbackType.Showing);
             }
         }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void OnNavigationFailedShouldInvokeCallbacks(bool close)
+        {
+            var exception = new Exception();
+            var navigationContext = GetNavigationContext(this, close ? NavigationMode.Close : NavigationMode.New);
+            var callbackTypes = new List<NavigationCallbackType>();
+            NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
+            {
+                TryInvokeCanceledNavigationCallbacks = (_, _, _, _) => throw new NotSupportedException(),
+                TryInvokeExceptionNavigationCallbacks = (_, callbackType, ctx, ex) =>
+                {
+                    callbackTypes.Add(callbackType);
+                    ctx.ShouldEqual(navigationContext);
+                    ex.ShouldEqual(exception);
+                    return true;
+                },
+                TryInvokeNavigationCallbacks = (_, _, _) => throw new NotSupportedException()
+            });
+
+            _callbackInvoker.IsSuspended.ShouldBeFalse();
+
+            var actionToken = NavigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>().TrySuspend(NavigationDispatcher, this, null);
+            _callbackInvoker.IsSuspended.ShouldBeTrue();
+            NavigationDispatcher.OnNavigationFailed(navigationContext, exception);
+
+            callbackTypes.Count.ShouldEqual(0);
+            actionToken.Dispose();
+            _callbackInvoker.IsSuspended.ShouldBeFalse();
+            callbackTypes.Count.ShouldEqual(3);
+            callbackTypes.ShouldContain(NavigationCallbackType.Close);
+            callbackTypes.ShouldContain(NavigationCallbackType.Closing);
+            callbackTypes.ShouldContain(NavigationCallbackType.Showing);
+        }
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
     }
 }

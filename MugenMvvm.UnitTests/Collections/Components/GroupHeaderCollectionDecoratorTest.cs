@@ -235,10 +235,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var header = new List<int>();
             var changedItems = new List<int>();
             _collection.RemoveComponent(_decorator);
-            _getHeader = o => ((int)o!) % 2 == 0 ? header : null;
+            _getHeader = o => (int)o! % 2 == 0 ? header : null;
             _decorator = new GroupHeaderCollectionDecorator(_getHeader, (h, action, item) =>
             {
-                var ints = ((List<int>)h);
+                var ints = (List<int>)h;
                 if (action == GroupHeaderChangedAction.ItemAdded)
                     ints.Add((int)item!);
                 else if (action == GroupHeaderChangedAction.ItemRemoved)

@@ -66,8 +66,6 @@ namespace MugenMvvm.Bindings.Parsing
         public abstract ReadOnlySpan<char> GetValueSpan(int start, int end);
 #endif
 
-        protected abstract int GetLength();
-
         public override string ToString() =>
             $"Position '{Position}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
 
@@ -85,6 +83,8 @@ namespace MugenMvvm.Bindings.Parsing
 
         public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null) =>
             Parsers.TryParse(this, expression, condition);
+
+        protected abstract int GetLength();
 
         private string GetToken(int position)
         {

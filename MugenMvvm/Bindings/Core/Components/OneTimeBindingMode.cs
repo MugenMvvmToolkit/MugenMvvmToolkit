@@ -38,7 +38,7 @@ namespace MugenMvvm.Bindings.Core.Components
             return true;
         }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => !Invoke((IBinding) owner, false);
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => !Invoke((IBinding)owner, false);
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {

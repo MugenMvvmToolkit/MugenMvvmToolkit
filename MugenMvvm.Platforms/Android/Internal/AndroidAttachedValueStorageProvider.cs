@@ -20,7 +20,7 @@ namespace MugenMvvm.Android.Internal
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(Object item, bool optional)
         {
-            var attachedValues = (AttachedValueHolder?) ViewMugenExtensions.GetAttachedValues(item);
+            var attachedValues = (AttachedValueHolder?)ViewMugenExtensions.GetAttachedValues(item);
             if (optional || attachedValues != null)
                 return attachedValues?.Values;
             attachedValues = new AttachedValueHolder();
@@ -30,7 +30,7 @@ namespace MugenMvvm.Android.Internal
 
         protected override bool ClearInternal(Object item)
         {
-            var attachedValues = (AttachedValueHolder?) ViewMugenExtensions.GetAttachedValues(item);
+            var attachedValues = (AttachedValueHolder?)ViewMugenExtensions.GetAttachedValues(item);
             if (attachedValues != null)
             {
                 attachedValues.Values.Clear();

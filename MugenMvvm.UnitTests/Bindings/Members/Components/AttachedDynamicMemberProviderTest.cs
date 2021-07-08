@@ -25,12 +25,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             MemberManager.AddComponent(_provider);
         }
 
-        [Fact]
-        public void TryGetMembersShouldReturnNullResult() =>
-            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
-
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1, true)]
         [InlineData(1, false)]
@@ -83,5 +77,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, memberType, DefaultMetadata).IsEmpty.ShouldBeTrue();
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
+
+        [Fact]
+        public void TryGetMembersShouldReturnNullResult() =>
+            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

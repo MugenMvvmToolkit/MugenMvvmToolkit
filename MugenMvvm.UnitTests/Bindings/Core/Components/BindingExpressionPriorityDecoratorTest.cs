@@ -50,8 +50,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             BindingManager.TryParseBindingExpression(request, DefaultMetadata).Single().ShouldEqual(exp);
         }
 
-        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
@@ -92,6 +90,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var bindingExpressions = BindingManager.TryParseBindingExpression("", DefaultMetadata);
             bindingExpressions.ShouldEqual(expected);
         }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
 
         private sealed class HasPriorityExpressionNode : ExpressionNodeBase<HasPriorityExpressionNode>, IHasPriority, IMemberExpressionNode
         {

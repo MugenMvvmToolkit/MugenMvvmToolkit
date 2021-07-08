@@ -18,8 +18,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         private static readonly BindingExpressionRequest ConverterRequest = new("", null, default);
         private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
-        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
-
         public BindingSetTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
         }
@@ -229,6 +227,63 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10, 10)]
         [InlineData(1, 10)]
         [InlineData(1, 1)]
+        public void BuildShouldHandleListOfTargets(int count, int bindingCount)
+        {
+            var invokeBuilderCount = 0;
+            var list = new List<(object target, object source, TestBindingBuilder builder, TestBinding binding, string request)>();
+            for (var i = 0; i < count; i++)
+            {
+                var target = new object();
+                var source = new object();
+                var binding = new TestBinding();
+                var testBuilder = new TestBindingBuilder
+                {
+                    Build = (o, o1, arg3) =>
+                    {
+                        ++invokeBuilderCount;
+                        o.ShouldEqual(target);
+                        o1.ShouldEqual(source);
+                        arg3.ShouldEqual(DefaultMetadata);
+                        return binding;
+                    }
+                };
+
+                list.Add((target, source, testBuilder, binding, i.ToString()));
+            }
+
+            var sortCount = 0;
+            BindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (_, o, arg3) =>
+                {
+                    if (o is IReadOnlyList<IBindingBuilder> builders)
+                    {
+                        ++sortCount;
+                        return ItemOrIReadOnlyList.FromList(builders);
+                    }
+
+                    return ItemOrIReadOnlyList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
+                }
+            });
+
+            var bindingSet = new BindingSet<object>(BindingManager);
+            for (var i = 0; i < bindingCount; i++)
+            {
+                foreach (var valueTuple in list)
+                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+            }
+
+            bindingSet.Build(DefaultMetadata);
+            invokeBuilderCount.ShouldEqual(count * bindingCount);
+            sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
+            bindingSet.Dispose();
+        }
+
+        [Theory]
+        [InlineData(10, 1)]
+        [InlineData(10, 10)]
+        [InlineData(1, 10)]
+        [InlineData(1, 1)]
         public void DisposeShouldHandleListOfTargets(int count, int bindingCount)
         {
             var invokeBuilderCount = 0;
@@ -281,61 +336,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             bindingSet.Dispose();
         }
 
-        [Theory]
-        [InlineData(10, 1)]
-        [InlineData(10, 10)]
-        [InlineData(1, 10)]
-        [InlineData(1, 1)]
-        public void BuildShouldHandleListOfTargets(int count, int bindingCount)
-        {
-            var invokeBuilderCount = 0;
-            var list = new List<(object target, object source, TestBindingBuilder builder, TestBinding binding, string request)>();
-            for (var i = 0; i < count; i++)
-            {
-                var target = new object();
-                var source = new object();
-                var binding = new TestBinding();
-                var testBuilder = new TestBindingBuilder
-                {
-                    Build = (o, o1, arg3) =>
-                    {
-                        ++invokeBuilderCount;
-                        o.ShouldEqual(target);
-                        o1.ShouldEqual(source);
-                        arg3.ShouldEqual(DefaultMetadata);
-                        return binding;
-                    }
-                };
-
-                list.Add((target, source, testBuilder, binding, i.ToString()));
-            }
-
-            var sortCount = 0;
-            BindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (_, o, arg3) =>
-                {
-                    if (o is IReadOnlyList<IBindingBuilder> builders)
-                    {
-                        ++sortCount;
-                        return ItemOrIReadOnlyList.FromList(builders);
-                    }
-
-                    return ItemOrIReadOnlyList.FromItem<IBindingBuilder>(list.Single(tuple => tuple.request.Equals(o)).builder);
-                }
-            });
-
-            var bindingSet = new BindingSet<object>(BindingManager);
-            for (var i = 0; i < bindingCount; i++)
-            {
-                foreach (var valueTuple in list)
-                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
-            }
-
-            bindingSet.Build(DefaultMetadata);
-            invokeBuilderCount.ShouldEqual(count * bindingCount);
-            sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
-            bindingSet.Dispose();
-        }
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
     }
 }

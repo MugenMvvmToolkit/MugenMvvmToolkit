@@ -37,13 +37,28 @@ namespace MugenMvvm.Enums
             _name = name;
             if (!_enumerations.ContainsKey(value))
             {
-                _enumerations[value] = (TEnum) this;
-                EnumerationNamesField[Name] = (TEnum) this;
+                _enumerations[value] = (TEnum)this;
+                EnumerationNamesField[Name] = (TEnum)this;
                 _values = null;
             }
         }
 
         public static int Count => Enumerations.Count;
+
+        [DataMember(Name = "_v")]
+        public TValue Value
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get;
+            internal set;
+        }
+
+        [DataMember(Name = "_d")]
+        public string Name
+        {
+            get => _name ??= Value?.ToString() ?? "";
+            internal set => _name = value;
+        }
 
         private static Dictionary<TValue, TEnum> Enumerations
         {
@@ -63,21 +78,6 @@ namespace MugenMvvm.Enums
                     RuntimeHelpers.RunClassConstructor(typeof(TEnum).TypeHandle);
                 return EnumerationNamesField;
             }
-        }
-
-        [DataMember(Name = "_v")]
-        public TValue Value
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-            internal set;
-        }
-
-        [DataMember(Name = "_d")]
-        public string Name
-        {
-            get => _name ??= Value?.ToString() ?? "";
-            internal set => _name = value;
         }
 
         object IEnum.Value => BoxingExtensions.Box(Value);
@@ -195,6 +195,21 @@ namespace MugenMvvm.Enums
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public sealed override bool Equals(object? obj) => obj is TEnum e && Equals(e);
+
+        // ReSharper disable once NonReadonlyMemberInGetHashCode
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public sealed override int GetHashCode() => Value.GetHashCode();
+
+        public override string ToString() => Name;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int CompareTo(TEnum? other) => CompareTo(this, other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(TEnum? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int CompareTo(EnumBase<TEnum, TValue>? left, EnumBase<TEnum, TValue>? right)
         {
             if (ReferenceEquals(right, left))
@@ -211,20 +226,5 @@ namespace MugenMvvm.Enums
             EnumBase.SetEnumProvider<TEnum, TValue>(GetAll, TryGet, TryGetByName);
             return new Dictionary<TValue, TEnum>();
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sealed override bool Equals(object? obj) => obj is TEnum e && Equals(e);
-
-        // ReSharper disable once NonReadonlyMemberInGetHashCode
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public sealed override int GetHashCode() => Value.GetHashCode();
-
-        public override string ToString() => Name;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int CompareTo(TEnum? other) => CompareTo(this, other);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(TEnum? other) => ReferenceEquals(this, other) || !ReferenceEquals(other, null) && EqualityComparer<TValue>.Default.Equals(Value, other.Value);
     }
 }

@@ -23,7 +23,7 @@ namespace MugenMvvm.Windows.Internal
                 item.SetValue(DictionaryProperty, value);
             }
 
-            return (IDictionary<string, object?>?) value;
+            return (IDictionary<string, object?>?)value;
         }
 
         protected override bool ClearInternal(DependencyObject item)

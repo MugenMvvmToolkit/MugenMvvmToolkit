@@ -518,6 +518,8 @@ namespace MugenMvvm.Collections
                 _componentTracker.OnComponentChanged(collection, component, metadata);
         }
 
+        bool IHasComponentAddingHandler.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
+
         void IHasComponentChangedHandler.OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (!IsDisposed)
@@ -578,8 +580,6 @@ namespace MugenMvvm.Collections
             if (set)
                 GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(this, locker, null);
         }
-
-        bool IHasComponentAddingHandler.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>

@@ -2,7 +2,6 @@
 using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.Tests.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -22,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var o = new TestWeakReference {IsAlive = true, Target = new object()};
+            var o = new TestWeakReference { IsAlive = true, Target = new object() };
             var observer = new EmptyPathObserver(o);
             observer.IsAlive.ShouldBeTrue();
             observer.Target.ShouldEqual(o.Target);

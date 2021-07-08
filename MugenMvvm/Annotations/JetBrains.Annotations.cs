@@ -16,6 +16,26 @@ namespace JetBrains.Annotations
         IS_NOT_NULL = 3
     }
 
+    [AttributeUsage(AttributeTargets.Parameter)]
+    public sealed class NoEnumerationAttribute : Attribute
+    {
+    }
+
+    [AttributeUsage(AttributeTargets.Method)]
+    public sealed class MustUseReturnValueAttribute : Attribute
+    {
+        public MustUseReturnValueAttribute()
+        {
+        }
+
+        public MustUseReturnValueAttribute(string? justification)
+        {
+            Justification = justification;
+        }
+
+        public string? Justification { get; }
+    }
+
     [AttributeUsage(AttributeTargets.All)]
     internal sealed class UsedImplicitlyAttribute : Attribute
     {
@@ -85,26 +105,6 @@ namespace JetBrains.Annotations
         }
 
         public AssertionConditionType ConditionType { get; }
-    }
-
-    [AttributeUsage(AttributeTargets.Parameter)]
-    public sealed class NoEnumerationAttribute : Attribute
-    {
-    }
-
-    [AttributeUsage(AttributeTargets.Method)]
-    public sealed class MustUseReturnValueAttribute : Attribute
-    {
-        public MustUseReturnValueAttribute()
-        {
-        }
-
-        public MustUseReturnValueAttribute(string? justification)
-        {
-            Justification = justification;
-        }
-
-        public string? Justification { get; }
     }
 }
 #pragma warning restore CS8618

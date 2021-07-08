@@ -157,6 +157,40 @@ namespace MugenMvvm.Tests
 
         protected IServiceProvider ServiceProvider => _serviceProvider ??= GetServiceProvider();
 
+        public void Dispose()
+        {
+            if (_isDisposed)
+                return;
+            lock (this)
+            {
+                if (_isDisposed)
+                    return;
+                _isDisposed = true;
+            }
+
+            OnDispose();
+        }
+
+        public virtual object? GetService(Type serviceType)
+        {
+            if (_services == null)
+            {
+                var services = new Dictionary<Type, PropertyInfo>();
+                foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                {
+                    if (typeof(IComponentOwner).IsAssignableFrom(propertyInfo.PropertyType))
+                        services[propertyInfo.PropertyType] = propertyInfo;
+                }
+
+                _services = services;
+            }
+
+            if (_services.TryGetValue(serviceType, out var p))
+                return p.GetValue(this);
+
+            return ServiceProvider.GetService(serviceType);
+        }
+
         protected static void GcCollect()
         {
             GC.Collect();
@@ -192,40 +226,6 @@ namespace MugenMvvm.Tests
             new(target, navigationProvider ?? TestNavigationProvider.Instance, navigationId ?? NewId(), navigationType ?? NavigationType.Popup, navigationMode ?? NavigationMode.New
                 ,
                 metadata);
-
-        public void Dispose()
-        {
-            if (_isDisposed)
-                return;
-            lock (this)
-            {
-                if (_isDisposed)
-                    return;
-                _isDisposed = true;
-            }
-
-            OnDispose();
-        }
-
-        public virtual object? GetService(Type serviceType)
-        {
-            if (_services == null)
-            {
-                var services = new Dictionary<Type, PropertyInfo>();
-                foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                {
-                    if (typeof(IComponentOwner).IsAssignableFrom(propertyInfo.PropertyType))
-                        services[propertyInfo.PropertyType] = propertyInfo;
-                }
-
-                _services = services;
-            }
-
-            if (_services.TryGetValue(serviceType, out var p))
-                return p.GetValue(this);
-
-            return ServiceProvider.GetService(serviceType);
-        }
 
         protected virtual IAttachedValueManager GetAttachedValueManager()
         {

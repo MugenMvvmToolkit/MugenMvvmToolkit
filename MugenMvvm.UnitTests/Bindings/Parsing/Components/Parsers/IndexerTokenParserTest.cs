@@ -27,12 +27,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             Context.Initialize("[1,2 , 3]", DefaultMetadata);
 
             Parser.TryParse(Context, null)
-                  .ShouldEqual(new IndexExpressionNode(null, new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
+                  .ShouldEqual(new IndexExpressionNode(null, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3) }));
 
             Context.Initialize("[1,2 , 3]", DefaultMetadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new IndexExpressionNode(ConstantExpressionNode.Null,
-                      new[] {ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3)}));
+                      new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3) }));
 
             Context.Initialize("[1,2,]", DefaultMetadata);
             Parser.TryParse(Context, null).ShouldBeNull();

@@ -59,11 +59,6 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public int Priority { get; init; } = BindingComponentPriority.BindingInitializer;
 
-        private static IComponent<IBinding> GetEventHandlerComponent((BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target,
-            object? source,
-            IReadOnlyMetadataContext? metadata) => BindingEventHandler.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle,
-            state.isOneTime || binding.GetOrDefault(BindingMetadata.IsExpressionBinding));
-
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
             if (context.Components.ContainsKey(BindingParameterNameConstant.EventHandler))
@@ -112,6 +107,11 @@ namespace MugenMvvm.Bindings.Core.Components
                 new DelegateBindingComponentProvider<(BindingParameterExpression, bool, bool)>(GetEventHandlerDelegate, (parameter, toggle, IsOneTime(context)));
             context.Components[BindingParameterNameConstant.Mode] = null;
         }
+
+        private static IComponent<IBinding> GetEventHandlerComponent((BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target,
+            object? source,
+            IReadOnlyMetadataContext? metadata) => BindingEventHandler.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle,
+            state.isOneTime || binding.GetOrDefault(BindingMetadata.IsExpressionBinding));
 
         private bool IsOneTime(IBindingExpressionInitializerContext context) =>
             context.TryGetParameterValue<string>(BindingParameterNameConstant.Mode) == OneTimeBindingMode || context.TryGetParameterValue<bool>(OneTimeBindingMode);

@@ -23,6 +23,47 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             MemberManager.AddComponent(_provider);
         }
 
+        [Theory]
+        [InlineData(null, true)]
+        [InlineData(null, false)]
+        [InlineData("test", true)]
+        [InlineData("test", false)]
+        public void TryGetMembersShouldRegisterUnregisterMembers(string name, bool clear)
+        {
+            const string memberName = "f";
+            var requestType = typeof(string);
+            var invalidateCount = 0;
+            var hasCache = new TestHasCacheComponent<IMemberManager>
+            {
+                Invalidate = (s, o, arg3) => ++invalidateCount
+            };
+
+            MemberManager.Components.TryAdd(hasCache);
+
+            var member = new TestAccessorMemberInfo { Name = memberName, DeclaringType = requestType, MemberType = MemberType.Accessor };
+            _provider.Register(member, name);
+            invalidateCount.ShouldEqual(1);
+
+            var members = _provider.TryGetMembers(MemberManager, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata);
+            members.Count.ShouldEqual(1);
+            members.Item.ShouldEqual(member);
+
+            _provider.TryGetMembers(MemberManager, requestType, name ?? memberName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
+
+            members = _provider.GetAttachedMembers();
+            members.Count.ShouldEqual(1);
+            members.Item.ShouldEqual(member);
+
+            invalidateCount = 0;
+            if (clear)
+                _provider.Clear();
+            else
+                _provider.Unregister(member);
+            _provider.TryGetMembers(MemberManager, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.GetAttachedMembers().IsEmpty.ShouldBeTrue();
+            invalidateCount.ShouldEqual(1);
+        }
+
         [Fact]
         public void TryGetMembersShouldReturnAssignableTypes1()
         {
@@ -95,46 +136,5 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         }
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(null, true)]
-        [InlineData(null, false)]
-        [InlineData("test", true)]
-        [InlineData("test", false)]
-        public void TryGetMembersShouldRegisterUnregisterMembers(string name, bool clear)
-        {
-            const string memberName = "f";
-            var requestType = typeof(string);
-            var invalidateCount = 0;
-            var hasCache = new TestHasCacheComponent<IMemberManager>
-            {
-                Invalidate = (s, o, arg3) => ++invalidateCount
-            };
-
-            MemberManager.Components.TryAdd(hasCache);
-
-            var member = new TestAccessorMemberInfo { Name = memberName, DeclaringType = requestType, MemberType = MemberType.Accessor };
-            _provider.Register(member, name);
-            invalidateCount.ShouldEqual(1);
-
-            var members = _provider.TryGetMembers(MemberManager, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata);
-            members.Count.ShouldEqual(1);
-            members.Item.ShouldEqual(member);
-
-            _provider.TryGetMembers(MemberManager, requestType, name ?? memberName, MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
-
-            members = _provider.GetAttachedMembers();
-            members.Count.ShouldEqual(1);
-            members.Item.ShouldEqual(member);
-
-            invalidateCount = 0;
-            if (clear)
-                _provider.Clear();
-            else
-                _provider.Unregister(member);
-            _provider.TryGetMembers(MemberManager, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _provider.GetAttachedMembers().IsEmpty.ShouldBeTrue();
-            invalidateCount.ShouldEqual(1);
-        }
     }
 }

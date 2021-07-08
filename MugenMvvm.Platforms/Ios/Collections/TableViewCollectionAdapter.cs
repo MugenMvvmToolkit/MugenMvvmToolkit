@@ -21,7 +21,7 @@ namespace MugenMvvm.Ios.Collections
             _targetRef = tableView.ToWeakReference();
         }
 
-        public UITableView? TableView => (UITableView?) _targetRef.Target;
+        public UITableView? TableView => (UITableView?)_targetRef.Target;
 
         public UITableViewRowAnimation InsertRowsAnimation { get; set; } = UITableViewRowAnimation.Automatic;
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.Ios.Collections
         void IThreadDispatcherHandler.Execute(object? state)
         {
             TableView?.LayoutIfNeeded();
-            ((Action) state!).Invoke();
+            ((Action)state!).Invoke();
         }
     }
 }

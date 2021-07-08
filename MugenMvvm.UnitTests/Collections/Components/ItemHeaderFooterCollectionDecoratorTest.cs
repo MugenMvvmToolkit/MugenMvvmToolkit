@@ -40,6 +40,26 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
+        public void AddShouldTrackChanges(bool defaultComparer)
+        {
+            AddDecorator(defaultComparer);
+
+            for (var i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Insert(i, i);
+                Assert();
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
         public void ChangeShouldTrackChanges(bool defaultComparer)
         {
             AddDecorator(defaultComparer);
@@ -55,26 +75,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.RaiseItemChanged(_collection[i], null);
                 Assert();
                 _tracker.ItemChangedCount.ShouldEqual(i + 1);
-            }
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AddShouldTrackChanges(bool defaultComparer)
-        {
-            AddDecorator(defaultComparer);
-
-            for (var i = 0; i < 100; i++)
-            {
-                _collection.Add(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Insert(i, i);
-                Assert();
             }
         }
 

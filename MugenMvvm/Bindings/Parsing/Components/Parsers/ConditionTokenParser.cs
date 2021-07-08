@@ -13,6 +13,15 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
     {
         public int Priority { get; init; } = ParsingComponentPriority.Condition;
 
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
+        {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression);
+            if (node == null)
+                context.Position = p;
+            return node;
+        }
+
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
             if (expression == null || !context.SkipWhitespaces().IsToken('?'))
@@ -35,15 +44,6 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
             }
 
             return new ConditionExpressionNode(expression, ifTrue, ifFalse);
-        }
-
-        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
-        {
-            var p = context.Position;
-            var node = TryParseInternal(context, expression);
-            if (node == null)
-                context.Position = p;
-            return node;
         }
     }
 }

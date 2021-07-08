@@ -27,9 +27,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Postorder;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsValueExpression(IExpressionNode expression) => expression.ExpressionType == ExpressionNodeType.BindingParameter;
-
         public ICompiledExpression? TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (!_cache.TryGetValue(expression, out var result))
@@ -48,6 +45,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
             else
                 _cache.Clear();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static bool IsValueExpression(IExpressionNode expression) => expression.ExpressionType == ExpressionNodeType.BindingParameter;
 
         int IEqualityComparer<IExpressionNode>.GetHashCode(IExpressionNode obj) => obj.GetHashCode(this);
 

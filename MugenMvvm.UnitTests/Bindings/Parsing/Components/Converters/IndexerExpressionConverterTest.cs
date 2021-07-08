@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             Context.SetExpression(argExp, ConstantExpressionNode.Null);
             Context.SetExpression(targetExp, expectedResult.Target!);
 
-            Converter.TryConvert(Context, Expression.MakeIndex(targetExp, propertyInfo, new[] {argExp})).ShouldEqual(expectedResult);
+            Converter.TryConvert(Context, Expression.MakeIndex(targetExp, propertyInfo, new[] { argExp })).ShouldEqual(expectedResult);
         }
 
         [Fact]
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
         {
             var target = new TestResourceExtensionClass();
             var propertyInfo = target.GetType().GetProperties().Single(info => info.GetIndexParameters().FirstOrDefault()?.ParameterType == typeof(int));
-            var expressionNode = Converter.TryConvert(Context, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] {Expression.Constant(1)}));
+            var expressionNode = Converter.TryConvert(Context, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] { Expression.Constant(1) }));
             expressionNode.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.IndexerResource)));
         }
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var propertyInfo = target.GetType().GetProperties().Single(info => info.GetIndexParameters().FirstOrDefault()?.ParameterType == typeof(object));
             var argExp = Expression.Constant(null);
             Context.SetExpression(argExp, ConstantExpressionNode.Null);
-            var expressionNode = Converter.TryConvert(Context, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] {argExp}));
+            var expressionNode = Converter.TryConvert(Context, Expression.MakeIndex(Expression.Constant(target), propertyInfo, new[] { argExp }));
 
             var expectedResult = new IndexExpressionNode(
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TestResourceExtensionClass.ClassResource)), new[]

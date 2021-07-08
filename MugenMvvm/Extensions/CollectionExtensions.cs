@@ -104,7 +104,7 @@ namespace MugenMvvm.Extensions
         {
             var array = new T[items.Length + 1];
             Array.Copy(items, 0, array, 0, items.Length);
-            int index = AddOrdered(array, item, items.Length, comparer);
+            var index = AddOrdered(array, item, items.Length, comparer);
             items = array;
             return index;
         }

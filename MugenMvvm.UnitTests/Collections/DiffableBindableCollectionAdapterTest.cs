@@ -18,32 +18,6 @@ namespace MugenMvvm.UnitTests.Collections
         {
         }
 
-        protected override bool IsSuspendSupported => true;
-
-        [Fact]
-        public void ShouldUseDiffableComparer()
-        {
-            var comparer = new TestDiffableEqualityComparer
-            {
-                AreItemsTheSame = (_, _) => true
-            };
-
-            var items = new object[] { 1, 2, 3, 4 };
-            var resetItems = new object[] { 4, 3, 2, 1 };
-
-            var observableCollection = new SynchronizedObservableCollection<object?>(items, ComponentCollectionManager);
-            var adapterCollection = new ObservableCollection<object?>();
-            var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(ThreadDispatcher, adapterCollection);
-            collectionAdapter.DiffableComparer = comparer;
-            var tracker = new ObservableCollectionTracker<object?>();
-            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
-            collectionAdapter.Collection = observableCollection;
-
-            observableCollection.Reset(resetItems);
-            tracker.ChangedItems.ShouldEqual(items);
-            collectionAdapter.ShouldEqual(items);
-        }
-
         [Theory]
         [InlineData(200, 5, 20, true)]
         [InlineData(200, 5, 20, false)]
@@ -81,6 +55,32 @@ namespace MugenMvvm.UnitTests.Collections
                 collectionAdapter.ShouldEqual(observableCollection);
             }
         }
+
+        [Fact]
+        public void ShouldUseDiffableComparer()
+        {
+            var comparer = new TestDiffableEqualityComparer
+            {
+                AreItemsTheSame = (_, _) => true
+            };
+
+            var items = new object[] { 1, 2, 3, 4 };
+            var resetItems = new object[] { 4, 3, 2, 1 };
+
+            var observableCollection = new SynchronizedObservableCollection<object?>(items, ComponentCollectionManager);
+            var adapterCollection = new ObservableCollection<object?>();
+            var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(ThreadDispatcher, adapterCollection);
+            collectionAdapter.DiffableComparer = comparer;
+            var tracker = new ObservableCollectionTracker<object?>();
+            adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
+            collectionAdapter.Collection = observableCollection;
+
+            observableCollection.Reset(resetItems);
+            tracker.ChangedItems.ShouldEqual(items);
+            collectionAdapter.ShouldEqual(items);
+        }
+
+        protected override bool IsSuspendSupported => true;
 
         private static void Shuffle<T>(List<T> list, Random rng)
         {

@@ -39,32 +39,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             GetExpression().Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
         }
 
-        [Fact]
-        public void UpdateShouldCreateNewNode()
-        {
-            var index = 1;
-            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Target;
-            EnumFlags<MemberFlags> memberFlags = MemberFlags.Static;
-            var observableMethodName = nameof(memberFlags);
-
-            var exp = GetExpression();
-            exp.Flags.ShouldNotEqual(flags);
-            exp.Index.ShouldNotEqual(index);
-            exp.MemberFlags.ShouldNotEqual(memberFlags);
-            exp.ObservableMethodName.ShouldNotEqual(observableMethodName);
-
-            var newExp = exp.Update(index, flags, memberFlags, observableMethodName);
-            ReferenceEquals(newExp, exp).ShouldBeFalse();
-            newExp.Flags.ShouldEqual(flags);
-            newExp.Index.ShouldEqual(index);
-            newExp.MemberFlags.ShouldEqual(memberFlags);
-            newExp.ObservableMethodName.ShouldEqual(observableMethodName);
-        }
-
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
-        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(ExpressionTraversalType.InorderValue)]
         [InlineData(ExpressionTraversalType.PreorderValue)]
@@ -105,6 +79,32 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 updated.ShouldEqual(GetExpression(metadata));
             }
         }
+
+        [Fact]
+        public void UpdateShouldCreateNewNode()
+        {
+            var index = 1;
+            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Target;
+            EnumFlags<MemberFlags> memberFlags = MemberFlags.Static;
+            var observableMethodName = nameof(memberFlags);
+
+            var exp = GetExpression();
+            exp.Flags.ShouldNotEqual(flags);
+            exp.Index.ShouldNotEqual(index);
+            exp.MemberFlags.ShouldNotEqual(memberFlags);
+            exp.ObservableMethodName.ShouldNotEqual(observableMethodName);
+
+            var newExp = exp.Update(index, flags, memberFlags, observableMethodName);
+            ReferenceEquals(newExp, exp).ShouldBeFalse();
+            newExp.Flags.ShouldEqual(flags);
+            newExp.Index.ShouldEqual(index);
+            newExp.MemberFlags.ShouldEqual(memberFlags);
+            newExp.ObservableMethodName.ShouldEqual(observableMethodName);
+        }
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
 
         protected abstract T GetExpression(IReadOnlyDictionary<string, object?>? metadata = null);
     }

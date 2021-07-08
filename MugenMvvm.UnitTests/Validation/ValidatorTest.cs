@@ -19,6 +19,35 @@ namespace MugenMvvm.UnitTests.Validation
     public class ValidatorTest : ComponentOwnerTestBase<Validator>
     {
         [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ClearErrorsShouldBeHandledByComponents(int componentCount)
+        {
+            ItemOrIReadOnlyList<string> memberName = "test";
+            var source = new object();
+            var count = 0;
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                var component = new TestValidatorErrorManagerComponent
+                {
+                    ClearErrors = (v, m, s, metadata) =>
+                    {
+                        ++count;
+                        v.ShouldEqual(Validator);
+                        m.ShouldEqual(memberName);
+                        s.ShouldEqual(source);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    }
+                };
+                Validator.AddComponent(component);
+            }
+
+            Validator.ClearErrors(memberName, source, DefaultMetadata);
+            count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
         [InlineData(1, true)]
         [InlineData(10, true)]
         [InlineData(1, false)]
@@ -31,7 +60,7 @@ namespace MugenMvvm.UnitTests.Validation
 
             for (var i = 0; i < count; i++)
             {
-                Validator.Components.Add(new TestDisposableComponent<IValidator>()
+                Validator.Components.Add(new TestDisposableComponent<IValidator>
                 {
                     Dispose = (o, m) =>
                     {
@@ -57,87 +86,6 @@ namespace MugenMvvm.UnitTests.Validation
                 invokeCount.ShouldEqual(0);
                 Validator.Components.Count.ShouldEqual(count);
             }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ValidateAsyncShouldBeHandledByComponents(int componentCount)
-        {
-            var memberName = "test";
-            var count = 0;
-            var tasks = new List<TaskCompletionSource<object>>();
-
-            for (var i = 0; i < componentCount; i++)
-            {
-                var tcs = new TaskCompletionSource<object>();
-                tasks.Add(tcs);
-                var component = new TestValidationHandlerComponent
-                {
-                    TryValidateAsync = (v, m, token, metadata) =>
-                    {
-                        ++count;
-                        v.ShouldEqual(Validator);
-                        m.ShouldEqual(memberName);
-                        token.ShouldEqual(DefaultCancellationToken);
-                        metadata.ShouldEqual(DefaultMetadata);
-                        return tcs.Task;
-                    }
-                };
-                Validator.AddComponent(component);
-            }
-
-            var task = Validator.ValidateAsync(memberName, DefaultCancellationToken, DefaultMetadata);
-            task.IsCompleted.ShouldBeFalse();
-
-            for (var i = 0; i < componentCount - 1; i++)
-                tasks[i].SetResult(i);
-            task.IsCompleted.ShouldBeFalse();
-            tasks.Last().SetResult("");
-            task.IsCompleted.ShouldBeTrue();
-            count.ShouldEqual(componentCount);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void HasErrorsShouldBeHandledByComponents(int componentCount)
-        {
-            ItemOrIReadOnlyList<string> expectedMember = new[] { "1", "2" };
-            var source = new object();
-            var count = 0;
-            var hasErrors = false;
-            Validator.HasErrors().ShouldBeFalse();
-            for (var i = 0; i < componentCount; i++)
-            {
-                var component = new TestValidatorErrorManagerComponent
-                {
-                    HasErrors = (v, m, s, meta) =>
-                    {
-                        ++count;
-                        v.ShouldEqual(Validator);
-                        m.ShouldEqual(expectedMember);
-                        s.ShouldEqual(source);
-                        meta.ShouldEqual(DefaultMetadata);
-                        return hasErrors;
-                    },
-                    Priority = -i
-                };
-                Validator.AddComponent(component);
-            }
-
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
-            count.ShouldEqual(componentCount);
-
-            count = 0;
-            expectedMember = "t";
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
-            count.ShouldEqual(componentCount);
-
-            count = 0;
-            hasErrors = true;
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeTrue();
-            count.ShouldEqual(1);
         }
 
         [Theory]
@@ -214,6 +162,48 @@ namespace MugenMvvm.UnitTests.Validation
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
+        public void HasErrorsShouldBeHandledByComponents(int componentCount)
+        {
+            ItemOrIReadOnlyList<string> expectedMember = new[] { "1", "2" };
+            var source = new object();
+            var count = 0;
+            var hasErrors = false;
+            Validator.HasErrors().ShouldBeFalse();
+            for (var i = 0; i < componentCount; i++)
+            {
+                var component = new TestValidatorErrorManagerComponent
+                {
+                    HasErrors = (v, m, s, meta) =>
+                    {
+                        ++count;
+                        v.ShouldEqual(Validator);
+                        m.ShouldEqual(expectedMember);
+                        s.ShouldEqual(source);
+                        meta.ShouldEqual(DefaultMetadata);
+                        return hasErrors;
+                    },
+                    Priority = -i
+                };
+                Validator.AddComponent(component);
+            }
+
+            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+
+            count = 0;
+            expectedMember = "t";
+            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+
+            count = 0;
+            hasErrors = true;
+            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeTrue();
+            count.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
         public void SetErrorsShouldBeHandledByComponents(int componentCount)
         {
             var errors = new[] { new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2") };
@@ -243,29 +233,39 @@ namespace MugenMvvm.UnitTests.Validation
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ClearErrorsShouldBeHandledByComponents(int componentCount)
+        public void ValidateAsyncShouldBeHandledByComponents(int componentCount)
         {
-            ItemOrIReadOnlyList<string> memberName = "test";
-            var source = new object();
+            var memberName = "test";
             var count = 0;
+            var tasks = new List<TaskCompletionSource<object>>();
 
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestValidatorErrorManagerComponent
+                var tcs = new TaskCompletionSource<object>();
+                tasks.Add(tcs);
+                var component = new TestValidationHandlerComponent
                 {
-                    ClearErrors = (v, m, s, metadata) =>
+                    TryValidateAsync = (v, m, token, metadata) =>
                     {
                         ++count;
                         v.ShouldEqual(Validator);
                         m.ShouldEqual(memberName);
-                        s.ShouldEqual(source);
+                        token.ShouldEqual(DefaultCancellationToken);
                         metadata.ShouldEqual(DefaultMetadata);
+                        return tcs.Task;
                     }
                 };
                 Validator.AddComponent(component);
             }
 
-            Validator.ClearErrors(memberName, source, DefaultMetadata);
+            var task = Validator.ValidateAsync(memberName, DefaultCancellationToken, DefaultMetadata);
+            task.IsCompleted.ShouldBeFalse();
+
+            for (var i = 0; i < componentCount - 1; i++)
+                tasks[i].SetResult(i);
+            task.IsCompleted.ShouldBeFalse();
+            tasks.Last().SetResult("");
+            task.IsCompleted.ShouldBeTrue();
             count.ShouldEqual(componentCount);
         }
 

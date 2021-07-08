@@ -72,10 +72,10 @@ namespace MugenMvvm.Enums
         }
 
         private static IEnum? TryGetByName<TEnum>(this Func<string?, TEnum?, bool, TEnum?> resolver, string? name, IEnum? defaultValue, bool ignoreCase) where TEnum : class, IEnum
-            => resolver(name, (TEnum?) defaultValue, ignoreCase);
+            => resolver(name, (TEnum?)defaultValue, ignoreCase);
 
         private static IEnum? TryGetByValue<TEnum, TValue>(this Func<TValue, TEnum?, TEnum?> resolver, TValue value, IEnum? defaultValue) where TEnum : class, IEnum
-            => resolver(value, (TEnum?) defaultValue);
+            => resolver(value, (TEnum?)defaultValue);
 
         private static class EnumProvider<TEnum> where TEnum : class, IEnum
         {

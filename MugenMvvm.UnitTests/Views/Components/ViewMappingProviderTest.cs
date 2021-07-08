@@ -22,66 +22,6 @@ namespace MugenMvvm.UnitTests.Views.Components
             ViewManager.AddComponent(_component);
         }
 
-        [Fact]
-        public void ClearMappingsShouldClearMappings()
-        {
-            var vmType = typeof(TestViewModel);
-            var vType = typeof(BaseView);
-            _component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);
-
-            var vm = new TestViewModel();
-            ViewManager.GetMappings(vm, DefaultMetadata).Single().ShouldNotBeNull();
-
-            _component.ClearMappings();
-            ViewManager.GetMappings(vm, DefaultMetadata).ShouldBeEmpty();
-        }
-
-        [Fact]
-        public void ShouldSupportGenericViewMappings1()
-        {
-            var mapping = _component.AddMapping(typeof(ViewModelImpl), typeof(GenericViewBase<>));
-            var vm = new GenericViewBase<object>();
-            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
-
-            vm = new GenericView();
-            ViewManager.GetMappings(vm).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldSupportGenericViewMappings2()
-        {
-            var mapping = _component.AddMapping(typeof(ViewModelImpl), typeof(GenericViewBase<>), false);
-            var vm = new GenericViewBase<object>();
-            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
-
-            vm = new GenericView();
-            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
-        }
-
-        [Fact]
-        public void ShouldSupportGenericViewModelMappings1()
-        {
-            var mapping = _component.AddMapping(typeof(GenericViewModelBase<>), typeof(BaseView));
-            var vm = new GenericViewModelBase<object>();
-            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
-
-            vm = new GenericViewModel();
-            ViewManager.GetMappings(vm).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
-        public void ShouldSupportGenericViewModelMappings2()
-        {
-            var mapping = _component.AddMapping(typeof(GenericViewModelBase<>), typeof(BaseView), false);
-            var vm = new GenericViewModelBase<object>();
-            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
-
-            vm = new GenericViewModel();
-            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
-        }
-
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(null, false)]
         [InlineData("test", false)]
@@ -350,6 +290,66 @@ namespace MugenMvvm.UnitTests.Views.Components
                     throw;
             }
         }
+
+        [Fact]
+        public void ClearMappingsShouldClearMappings()
+        {
+            var vmType = typeof(TestViewModel);
+            var vType = typeof(BaseView);
+            _component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);
+
+            var vm = new TestViewModel();
+            ViewManager.GetMappings(vm, DefaultMetadata).Single().ShouldNotBeNull();
+
+            _component.ClearMappings();
+            ViewManager.GetMappings(vm, DefaultMetadata).ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewMappings1()
+        {
+            var mapping = _component.AddMapping(typeof(ViewModelImpl), typeof(GenericViewBase<>));
+            var vm = new GenericViewBase<object>();
+            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
+
+            vm = new GenericView();
+            ViewManager.GetMappings(vm).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewMappings2()
+        {
+            var mapping = _component.AddMapping(typeof(ViewModelImpl), typeof(GenericViewBase<>), false);
+            var vm = new GenericViewBase<object>();
+            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
+
+            vm = new GenericView();
+            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewModelMappings1()
+        {
+            var mapping = _component.AddMapping(typeof(GenericViewModelBase<>), typeof(BaseView));
+            var vm = new GenericViewModelBase<object>();
+            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
+
+            vm = new GenericViewModel();
+            ViewManager.GetMappings(vm).IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldSupportGenericViewModelMappings2()
+        {
+            var mapping = _component.AddMapping(typeof(GenericViewModelBase<>), typeof(BaseView), false);
+            var vm = new GenericViewModelBase<object>();
+            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
+
+            vm = new GenericViewModel();
+            ViewManager.GetMappings(vm).Item.ShouldEqual(mapping);
+        }
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         public class ViewModelImpl : TestViewModel
         {

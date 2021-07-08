@@ -11,10 +11,10 @@ namespace MugenMvvm.Enums
     public class NavigationMode : EnumBase<NavigationMode, string>
     {
         public static readonly NavigationMode Undefined = new(nameof(Undefined));
-        public static readonly NavigationMode New = new(nameof(New)) {IsNew = true};
-        public static readonly NavigationMode Refresh = new(nameof(Refresh)) {IsRefresh = true};
-        public static readonly NavigationMode Restore = new(nameof(Restore)) {IsRefresh = true, IsRestore = true};
-        public static readonly NavigationMode Close = new(nameof(Close)) {IsClose = true};
+        public static readonly NavigationMode New = new(nameof(New)) { IsNew = true };
+        public static readonly NavigationMode Refresh = new(nameof(Refresh)) { IsRefresh = true };
+        public static readonly NavigationMode Restore = new(nameof(Restore)) { IsRefresh = true, IsRestore = true };
+        public static readonly NavigationMode Close = new(nameof(Close)) { IsClose = true };
 
         public NavigationMode(string value, string? name = null) : base(value, name)
         {

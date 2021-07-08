@@ -32,17 +32,6 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        private static void UpdateIndexes(ListInternal<ItemInfo> items, int index, int value)
-        {
-            var count = items.Count;
-            var array = items.Items;
-            for (var i = 0; i < count; i++)
-            {
-                if (array[i].OriginalIndex >= index)
-                    array[i].OriginalIndex += value;
-            }
-        }
-
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
@@ -141,6 +130,17 @@ namespace MugenMvvm.Collections.Components
             _footerIndex = count + _headers.Count;
             items = Decorate(items);
             return true;
+        }
+
+        private static void UpdateIndexes(ListInternal<ItemInfo> items, int index, int value)
+        {
+            var count = items.Count;
+            var array = items.Items;
+            for (var i = 0; i < count; i++)
+            {
+                if (array[i].OriginalIndex >= index)
+                    array[i].OriginalIndex += value;
+            }
         }
 
         private int Add(ListInternal<ItemInfo> items, object? item, int index, IComparer<object?>? comparer)

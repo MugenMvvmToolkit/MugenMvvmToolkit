@@ -24,7 +24,8 @@ namespace MugenMvvm.Tests.Collections
 
         public int Priority { get; set; }
 
-        void ICollectionChangedListener<T>.OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args) => OnChanged?.Invoke(collection, item!, index, args);
+        void ICollectionChangedListener<T>.OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args) =>
+            OnChanged?.Invoke(collection, item!, index, args);
 
         void ICollectionChangedListener<T>.OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index)
         {

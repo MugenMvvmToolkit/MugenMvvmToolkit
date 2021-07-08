@@ -37,7 +37,7 @@ namespace MugenMvvm.Tests.Internal
         ItemOrIReadOnlyList<KeyValuePair<string, object?>> IAttachedValueStorageManager.GetValues<TState>(object item, TState state,
             Func<object, string, object?, TState, bool>? predicate, ref object? internalState) =>
             TryGetValues!.Invoke(item, internalState, state,
-                predicate == null ? null : new Func<object, string, object?, object?, bool>((o, key, value, arg3) => predicate(o, key, value, (TState) arg3!)));
+                predicate == null ? null : new Func<object, string, object?, object?, bool>((o, key, value, arg3) => predicate(o, key, value, (TState)arg3!)));
 
         bool IAttachedValueStorageManager.TryGet(object item, string path, ref object? internalState, out object? value)
         {
@@ -56,20 +56,20 @@ namespace MugenMvvm.Tests.Internal
 
         TValue IAttachedValueStorageManager.AddOrUpdate<TValue, TState>(object item, string path, TValue addValue, TState state,
             Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState) =>
-            (TValue) AddOrUpdate!.Invoke(item, internalState, path, addValue, state,
-                (o, key, currentValue, state1) => updateValueFactory(o, key, (TValue) currentValue!, (TState) state1!))!;
+            (TValue)AddOrUpdate!.Invoke(item, internalState, path, addValue, state,
+                (o, key, currentValue, state1) => updateValueFactory(o, key, (TValue)currentValue!, (TState)state1!))!;
 
         TValue IAttachedValueStorageManager.AddOrUpdate<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> addValueFactory,
             Func<object, string, TValue, TState, TValue> updateValueFactory, ref object? internalState) =>
-            (TValue) AddOrUpdate1!.Invoke(item, internalState, path, state, (o, o1) => addValueFactory(o, (TState) o1!),
-                (o, key, value, state1) => updateValueFactory(o, key, (TValue) value!, (TState) state1!))!;
+            (TValue)AddOrUpdate1!.Invoke(item, internalState, path, state, (o, o1) => addValueFactory(o, (TState)o1!),
+                (o, key, value, state1) => updateValueFactory(o, key, (TValue)value!, (TState)state1!))!;
 
         TValue IAttachedValueStorageManager.GetOrAdd<TValue>(object item, string path, TValue value, ref object? internalState) =>
-            (TValue) GetOrAdd!.Invoke(item, internalState, path, value)!;
+            (TValue)GetOrAdd!.Invoke(item, internalState, path, value)!;
 
         TValue IAttachedValueStorageManager.
             GetOrAdd<TValue, TState>(object item, string path, TState state, Func<object, TState, TValue> valueFactory, ref object? internalState) =>
-            (TValue) GetOrAdd1!.Invoke(item, internalState, path, state, (o, o1) => valueFactory(o, (TState) o1!))!;
+            (TValue)GetOrAdd1!.Invoke(item, internalState, path, state, (o, o1) => valueFactory(o, (TState)o1!))!;
 
         void IAttachedValueStorageManager.Set(object item, string path, object? value, ref object? internalState, out object? oldValue) =>
             Set!.Invoke(item, internalState, path, value!, out oldValue);

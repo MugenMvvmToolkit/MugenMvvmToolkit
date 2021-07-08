@@ -16,8 +16,6 @@ namespace MugenMvvm.UnitTests.Validation
         [Fact]
         public void GetAggregatorValidatorShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => ValidationManager.GetValidator(this, DefaultMetadata));
 
-        protected override IValidationManager GetValidationManager() => GetComponentOwner(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -60,6 +58,8 @@ namespace MugenMvvm.UnitTests.Validation
             componentCount.ShouldEqual(count);
             listenerCount.ShouldEqual(count);
         }
+
+        protected override IValidationManager GetValidationManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override ValidationManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

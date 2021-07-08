@@ -16,22 +16,22 @@ namespace MugenMvvm.Windows.Bindings
 
         public int Priority { get; init; }
 
+        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        {
+            if (member is DependencyProperty dp)
+                return GetMemberObserver(dp);
+            if (member is IMemberInfo { UnderlyingMember: DependencyProperty p })
+                return GetMemberObserver(p);
+            return default;
+        }
+
         private static MemberObserver GetMemberObserver(DependencyProperty dp) => new(MemberObserverHandler, dp.Name);
 
         private static ActionToken Observe(object? t, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             var l = new DependencyPropertyListener();
-            l.SetListener(listener, t!, (string) member);
-            return ActionToken.FromDelegate((o, _) => ((DependencyPropertyListener) o!).Clear(), l);
-        }
-
-        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
-        {
-            if (member is DependencyProperty dp)
-                return GetMemberObserver(dp);
-            if (member is IMemberInfo {UnderlyingMember: DependencyProperty p})
-                return GetMemberObserver(p);
-            return default;
+            l.SetListener(listener, t!, (string)member);
+            return ActionToken.FromDelegate((o, _) => ((DependencyPropertyListener)o!).Clear(), l);
         }
     }
 }

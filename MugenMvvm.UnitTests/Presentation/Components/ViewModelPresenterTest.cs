@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Presentation;
@@ -13,7 +12,6 @@ using MugenMvvm.Requests;
 using MugenMvvm.Tests.Presentation;
 using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Tests.Views;
-using MugenMvvm.UnitTests.ViewModels.Internal;
 using MugenMvvm.Views;
 using MugenMvvm.Wrapping;
 using MugenMvvm.Wrapping.Components;
@@ -76,10 +74,6 @@ namespace MugenMvvm.UnitTests.Presentation.Components
             Presenter.TryShow(vm, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
             Presenter.TryShow(this, default, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
-
-        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
-
-        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         [Theory]
         [InlineData(true)]
@@ -183,6 +177,10 @@ namespace MugenMvvm.UnitTests.Presentation.Components
             canWrapCount.ShouldEqual(1);
             list[0].NavigationProvider.ShouldBeType<TestViewModelPresenterMediator<TestView2>>();
         }
+
+        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
+
+        protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);
 
         private sealed class TestViewModelPresenterMediator<T> : TestViewModelPresenterMediator
         {

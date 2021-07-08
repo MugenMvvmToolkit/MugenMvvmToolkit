@@ -20,7 +20,7 @@ namespace MugenMvvm.Bindings.Compiling
 {
     public sealed class CompiledExpression : ICompiledExpression, IExpressionBuilderContext, IExpressionVisitor, IEqualityComparer<IExpressionNode>, IEqualityComparer<object>
     {
-        private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
+        private static readonly ParameterExpression[] ArrayParameterArray = { MugenExtensions.GetParameterExpression<object[]>() };
 
         private readonly Dictionary<object, Func<object?[], object?>> _cache;
         private readonly IExpressionNode _expression;
@@ -56,22 +56,9 @@ namespace MugenMvvm.Bindings.Compiling
 
         ExpressionTraversalType IExpressionVisitor.TraversalType => ExpressionTraversalType.Preorder;
 
-        private static bool Equals(Type[] types, ParameterValue[] values)
-        {
-            if (values.Length != types.Length)
-                return false;
-            for (var i = 0; i < values.Length; i++)
-            {
-                if (values[i].Type != types[i])
-                    return false;
-            }
-
-            return true;
-        }
-
         public object? Invoke(ItemOrArray<ParameterValue> values, IReadOnlyMetadataContext? metadata)
         {
-            var key = values.List ?? values.Item.Type ?? (object) Array.Empty<Type>();
+            var key = values.List ?? values.Item.Type ?? (object)Array.Empty<Type>();
             if (!_cache.TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);
@@ -127,6 +114,19 @@ namespace MugenMvvm.Bindings.Compiling
         }
 
         public Expression? TryBuild(IExpressionNode expression) => ExpressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
+
+        private static bool Equals(Type[] types, ParameterValue[] values)
+        {
+            if (values.Length != types.Length)
+                return false;
+            for (var i = 0; i < values.Length; i++)
+            {
+                if (values[i].Type != types[i])
+                    return false;
+            }
+
+            return true;
+        }
 
         private Func<object?[], object?> CompileExpression(ItemOrArray<ParameterValue> values)
         {
@@ -188,9 +188,9 @@ namespace MugenMvvm.Bindings.Compiling
                 return false;
 
             if (typesX == null)
-                return Equals(typesY!, (ParameterValue[]) x!);
+                return Equals(typesY!, (ParameterValue[])x!);
             if (typesY == null)
-                return Equals(typesX!, (ParameterValue[]) y!);
+                return Equals(typesX!, (ParameterValue[])y!);
             return InternalEqualityComparer.Equals(typesX, typesY);
         }
 
@@ -207,7 +207,7 @@ namespace MugenMvvm.Bindings.Compiling
             }
             else
             {
-                foreach (var t in (Type[]) key!)
+                foreach (var t in (Type[])key!)
                     hashCode.Add(t);
             }
 

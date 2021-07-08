@@ -47,6 +47,7 @@ namespace MugenMvvm.Windows.Extensions
                     app.Deactivated += WpfAppOnDeactivated;
                 }
             }
+
             return configuration;
         }
 
@@ -92,7 +93,7 @@ namespace MugenMvvm.Windows.Extensions
                                                            .RawMethod
                                                            .GetBuilder()
                                                            .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build())
-                                                           .InvokeHandler((member, target, args, metadata) => target.FindName((string) args.Item!))
+                                                           .InvokeHandler((member, target, args, metadata) => target.FindName((string)args.Item!))
                                                            .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
 

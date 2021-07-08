@@ -17,31 +17,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             BindingManager.AddComponent(new BindingExpressionExceptionDecorator());
         }
 
-        [Fact]
-        public void TryParseBindingExpressionShouldWrapExceptionToInvalidBinding()
-        {
-            var request = "";
-            var exception = new Exception();
-            BindingManager.AddComponent(new TestBindingExpressionParserComponent
-            {
-                TryParseBindingExpression = (m, o, arg3) =>
-                {
-                    m.ShouldEqual(BindingManager);
-                    o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
-                    throw exception;
-                }
-            });
-
-            var expression = BindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
-            expression.ShouldNotBeNull();
-
-            var binding = (InvalidBinding)expression.Build(this, this, DefaultMetadata);
-            binding.Exception.ShouldEqual(exception);
-        }
-
-        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -79,5 +54,30 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 binding.Exception.ShouldEqual(exception);
             }
         }
+
+        [Fact]
+        public void TryParseBindingExpressionShouldWrapExceptionToInvalidBinding()
+        {
+            var request = "";
+            var exception = new Exception();
+            BindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (m, o, arg3) =>
+                {
+                    m.ShouldEqual(BindingManager);
+                    o.ShouldEqual(request);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    throw exception;
+                }
+            });
+
+            var expression = BindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
+            expression.ShouldNotBeNull();
+
+            var binding = (InvalidBinding)expression.Build(this, this, DefaultMetadata);
+            binding.Exception.ShouldEqual(exception);
+        }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
     }
 }

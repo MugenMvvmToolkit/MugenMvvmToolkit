@@ -2,7 +2,6 @@
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Tests.Components;
-using MugenMvvm.UnitTests.Components.Internal;
 using Should;
 using Xunit;
 
@@ -10,6 +9,10 @@ namespace MugenMvvm.UnitTests.Components
 {
     public class ComponentCollectionManagerTest : ComponentOwnerTestBase<IComponentCollectionManager>
     {
+        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
+        {
+        }
+
         [Fact]
         public void GetComponentCollectionShouldBeHandledByComponents()
         {
@@ -61,10 +64,6 @@ namespace MugenMvvm.UnitTests.Components
 
         [Fact]
         public void GetComponentCollectionShouldUseComponentCollectionAsFallback() => ComponentCollectionManager.GetComponentCollection(this).ShouldBeType<ComponentCollection>();
-
-        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
-        {
-        }
 
         protected override IComponentCollectionManager GetComponentCollectionManager() => GetComponentOwner();
 

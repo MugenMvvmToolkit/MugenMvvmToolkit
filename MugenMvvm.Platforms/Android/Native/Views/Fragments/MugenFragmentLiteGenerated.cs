@@ -67,20 +67,6 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         {
         }
 
-        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
-
-        public virtual unsafe Context Context
-        {
-            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getContext' and count(parameter)=0]"
-            [Register("getContext", "()Landroid/content/Context;", "GetGetContextHandler")]
-            get
-            {
-                const string __id = "getContext.()Landroid/content/Context;";
-                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
-                return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
-            }
-        }
-
         public virtual unsafe View View
         {
             // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getView' and count(parameter)=0]"
@@ -114,6 +100,18 @@ namespace MugenMvvm.Android.Native.Views.Fragments
                 const string __id = "getFragment.()Ljava/lang/Object;";
                 var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
                 return GetObject<Object>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
+            }
+        }
+
+        public virtual unsafe Context Context
+        {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='getContext' and count(parameter)=0]"
+            [Register("getContext", "()Landroid/content/Context;", "GetGetContextHandler")]
+            get
+            {
+                const string __id = "getContext.()Landroid/content/Context;";
+                var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
+                return GetObject<Context>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
             }
         }
 
@@ -155,6 +153,8 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         protected override IntPtr ThresholdClass => _members.JniPeerType.PeerReference.Handle;
 
         protected override Type ThresholdType => _members.ManagedPeerType;
+
+        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
 
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.fragments']/class[@name='MugenFragmentLite']/method[@name='onCreate' and count(parameter)=1 and parameter[1][@type='android.os.Bundle']]"
         [Register("onCreate", "(Landroid/os/Bundle;)V", "GetOnCreate_Landroid_os_Bundle_Handler")]
@@ -251,7 +251,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetGetContextHandler()
         {
             if (cb_getContext == null)
-                cb_getContext = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetContext);
+                cb_getContext = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>)n_GetContext);
             return cb_getContext;
         }
 
@@ -265,7 +265,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetGetFragmentHandler()
         {
             if (cb_getFragment == null)
-                cb_getFragment = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetFragment);
+                cb_getFragment = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>)n_GetFragment);
             return cb_getFragment;
         }
 
@@ -279,7 +279,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetGetStateHandler()
         {
             if (cb_getState == null)
-                cb_getState = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetState);
+                cb_getState = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>)n_GetState);
             return cb_getState;
         }
 
@@ -293,7 +293,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetSetState_Ljava_lang_Object_Handler()
         {
             if (cb_setState_Ljava_lang_Object_ == null)
-                cb_setState_Ljava_lang_Object_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>) n_SetState_Ljava_lang_Object_);
+                cb_setState_Ljava_lang_Object_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>)n_SetState_Ljava_lang_Object_);
             return cb_setState_Ljava_lang_Object_;
         }
 
@@ -308,7 +308,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetGetViewHandler()
         {
             if (cb_getView == null)
-                cb_getView = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetView);
+                cb_getView = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>)n_GetView);
             return cb_getView;
         }
 
@@ -322,7 +322,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetGetViewIdHandler()
         {
             if (cb_getViewId == null)
-                cb_getViewId = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, int>) n_GetViewId);
+                cb_getViewId = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, int>)n_GetViewId);
             return cb_getViewId;
         }
 
@@ -336,7 +336,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnCreate_Landroid_os_Bundle_Handler()
         {
             if (cb_onCreate_Landroid_os_Bundle_ == null)
-                cb_onCreate_Landroid_os_Bundle_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>) n_OnCreate_Landroid_os_Bundle_);
+                cb_onCreate_Landroid_os_Bundle_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>)n_OnCreate_Landroid_os_Bundle_);
             return cb_onCreate_Landroid_os_Bundle_;
         }
 
@@ -354,7 +354,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
             {
                 cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_ =
                     JNINativeWrapper.CreateDelegate(
-                        (Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>) n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_);
+                        (Func<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr, IntPtr>)n_OnCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_);
             }
 
             return cb_onCreateView_Landroid_view_LayoutInflater_Landroid_view_ViewGroup_Landroid_os_Bundle_;
@@ -376,7 +376,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnDestroyHandler()
         {
             if (cb_onDestroy == null)
-                cb_onDestroy = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>) n_OnDestroy);
+                cb_onDestroy = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>)n_OnDestroy);
             return cb_onDestroy;
         }
 
@@ -390,7 +390,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnDestroyViewHandler()
         {
             if (cb_onDestroyView == null)
-                cb_onDestroyView = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>) n_OnDestroyView);
+                cb_onDestroyView = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>)n_OnDestroyView);
             return cb_onDestroyView;
         }
 
@@ -404,7 +404,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnPauseHandler()
         {
             if (cb_onPause == null)
-                cb_onPause = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>) n_OnPause);
+                cb_onPause = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>)n_OnPause);
             return cb_onPause;
         }
 
@@ -418,7 +418,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnResumeHandler()
         {
             if (cb_onResume == null)
-                cb_onResume = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>) n_OnResume);
+                cb_onResume = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>)n_OnResume);
             return cb_onResume;
         }
 
@@ -432,7 +432,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnSaveInstanceState_Landroid_os_Bundle_Handler()
         {
             if (cb_onSaveInstanceState_Landroid_os_Bundle_ == null)
-                cb_onSaveInstanceState_Landroid_os_Bundle_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>) n_OnSaveInstanceState_Landroid_os_Bundle_);
+                cb_onSaveInstanceState_Landroid_os_Bundle_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>)n_OnSaveInstanceState_Landroid_os_Bundle_);
             return cb_onSaveInstanceState_Landroid_os_Bundle_;
         }
 
@@ -447,7 +447,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnStartHandler()
         {
             if (cb_onStart == null)
-                cb_onStart = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>) n_OnStart);
+                cb_onStart = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>)n_OnStart);
             return cb_onStart;
         }
 
@@ -461,7 +461,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetOnStopHandler()
         {
             if (cb_onStop == null)
-                cb_onStop = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>) n_OnStop);
+                cb_onStop = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr>)n_OnStop);
             return cb_onStop;
         }
 
@@ -475,7 +475,7 @@ namespace MugenMvvm.Android.Native.Views.Fragments
         private static Delegate GetSetViewResourceId_IHandler()
         {
             if (cb_setViewResourceId_I == null)
-                cb_setViewResourceId_I = JNINativeWrapper.CreateDelegate((_JniMarshal_PPI_V) n_SetViewResourceId_I);
+                cb_setViewResourceId_I = JNINativeWrapper.CreateDelegate((_JniMarshal_PPI_V)n_SetViewResourceId_I);
             return cb_setViewResourceId_I;
         }
 

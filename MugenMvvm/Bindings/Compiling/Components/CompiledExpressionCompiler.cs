@@ -13,6 +13,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
         public int Priority { get; init; } = CompilingComponentPriority.LinqCompiler;
 
         public ICompiledExpression TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata) =>
-            new CompiledExpression(expression, metadata) {ExpressionBuilders = compiler.GetComponents<IExpressionBuilderComponent>(metadata)};
+            new CompiledExpression(expression, metadata) { ExpressionBuilders = compiler.GetComponents<IExpressionBuilderComponent>(metadata) };
     }
 }

@@ -18,11 +18,11 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
         {
             Mapping = new Dictionary<char, ItemOrArray<UnaryTokenType>>(7)
             {
-                {UnaryTokenType.Minus.Value[0], UnaryTokenType.Minus},
-                {UnaryTokenType.Plus.Value[0], UnaryTokenType.Plus},
-                {UnaryTokenType.BitwiseNegation.Value[0], UnaryTokenType.BitwiseNegation},
-                {UnaryTokenType.LogicalNegation.Value[0], UnaryTokenType.LogicalNegation},
-                {UnaryTokenType.DynamicExpression.Value[0], new[] {UnaryTokenType.StaticExpression, UnaryTokenType.DynamicExpression}}
+                { UnaryTokenType.Minus.Value[0], UnaryTokenType.Minus },
+                { UnaryTokenType.Plus.Value[0], UnaryTokenType.Plus },
+                { UnaryTokenType.BitwiseNegation.Value[0], UnaryTokenType.BitwiseNegation },
+                { UnaryTokenType.LogicalNegation.Value[0], UnaryTokenType.LogicalNegation },
+                { UnaryTokenType.DynamicExpression.Value[0], new[] { UnaryTokenType.StaticExpression, UnaryTokenType.DynamicExpression } }
             };
         }
 

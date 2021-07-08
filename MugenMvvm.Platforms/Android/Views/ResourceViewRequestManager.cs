@@ -23,24 +23,6 @@ namespace MugenMvvm.Android.Views
         {
         }
 
-        private static Object? TryGetParentView(IViewManager viewManager, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata)
-        {
-            if (viewModel == null)
-                return null;
-
-            var parentVm = viewModel.GetOrDefault(ViewModelMetadata.ParentViewModel);
-            if (parentVm == null)
-                return null;
-
-            foreach (var view in viewManager.GetViews(parentVm, metadata))
-            {
-                if (view.Target is Object obj)
-                    return obj;
-            }
-
-            return null;
-        }
-
         public ValueTask<IView?> TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
@@ -83,5 +65,23 @@ namespace MugenMvvm.Android.Views
 
         public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
+
+        private static Object? TryGetParentView(IViewManager viewManager, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata)
+        {
+            if (viewModel == null)
+                return null;
+
+            var parentVm = viewModel.GetOrDefault(ViewModelMetadata.ParentViewModel);
+            if (parentVm == null)
+                return null;
+
+            foreach (var view in viewManager.GetViews(parentVm, metadata))
+            {
+                if (view.Target is Object obj)
+                    return obj;
+            }
+
+            return null;
+        }
     }
 }

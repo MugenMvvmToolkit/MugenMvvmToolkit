@@ -18,9 +18,9 @@ namespace MugenMvvm.Extensions
 
         internal static readonly Dictionary<Type, MethodInfo> RawMethodMapping = new(3, InternalEqualityComparer.Type)
         {
-            {typeof(ItemOrArray<>), typeof(ItemOrArray).GetMethodOrThrow(nameof(ItemOrArray.FromRawValue), BindingFlagsEx.StaticPublic)},
-            {typeof(ItemOrIEnumerable<>), typeof(ItemOrIEnumerable).GetMethodOrThrow(nameof(ItemOrIEnumerable.FromRawValue), BindingFlagsEx.StaticPublic)},
-            {typeof(ItemOrIReadOnlyList<>), typeof(ItemOrIReadOnlyList).GetMethodOrThrow(nameof(ItemOrIReadOnlyList.FromRawValue), BindingFlagsEx.StaticPublic)}
+            { typeof(ItemOrArray<>), typeof(ItemOrArray).GetMethodOrThrow(nameof(ItemOrArray.FromRawValue), BindingFlagsEx.StaticPublic) },
+            { typeof(ItemOrIEnumerable<>), typeof(ItemOrIEnumerable).GetMethodOrThrow(nameof(ItemOrIEnumerable.FromRawValue), BindingFlagsEx.StaticPublic) },
+            { typeof(ItemOrIReadOnlyList<>), typeof(ItemOrIReadOnlyList).GetMethodOrThrow(nameof(ItemOrIReadOnlyList.FromRawValue), BindingFlagsEx.StaticPublic) }
         };
 
         private static readonly Expression ItemOrArrayListFieldExpression =
@@ -40,7 +40,7 @@ namespace MugenMvvm.Extensions
             if (type == typeof(void) || type == expression.Type)
                 return expression;
             if (expression.Type == typeof(void))
-                return Expression.Block(expression, type == typeof(object) ? NullConstantExpression : (Expression) Expression.Default(type));
+                return Expression.Block(expression, type == typeof(object) ? NullConstantExpression : Expression.Default(type));
             if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;
             if (type.IsByRef && expression is ParameterExpression parameterExpression && parameterExpression.IsByRef && parameterExpression.Type == type.GetElementType())
@@ -127,7 +127,7 @@ namespace MugenMvvm.Extensions
         private static class ParameterExpressionCache<TType>
         {
             public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
-            public static readonly ParameterExpression[] Parameters = {Parameter};
+            public static readonly ParameterExpression[] Parameters = { Parameter };
         }
     }
 }

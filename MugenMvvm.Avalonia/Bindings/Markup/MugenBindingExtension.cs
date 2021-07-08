@@ -14,24 +14,9 @@ namespace MugenMvvm.Avalonia.Bindings.Markup
 {
     public sealed partial class MugenBindingExtension : IBinding
     {
-        private static void RegisterAttached(object target, AvaloniaProperty property)
-        {
-            var targetType = target.GetType();
-            var path = property.Name;
-            var member = MugenService.MemberManager.TryGetMembers(targetType, MemberType.Accessor, MemberFlags.InstancePublicAll, path).Item;
-            if (member == null || !member.MemberFlags.HasFlag(MemberFlags.Attached))
-            {
-                MugenService.MemberManager
-                            .GetAttachedMemberProvider()
-                            .Register(new DelegateAccessorMemberInfo<IAvaloniaObject, object?, AvaloniaProperty>(path, targetType, property.PropertyType,
-                                MemberFlags.InstancePublic | MemberFlags.Attached, property, property, (info, o, _) => o.GetValue(info.State),
-                                (info, o, value, _) => o.SetValue(info.State, value), null, null));
-            }
-        }
-
         public object? ProvideValue(IServiceProvider serviceProvider)
         {
-            var provideValueTarget = (IProvideValueTarget?) serviceProvider.GetService(typeof(IProvideValueTarget));
+            var provideValueTarget = (IProvideValueTarget?)serviceProvider.GetService(typeof(IProvideValueTarget));
             if (provideValueTarget == null)
                 return AvaloniaProperty.UnsetValue;
 
@@ -65,6 +50,21 @@ namespace MugenMvvm.Avalonia.Bindings.Markup
             return _defaultValue;
         }
 
+        private static void RegisterAttached(object target, AvaloniaProperty property)
+        {
+            var targetType = target.GetType();
+            var path = property.Name;
+            var member = MugenService.MemberManager.TryGetMembers(targetType, MemberType.Accessor, MemberFlags.InstancePublicAll, path).Item;
+            if (member == null || !member.MemberFlags.HasFlag(MemberFlags.Attached))
+            {
+                MugenService.MemberManager
+                            .GetAttachedMemberProvider()
+                            .Register(new DelegateAccessorMemberInfo<IAvaloniaObject, object?, AvaloniaProperty>(path, targetType, property.PropertyType,
+                                MemberFlags.InstancePublic | MemberFlags.Attached, property, property, (info, o, _) => o.GetValue(info.State),
+                                (info, o, value, _) => o.SetValue(info.State, value), null, null));
+            }
+        }
+
         private object Initialize(object target, object targetProperty)
         {
             if (targetProperty is AvaloniaProperty avaloniaProperty)
@@ -75,7 +75,7 @@ namespace MugenMvvm.Avalonia.Bindings.Markup
                 return this;
             }
 
-            _targetPath = (string) targetProperty;
+            _targetPath = (string)targetProperty;
             var eventInfo = target.GetType().GetEvent(_targetPath, BindingFlagsEx.InstancePublic);
             if (eventInfo == null)
                 return this;

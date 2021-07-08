@@ -10,16 +10,6 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 {
     public class BinaryExpressionBuilderTest : ExpressionBuilderTestBase<BinaryExpressionBuilder>
     {
-        [Fact]
-        public void TryBuildShouldIgnoreNotBinaryExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
-
-        [Fact]
-        public void TryBuildShouldIgnoreNotSupportBinaryExpression()
-        {
-            Builder.Mapping.Clear();
-            Builder.TryBuild(Context, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
-        }
-
         [Theory]
         [MemberData(nameof(GetData))]
         public void TryBuildShouldBuildBinaryExpression(IBinaryExpressionNode binaryExpression, object result, bool invalid)
@@ -33,6 +23,16 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expression = Builder.TryBuild(Context, binaryExpression)!;
             expression.ShouldNotBeNull();
             expression.Invoke().ShouldEqual(result);
+        }
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotBinaryExpression() => Builder.TryBuild(Context, ConstantExpressionNode.False).ShouldBeNull();
+
+        [Fact]
+        public void TryBuildShouldIgnoreNotSupportBinaryExpression()
+        {
+            Builder.Mapping.Clear();
+            Builder.TryBuild(Context, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
         }
 
         public static IEnumerable<object?[]> GetData() =>

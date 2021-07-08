@@ -22,6 +22,19 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _initializer = new InlineBindingExpressionInitializer();
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldIgnoreBindingMemberContext(bool isStatic)
+        {
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter,
+                new TestBindingMemberExpressionNode { MemberFlags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll }, default, null);
+
+            _initializer.UseOneTimeModeForStaticMembersImplicit = false;
+            _initializer.Initialize(null!, _context);
+            _context.Components.Count.ShouldEqual(0);
+        }
+
         [Fact]
         public void ShouldIgnoreBindingModeContext()
         {
@@ -56,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [Fact]
         public void ShouldSetOneTimeModeStaticExpression()
         {
-            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, new TestBindingMemberExpressionNode {MemberFlags = MemberFlags.StaticAll}, default,
+            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter, new TestBindingMemberExpressionNode { MemberFlags = MemberFlags.StaticAll }, default,
                 null);
 
             _initializer.UseOneTimeModeForStaticMembersImplicit = true;
@@ -64,19 +77,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var pair = _context.Components.Single();
             pair.Key.ShouldEqual(BindingParameterNameConstant.Mode);
             pair.Value.ShouldEqual(OneTimeBindingMode.Instance);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ShouldIgnoreBindingMemberContext(bool isStatic)
-        {
-            _context.Initialize(this, this, MemberExpressionNode.TargetNullValueParameter,
-                new TestBindingMemberExpressionNode {MemberFlags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll}, default, null);
-
-            _initializer.UseOneTimeModeForStaticMembersImplicit = false;
-            _initializer.Initialize(null!, _context);
-            _context.Components.Count.ShouldEqual(0);
         }
     }
 }

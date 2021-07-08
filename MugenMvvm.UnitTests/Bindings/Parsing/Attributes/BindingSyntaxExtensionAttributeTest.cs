@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Attributes
         [Fact]
         public void TryGetShouldReturnCorrectAttribute()
         {
-            var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingSyntaxExtensionAttributeTest))!;
+            var attribute = (BindingMacrosAttribute)BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingSyntaxExtensionAttributeTest))!;
             attribute.ResourceName.ShouldEqual(Name);
             attribute.IsStatic.ShouldBeTrue();
 

@@ -10,7 +10,6 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Tests.Bindings.Parsing;
-using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using MugenMvvm.UnitTests.Metadata;
 using Should;
 using Xunit;
@@ -24,6 +23,39 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         public ExpressionConverterContextTest()
         {
             _context = new ExpressionConverterContext<Expression>();
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(100)]
+        public void ConvertShouldBeHandledByConverters(int componentCount)
+        {
+            var invokeCount = 0;
+            var list = new List<IExpressionConverterComponent<Expression>>();
+            var constantExpression = Expression.Constant("");
+            var result = ConstantExpressionNode.Null;
+            for (var i = 0; i < componentCount; i++)
+            {
+                var isLast = i == componentCount - 1;
+                var component = new TestExpressionConverterComponent<Expression>
+                {
+                    Priority = -i,
+                    TryConvert = (ctx, ex) =>
+                    {
+                        ++invokeCount;
+                        ctx.ShouldEqual(_context);
+                        ex.ShouldEqual(constantExpression);
+                        if (isLast)
+                            return result;
+                        return null;
+                    }
+                };
+                list.Add(component);
+            }
+
+            _context.Converters = list.ToArray();
+            _context.Convert(constantExpression).ShouldEqual(result);
+            invokeCount.ShouldEqual(componentCount);
         }
 
         [Fact]
@@ -78,39 +110,6 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                 _context.ClearExpression(valueTuples[i].Item1);
                 _context.TryGetExpression(valueTuples[i].Item1).ShouldBeNull();
             }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(100)]
-        public void ConvertShouldBeHandledByConverters(int componentCount)
-        {
-            var invokeCount = 0;
-            var list = new List<IExpressionConverterComponent<Expression>>();
-            var constantExpression = Expression.Constant("");
-            var result = ConstantExpressionNode.Null;
-            for (var i = 0; i < componentCount; i++)
-            {
-                var isLast = i == componentCount - 1;
-                var component = new TestExpressionConverterComponent<Expression>
-                {
-                    Priority = -i,
-                    TryConvert = (ctx, ex) =>
-                    {
-                        ++invokeCount;
-                        ctx.ShouldEqual(_context);
-                        ex.ShouldEqual(constantExpression);
-                        if (isLast)
-                            return result;
-                        return null;
-                    }
-                };
-                list.Add(component);
-            }
-
-            _context.Converters = list.ToArray();
-            _context.Convert(constantExpression).ShouldEqual(result);
-            invokeCount.ShouldEqual(componentCount);
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)

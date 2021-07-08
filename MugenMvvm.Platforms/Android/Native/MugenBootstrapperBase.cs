@@ -34,8 +34,6 @@ namespace MugenMvvm.Android.Native
         {
         }
 
-        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
-
         public override JniPeerMembers JniPeerMembers => _members;
 
         protected abstract int Flags
@@ -61,6 +59,8 @@ namespace MugenMvvm.Android.Native
 
         protected override Type ThresholdType => _members.ManagedPeerType;
 
+        internal static IntPtr class_ref => _members.JniPeerType.PeerReference.Handle;
+
         // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm']/class[@name='MugenBootstrapperBase']/method[@name='initialize' and count(parameter)=0]"
         [Register("initialize", "()V", "GetInitializeHandler")]
         protected abstract void Initialize();
@@ -68,7 +68,7 @@ namespace MugenMvvm.Android.Native
         private static Delegate GetGetFlagsHandler()
         {
             if (cb_getFlags == null)
-                cb_getFlags = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_I) n_GetFlags);
+                cb_getFlags = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_I)n_GetFlags);
             return cb_getFlags;
         }
 
@@ -82,7 +82,7 @@ namespace MugenMvvm.Android.Native
         private static Delegate GetGetRootActivityHandler()
         {
             if (cb_getRootActivity == null)
-                cb_getRootActivity = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_L) n_GetRootActivity);
+                cb_getRootActivity = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_L)n_GetRootActivity);
             return cb_getRootActivity;
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.Android.Native
         private static Delegate GetInitializeHandler()
         {
             if (cb_initialize == null)
-                cb_initialize = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_V) n_Initialize);
+                cb_initialize = JNINativeWrapper.CreateDelegate((_JniMarshal_PP_V)n_Initialize);
             return cb_initialize;
         }
 

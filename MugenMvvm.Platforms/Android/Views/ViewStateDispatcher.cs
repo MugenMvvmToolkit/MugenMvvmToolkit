@@ -37,6 +37,16 @@ namespace MugenMvvm.Android.Views
 
         public int Priority { get; init; } = ViewComponentPriority.StateManager;
 
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(state, out var bundle))
+                PreserveState(v, bundle, metadata);
+            else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(state, out bundle))
+                TryRestore(viewManager, view, bundle, state, metadata);
+            else if (lifecycleState == AndroidViewLifecycleState.Created)
+                TryRestore(viewManager, view, null, state, metadata);
+        }
+
         private static bool TryGetBundle(object? state, [NotNullWhen(true)] out Bundle? bundle)
         {
             while (true)
@@ -65,16 +75,6 @@ namespace MugenMvvm.Android.Views
         }
 
         private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityMugenExtensions.GetViewModelId(activityView) : null;
-
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(state, out var bundle))
-                PreserveState(v, bundle, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(state, out bundle))
-                TryRestore(viewManager, view, bundle, state, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Created)
-                TryRestore(viewManager, view, null, state, metadata);
-        }
 
         private void TryRestore(IViewManager viewManager, object view, Bundle? b, object? state, IReadOnlyMetadataContext? metadata)
         {

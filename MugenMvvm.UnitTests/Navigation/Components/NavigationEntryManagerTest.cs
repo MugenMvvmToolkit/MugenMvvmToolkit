@@ -13,7 +13,6 @@ using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presentation;
 using MugenMvvm.Tests.Navigation;
 using MugenMvvm.Tests.Presentation;
-using MugenMvvm.UnitTests.Presentation.Internal;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -30,6 +29,159 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             _entryManager = new NavigationEntryManager();
             NavigationDispatcher.AddComponent(_entryManager);
             Presenter.AddComponent(_entryManager);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void OnNavigatedShouldTrackEntriesAdd(int count)
+        {
+            var contexts = new List<NavigationContext>();
+            NavigationContext? ctx = null;
+            var invokedCount = 0;
+
+            for (var i = 0; i < count; i++)
+            {
+                NavigationDispatcher.AddComponent(new TestNavigationEntryListener
+                {
+                    OnNavigationEntryAdded = (m, entry, arg3) =>
+                    {
+                        ++invokedCount;
+                        m.ShouldEqual(NavigationDispatcher);
+                        arg3.ShouldEqual(ctx);
+                        entry.IsPending.ShouldBeFalse();
+                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
+                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                    },
+                    OnNavigationEntryRemoved = (_, _, _) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (_, _, _) => throw new NotSupportedException()
+                });
+            }
+
+            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
+            foreach (var navigationType in NavigationType.GetAll())
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
+                    ctx.Metadata.Set(Key, i);
+                    NavigationDispatcher.OnNavigated(ctx);
+                    contexts.Add(ctx);
+                }
+            }
+
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
+            invokedCount.ShouldEqual(contexts.Count * count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void OnNavigatedShouldTrackEntriesRemove(int count)
+        {
+            var contexts = new List<NavigationContext>();
+            NavigationContext? ctx = null;
+
+            foreach (var closeMode in NavigationMode.GetAll().Where(mode => mode.IsClose))
+            {
+                NavigationDispatcher.Components.Clear();
+                NavigationDispatcher.AddComponent(_entryManager);
+                var invokedCount = 0;
+                foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
+                foreach (var navigationType in NavigationType.GetAll())
+                {
+                    for (var i = 0; i < count; i++)
+                    {
+                        ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
+                        ctx.Metadata.Set(Key, i);
+                        NavigationDispatcher.OnNavigated(ctx);
+                        contexts.Add(ctx);
+                    }
+                }
+
+                for (var i = 0; i < count; i++)
+                {
+                    var listener = new TestNavigationEntryListener
+                    {
+                        OnNavigationEntryAdded = (_, _, _) => throw new NotSupportedException(),
+                        OnNavigationEntryRemoved = (_, entry, arg3) =>
+                        {
+                            ++invokedCount;
+                            arg3.ShouldEqual(ctx);
+                            entry.IsPending.ShouldBeFalse();
+                            entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
+                            entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                            entry.NavigationId.ShouldEqual(arg3!.NavigationId);
+                            entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                        },
+                        OnNavigationEntryUpdated = (_, _, _) => throw new NotSupportedException()
+                    };
+                    NavigationDispatcher.AddComponent(listener);
+                }
+
+                foreach (var navigationContext in contexts)
+                {
+                    ctx = new NavigationContext(this, navigationContext.NavigationProvider, navigationContext.NavigationId, navigationContext.NavigationType, closeMode,
+                        navigationContext.Metadata);
+                    NavigationDispatcher.OnNavigated(ctx);
+                }
+
+                invokedCount.ShouldEqual(contexts.Count * count);
+                contexts.Clear();
+                ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
+            }
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void OnNavigatedShouldTrackEntriesUpdate(int count)
+        {
+            var contexts = new List<NavigationContext>();
+            NavigationContext? ctx = null;
+            var invokedCount = 0;
+
+            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
+            foreach (var navigationType in NavigationType.GetAll())
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
+                    ctx.Metadata.Set(Key, i);
+                    NavigationDispatcher.OnNavigated(ctx);
+                    contexts.Add(ctx);
+                }
+            }
+
+            for (var i = 0; i < count; i++)
+            {
+                NavigationDispatcher.AddComponent(new TestNavigationEntryListener
+                {
+                    OnNavigationEntryAdded = (_, _, _) => throw new NotSupportedException(),
+                    OnNavigationEntryRemoved = (_, _, _) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (_, entry, arg3) =>
+                    {
+                        ++invokedCount;
+                        arg3!.ShouldEqual(ctx);
+                        entry.IsPending.ShouldBeFalse();
+                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
+                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                    }
+                });
+            }
+
+            foreach (var navigationContext in contexts)
+            {
+                ctx = navigationContext;
+                NavigationDispatcher.OnNavigated(navigationContext);
+            }
+
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
+            invokedCount.ShouldEqual(contexts.Count * count);
         }
 
         [Fact]
@@ -52,9 +204,50 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             entries.Single(entry => entry.NavigationId == navigationContext.NavigationId).IsPending.ShouldBeFalse();
         }
 
-        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void OnNavigatingShouldTrackEntriesAdd(int count)
+        {
+            var contexts = new List<NavigationContext>();
+            NavigationContext? ctx = null;
+            var invokedCount = 0;
 
-        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
+            for (var i = 0; i < count; i++)
+            {
+                NavigationDispatcher.AddComponent(new TestNavigationEntryListener
+                {
+                    OnNavigationEntryAdded = (m, entry, arg3) =>
+                    {
+                        ++invokedCount;
+                        m.ShouldEqual(NavigationDispatcher);
+                        arg3.ShouldEqual(ctx);
+                        entry.IsPending.ShouldBeTrue();
+                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
+                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
+                    },
+                    OnNavigationEntryRemoved = (_, _, _) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (_, _, _) => throw new NotSupportedException()
+                });
+            }
+
+            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
+            foreach (var navigationType in NavigationType.GetAll())
+            {
+                for (var i = 0; i < count; i++)
+                {
+                    ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
+                    ctx.Metadata.Set(Key, i);
+                    NavigationDispatcher.OnNavigating(ctx);
+                    contexts.Add(ctx);
+                }
+            }
+
+            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts, true);
+            invokedCount.ShouldEqual(contexts.Count * count);
+        }
 
         [Theory]
         [InlineData(nameof(NavigationMode.New), true)]
@@ -127,204 +320,6 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void OnNavigatingShouldTrackEntriesAdd(int count)
-        {
-            var contexts = new List<NavigationContext>();
-            NavigationContext? ctx = null;
-            var invokedCount = 0;
-
-            for (var i = 0; i < count; i++)
-            {
-                NavigationDispatcher.AddComponent(new TestNavigationEntryListener
-                {
-                    OnNavigationEntryAdded = (m, entry, arg3) =>
-                    {
-                        ++invokedCount;
-                        m.ShouldEqual(NavigationDispatcher);
-                        arg3.ShouldEqual(ctx);
-                        entry.IsPending.ShouldBeTrue();
-                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
-                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
-                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
-                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
-                    },
-                    OnNavigationEntryRemoved = (_, _, _) => throw new NotSupportedException(),
-                    OnNavigationEntryUpdated = (_, _, _) => throw new NotSupportedException()
-                });
-            }
-
-            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-            foreach (var navigationType in NavigationType.GetAll())
-            {
-                for (var i = 0; i < count; i++)
-                {
-                    ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
-                    ctx.Metadata.Set(Key, i);
-                    NavigationDispatcher.OnNavigating(ctx);
-                    contexts.Add(ctx);
-                }
-            }
-
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts, true);
-            invokedCount.ShouldEqual(contexts.Count * count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void OnNavigatedShouldTrackEntriesAdd(int count)
-        {
-            var contexts = new List<NavigationContext>();
-            NavigationContext? ctx = null;
-            var invokedCount = 0;
-
-            for (var i = 0; i < count; i++)
-            {
-                NavigationDispatcher.AddComponent(new TestNavigationEntryListener
-                {
-                    OnNavigationEntryAdded = (m, entry, arg3) =>
-                    {
-                        ++invokedCount;
-                        m.ShouldEqual(NavigationDispatcher);
-                        arg3.ShouldEqual(ctx);
-                        entry.IsPending.ShouldBeFalse();
-                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
-                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
-                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
-                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
-                    },
-                    OnNavigationEntryRemoved = (_, _, _) => throw new NotSupportedException(),
-                    OnNavigationEntryUpdated = (_, _, _) => throw new NotSupportedException()
-                });
-            }
-
-            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-            foreach (var navigationType in NavigationType.GetAll())
-            {
-                for (var i = 0; i < count; i++)
-                {
-                    ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
-                    ctx.Metadata.Set(Key, i);
-                    NavigationDispatcher.OnNavigated(ctx);
-                    contexts.Add(ctx);
-                }
-            }
-
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
-            invokedCount.ShouldEqual(contexts.Count * count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void OnNavigatedShouldTrackEntriesUpdate(int count)
-        {
-            var contexts = new List<NavigationContext>();
-            NavigationContext? ctx = null;
-            var invokedCount = 0;
-
-            foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-            foreach (var navigationType in NavigationType.GetAll())
-            {
-                for (var i = 0; i < count; i++)
-                {
-                    ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
-                    ctx.Metadata.Set(Key, i);
-                    NavigationDispatcher.OnNavigated(ctx);
-                    contexts.Add(ctx);
-                }
-            }
-
-            for (var i = 0; i < count; i++)
-            {
-                NavigationDispatcher.AddComponent(new TestNavigationEntryListener
-                {
-                    OnNavigationEntryAdded = (_, _, _) => throw new NotSupportedException(),
-                    OnNavigationEntryRemoved = (_, _, _) => throw new NotSupportedException(),
-                    OnNavigationEntryUpdated = (_, entry, arg3) =>
-                    {
-                        ++invokedCount;
-                        arg3!.ShouldEqual(ctx);
-                        entry.IsPending.ShouldBeFalse();
-                        entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
-                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
-                        entry.NavigationId.ShouldEqual(arg3!.NavigationId);
-                        entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
-                    }
-                });
-            }
-
-            foreach (var navigationContext in contexts)
-            {
-                ctx = navigationContext;
-                NavigationDispatcher.OnNavigated(navigationContext);
-            }
-
-            ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
-            invokedCount.ShouldEqual(contexts.Count * count);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void OnNavigatedShouldTrackEntriesRemove(int count)
-        {
-            var contexts = new List<NavigationContext>();
-            NavigationContext? ctx = null;
-
-            foreach (var closeMode in NavigationMode.GetAll().Where(mode => mode.IsClose))
-            {
-                NavigationDispatcher.Components.Clear();
-                NavigationDispatcher.AddComponent(_entryManager);
-                var invokedCount = 0;
-                foreach (var mode in NavigationMode.GetAll().Where(mode => mode.IsRefresh || mode.IsNew))
-                foreach (var navigationType in NavigationType.GetAll())
-                {
-                    for (var i = 0; i < count; i++)
-                    {
-                        ctx = new NavigationContext(this, TestNavigationProvider.Instance, Guid.NewGuid().ToString(), navigationType, mode);
-                        ctx.Metadata.Set(Key, i);
-                        NavigationDispatcher.OnNavigated(ctx);
-                        contexts.Add(ctx);
-                    }
-                }
-
-                for (var i = 0; i < count; i++)
-                {
-                    var listener = new TestNavigationEntryListener
-                    {
-                        OnNavigationEntryAdded = (_, _, _) => throw new NotSupportedException(),
-                        OnNavigationEntryRemoved = (_, entry, arg3) =>
-                        {
-                            ++invokedCount;
-                            arg3.ShouldEqual(ctx);
-                            entry.IsPending.ShouldBeFalse();
-                            entry.NavigationProvider.ShouldEqual(((INavigationContext)arg3!).NavigationProvider);
-                            entry.NavigationType.ShouldEqual(arg3!.NavigationType);
-                            entry.NavigationId.ShouldEqual(arg3!.NavigationId);
-                            entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
-                        },
-                        OnNavigationEntryUpdated = (_, _, _) => throw new NotSupportedException()
-                    };
-                    NavigationDispatcher.AddComponent(listener);
-                }
-
-                foreach (var navigationContext in contexts)
-                {
-                    ctx = new NavigationContext(this, navigationContext.NavigationProvider, navigationContext.NavigationId, navigationContext.NavigationType, closeMode,
-                        navigationContext.Metadata);
-                    NavigationDispatcher.OnNavigated(ctx);
-                }
-
-                invokedCount.ShouldEqual(contexts.Count * count);
-                contexts.Clear();
-                ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts);
-            }
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
         public void TryShowShouldTrackEntriesAdd(int count)
         {
             Presenter.AddComponent(new TestPresenterComponent
@@ -370,6 +365,10 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             ValidateEntries(NavigationDispatcher.GetNavigationEntries(), contexts, true);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
+
+        protected override IPresenter GetPresenter() => new Presenter(ComponentCollectionManager);
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
 
         private static void ValidateEntries(IReadOnlyList<INavigationEntry>? entries, IReadOnlyCollection<IHasNavigationInfo> contexts, bool isPending = false)
         {

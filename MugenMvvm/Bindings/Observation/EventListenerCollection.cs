@@ -34,15 +34,6 @@ namespace MugenMvvm.Bindings.Observation
                 ((EventListenerCollection)collection!).Raise(target, message, metadata);
         }
 
-        internal static int GetCapacity(int size)
-        {
-            if (size == ushort.MaxValue)
-                ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
-            if (size < 6)
-                return size + 2;
-            return Math.Min((int)(size * 1.43f), ushort.MaxValue);
-        }
-
         public virtual void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
@@ -176,6 +167,15 @@ namespace MugenMvvm.Bindings.Observation
 
         protected virtual void OnListenersRemoved()
         {
+        }
+
+        internal static int GetCapacity(int size)
+        {
+            if (size == ushort.MaxValue)
+                ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
+            if (size < 6)
+                return size + 2;
+            return Math.Min((int)(size * 1.43f), ushort.MaxValue);
         }
 
         private void Unsubscribe(object? target)

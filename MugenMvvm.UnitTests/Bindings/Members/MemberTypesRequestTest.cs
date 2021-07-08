@@ -9,7 +9,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
         public void ConstructorShouldInitializeValues()
         {
             string name = "T";
-            var types = new[] {typeof(string)};
+            var types = new[] { typeof(string) };
             var memberTypesRequest = new MemberTypesRequest(name, types);
             memberTypesRequest.Types.ShouldEqual(types);
             memberTypesRequest.Name.ShouldEqual(name);

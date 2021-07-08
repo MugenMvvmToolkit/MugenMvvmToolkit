@@ -208,10 +208,6 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             tryObserveCount.ShouldEqual(1);
         }
 
-        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
-
-        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -259,5 +255,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
             tryObserveCount.ShouldEqual(1);
         }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
+
+        protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }
 }

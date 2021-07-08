@@ -40,7 +40,7 @@ namespace MugenMvvm.Serialization
         public static StaticMemberMemento? Create(object target, Type type, string fieldOrPropertyName)
         {
             var member = type.GetField(fieldOrPropertyName, BindingFlagsEx.StaticOnly) ??
-                         (MemberInfo?) type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
+                         (MemberInfo?)type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
             if (member == null)
             {
                 Logger.Error()?.Log(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
@@ -63,7 +63,7 @@ namespace MugenMvvm.Serialization
             if (Member is PropertyInfo propertyInfo)
                 target = propertyInfo.GetValue(null);
             else
-                target = ((FieldInfo) Member).GetValue(null);
+                target = ((FieldInfo)Member).GetValue(null);
             if (target == null)
                 return default;
             return new MementoResult(target);

@@ -42,7 +42,7 @@ namespace MugenMvvm.Bindings.Observation
             get
             {
                 if (_member == null)
-                    return (Exception?) _target;
+                    return (Exception?)_target;
                 return null;
             }
         }
@@ -91,11 +91,11 @@ namespace MugenMvvm.Bindings.Observation
                 return BindingMetadata.UnsetValue;
             }
 
-            return ((IAccessorMemberInfo) _member).GetValue(_target, metadata);
+            return ((IAccessorMemberInfo)_member).GetValue(_target, metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public object? GetValue(IReadOnlyMetadataContext? metadata = null) => ((IAccessorMemberInfo) _member!).GetValue(_target, metadata);
+        public object? GetValue(IReadOnlyMetadataContext? metadata = null) => ((IAccessorMemberInfo)_member!).GetValue(_target, metadata);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void TrySetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)

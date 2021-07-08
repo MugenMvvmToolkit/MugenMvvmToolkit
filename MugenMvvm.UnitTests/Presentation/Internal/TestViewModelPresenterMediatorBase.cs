@@ -9,7 +9,6 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Internal;
 using MugenMvvm.Presentation;
 
 namespace MugenMvvm.UnitTests.Presentation.Internal

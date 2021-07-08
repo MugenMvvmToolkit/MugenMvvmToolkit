@@ -18,9 +18,9 @@ namespace MugenMvvm.Navigation.Components
 {
     public sealed class NavigationEntryManager : ComponentDecoratorBase<IPresenter, IPresenterComponent>, INavigationEntryProviderComponent, IPresenterComponent
     {
-        private INavigationDispatcher? _navigationDispatcher;
         private readonly Dictionary<NavigationType, List<INavigationEntry>> _navigationEntries;
         private readonly NavigationEntryListener _navigationListener;
+        private INavigationDispatcher? _navigationDispatcher;
 
         [Preserve(Conditional = true)]
         public NavigationEntryManager(int priority = NavigationComponentPriority.EntryManager)
@@ -30,15 +30,27 @@ namespace MugenMvvm.Navigation.Components
             _navigationListener = new NavigationEntryListener(this);
         }
 
-        private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
+        public override void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            for (var i = 0; i < entries.Count; i++)
+            if (owner is INavigationDispatcher navigationDispatcher)
             {
-                if (entries[i].NavigationId == id)
-                    return entries[i];
+                if (Interlocked.CompareExchange(ref _navigationDispatcher, navigationDispatcher, null) != null)
+                    ExceptionManager.ThrowObjectInitialized(this);
+                navigationDispatcher.AddComponent(_navigationListener);
             }
 
-            return null;
+            base.OnAttached(owner, metadata);
+        }
+
+        public override void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is INavigationDispatcher navigationDispatcher)
+            {
+                if (Interlocked.CompareExchange(ref _navigationDispatcher, null, navigationDispatcher) == navigationDispatcher)
+                    navigationDispatcher.RemoveComponent(_navigationListener);
+            }
+
+            base.OnDetached(owner, metadata);
         }
 
         public ItemOrIReadOnlyList<INavigationEntry> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
@@ -64,6 +76,17 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrIReadOnlyList<IPresenterResult> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             => Components.TryClose(presenter, request, cancellationToken, metadata);
+
+        private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
+        {
+            for (var i = 0; i < entries.Count; i++)
+            {
+                if (entries[i].NavigationId == id)
+                    return entries[i];
+            }
+
+            return null;
+        }
 
         private void UpdateEntries(INavigationDispatcher navigationDispatcher, bool isPending, INavigationContext navigationContext, bool isAdd)
             => UpdateEntries(navigationDispatcher, isPending, navigationContext.Target, navigationContext.NavigationProvider, navigationContext, isAdd,
@@ -167,29 +190,6 @@ namespace MugenMvvm.Navigation.Components
                         !navigationContext.NavigationMode.IsClose, navigationContext.GetMetadataOrDefault());
                 }
             }
-        }
-
-        public override void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is INavigationDispatcher navigationDispatcher)
-            {
-                if (Interlocked.CompareExchange(ref _navigationDispatcher, navigationDispatcher, null) != null)
-                    ExceptionManager.ThrowObjectInitialized(this);
-                navigationDispatcher.AddComponent(_navigationListener);
-            }
-
-            base.OnAttached(owner, metadata);
-        }
-
-        public override void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is INavigationDispatcher navigationDispatcher)
-            {
-                if (Interlocked.CompareExchange(ref _navigationDispatcher, null, navigationDispatcher) == navigationDispatcher)
-                    navigationDispatcher.RemoveComponent(_navigationListener);
-            }
-
-            base.OnDetached(owner, metadata);
         }
     }
 }

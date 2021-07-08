@@ -17,7 +17,7 @@ namespace MugenMvvm.Android.Collections
         public virtual Object GetContent(int position)
         {
             var item = GetItemAt(position);
-            var content = (Object) ItemTemplateSelector.SelectTemplate(Owner, item)!;
+            var content = (Object)ItemTemplateSelector.SelectTemplate(Owner, item)!;
             content.BindableMembers().SetDataContext(item);
             content.BindableMembers().SetParent(Owner);
             return content;

@@ -58,6 +58,14 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
         public int Priority { get; init; } = CompilingComponentPriority.Member;
 
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression) =>
+            expression switch
+            {
+                IIndexExpressionNode indexExpression => TryBuildIndex(context, indexExpression),
+                IMethodCallExpressionNode methodCallExpression => TryBuildMethod(context, methodCallExpression),
+                _ => null
+            };
+
         private static void GetBestMethodCandidates(ref ItemOrArray<MethodData> methods, ItemOrArray<ArgumentData> arguments)
         {
             for (var index = 0; index < methods.Count; index++)
@@ -469,14 +477,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
             return Expression.New(ItemOrArrayInternalConstructor, MugenExtensions.NullConstantExpression, Expression.NewArrayInit(typeof(object), args.List!),
                 MugenExtensions.GetConstantExpression(args.Count));
         }
-
-        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression) =>
-            expression switch
-            {
-                IIndexExpressionNode indexExpression => TryBuildIndex(context, indexExpression),
-                IMethodCallExpressionNode methodCallExpression => TryBuildMethod(context, methodCallExpression),
-                _ => null
-            };
 
         private Expression? TryBuildMethod(IExpressionBuilderContext context, IMethodCallExpressionNode methodCallExpression)
         {

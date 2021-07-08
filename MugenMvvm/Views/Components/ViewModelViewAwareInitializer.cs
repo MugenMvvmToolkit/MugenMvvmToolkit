@@ -42,7 +42,7 @@ namespace MugenMvvm.Views.Components
         [Preserve(Conditional = true)]
         public void TryUpdateView<TView>(IView view, bool clear, IReadOnlyMetadataContext? metadata) where TView : class
         {
-            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>) view.ViewModel;
+            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>)view.ViewModel;
             if (clear)
             {
                 if (viewModel.View == view.Target)
@@ -144,7 +144,7 @@ namespace MugenMvvm.Views.Components
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            TryUpdateViewModel(component, ((IView) collection.Owner).ViewModel);
+            TryUpdateViewModel(component, ((IView)collection.Owner).ViewModel);
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
             TryUpdateViewModel(component, null);

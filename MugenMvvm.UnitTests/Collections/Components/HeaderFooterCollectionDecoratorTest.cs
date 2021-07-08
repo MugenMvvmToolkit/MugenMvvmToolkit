@@ -25,19 +25,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.Changed += Assert;
         }
 
-        private static IEnumerable<object?[]> GetData() =>
-            new[]
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public void AddShouldTrackChanges(string[]? header, string[]? footer)
+        {
+            _decorator.Header = header;
+            _decorator.Footer = footer;
+
+            for (var i = 0; i < 100; i++)
             {
-                new object?[] { null, null },
-                new object?[] { new[] { "header" }, null },
-                new object?[] { new[] { "header1", "header2" }, null },
-                new object?[] { null, new[] { "footer" } },
-                new object?[] { null, new[] { "footer1", "footer2" } },
-                new object?[] { new[] { "header" }, new[] { "footer" } },
-                new object?[] { new[] { "header1", "header2" }, new[] { "footer" } },
-                new object?[] { new[] { "header" }, new[] { "footer1", "footer2" } },
-                new object?[] { new[] { "header1", "header2" }, new[] { "footer1", "footer2" } }
-            };
+                _collection.Add(i);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Insert(i, i);
+                Assert();
+            }
+        }
 
         [Theory]
         [MemberData(nameof(GetData))]
@@ -57,26 +63,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.RaiseItemChanged(_collection[i], null);
                 Assert();
                 _tracker.ItemChangedCount.ShouldEqual(i + 1);
-            }
-        }
-
-        [Theory]
-        [MemberData(nameof(GetData))]
-        public void AddShouldTrackChanges(string[]? header, string[]? footer)
-        {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-            {
-                _collection.Add(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Insert(i, i);
-                Assert();
             }
         }
 
@@ -225,42 +211,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         [Theory]
         [MemberData(nameof(GetData))]
-        public void ShouldTrackChanges(string[]? header, string[]? footer)
-        {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
-
-            _collection.Add(1);
-            Assert();
-
-            _collection.Insert(1, 2);
-            Assert();
-
-            _collection.Move(0, 1);
-            Assert();
-
-            _collection.Remove(2);
-            Assert();
-
-            _collection.RemoveAt(0);
-            Assert();
-
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
-            Assert();
-
-            _collection[0] = 200;
-            Assert();
-
-            _collection.Clear();
-            Assert();
-
-            _decorator.Footer = header;
-            _decorator.Header = footer;
-            Assert();
-        }
-
-        [Theory]
-        [MemberData(nameof(GetData))]
         public void ShouldAttachDetach(string[]? header, string[]? footer)
         {
             _collection.RemoveComponent(_decorator);
@@ -317,6 +267,56 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _decorator.Footer = default;
             }
         }
+
+        [Theory]
+        [MemberData(nameof(GetData))]
+        public void ShouldTrackChanges(string[]? header, string[]? footer)
+        {
+            _decorator.Header = header;
+            _decorator.Footer = footer;
+
+            _collection.Add(1);
+            Assert();
+
+            _collection.Insert(1, 2);
+            Assert();
+
+            _collection.Move(0, 1);
+            Assert();
+
+            _collection.Remove(2);
+            Assert();
+
+            _collection.RemoveAt(0);
+            Assert();
+
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            Assert();
+
+            _collection[0] = 200;
+            Assert();
+
+            _collection.Clear();
+            Assert();
+
+            _decorator.Footer = header;
+            _decorator.Header = footer;
+            Assert();
+        }
+
+        private static IEnumerable<object?[]> GetData() =>
+            new[]
+            {
+                new object?[] { null, null },
+                new object?[] { new[] { "header" }, null },
+                new object?[] { new[] { "header1", "header2" }, null },
+                new object?[] { null, new[] { "footer" } },
+                new object?[] { null, new[] { "footer1", "footer2" } },
+                new object?[] { new[] { "header" }, new[] { "footer" } },
+                new object?[] { new[] { "header1", "header2" }, new[] { "footer" } },
+                new object?[] { new[] { "header" }, new[] { "footer1", "footer2" } },
+                new object?[] { new[] { "header1", "header2" }, new[] { "footer1", "footer2" } }
+            };
 
         private void Assert()
         {

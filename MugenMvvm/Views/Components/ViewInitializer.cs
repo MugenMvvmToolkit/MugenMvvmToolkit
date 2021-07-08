@@ -43,7 +43,7 @@ namespace MugenMvvm.Views.Components
         protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.RemoveComponent(this);
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            (component as IInitializableView)?.Initialize((IView) collection.Owner, null, metadata);
+            (component as IInitializableView)?.Initialize((IView)collection.Owner, null, metadata);
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {

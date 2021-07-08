@@ -1,7 +1,7 @@
-﻿using MugenMvvm.Bindings.Compiling;
+﻿using System.Linq;
+using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Compiling.Components;
 using MugenMvvm.Bindings.Interfaces.Compiling;
-using System.Linq;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;

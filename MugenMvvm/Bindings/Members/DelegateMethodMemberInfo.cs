@@ -65,6 +65,6 @@ namespace MugenMvvm.Bindings.Members
             _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
 
         public object? Invoke(object? target, ItemOrArray<object?> args, IReadOnlyMetadataContext? metadata = null) =>
-            BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
+            BoxingExtensions.Box(_invoke(this, (TTarget)target!, args, metadata));
     }
 }

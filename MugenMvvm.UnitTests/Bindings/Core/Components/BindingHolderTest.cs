@@ -23,33 +23,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             BindingManager.AddComponent(_bindingHolder);
         }
 
-        [Fact]
-        public void TryRegisterShouldDisposePrevBinding()
-        {
-            var b1Disposed = false;
-            var b2Disposed = false;
-            var b1 = new TestBinding(ComponentCollectionManager)
-            {
-                Target = new TestMemberPathObserver { Path = MemberPath.Get("T") },
-                Dispose = () => b1Disposed = true
-            };
-            var b2 = new TestBinding(ComponentCollectionManager)
-            {
-                Target = new TestMemberPathObserver { Path = MemberPath.Get("T") },
-                Dispose = () => b2Disposed = true
-            };
-
-            _bindingHolder.TryRegister(BindingManager, this, b1, DefaultMetadata).ShouldBeTrue();
-            b1Disposed.ShouldBeFalse();
-            b2Disposed.ShouldBeFalse();
-
-            _bindingHolder.TryRegister(BindingManager, this, b2, DefaultMetadata).ShouldBeTrue();
-            b1Disposed.ShouldBeTrue();
-            b2Disposed.ShouldBeFalse();
-        }
-
-        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -79,5 +52,32 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 array.ShouldContain(bindings.Skip(i + 1));
             }
         }
+
+        [Fact]
+        public void TryRegisterShouldDisposePrevBinding()
+        {
+            var b1Disposed = false;
+            var b2Disposed = false;
+            var b1 = new TestBinding(ComponentCollectionManager)
+            {
+                Target = new TestMemberPathObserver { Path = MemberPath.Get("T") },
+                Dispose = () => b1Disposed = true
+            };
+            var b2 = new TestBinding(ComponentCollectionManager)
+            {
+                Target = new TestMemberPathObserver { Path = MemberPath.Get("T") },
+                Dispose = () => b2Disposed = true
+            };
+
+            _bindingHolder.TryRegister(BindingManager, this, b1, DefaultMetadata).ShouldBeTrue();
+            b1Disposed.ShouldBeFalse();
+            b2Disposed.ShouldBeFalse();
+
+            _bindingHolder.TryRegister(BindingManager, this, b2, DefaultMetadata).ShouldBeTrue();
+            b1Disposed.ShouldBeTrue();
+            b2Disposed.ShouldBeFalse();
+        }
+
+        protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
     }
 }

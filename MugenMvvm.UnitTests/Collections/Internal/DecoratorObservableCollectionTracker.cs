@@ -30,42 +30,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public List<T> ChangedItems { get; }
 
-        private static void OnAddEvent(List<T> items, IList? newItems, int index)
-        {
-            Should.NotBeNull(newItems, nameof(newItems));
-            foreach (var newItem in newItems.Cast<T>())
-            {
-                items.Insert(index, newItem);
-                index++;
-            }
-        }
-
-        private static void OnRemoveEvent(List<T> items, IList? oldItems, int index)
-        {
-            if (oldItems == null || oldItems.Count > 1)
-                throw new NotSupportedException();
-            items[index]!.ShouldEqual(oldItems[0]);
-            items.RemoveAt(index);
-        }
-
-        private static void OnMoveEvent(List<T> items, IList? oldItems, int oldIndex, int newIndex)
-        {
-            if (oldItems == null || oldItems.Count > 1)
-                throw new NotSupportedException();
-
-            items[oldIndex]!.ShouldEqual(oldItems[0]);
-            items.RemoveAt(oldIndex);
-            items.Insert(newIndex, (T) oldItems[0]!);
-        }
-
-        private static void OnReplaceEvent(List<T> items, IList? oldItems, IList? newItems, int index)
-        {
-            if (oldItems == null || newItems == null || oldItems.Count > 1 || newItems.Count > 1)
-                throw new NotSupportedException();
-            items[index]!.ShouldEqual(oldItems[0]);
-            items[index] = (T) newItems[0]!;
-        }
-
         public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
         {
             Should.NotBeNull(sender, nameof(sender));
@@ -89,7 +53,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                     CheckPropertyChanged(false);
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    OnReset(items, (IEnumerable<T>) sender);
+                    OnReset(items, (IEnumerable<T>)sender);
                     CheckPropertyChanged(true);
                     break;
                 default:
@@ -123,25 +87,25 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public void OnAdded(IReadOnlyObservableCollection collection, object? item, int index)
         {
-            OnAddEvent(ChangedItems, new[] {item}, index);
+            OnAddEvent(ChangedItems, new[] { item }, index);
             RaiseChanged();
         }
 
         public void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index)
         {
-            OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
+            OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
             RaiseChanged();
         }
 
         public void OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
         {
-            OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+            OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
             RaiseChanged();
         }
 
         public void OnRemoved(IReadOnlyObservableCollection collection, object? item, int index)
         {
-            OnRemoveEvent(ChangedItems, new[] {item}, index);
+            OnRemoveEvent(ChangedItems, new[] { item }, index);
             RaiseChanged();
         }
 
@@ -149,6 +113,42 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         {
             OnReset(ChangedItems, items?.Cast<T>());
             RaiseChanged();
+        }
+
+        private static void OnAddEvent(List<T> items, IList? newItems, int index)
+        {
+            Should.NotBeNull(newItems, nameof(newItems));
+            foreach (var newItem in newItems.Cast<T>())
+            {
+                items.Insert(index, newItem);
+                index++;
+            }
+        }
+
+        private static void OnRemoveEvent(List<T> items, IList? oldItems, int index)
+        {
+            if (oldItems == null || oldItems.Count > 1)
+                throw new NotSupportedException();
+            items[index]!.ShouldEqual(oldItems[0]);
+            items.RemoveAt(index);
+        }
+
+        private static void OnMoveEvent(List<T> items, IList? oldItems, int oldIndex, int newIndex)
+        {
+            if (oldItems == null || oldItems.Count > 1)
+                throw new NotSupportedException();
+
+            items[oldIndex]!.ShouldEqual(oldItems[0]);
+            items.RemoveAt(oldIndex);
+            items.Insert(newIndex, (T)oldItems[0]!);
+        }
+
+        private static void OnReplaceEvent(List<T> items, IList? oldItems, IList? newItems, int index)
+        {
+            if (oldItems == null || newItems == null || oldItems.Count > 1 || newItems.Count > 1)
+                throw new NotSupportedException();
+            items[index]!.ShouldEqual(oldItems[0]);
+            items[index] = (T)newItems[0]!;
         }
 
         private void RaiseChanged(bool fromBatch = false)

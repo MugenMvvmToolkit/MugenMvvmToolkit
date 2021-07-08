@@ -23,8 +23,6 @@ namespace MugenMvvm.ViewModels.Components
 
         public int Priority { get; init; } = ViewModelComponentPriority.PreInitializer;
 
-        private static bool ContainsKey(IViewModelBase viewModel, IMetadataContextKey key) => viewModel.HasMetadata && viewModel.Metadata.Contains(key);
-
         public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
@@ -43,5 +41,7 @@ namespace MugenMvvm.ViewModels.Components
                 viewModel.Metadata.Merge(new KeyValuePair<IMetadataContextKey, object?>(key, v));
             }
         }
+
+        private static bool ContainsKey(IViewModelBase viewModel, IMetadataContextKey key) => viewModel.HasMetadata && viewModel.Metadata.Contains(key);
     }
 }

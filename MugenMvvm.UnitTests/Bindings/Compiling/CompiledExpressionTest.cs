@@ -11,7 +11,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Tests.Internal;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
-using MugenMvvm.UnitTests.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -20,167 +19,36 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
     [Collection(SharedContext)]
     public class CompiledExpressionTest : UnitTestBase
     {
-        [Fact]
-        public void InvokeShouldCacheExpression1()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void CompileShouldReturnMetadata(int count)
         {
             var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
-            var valueSt = "test";
-            var valueInt = 1;
-            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
-            var compiledExpression = new CompiledExpression(expressionNode);
-            compiledExpression.ExpressionBuilders = new[]
-            {
-                new TestExpressionBuilderComponent
-                {
-                    TryBuild = (context, node) =>
-                    {
-                        ++compileCount;
-                        context.ShouldEqual(compiledExpression);
-                        node.ShouldEqual(expressionNode);
-                        return context.TryGetExpression(member1);
-                    }
-                }
-            };
-            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), DefaultMetadata).ShouldEqual(valueSt);
-            compileCount.ShouldEqual(1);
-
-            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), DefaultMetadata).ShouldEqual(valueSt);
-            compileCount.ShouldEqual(1);
-
-            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), DefaultMetadata).ShouldEqual(valueInt);
-            compileCount.ShouldEqual(2);
-
-            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), DefaultMetadata).ShouldEqual(valueInt);
-            compileCount.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void InvokeShouldCacheExpression2()
-        {
-            var compileCount = 0;
-            var member1 = new BindingMemberExpressionNode("test1", 0, default, default);
-            var member2 = new BindingMemberExpressionNode("test2", 1, default, default);
-            var valueInt1 = 1;
-            var valueInt2 = -2;
-            var valueFloat1 = 1.5f;
-            var valueFloat2 = -2.11f;
-            var result1 = valueInt1 + valueInt2;
-            var result2 = valueFloat1 + valueFloat2;
-            var expressionNode = new BinaryExpressionNode(BinaryTokenType.Addition, member1, member2);
-            var compiledExpression = new CompiledExpression(expressionNode);
-            compiledExpression.ExpressionBuilders = new[]
-            {
-                new TestExpressionBuilderComponent
-                {
-                    TryBuild = (context, node) =>
-                    {
-                        ++compileCount;
-                        context.ShouldEqual(compiledExpression);
-                        node.ShouldEqual(expressionNode);
-                        var expression1 = context.TryGetExpression(member1);
-                        var expression2 = context.TryGetExpression(member2);
-                        return Expression.Add(expression1!, expression2!);
-                    }
-                }
-            };
-            compiledExpression.Invoke(new[] {new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2)}, DefaultMetadata).ShouldEqual(result1);
-            compileCount.ShouldEqual(1);
-
-            compiledExpression.Invoke(new[] {new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2)}, DefaultMetadata).ShouldEqual(result1);
-            compileCount.ShouldEqual(1);
-
-            compiledExpression.Invoke(new[] {new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2)}, DefaultMetadata).ShouldEqual(result2);
-            compileCount.ShouldEqual(2);
-
-            compiledExpression.Invoke(new[] {new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2)}, DefaultMetadata).ShouldEqual(result2);
-            compileCount.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void InvokeShouldClearMetadata()
-        {
-            var compileCount = 0;
-            var key1 = MetadataContextKey.FromKey<int>("i1");
-            var key2 = MetadataContextKey.FromKey<string?>("i2");
-            var value1 = 1;
-            var value2 = "test";
-            var inputMetadata = key1.ToContext(value1);
-            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", 0, default, default), inputMetadata)
-            {
-                ExpressionBuilders = new[]
-                {
-                    new TestExpressionBuilderComponent
-                    {
-                        TryBuild = (context, node) =>
-                        {
-                            ++compileCount;
-                            context.Metadata.Set(key2, value2);
-                            return Expression.Constant(1);
-                        }
-                    }
-                }
-            };
-            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
-            compiledExpression.Metadata.Count.ShouldEqual(1);
-            compiledExpression.Metadata.Get(key1).ShouldEqual(value1);
-            compileCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void InvokeShouldThrowNoComponents()
-        {
-            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
-            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
-            ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), DefaultMetadata));
-        }
-
-        [Fact]
-        public void InvokeShouldUseCompileEx()
-        {
-            var compileCount = 0;
-            var result = Expression.Constant(1);
-            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", 0, default, default))
-            {
-                ExpressionBuilders = new[] {new TestExpressionBuilderComponent {TryBuild = (context, node) => result}}
-            };
-
-            ILambdaExpressionCompiler compiler = new TestLambdaExpressionCompiler
-            {
-                CompileGeneric = (expression, type) =>
-                {
-                    ++compileCount;
-                    return null;
-                }
-            };
-            MugenService.Configuration.InitializeInstance(compiler);
-            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
-            compileCount.ShouldEqual(1);
-            MugenService.Configuration.Clear<ILambdaExpressionCompiler>();
-        }
-
-        [Fact]
-        public void SetClearExpressionShouldUpdateExpression()
-        {
-            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
-            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
-
             var expressionNode = ConstantExpressionNode.False;
-            var expression = Expression.Constant(1);
+            var compiledExpression = new CompiledExpression(expressionNode);
 
-            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
-            compiledExpression.SetExpression(expressionNode, expression);
-            compiledExpression.TryGetExpression(expressionNode).ShouldEqual(expression);
-            compiledExpression.ClearExpression(expressionNode);
-            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
-        }
+            var components = new List<IExpressionBuilderComponent>();
+            for (var i = 0; i < count; i++)
+            {
+                var isLast = i == count - 1;
+                components.Add(new TestExpressionBuilderComponent
+                {
+                    TryBuild = (context, node) =>
+                    {
+                        ++compileCount;
+                        context.ShouldEqual(compiledExpression);
+                        node.ShouldEqual(expressionNode);
+                        if (isLast)
+                            return context.MetadataExpression;
+                        return null;
+                    }
+                });
+            }
 
-        [Fact]
-        public void ShouldThrowNotInitializedBindingExpression()
-        {
-            var member1 = new BindingMemberExpressionNode("test", -1, default, default);
-            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
-            ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
+            compiledExpression.ExpressionBuilders = components.ToArray();
+            compiledExpression.Invoke(default, DefaultMetadata).ShouldEqual(DefaultMetadata);
+            compileCount.ShouldEqual(count);
         }
 
         [Theory]
@@ -254,40 +122,173 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             }
 
             compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(new[] {new ParameterValue(typeof(int), value1), new ParameterValue(typeof(int), value2)}, DefaultMetadata).ShouldEqual(result);
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), value1), new ParameterValue(typeof(int), value2) }, DefaultMetadata).ShouldEqual(result);
             compileCount.ShouldEqual(count);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void CompileShouldReturnMetadata(int count)
+        [Fact]
+        public void InvokeShouldCacheExpression1()
         {
             var compileCount = 0;
-            var expressionNode = ConstantExpressionNode.False;
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
+            var valueSt = "test";
+            var valueInt = 1;
+            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
             var compiledExpression = new CompiledExpression(expressionNode);
-
-            var components = new List<IExpressionBuilderComponent>();
-            for (var i = 0; i < count; i++)
+            compiledExpression.ExpressionBuilders = new[]
             {
-                var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderComponent
+                new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
                         ++compileCount;
                         context.ShouldEqual(compiledExpression);
                         node.ShouldEqual(expressionNode);
-                        if (isLast)
-                            return context.MetadataExpression;
-                        return null;
+                        return context.TryGetExpression(member1);
                     }
-                });
-            }
+                }
+            };
+            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), DefaultMetadata).ShouldEqual(valueSt);
+            compileCount.ShouldEqual(1);
 
-            compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(default, DefaultMetadata).ShouldEqual(DefaultMetadata);
-            compileCount.ShouldEqual(count);
+            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), DefaultMetadata).ShouldEqual(valueSt);
+            compileCount.ShouldEqual(1);
+
+            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), DefaultMetadata).ShouldEqual(valueInt);
+            compileCount.ShouldEqual(2);
+
+            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), DefaultMetadata).ShouldEqual(valueInt);
+            compileCount.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void InvokeShouldCacheExpression2()
+        {
+            var compileCount = 0;
+            var member1 = new BindingMemberExpressionNode("test1", 0, default, default);
+            var member2 = new BindingMemberExpressionNode("test2", 1, default, default);
+            var valueInt1 = 1;
+            var valueInt2 = -2;
+            var valueFloat1 = 1.5f;
+            var valueFloat2 = -2.11f;
+            var result1 = valueInt1 + valueInt2;
+            var result2 = valueFloat1 + valueFloat2;
+            var expressionNode = new BinaryExpressionNode(BinaryTokenType.Addition, member1, member2);
+            var compiledExpression = new CompiledExpression(expressionNode);
+            compiledExpression.ExpressionBuilders = new[]
+            {
+                new TestExpressionBuilderComponent
+                {
+                    TryBuild = (context, node) =>
+                    {
+                        ++compileCount;
+                        context.ShouldEqual(compiledExpression);
+                        node.ShouldEqual(expressionNode);
+                        var expression1 = context.TryGetExpression(member1);
+                        var expression2 = context.TryGetExpression(member2);
+                        return Expression.Add(expression1!, expression2!);
+                    }
+                }
+            };
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2) }, DefaultMetadata).ShouldEqual(result1);
+            compileCount.ShouldEqual(1);
+
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2) }, DefaultMetadata).ShouldEqual(result1);
+            compileCount.ShouldEqual(1);
+
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2) }, DefaultMetadata)
+                              .ShouldEqual(result2);
+            compileCount.ShouldEqual(2);
+
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2) }, DefaultMetadata)
+                              .ShouldEqual(result2);
+            compileCount.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void InvokeShouldClearMetadata()
+        {
+            var compileCount = 0;
+            var key1 = MetadataContextKey.FromKey<int>("i1");
+            var key2 = MetadataContextKey.FromKey<string?>("i2");
+            var value1 = 1;
+            var value2 = "test";
+            var inputMetadata = key1.ToContext(value1);
+            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", 0, default, default), inputMetadata)
+            {
+                ExpressionBuilders = new[]
+                {
+                    new TestExpressionBuilderComponent
+                    {
+                        TryBuild = (context, node) =>
+                        {
+                            ++compileCount;
+                            context.Metadata.Set(key2, value2);
+                            return Expression.Constant(1);
+                        }
+                    }
+                }
+            };
+            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
+            compiledExpression.Metadata.Count.ShouldEqual(1);
+            compiledExpression.Metadata.Get(key1).ShouldEqual(value1);
+            compileCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void InvokeShouldThrowNoComponents()
+        {
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
+            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
+            ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), DefaultMetadata));
+        }
+
+        [Fact]
+        public void InvokeShouldUseCompileEx()
+        {
+            var compileCount = 0;
+            var result = Expression.Constant(1);
+            var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", 0, default, default))
+            {
+                ExpressionBuilders = new[] { new TestExpressionBuilderComponent { TryBuild = (context, node) => result } }
+            };
+
+            ILambdaExpressionCompiler compiler = new TestLambdaExpressionCompiler
+            {
+                CompileGeneric = (expression, type) =>
+                {
+                    ++compileCount;
+                    return null;
+                }
+            };
+            MugenService.Configuration.InitializeInstance(compiler);
+            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
+            compileCount.ShouldEqual(1);
+            MugenService.Configuration.Clear<ILambdaExpressionCompiler>();
+        }
+
+        [Fact]
+        public void SetClearExpressionShouldUpdateExpression()
+        {
+            var member1 = new BindingMemberExpressionNode("test", 0, default, default);
+            var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
+
+            var expressionNode = ConstantExpressionNode.False;
+            var expression = Expression.Constant(1);
+
+            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
+            compiledExpression.SetExpression(expressionNode, expression);
+            compiledExpression.TryGetExpression(expressionNode).ShouldEqual(expression);
+            compiledExpression.ClearExpression(expressionNode);
+            compiledExpression.TryGetExpression(expressionNode).ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldThrowNotInitializedBindingExpression()
+        {
+            var member1 = new BindingMemberExpressionNode("test", -1, default, default);
+            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
+            ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
         }
     }
 }

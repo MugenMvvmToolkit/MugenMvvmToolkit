@@ -25,65 +25,6 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             RegisterDisposeToken(WithGlobalService(ReflectionManager));
         }
 
-        [Fact]
-        public void ConstructorShouldInitializeMember2()
-        {
-            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method2))!;
-
-            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, false, methodInfo.ReflectedType!, null, null);
-            memberInfo.Name.ShouldEqual(methodInfo.Name);
-            memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
-            memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
-            memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
-            memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
-            memberInfo.IsGenericMethod.ShouldBeTrue();
-            memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
-
-            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(int) });
-            memberInfo.Name.ShouldEqual(methodInfo.Name);
-            memberInfo.Type.ShouldEqual(typeof(int));
-            memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
-            memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
-            memberInfo.IsGenericMethod.ShouldBeTrue();
-            memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
-
-            var parameters = memberInfo.GetParameters();
-            parameters.Count.ShouldEqual(1);
-
-            memberInfo.Invoke(this, new object[] { int.MaxValue }, DefaultMetadata).ShouldEqual(int.MaxValue);
-        }
-
-        [Fact]
-        public void ConstructorShouldInitializeMember3()
-        {
-            var methodInfo = typeof(Enumerable).GetMethods().FirstOrDefault(info => info.Name == nameof(Enumerable.FirstOrDefault) && info.GetParameters().Length == 1)!;
-
-            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, true, methodInfo.ReflectedType!, null, null);
-            memberInfo.Name.ShouldEqual(methodInfo.Name);
-            memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
-            memberInfo.DeclaringType.ShouldEqual(methodInfo.GetParameters()[0].ParameterType);
-            memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
-            memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
-            memberInfo.IsGenericMethod.ShouldBeTrue();
-            memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
-
-            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(char) });
-            memberInfo.Name.ShouldEqual(methodInfo.Name);
-            memberInfo.Type.ShouldEqual(typeof(char));
-            memberInfo.DeclaringType.ShouldEqual(typeof(IEnumerable<char>));
-            memberInfo.MemberType.ShouldEqual(MemberType.Method);
-            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
-            memberInfo.IsGenericMethod.ShouldBeTrue();
-            memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
-
-            memberInfo.Invoke("st", Array.Empty<object?>(), DefaultMetadata).ShouldEqual('s');
-        }
-
-        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
-
         [Theory]
         [InlineData(nameof(Method1), false)]
         [InlineData(nameof(NonObservable), true)]
@@ -146,6 +87,65 @@ namespace MugenMvvm.UnitTests.Bindings.Members
 
             memberInfo.Invoke(this, new object[] { name }, DefaultMetadata).ShouldEqual(name);
         }
+
+        [Fact]
+        public void ConstructorShouldInitializeMember2()
+        {
+            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method2))!;
+
+            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, false, methodInfo.ReflectedType!, null, null);
+            memberInfo.Name.ShouldEqual(methodInfo.Name);
+            memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
+            memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
+            memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
+            memberInfo.MemberType.ShouldEqual(MemberType.Method);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.IsGenericMethod.ShouldBeTrue();
+            memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
+
+            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(int) });
+            memberInfo.Name.ShouldEqual(methodInfo.Name);
+            memberInfo.Type.ShouldEqual(typeof(int));
+            memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
+            memberInfo.MemberType.ShouldEqual(MemberType.Method);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
+            memberInfo.IsGenericMethod.ShouldBeTrue();
+            memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
+
+            var parameters = memberInfo.GetParameters();
+            parameters.Count.ShouldEqual(1);
+
+            memberInfo.Invoke(this, new object[] { int.MaxValue }, DefaultMetadata).ShouldEqual(int.MaxValue);
+        }
+
+        [Fact]
+        public void ConstructorShouldInitializeMember3()
+        {
+            var methodInfo = typeof(Enumerable).GetMethods().FirstOrDefault(info => info.Name == nameof(Enumerable.FirstOrDefault) && info.GetParameters().Length == 1)!;
+
+            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, true, methodInfo.ReflectedType!, null, null);
+            memberInfo.Name.ShouldEqual(methodInfo.Name);
+            memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
+            memberInfo.DeclaringType.ShouldEqual(methodInfo.GetParameters()[0].ParameterType);
+            memberInfo.UnderlyingMember.ShouldEqual(methodInfo);
+            memberInfo.MemberType.ShouldEqual(MemberType.Method);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
+            memberInfo.IsGenericMethod.ShouldBeTrue();
+            memberInfo.IsGenericMethodDefinition.ShouldBeTrue();
+
+            memberInfo = (MethodMemberInfo)memberInfo.MakeGenericMethod(new[] { typeof(char) });
+            memberInfo.Name.ShouldEqual(methodInfo.Name);
+            memberInfo.Type.ShouldEqual(typeof(char));
+            memberInfo.DeclaringType.ShouldEqual(typeof(IEnumerable<char>));
+            memberInfo.MemberType.ShouldEqual(MemberType.Method);
+            memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Extension);
+            memberInfo.IsGenericMethod.ShouldBeTrue();
+            memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
+
+            memberInfo.Invoke("st", Array.Empty<object?>(), DefaultMetadata).ShouldEqual('s');
+        }
+
+        protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
 
         public string Method1([Obfuscation] string v) => v;
 

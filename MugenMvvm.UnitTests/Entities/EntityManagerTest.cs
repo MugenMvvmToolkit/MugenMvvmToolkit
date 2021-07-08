@@ -19,35 +19,6 @@ namespace MugenMvvm.UnitTests.Entities
         public void GetTrackingCollectionShouldThrowNoComponents() =>
             ShouldThrow<InvalidOperationException>(() => EntityManager.GetTrackingCollection(EntityManager, DefaultMetadata));
 
-        protected override IEntityManager GetEntityManager() => GetComponentOwner(ComponentCollectionManager);
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryGetTrackingCollectionShouldBeHandledByComponents(int componentCount)
-        {
-            var collection = new EntityTrackingCollection();
-            var count = 0;
-            for (var i = 0; i < componentCount; i++)
-            {
-                EntityManager.AddComponent(new TestEntityTrackingCollectionProviderComponent
-                {
-                    TryGetTrackingCollection = (m, o, arg3) =>
-                    {
-                        ++count;
-                        m.ShouldEqual(EntityManager);
-                        o.ShouldEqual(this);
-                        arg3.ShouldEqual(DefaultMetadata);
-                        return collection;
-                    }
-                });
-            }
-
-            var trackingCollection = EntityManager.TryGetTrackingCollection(this, DefaultMetadata);
-            trackingCollection.ShouldEqual(collection);
-            count.ShouldEqual(1);
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -73,6 +44,66 @@ namespace MugenMvvm.UnitTests.Entities
 
             var stateSnapshot = EntityManager.TryGetSnapshot(entity, DefaultMetadata);
             stateSnapshot.ShouldEqual(snapshot);
+            count.ShouldEqual(1);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void TryGetSnapshotShouldNotifyListeners(int componentCount)
+        {
+            var entity = new object();
+            var snapshot = new TestEntityStateSnapshot();
+            var component = new TestEntityStateSnapshotProviderComponent
+            {
+                TryGetSnapshot = (_, _, _) => snapshot
+            };
+            EntityManager.AddComponent(component);
+
+            var count = 0;
+            for (var i = 0; i < componentCount; i++)
+            {
+                EntityManager.AddComponent(new TestEntityManagerListener
+                {
+                    OnSnapshotCreated = (m, o, e, arg5) =>
+                    {
+                        m.ShouldEqual(EntityManager);
+                        o.ShouldEqual(snapshot);
+                        e.ShouldEqual(entity);
+                        arg5.ShouldEqual(DefaultMetadata);
+                        ++count;
+                    }
+                });
+            }
+
+            EntityManager.TryGetSnapshot(entity, DefaultMetadata);
+            count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void TryGetTrackingCollectionShouldBeHandledByComponents(int componentCount)
+        {
+            var collection = new EntityTrackingCollection();
+            var count = 0;
+            for (var i = 0; i < componentCount; i++)
+            {
+                EntityManager.AddComponent(new TestEntityTrackingCollectionProviderComponent
+                {
+                    TryGetTrackingCollection = (m, o, arg3) =>
+                    {
+                        ++count;
+                        m.ShouldEqual(EntityManager);
+                        o.ShouldEqual(this);
+                        arg3.ShouldEqual(DefaultMetadata);
+                        return collection;
+                    }
+                });
+            }
+
+            var trackingCollection = EntityManager.TryGetTrackingCollection(this, DefaultMetadata);
+            trackingCollection.ShouldEqual(collection);
             count.ShouldEqual(1);
         }
 
@@ -108,38 +139,7 @@ namespace MugenMvvm.UnitTests.Entities
             count.ShouldEqual(componentCount);
         }
 
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryGetSnapshotShouldNotifyListeners(int componentCount)
-        {
-            var entity = new object();
-            var snapshot = new TestEntityStateSnapshot();
-            var component = new TestEntityStateSnapshotProviderComponent
-            {
-                TryGetSnapshot = (_, _, _) => snapshot
-            };
-            EntityManager.AddComponent(component);
-
-            var count = 0;
-            for (var i = 0; i < componentCount; i++)
-            {
-                EntityManager.AddComponent(new TestEntityManagerListener
-                {
-                    OnSnapshotCreated = (m, o, e, arg5) =>
-                    {
-                        m.ShouldEqual(EntityManager);
-                        o.ShouldEqual(snapshot);
-                        e.ShouldEqual(entity);
-                        arg5.ShouldEqual(DefaultMetadata);
-                        ++count;
-                    }
-                });
-            }
-
-            EntityManager.TryGetSnapshot(entity, DefaultMetadata);
-            count.ShouldEqual(componentCount);
-        }
+        protected override IEntityManager GetEntityManager() => GetComponentOwner(ComponentCollectionManager);
 
         protected override EntityManager GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(componentCollectionManager);
     }

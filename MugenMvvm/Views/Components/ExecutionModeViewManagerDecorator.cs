@@ -42,7 +42,7 @@ namespace MugenMvvm.Views.Components
             dispatcher.Execute(InitializeExecutionMode, s =>
             {
                 var state =
-                    (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<IView?>, IViewMapping, object, CancellationToken, IReadOnlyMetadataContext?>) s!;
+                    (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<IView?>, IViewMapping, object, CancellationToken, IReadOnlyMetadataContext?>)s!;
                 if (state.Item6.IsCancellationRequested)
                 {
                     state.Item3.TrySetCanceled(state.Item6);
@@ -64,7 +64,7 @@ namespace MugenMvvm.Views.Components
             var tcs = new TaskCompletionSource<bool>();
             dispatcher.Execute(CleanupExecutionMode, s =>
             {
-                var tuple = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<bool>, IView, object?, CancellationToken, IReadOnlyMetadataContext?>) s!;
+                var tuple = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<bool>, IView, object?, CancellationToken, IReadOnlyMetadataContext?>)s!;
                 if (tuple.Item6.IsCancellationRequested)
                 {
                     tuple.Item3.TrySetCanceled(tuple.Item6);

@@ -9,47 +9,6 @@ namespace MugenMvvm.UnitTests.Collections
 {
     public class ItemOrListEditorTest
     {
-        [Fact]
-        public void IndexShouldThrowOutOfRange() => Assert.Throws<ArgumentOutOfRangeException>(() => new ItemOrListEditor<object>()[0]);
-
-        [Fact]
-        public void IsNullOrEmptyShouldBeTrueDefault()
-        {
-            ItemOrListEditor<object> editor = default;
-            editor.IsEmpty.ShouldBeTrue();
-        }
-
-        [Theory]
-        [InlineData(0, true)]
-        [InlineData(1, true)]
-        [InlineData(10, true)]
-        [InlineData(0, false)]
-        [InlineData(1, false)]
-        [InlineData(10, false)]
-        public void IndexCountToItemOrListGetRawValueInternalShouldBeCorrect(int count, bool isRawList)
-        {
-            var objects = new List<object>();
-            for (var i = 0; i < count; i++)
-                objects.Add(new object());
-            ItemOrIReadOnlyList<object> itemOrList = objects;
-
-            var editor = new ItemOrListEditor<object>(itemOrList, isRawList);
-            editor.Count.ShouldEqual(objects.Count);
-            editor.IsEmpty.ShouldEqual(count == 0);
-            for (var i = 0; i < editor.Count; i++)
-                objects[i].ShouldEqual(editor[i]);
-
-            editor.GetRawValueInternal().ShouldEqual(itemOrList.GetRawValue());
-
-            var editorItemOrList = editor.ToItemOrList();
-            editorItemOrList.Item.ShouldEqual(itemOrList.Item);
-            editorItemOrList.List.ShouldEqual(itemOrList.List);
-
-            editorItemOrList = editor.ToItemOrList();
-            editorItemOrList.Item.ShouldEqual(itemOrList.Item);
-            editorItemOrList.List.ShouldEqual(itemOrList.List);
-        }
-
         [Theory]
         [InlineData(0)]
         [InlineData(1)]
@@ -79,6 +38,41 @@ namespace MugenMvvm.UnitTests.Collections
             editor.Clear();
             editor.IsEmpty.ShouldBeTrue();
             editor.Count.ShouldEqual(0);
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void AddRemoveAtShouldBeCorrect(int count)
+        {
+            var editor = new ItemOrListEditor<object>(null, null, false);
+            var objects = new List<object>();
+            for (var i = 0; i < count; i++)
+            {
+                var o = new object();
+                objects.Add(o);
+                editor.Add(o);
+            }
+
+            ItemOrIReadOnlyList<object> itemOrList = objects;
+            var editorItemOrList = editor.ToItemOrList();
+            editorItemOrList.Item.ShouldEqual(itemOrList.Item);
+            editorItemOrList.List.ShouldEqual(itemOrList.List);
+
+            for (var i = 0; i < count; i++)
+                objects.IndexOf(objects[i]).ShouldEqual(i);
+
+            for (var i = 0; i < count; i++)
+            {
+                objects.RemoveAt(0);
+                editor.RemoveAt(0);
+
+                itemOrList = objects;
+                editorItemOrList = editor.ToItemOrList();
+                editorItemOrList.Item.ShouldEqual(itemOrList.Item);
+                editorItemOrList.List.ShouldEqual(itemOrList.List);
+            }
         }
 
         [Theory]
@@ -115,38 +109,44 @@ namespace MugenMvvm.UnitTests.Collections
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void AddRemoveAtShouldBeCorrect(int count)
+        [InlineData(0, true)]
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(0, false)]
+        [InlineData(1, false)]
+        [InlineData(10, false)]
+        public void IndexCountToItemOrListGetRawValueInternalShouldBeCorrect(int count, bool isRawList)
         {
-            var editor = new ItemOrListEditor<object>(null, null, false);
             var objects = new List<object>();
             for (var i = 0; i < count; i++)
-            {
-                var o = new object();
-                objects.Add(o);
-                editor.Add(o);
-            }
-
+                objects.Add(new object());
             ItemOrIReadOnlyList<object> itemOrList = objects;
+
+            var editor = new ItemOrListEditor<object>(itemOrList, isRawList);
+            editor.Count.ShouldEqual(objects.Count);
+            editor.IsEmpty.ShouldEqual(count == 0);
+            for (var i = 0; i < editor.Count; i++)
+                objects[i].ShouldEqual(editor[i]);
+
+            editor.GetRawValueInternal().ShouldEqual(itemOrList.GetRawValue());
+
             var editorItemOrList = editor.ToItemOrList();
             editorItemOrList.Item.ShouldEqual(itemOrList.Item);
             editorItemOrList.List.ShouldEqual(itemOrList.List);
 
-            for (var i = 0; i < count; i++)
-                objects.IndexOf(objects[i]).ShouldEqual(i);
+            editorItemOrList = editor.ToItemOrList();
+            editorItemOrList.Item.ShouldEqual(itemOrList.Item);
+            editorItemOrList.List.ShouldEqual(itemOrList.List);
+        }
 
-            for (var i = 0; i < count; i++)
-            {
-                objects.RemoveAt(0);
-                editor.RemoveAt(0);
+        [Fact]
+        public void IndexShouldThrowOutOfRange() => Assert.Throws<ArgumentOutOfRangeException>(() => new ItemOrListEditor<object>()[0]);
 
-                itemOrList = objects;
-                editorItemOrList = editor.ToItemOrList();
-                editorItemOrList.Item.ShouldEqual(itemOrList.Item);
-                editorItemOrList.List.ShouldEqual(itemOrList.List);
-            }
+        [Fact]
+        public void IsNullOrEmptyShouldBeTrueDefault()
+        {
+            ItemOrListEditor<object> editor = default;
+            editor.IsEmpty.ShouldBeTrue();
         }
     }
 }

@@ -51,7 +51,7 @@ namespace MugenMvvm.Bindings.Members
 
         public override string ToString() => $"{Type} {Name} - {MemberFlags.ToString()}";
 
-        public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget) target!, message, metadata);
+        public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null) => _raise?.Invoke(this, (TTarget)target!, message, metadata);
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
@@ -63,7 +63,7 @@ namespace MugenMvvm.Bindings.Members
                 return _observer.TryObserve(target, listener, metadata);
             }
 
-            return _tryObserve(this, (TTarget) target!, listener, metadata);
+            return _tryObserve(this, (TTarget)target!, listener, metadata);
         }
     }
 }

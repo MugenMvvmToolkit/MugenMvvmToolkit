@@ -36,32 +36,6 @@ namespace MugenMvvm.Messaging.Components
 
         public int Priority { get; init; } = MessengerComponentPriority.Publisher;
 
-        private static Dictionary<ThreadExecutionMode, MessageThreadExecutor>? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode,
-            IReadOnlyMetadataContext? metadata)
-        {
-            var handlers = messenger
-                           .GetComponents<IMessengerSubscriberComponent>(metadata)
-                           .TryGetMessengerHandlers(messenger, messageType, metadata);
-
-            if (handlers.Count == 0)
-                return null;
-
-            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
-            foreach (var subscriber in handlers)
-            {
-                var mode = subscriber.ExecutionMode ?? defaultMode;
-                if (!dictionary.TryGetValue(mode, out var value))
-                {
-                    value = new MessageThreadExecutor(messenger);
-                    dictionary[mode] = value;
-                }
-
-                value.Add(subscriber);
-            }
-
-            return dictionary;
-        }
-
         public void InvalidateCache()
         {
             lock (_cache)
@@ -89,6 +63,32 @@ namespace MugenMvvm.Messaging.Components
             foreach (var dispatcherExecutor in dictionary)
                 threadDispatcher.Execute(dispatcherExecutor.Key, dispatcherExecutor.Value, messageContext);
             return true;
+        }
+
+        private static Dictionary<ThreadExecutionMode, MessageThreadExecutor>? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode,
+            IReadOnlyMetadataContext? metadata)
+        {
+            var handlers = messenger
+                           .GetComponents<IMessengerSubscriberComponent>(metadata)
+                           .TryGetMessengerHandlers(messenger, messageType, metadata);
+
+            if (handlers.Count == 0)
+                return null;
+
+            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
+            foreach (var subscriber in handlers)
+            {
+                var mode = subscriber.ExecutionMode ?? defaultMode;
+                if (!dictionary.TryGetValue(mode, out var value))
+                {
+                    value = new MessageThreadExecutor(messenger);
+                    dictionary[mode] = value;
+                }
+
+                value.Add(subscriber);
+            }
+
+            return dictionary;
         }
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;

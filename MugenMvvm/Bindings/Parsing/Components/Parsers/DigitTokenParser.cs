@@ -156,9 +156,9 @@ namespace MugenMvvm.Bindings.Parsing.Components.Parsers
                         if (ulong.TryParse(value, NumberStyles.Any, formatProvider, out var result))
                         {
                             if (result <= int.MaxValue)
-                                return ConstantExpressionNode.Get((int) result);
+                                return ConstantExpressionNode.Get((int)result);
                             if (result <= long.MaxValue)
-                                return ConstantExpressionNode.Get((long) result);
+                                return ConstantExpressionNode.Get((long)result);
                             return ConstantExpressionNode.Get(result);
                         }
 

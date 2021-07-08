@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Converters;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using Should;
@@ -17,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var ifFalse = Expression.Constant(2);
 
             var result = new ConditionExpressionNode(ConstantExpressionNode.True, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
-            
+
             Context.SetExpression(condition, result.Condition);
             Context.SetExpression(ifTrue, result.IfTrue);
             Context.SetExpression(ifFalse, result.IfFalse);

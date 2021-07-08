@@ -9,8 +9,8 @@ namespace MugenMvvm.Tests.Internal
 
         public Func<Type, object?>? Optional { get; set; }
 
-        TService IFallbackServiceConfiguration.Instance<TService>() where TService : class => (TService) Instance?.Invoke(typeof(TService))!;
+        TService IFallbackServiceConfiguration.Instance<TService>() where TService : class => (TService)Instance?.Invoke(typeof(TService))!;
 
-        TService? IFallbackServiceConfiguration.Optional<TService>() where TService : class => (TService?) Optional?.Invoke(typeof(TService));
+        TService? IFallbackServiceConfiguration.Optional<TService>() where TService : class => (TService?)Optional?.Invoke(typeof(TService));
     }
 }

@@ -29,16 +29,6 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             _context = new BindingExpressionInitializerContext(this);
         }
 
-        [Fact]
-        public void InitializeShouldIgnoreEmptyParameters()
-        {
-            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            _initializer.Initialize(null!, _context);
-            _context.Components.ShouldBeEmpty();
-        }
-
-        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
-
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -133,5 +123,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             component.TargetNullValue.Parameter.ShouldEqual(nullValue);
             component.TargetNullValue.Expression.ShouldBeNull();
         }
+
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            _initializer.Initialize(null!, _context);
+            _context.Components.ShouldBeEmpty();
+        }
+
+        protected override IExpressionCompiler GetExpressionCompiler() => new ExpressionCompiler(ComponentCollectionManager);
     }
 }
