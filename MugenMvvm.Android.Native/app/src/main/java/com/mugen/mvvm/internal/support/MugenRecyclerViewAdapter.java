@@ -50,7 +50,7 @@ public class MugenRecyclerViewAdapter extends MugenRecyclerViewAdapterBase<IReso
         return view;
     }
 
-    private static final class ViewHolderIml extends RecyclerView.ViewHolder {
+    protected static final class ViewHolderIml extends RecyclerView.ViewHolder {
         public ViewHolderIml(@NonNull View itemView) {
             super(itemView);
         }

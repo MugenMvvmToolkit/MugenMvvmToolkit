@@ -54,7 +54,7 @@ public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProvide
 
     @Override
     public void onItemChanged(int position) {
-        notifyItemChanged(position);
+        notifyItemChanged(position, Boolean.FALSE);
     }
 
     @Override
@@ -74,7 +74,7 @@ public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProvide
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
-        notifyItemRangeChanged(positionStart, itemCount);
+        notifyItemRangeChanged(positionStart, itemCount, Boolean.FALSE);
     }
 
     @Override
