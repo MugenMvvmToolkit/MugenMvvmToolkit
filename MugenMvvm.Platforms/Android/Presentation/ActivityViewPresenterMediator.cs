@@ -39,7 +39,7 @@ namespace MugenMvvm.Android.Presentation
 
         protected virtual void NewActivity(IViewModelPresenterMediator mediator, INavigationContext navigationContext, int requestId)
         {
-            var flags = navigationContext.GetOrDefault(NavigationMetadata.ClearBackStack) ? (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
+            var flags = navigationContext.GetOrDefault(NavigationMetadata.ClearBackStack) ? (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask) : 0;
             StartActivity(mediator, NavigationDispatcher.GetTopView<IActivityView>(NavigationType, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault()), requestId,
                 flags, navigationContext);
         }
@@ -55,20 +55,22 @@ namespace MugenMvvm.Android.Presentation
             return requestId == ActivityMugenExtensions.GetRequestId(activity);
         }
 
-        protected virtual async Task RefreshActivityAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected virtual async Task RefreshActivityAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext,
+            CancellationToken cancellationToken)
         {
             var flags = 0;
             if (navigationContext.GetOrDefault(NavigationMetadata.ClearBackStack))
             {
-                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, navigationContext.GetMetadataOrDefault(), Presenter);
-                flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, navigationContext.GetMetadataOrDefault(), Presenter, cancellationToken);
+                flags = (int)(ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             var topActivity = NavigationDispatcher.GetTopView<IActivityView>(NavigationType, true, null, navigationContext.GetMetadataOrDefault());
             if (Equals(topActivity, view))
                 return;
 
-            flags |= (int) ActivityFlags.ReorderToFront;
+            flags |= (int)ActivityFlags.ReorderToFront;
             StartActivity(mediator, topActivity, ActivityMugenExtensions.GetRequestId(view), flags, navigationContext);
         }
 
@@ -99,17 +101,18 @@ namespace MugenMvvm.Android.Presentation
             return null;
         }
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var topActivityView = NavigationDispatcher.GetTopView<IActivityView>(NavigationType, true, null, navigationContext.GetMetadataOrDefault());
             if (Equals(topActivityView, view))
                 return Task.CompletedTask;
-            return RefreshActivityAsync(mediator, view, navigationContext);
+            return RefreshActivityAsync(mediator, view, navigationContext, cancellationToken);
         }
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext) => Task.CompletedTask;
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext, CancellationToken cancellationToken) =>
+            Task.CompletedTask;
 
-        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, IActivityView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             view.Finish();
             return Task.CompletedTask;

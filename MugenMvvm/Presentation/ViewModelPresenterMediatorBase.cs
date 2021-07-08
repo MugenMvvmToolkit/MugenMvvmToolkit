@@ -21,19 +21,14 @@ namespace MugenMvvm.Presentation
     public abstract class ViewModelPresenterMediatorBase<TView> : IViewModelPresenterMediator, INavigationProvider, IHasNavigationInfo
         where TView : class
     {
-        protected ICancelableRequest? ClosingCancelArgs;
-        protected INavigationContext? ClosingContext;
-
-        protected bool IsShown;
-        protected CancellationTokenSource? ShowingCancellationTokenSource;
-        protected INavigationContext? ShowingContext;
-        protected TaskCompletionSource<object?>? ShowingTaskCompletionSource;
-
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IThreadDispatcher? _threadDispatcher;
         private readonly IViewModelManager? _viewModelManager;
         private readonly IViewManager? _viewManager;
         private readonly IWrapperManager? _wrapperManager;
+        private readonly object _locker;
+        private CancellationTokenSource? _showingToken;
+        private TaskCompletionSource<object?>? _showingTask;
 
         private string _id;
         private string? _navigationId;
@@ -51,6 +46,7 @@ namespace MugenMvvm.Presentation
             _threadDispatcher = threadDispatcher;
             _viewModelManager = viewModelManager;
             _id = $"{GetType().FullName}{mapping.Id}";
+            _locker = new object();
         }
 
         public abstract NavigationType NavigationType { get; }
@@ -79,6 +75,18 @@ namespace MugenMvvm.Presentation
 
         protected virtual ThreadExecutionMode ExecutionMode => ThreadExecutionMode.Main;
 
+        protected bool IsClosing => ClosingContext != null;
+
+        protected bool IsShowing => ShowingContext != null;
+
+        protected bool IsShown { get; private set; }
+
+        protected INavigationContext? ShowingContext { get; set; }
+
+        protected INavigationContext? ClosingContext { get; set; }
+
+        protected ICancelableRequest? ClosingCancelArgs { get; set; }
+
         protected TView? CurrentView { get; private set; }
 
         protected IViewManager ViewManager => _viewManager.DefaultIfNull();
@@ -93,31 +101,32 @@ namespace MugenMvvm.Presentation
 
         public IPresenterResult? TryShow(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (!CanShow(view, cancellationToken, metadata))
-                return null;
+            lock (_locker)
+            {
+                if (!CanShow(view, cancellationToken, metadata))
+                    return null;
 
-            if (ShowingContext != null)
-                return GetPresenterResult(false, ShowingContext.GetMetadataOrDefault(metadata));
+                if (ShowingContext != null)
+                    return GetPresenterResult(false, ShowingContext.GetMetadataOrDefault(metadata));
 
-            ShowingTaskCompletionSource?.TrySetCanceled();
-            ShowingCancellationTokenSource?.Cancel();
-            ShowingCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
-            ShowingTaskCompletionSource = new TaskCompletionSource<object?>();
-            ShowInternal(view, ShowingCancellationTokenSource.Token, metadata);
-            return GetPresenterResult(true, metadata);
+                Show(view, cancellationToken, metadata);
+                return GetPresenterResult(true, metadata);
+            }
         }
 
         public IPresenterResult? TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (!CanClose(view, cancellationToken, metadata))
-                return null;
+            lock (_locker)
+            {
+                if (!CanClose(view, cancellationToken, metadata))
+                    return null;
 
-            if (ClosingContext != null)
-                return GetPresenterResult(false, ClosingContext.GetMetadataOrDefault(metadata));
+                if (ClosingContext != null)
+                    return GetPresenterResult(false, ClosingContext.GetMetadataOrDefault(metadata));
 
-            CloseInternal(view, cancellationToken, metadata);
-            ShowingCancellationTokenSource?.Cancel();
-            return GetPresenterResult(false, metadata);
+                Close(view, cancellationToken, metadata);
+                return GetPresenterResult(false, metadata);
+            }
         }
 
         protected internal virtual void OnViewShown(IReadOnlyMetadataContext? metadata)
@@ -146,13 +155,16 @@ namespace MugenMvvm.Presentation
                     return;
 
                 ClosingCancelArgs = e;
-                if (ClosingContext == null)
+                lock (_locker)
                 {
-                    e.Cancel = true;
-                    CloseInternal(CurrentView, default, metadata);
+                    if (ClosingContext == null)
+                    {
+                        e.Cancel = true;
+                        Close(CurrentView, default, metadata);
+                    }
+                    else
+                        e.Cancel = false;
                 }
-                else
-                    e.Cancel = false;
             }
             finally
             {
@@ -166,16 +178,18 @@ namespace MugenMvvm.Presentation
                 OnNavigated(ClosingContext ?? GetNavigationContext(NavigationMode.Close, metadata));
         }
 
-        protected abstract Task ShowViewAsync(TView view, INavigationContext navigationContext);
+        protected abstract Task ShowViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
-        protected abstract Task CloseViewAsync(TView view, INavigationContext navigationContext);
+        protected abstract Task CloseViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
         protected abstract void InitializeView(TView view, INavigationContext navigationContext);
 
         protected abstract void CleanupView(TView view, INavigationContext navigationContext);
 
-        protected virtual ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
+        protected virtual ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
+            if (cancellationToken.IsCancellationRequested)
+                return Task.FromCanceled<bool>(cancellationToken).AsValueTask();
             OnViewActivated(navigationContext.GetMetadataOrDefault());
             return new ValueTask<bool>(true);
         }
@@ -255,93 +269,6 @@ namespace MugenMvvm.Presentation
             NavigationDispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
         }
 
-        protected virtual async void ShowInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            INavigationContext? context = null;
-            try
-            {
-                context = GetShowNavigationContext(view, metadata);
-                ShowingContext = context;
-                if (!EnsureValidState(context, cancellationToken))
-                    return;
-
-                if (!CanShow(view, cancellationToken, metadata))
-                {
-                    OnNavigationCanceled(context, cancellationToken);
-                    return;
-                }
-
-                if (!await NavigationDispatcher.OnNavigatingAsync(context, cancellationToken).ConfigureAwait(false))
-                {
-                    OnNavigationCanceled(context, cancellationToken);
-                    return;
-                }
-
-                if (!context.NavigationMode.IsNew && CurrentView != null && (view == null || Equals(CurrentView, view)))
-                {
-                    if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                        RefreshCallback(context);
-                    else
-                        ThreadDispatcher.Execute(ExecutionMode, RefreshCallback, context);
-                    return;
-                }
-
-                var newView = await ViewManager.InitializeAsync(Mapping, GetViewRequest(view, context), cancellationToken, context.GetMetadataOrDefault()).ConfigureAwait(false);
-                var isShowRequest = context.NavigationMode.IsNew || view == null;
-                if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                {
-                    ShowViewCallback(newView, context, isShowRequest);
-                    return;
-                }
-
-                ThreadDispatcher.Execute(ExecutionMode, s =>
-                {
-                    var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, IView, INavigationContext, bool>) s!;
-                    tuple.Item1.ShowViewCallback(tuple.Item2, tuple.Item3, tuple.Item4);
-                }, Tuple.Create(this, newView, context, isShowRequest));
-            }
-            catch (Exception e)
-            {
-                OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.Refresh, metadata), e);
-            }
-        }
-
-        protected virtual async void CloseInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            INavigationContext? context = null;
-            try
-            {
-                if (ShowingTaskCompletionSource != null)
-                    await ShowingTaskCompletionSource.Task.ConfigureAwait(false);
-
-                context = GetNavigationContext(NavigationMode.Close, metadata);
-                ClosingContext = context;
-                if (!EnsureValidState(context, cancellationToken))
-                    return;
-
-                if (!CanClose(view, cancellationToken, metadata))
-                {
-                    OnNavigationCanceled(context, cancellationToken);
-                    return;
-                }
-
-                if (!await NavigationDispatcher.OnNavigatingAsync(context, cancellationToken).ConfigureAwait(false))
-                {
-                    OnNavigationCanceled(context, cancellationToken);
-                    return;
-                }
-
-                if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                    CloseViewCallback(context);
-                else
-                    ThreadDispatcher.Execute(ExecutionMode, CloseViewCallback, context);
-            }
-            catch (Exception e)
-            {
-                OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.Close, metadata), e);
-            }
-        }
-
         [return: NotNullIfNotNull("view")]
         protected TView? UpdateView(IView? view, INavigationContext navigationContext)
         {
@@ -364,81 +291,137 @@ namespace MugenMvvm.Presentation
             return newView;
         }
 
-        private async void ShowViewCallback(IView newView, INavigationContext navigationContext, bool show)
+        protected Task WaitShowingAsync() => _showingTask?.Task ?? Task.CompletedTask;
+
+        private async void Show(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
+            INavigationContext? context = null;
             try
             {
-                var view = UpdateView(newView, navigationContext);
-                if (show)
-                    await ShowViewAsync(view, navigationContext).ConfigureAwait(false);
+                _showingTask?.TrySetCanceled();
+                _showingToken?.Cancel();
+                _showingToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
+                _showingTask = new TaskCompletionSource<object?>();
+                cancellationToken = _showingToken.Token;
+
+                context = GetShowNavigationContext(view, metadata);
+                ShowingContext = context;
+
+                await ThreadDispatcher.SwitchToAsync(ExecutionMode);
+                if (!EnsureValidState(context, cancellationToken))
+                    return;
+
+                if (!CanShow(view, cancellationToken, metadata))
+                {
+                    OnNavigationCanceled(context, cancellationToken);
+                    return;
+                }
+
+                if (!await NavigationDispatcher.OnNavigatingAsync(context, cancellationToken))
+                {
+                    OnNavigationCanceled(context, cancellationToken);
+                    return;
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!context.NavigationMode.IsNew && CurrentView != null && (view == null || Equals(CurrentView, view)))
+                {
+                    await RefreshAsync(context, cancellationToken);
+                    return;
+                }
+
+                var newView = await ViewManager.InitializeAsync(Mapping, GetViewRequest(view, context), cancellationToken, context.GetMetadataOrDefault());
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var currentView = UpdateView(newView, context);
+                if (context.NavigationMode.IsNew || view == null)
+                    await ShowViewAsync(currentView, context, cancellationToken);
                 else
-                    RefreshCallback(navigationContext);
+                    await RefreshAsync(context, cancellationToken);
                 IsShown = true;
             }
             catch (Exception e)
             {
-                OnNavigationFailed(navigationContext, e);
+                OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.Refresh, metadata), e);
             }
         }
 
-        private async void RefreshCallback(object? state)
+        private async void Close(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var ctx = (INavigationContext) state!;
+            INavigationContext? context = null;
             try
             {
-                if (CurrentView == null || !await ActivateViewAsync(CurrentView, ctx).ConfigureAwait(false))
-                    OnNavigationCanceled(ctx, default);
-            }
-            catch (Exception e)
-            {
-                OnNavigationFailed(ctx, e);
-            }
-        }
+                _showingToken?.Cancel();
+                context = GetNavigationContext(NavigationMode.Close, metadata);
+                ClosingContext = context;
 
-        private async void CloseViewCallback(object? state)
-        {
-            var ctx = (INavigationContext) state!;
-            try
-            {
+                await WaitShowingAsync();
+                await ThreadDispatcher.SwitchToAsync(ExecutionMode);
+
+                if (!EnsureValidState(context, cancellationToken))
+                    return;
+
+                if (!CanClose(view, cancellationToken, metadata))
+                {
+                    OnNavigationCanceled(context, cancellationToken);
+                    return;
+                }
+
+                if (!await NavigationDispatcher.OnNavigatingAsync(context, cancellationToken))
+                {
+                    OnNavigationCanceled(context, cancellationToken);
+                    return;
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
                 if (ClosingCancelArgs != null)
                     ClosingCancelArgs.Cancel = false;
                 else if (CurrentView != null)
-                    await CloseViewAsync(CurrentView, ctx).ConfigureAwait(false);
+                    await CloseViewAsync(CurrentView, context, cancellationToken);
             }
             catch (Exception e)
             {
-                OnNavigationFailed(ctx, e);
+                OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.Close, metadata), e);
             }
+        }
+
+        private async Task RefreshAsync(INavigationContext context, CancellationToken cancellationToken)
+        {
+            if (CurrentView == null || !await ActivateViewAsync(CurrentView, context, cancellationToken))
+                OnNavigationCanceled(context, default);
         }
 
         private void ClearFields(INavigationContext navigationContext, CancellationToken? cancellationToken, Exception? error)
         {
-            if (View != null && (cancellationToken != null || error != null) &&
-                (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRestore ||
-                 Equals(navigationContext.GetOrDefault(InternalMetadata.View), View.Target)))
-                UpdateView(null, navigationContext);
-            ShowingCancellationTokenSource?.Dispose();
-            ShowingCancellationTokenSource = null;
-            if (navigationContext.NavigationMode.IsClose)
+            lock (_locker)
             {
-                if (cancellationToken == null && error == null)
-                    IsShown = false;
-                ClosingContext = null;
-                ClosingCancelArgs = null;
-            }
-            else
-            {
-                ShowingContext = null;
-                var tcs = ShowingTaskCompletionSource;
-                ShowingTaskCompletionSource = null;
-                if (tcs == null)
-                    return;
-                if (error != null)
-                    tcs.TrySetException(error);
-                else if (cancellationToken != null)
-                    tcs.TrySetCanceled(cancellationToken.Value);
+                if (View != null && (cancellationToken != null || error != null) &&
+                    (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRestore ||
+                     Equals(navigationContext.GetOrDefault(InternalMetadata.View), View.Target)))
+                    UpdateView(null, navigationContext);
+                _showingToken?.Dispose();
+                _showingToken = null;
+                if (navigationContext.NavigationMode.IsClose)
+                {
+                    if (cancellationToken == null && error == null)
+                        IsShown = false;
+                    ClosingContext = null;
+                    ClosingCancelArgs = null;
+                }
                 else
-                    tcs.TrySetResult(null);
+                {
+                    ShowingContext = null;
+                    var tcs = _showingTask;
+                    _showingTask = null;
+                    if (tcs == null)
+                        return;
+                    if (error != null)
+                        tcs.TrySetException(error);
+                    else if (cancellationToken != null)
+                        tcs.TrySetCanceled(cancellationToken.Value);
+                    else
+                        tcs.TrySetResult(null);
+                }
             }
         }
 
@@ -447,7 +430,7 @@ namespace MugenMvvm.Presentation
 
         private bool EnsureValidState(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            if (ViewModel.IsInState(ViewModelLifecycleState.Disposed, navigationContext.GetMetadataOrDefault(), _viewModelManager))
+            if (!navigationContext.NavigationMode.IsClose && ViewModel.IsInState(ViewModelLifecycleState.Disposed, navigationContext.GetMetadataOrDefault(), _viewModelManager))
             {
                 OnNavigationFailed(navigationContext, new ObjectDisposedException(ViewModel.GetType().FullName));
                 return false;

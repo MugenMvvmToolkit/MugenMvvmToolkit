@@ -75,7 +75,7 @@ namespace MugenMvvm.Extensions
             });
 
         public static Task ClearBackStackAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, object navigationTarget,
-            bool includePending = false, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
+            bool includePending = false, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, CancellationToken cancellationToken = default)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -91,7 +91,7 @@ namespace MugenMvvm.Extensions
                     continue;
 
                 closeMetadata ??= new MetadataContext(metadata) { { NavigationMetadata.ForceClose, true }, { NavigationMetadata.NavigationType, navigationType } };
-                foreach (var result in presenter.DefaultIfNull(navigationEntry.Target).TryClose(navigationEntry.Target, default, closeMetadata))
+                foreach (var result in presenter.DefaultIfNull(navigationEntry.Target).TryClose(navigationEntry.Target, cancellationToken, closeMetadata))
                 foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
                 {
                     if (navigationCallback.CallbackType == NavigationCallbackType.Closing)

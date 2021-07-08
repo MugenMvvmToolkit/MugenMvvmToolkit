@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -36,9 +37,10 @@ namespace MugenMvvm.Ios.Presentation
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
             => base.CanPresent(presenter, viewModel, mapping, metadata) && typeof(IModalView).IsAssignableFrom(mapping.ViewType);
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) => Task.CompletedTask;
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext,
+            CancellationToken cancellationToken) => Task.CompletedTask;
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
             {
@@ -56,7 +58,7 @@ namespace MugenMvvm.Ios.Presentation
             return Task.CompletedTask;
         }
 
-        protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var request = new CancelableRequest();
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Closing, request, navigationContext.GetMetadataOrDefault());

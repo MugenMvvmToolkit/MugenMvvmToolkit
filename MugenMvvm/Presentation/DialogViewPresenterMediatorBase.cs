@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -67,14 +68,14 @@ namespace MugenMvvm.Presentation
             ViewManager.OnLifecycleChanged(sender!, ViewLifecycleState.Appeared, null, metadata);
         }
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext)
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             using var ctx = AddContext(view, navigationContext);
             Activate(mediator, view, navigationContext);
             return Task.CompletedTask;
         }
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext)
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             using var ctx = AddContext(view, navigationContext);
             ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing, null, navigationContext.GetMetadataOrDefault());
@@ -83,7 +84,7 @@ namespace MugenMvvm.Presentation
             return Task.CompletedTask;
         }
 
-        protected override Task CloseAsync(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, T view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             using var ctx = AddContext(view, navigationContext);
             Close(mediator, view, navigationContext);
@@ -93,7 +94,7 @@ namespace MugenMvvm.Presentation
         protected ActionToken AddContext(object view, INavigationContext navigationContext)
         {
             _contextMap[view] = navigationContext;
-            return ActionToken.FromDelegate((v, m) => ((Dictionary<object, INavigationContext>) m!).Remove(v!), view, _contextMap);
+            return ActionToken.FromDelegate((v, m) => ((Dictionary<object, INavigationContext>)m!).Remove(v!), view, _contextMap);
         }
 
         protected INavigationContext? GetNavigationContext(object? view)

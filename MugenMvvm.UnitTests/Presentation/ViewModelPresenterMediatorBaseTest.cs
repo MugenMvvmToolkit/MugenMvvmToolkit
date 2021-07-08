@@ -697,11 +697,14 @@ namespace MugenMvvm.UnitTests.Presentation
             canClose = false;
             mediator.TryClose(null, DefaultCancellationToken, DefaultMetadata);
             tcs.SetResult(result);
-            WaitCompletion(20, () => closeCount == 1 || cancelCount == 1);
             if (result)
+            {
+                WaitCompletion(20, () => closeCount == 1);
                 closeCount.ShouldEqual(1);
+            }
             else
             {
+                WaitCompletion(20, () => cancelCount == 1);
                 closeCount.ShouldEqual(0);
                 cancelCount.ShouldEqual(1);
             }

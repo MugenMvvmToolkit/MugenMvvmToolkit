@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -90,8 +91,11 @@ namespace MugenMvvm.Presentation
                 OnViewClosed(metadata);
         }
 
-        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata) =>
-            UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+        protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata)
+        {
+            if (!IsClosing)
+                UpdateView(null, ShowingContext ?? ClosingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+        }
 
         protected virtual void OnViewLifecycleChanged(ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -112,18 +116,18 @@ namespace MugenMvvm.Presentation
         protected override object GetViewRequest(object? view, INavigationContext navigationContext)
             => ViewPresenterMediator.TryGetViewRequest(this, view, navigationContext) ?? base.GetViewRequest(view, navigationContext);
 
-        protected override async Task ShowViewAsync(TView view, INavigationContext navigationContext)
+        protected override async Task ShowViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var isAppeared = IsAppeared;
-            await ViewPresenterMediator.ShowAsync(this, view, navigationContext).ConfigureAwait(false);
+            await ViewPresenterMediator.ShowAsync(this, view, navigationContext, cancellationToken);
             if (IsAppeared && isAppeared)
                 OnViewShown(null);
         }
 
-        protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext)
+        protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var isAppeared = IsAppeared;
-            await ViewPresenterMediator.ActivateAsync(this, view, navigationContext).ConfigureAwait(false);
+            await ViewPresenterMediator.ActivateAsync(this, view, navigationContext, cancellationToken);
             if (IsAppeared && isAppeared)
                 OnViewActivated(null);
             return true;
@@ -151,7 +155,8 @@ namespace MugenMvvm.Presentation
                 IsAppeared = false;
         }
 
-        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext) => ViewPresenterMediator.CloseAsync(this, view, navigationContext);
+        protected override Task CloseViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken) =>
+            ViewPresenterMediator.CloseAsync(this, view, navigationContext, cancellationToken);
 
         protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenterMediator.Cleanup(this, view, navigationContext);
 

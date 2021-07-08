@@ -69,7 +69,7 @@ namespace MugenMvvm.Android.Bindings
 
         int IEqualityComparer<object>.GetHashCode(object obj)
         {
-            //todo replace to string.GetHashCode(ReadOnlySpan) when xamarin will support it
+            //todo replace to string.GetHashCode(ReadOnlySpan) when xamarin supports it
             if (obj is char[] s)
                 return ComputeHash32(s);
             return ComputeHash32(((NativeStringAccessor)obj).Span);

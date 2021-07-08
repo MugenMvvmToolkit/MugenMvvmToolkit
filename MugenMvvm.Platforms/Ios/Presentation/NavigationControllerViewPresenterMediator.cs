@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -46,13 +47,13 @@ namespace MugenMvvm.Ios.Presentation
         protected override bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             base.CanPresent(presenter, viewModel, mapping, metadata) && (CanPresentHandler == null || CanPresentHandler(presenter, viewModel, mapping, metadata));
 
-        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) =>
-            ShowInternalAsync(true, mediator, view, navigationContext);
+        protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext,
+            CancellationToken cancellationToken) => ShowInternalAsync(true, mediator, view, navigationContext, cancellationToken);
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext) =>
-            ShowInternalAsync(false, mediator, view, navigationContext);
+        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext, CancellationToken cancellationToken) =>
+            ShowInternalAsync(false, mediator, view, navigationContext, cancellationToken);
 
-        protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var controllers = NavigationController.ViewControllers;
             if (controllers == null)
@@ -80,7 +81,8 @@ namespace MugenMvvm.Ios.Presentation
             return Task.CompletedTask;
         }
 
-        private async Task ShowInternalAsync(bool bringToFront, IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext)
+        private async Task ShowInternalAsync(bool bringToFront, IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext,
+            CancellationToken cancellationToken)
         {
             var metadata = navigationContext.GetMetadataOrDefault();
             var animated = metadata.Get(NavigationMetadata.Animated);
@@ -88,13 +90,14 @@ namespace MugenMvvm.Ios.Presentation
             {
                 NavigationController.PushViewController(view, animated);
                 if (metadata.Get(NavigationMetadata.ClearBackStack))
-                    await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
+                    await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter, default);
                 return;
             }
 
             if (metadata.Get(NavigationMetadata.ClearBackStack))
-                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter);
+                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter, cancellationToken);
 
+            cancellationToken.ThrowIfCancellationRequested();
             if (Equals(NavigationController.TopViewController, view))
                 return;
 

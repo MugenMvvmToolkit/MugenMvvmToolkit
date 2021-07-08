@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 m.ShouldNotBeNull();
                 ++initializeCount;
             };
-            _viewPresenter.Show = (p, v, m) =>
+            _viewPresenter.Show = (p, v, m, c) =>
             {
                 p.ShouldEqual(_mediator);
                 v.ShouldEqual(_view.Target);
@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 ++showCount;
                 return Task.CompletedTask;
             };
-            _viewPresenter.Activate = (p, v, m) =>
+            _viewPresenter.Activate = (p, v, m, c) =>
             {
                 p.ShouldEqual(_mediator);
                 v.ShouldEqual(_view.Target);
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 ++activateCount;
                 return Task.CompletedTask;
             };
-            _viewPresenter.Close = (p, v, m) =>
+            _viewPresenter.Close = (p, v, m, c) =>
             {
                 p.ShouldEqual(_mediator);
                 v.ShouldEqual(_view.Target);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Navigation;
@@ -14,11 +15,11 @@ namespace MugenMvvm.Tests.Presentation
 
         public Action<IViewModelPresenterMediator, object, INavigationContext>? Cleanup { get; set; }
 
-        public Func<IViewModelPresenterMediator, object, INavigationContext, Task>? Activate { get; set; }
+        public Func<IViewModelPresenterMediator, object, INavigationContext, CancellationToken, Task>? Activate { get; set; }
 
-        public Func<IViewModelPresenterMediator, object, INavigationContext, Task>? Show { get; set; }
+        public Func<IViewModelPresenterMediator, object, INavigationContext, CancellationToken, Task>? Show { get; set; }
 
-        public Func<IViewModelPresenterMediator, object, INavigationContext, Task>? Close { get; set; }
+        public Func<IViewModelPresenterMediator, object, INavigationContext, CancellationToken, Task>? Close { get; set; }
 
         public NavigationType NavigationType { get; set; } = NavigationType.Alert;
 
@@ -31,13 +32,13 @@ namespace MugenMvvm.Tests.Presentation
         void IViewPresenterMediator.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
             => Cleanup?.Invoke(mediator, view, navigationContext);
 
-        Task IViewPresenterMediator.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
-            => Activate?.Invoke(mediator, view, navigationContext) ?? Task.CompletedTask;
+        Task IViewPresenterMediator.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => Activate?.Invoke(mediator, view, navigationContext, cancellationToken) ?? Task.CompletedTask;
 
-        Task IViewPresenterMediator.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
-            => Show?.Invoke(mediator, view, navigationContext) ?? Task.CompletedTask;
+        Task IViewPresenterMediator.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => Show?.Invoke(mediator, view, navigationContext, cancellationToken) ?? Task.CompletedTask;
 
-        Task IViewPresenterMediator.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext)
-            => Close?.Invoke(mediator, view, navigationContext) ?? Task.CompletedTask;
+        Task IViewPresenterMediator.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken)
+            => Close?.Invoke(mediator, view, navigationContext, cancellationToken) ?? Task.CompletedTask;
     }
 }

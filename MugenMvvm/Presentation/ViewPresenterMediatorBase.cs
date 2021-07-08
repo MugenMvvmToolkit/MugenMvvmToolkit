@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -16,11 +17,11 @@ namespace MugenMvvm.Presentation
 
         public int Priority { get; init; }
 
-        protected abstract Task ActivateAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task ActivateAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
-        protected abstract Task ShowAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task ShowAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
-        protected abstract Task CloseAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext);
+        protected abstract Task CloseAsync(IViewModelPresenterMediator mediator, TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
         protected virtual bool CanPresent(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata) =>
             typeof(TView).IsAssignableFrom(mapping.ViewType);
@@ -36,21 +37,34 @@ namespace MugenMvvm.Presentation
         }
 
         object? IViewPresenterMediator.TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext)
-            => TryGetViewRequest(mediator, (TView?) view, navigationContext);
+            => TryGetViewRequest(mediator, (TView?)view, navigationContext);
 
         void IViewPresenterMediator.Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) =>
-            Initialize(mediator, (TView) view, navigationContext);
+            Initialize(mediator, (TView)view, navigationContext);
 
-        void IViewPresenterMediator.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) => Cleanup(mediator, (TView) view, navigationContext);
+        void IViewPresenterMediator.Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) =>
+            Cleanup(mediator, (TView)view, navigationContext);
 
-        Task IViewPresenterMediator.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) =>
-            ActivateAsync(mediator, (TView) view, navigationContext);
+        Task IViewPresenterMediator.ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return Task.FromCanceled(cancellationToken);
+            return ActivateAsync(mediator, (TView)view, navigationContext, cancellationToken);
+        }
 
-        Task IViewPresenterMediator.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) =>
-            ShowAsync(mediator, (TView) view, navigationContext);
+        Task IViewPresenterMediator.ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return Task.FromCanceled(cancellationToken);
+            return ShowAsync(mediator, (TView)view, navigationContext, cancellationToken);
+        }
 
-        Task IViewPresenterMediator.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext) =>
-            CloseAsync(mediator, (TView) view, navigationContext);
+        Task IViewPresenterMediator.CloseAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken)
+        {
+            if (cancellationToken.IsCancellationRequested)
+                return Task.FromCanceled(cancellationToken);
+            return CloseAsync(mediator, (TView)view, navigationContext, cancellationToken);
+        }
 
         IViewPresenterMediator? IViewPresenterMediatorProviderComponent.TryGetViewPresenter(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,
             IReadOnlyMetadataContext? metadata) =>
