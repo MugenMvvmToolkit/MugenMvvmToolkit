@@ -14,13 +14,13 @@ namespace MugenMvvm.ViewModels.Components
 {
     public sealed class CacheViewModelProvider : IViewModelProviderComponent, IViewModelLifecycleListener, IHasPriority
     {
-        private readonly bool _isWeakCache;
+        private readonly bool _isWeak;
         private readonly IWeakReferenceManager? _weakReferenceManager;
         private readonly Dictionary<string, object> _viewModelsCache;
 
-        public CacheViewModelProvider(bool isWeakCache = true, IWeakReferenceManager? weakReferenceManager = null)
+        public CacheViewModelProvider(bool isWeak = true, IWeakReferenceManager? weakReferenceManager = null)
         {
-            _isWeakCache = isWeakCache;
+            _isWeak = isWeak;
             _weakReferenceManager = weakReferenceManager;
             _viewModelsCache = new Dictionary<string, object>(StringComparer.Ordinal);
         }
@@ -41,7 +41,7 @@ namespace MugenMvvm.ViewModels.Components
                     return null;
             }
 
-            if (!_isWeakCache)
+            if (!_isWeak)
                 return (IViewModelBase)value;
 
             var vm = (IViewModelBase?)((IWeakReference)value).Target;
@@ -56,7 +56,7 @@ namespace MugenMvvm.ViewModels.Components
                 return;
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? viewModel.ToWeakReference(_weakReferenceManager) : viewModel;
+                _viewModelsCache[id] = _isWeak ? viewModel.ToWeakReference(_weakReferenceManager) : viewModel;
             }
         }
 

@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests
 
         protected TestBinding Binding => _binding ??= new TestBinding(ComponentCollectionManager);
 
-        protected static void WaitCompletion(int milliseconds = 10, Func<bool>? predicate = null, int attemptCount = 4)
+        protected static void WaitCompletion(int milliseconds = 10, Func<bool>? predicate = null, int attemptCount = 20)
         {
             int count = 0;
             while (true)

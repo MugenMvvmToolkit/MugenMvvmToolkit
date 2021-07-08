@@ -179,7 +179,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _itemChangedCount.ShouldEqual(0);
             }
 
-            await Task.Delay(delay * 3);
+            WaitCompletion(delay, () => _collectionChangedCount == 1 && _itemChangedCount == 1);
             _collectionChangedCount.ShouldEqual(1);
             _itemChangedCount.ShouldEqual(1);
         }
