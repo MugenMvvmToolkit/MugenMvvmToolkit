@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Navigation.Components
@@ -25,41 +26,104 @@ namespace MugenMvvm.Navigation.Components
 
         public int Priority { get; init; } = NavigationComponentPriority.CallbackManager;
 
-        private static void AddCallback(IMetadataContextKey<List<NavigationCallback?>> key, NavigationCallback callback, IMetadataContext? metadata)
+        public INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId,
+            NavigationType navigationType, object request, IReadOnlyMetadataContext? metadata)
         {
-            var callbacks = metadata?.GetOrAdd(key, key, (_, __, ___) => new List<NavigationCallback?>());
-            if (callbacks == null)
-                return;
+            var key = GetKeyByCallback(callbackType);
+            if (key == null)
+                return null;
+
+            if (request is IHasTarget<object?> hasTarget && hasTarget.Target != null)
+                request = hasTarget.Target;
+
+            var targetMetadata = (IMetadataContext?)GetTargetMetadata(request, false);
+            if (targetMetadata == null)
+                return null;
+
+            var callbacks = targetMetadata.GetOrAdd(key, request, (_, _, t) =>
+            {
+                var list = new List<NavigationCallback?>(2);
+                if (t is IHasDisposeCallback hasDisposeCallback)
+                    hasDisposeCallback.RegisterDisposeToken(GetDisposeTargetToken(t, list));
+                return list;
+            });
             lock (callbacks)
             {
-                callbacks.Add(callback);
+                var callback = TryFindCallback(callbacks, callbackType, navigationId, navigationType, key);
+                if (callback == null)
+                {
+                    callback = new NavigationCallback(callbackType, navigationId, navigationType);
+                    callbacks.Add(callback);
+                }
+
+                return callback;
             }
         }
 
-        private static NavigationCallback? TryFindCallback(NavigationCallbackType callbackType, string navigationId, NavigationType navigationType,
-            IReadOnlyMetadataContextKey<List<NavigationCallback?>> key,
-            IReadOnlyMetadataContext metadata)
+        public ItemOrIReadOnlyList<INavigationCallback> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata)
         {
-            var callbacks = metadata.Get(key);
-            if (callbacks == null)
-                return null;
-            lock (callbacks)
+            var targetMetadata = (IMetadataContext?)GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, true);
+            if (targetMetadata == null)
+                return default;
+
+            var list = new ItemOrListEditor<INavigationCallback>(3);
+            AddCallbacks(InternalMetadata.ShowingCallbacks, targetMetadata, ref list);
+            AddCallbacks(InternalMetadata.ClosingCallbacks, targetMetadata, ref list);
+            AddCallbacks(InternalMetadata.CloseCallbacks, targetMetadata, ref list);
+            return list;
+        }
+
+        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext) =>
+            InvokeCallbacks(navigationContext, callbackType, null, false, default);
+
+        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext,
+            Exception exception) =>
+            InvokeCallbacks(navigationContext, callbackType, exception, false, default);
+
+        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext,
+            CancellationToken cancellationToken) =>
+            InvokeCallbacks(navigationContext, callbackType, null, true, cancellationToken);
+
+        private static ActionToken GetDisposeTargetToken(object target, List<NavigationCallback?> callbacks) =>
+            ActionToken.FromDelegate((t, l) =>
             {
-                for (var i = 0; i < callbacks.Count; i++)
+                var list = (List<NavigationCallback?>)l!;
+                lock (list)
                 {
-                    var callback = callbacks[i];
-                    if (callback != null && callback.NavigationId == navigationId && callback.CallbackType == callbackType && callback.NavigationType == navigationType)
-                        return callback;
+                    if (list.Count == 0)
+                        return;
+
+                    for (var i = list.Count - 1; i >= 0; i--)
+                    {
+                        var navigationCallback = list[i];
+                        if (navigationCallback == null)
+                            continue;
+
+                        var context = new NavigationContext(t, NavigationProvider.System, navigationCallback.NavigationId, navigationCallback.NavigationType, NavigationMode.Close);
+                        navigationCallback.TrySetException(context, new ObjectDisposedException(t!.GetType().FullName));
+                    }
+
+                    list.Clear();
                 }
+            }, target, callbacks);
+
+        private static NavigationCallback? TryFindCallback(List<NavigationCallback?> callbacks, NavigationCallbackType callbackType, string navigationId,
+            NavigationType navigationType, IReadOnlyMetadataContextKey<List<NavigationCallback?>> key)
+        {
+            for (var i = 0; i < callbacks.Count; i++)
+            {
+                var callback = callbacks[i];
+                if (callback != null && callback.NavigationId == navigationId && callback.CallbackType == callbackType && callback.NavigationType == navigationType)
+                    return callback;
             }
 
             return null;
         }
 
-        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext? metadata,
+        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext metadata,
             ref ItemOrListEditor<INavigationCallback> editor)
         {
-            var callbacks = metadata?.Get(key);
+            var callbacks = metadata.Get(key);
             if (callbacks == null)
                 return;
 
@@ -80,44 +144,6 @@ namespace MugenMvvm.Navigation.Components
                 return InternalMetadata.CloseCallbacks;
             return null;
         }
-
-        public INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId,
-            NavigationType navigationType, object request,
-            IReadOnlyMetadataContext? metadata)
-        {
-            var key = GetKeyByCallback(callbackType);
-            if (key == null)
-                return null;
-
-            var targetMetadata = (IMetadataContext?) GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
-            if (targetMetadata == null)
-                return null;
-
-            var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
-            if (callback == null)
-            {
-                callback = new NavigationCallback(callbackType, navigationId, navigationType);
-                AddCallback(key, callback, targetMetadata);
-            }
-
-            if (request is IMetadataOwner<IReadOnlyMetadataContext> owner && owner.Metadata is IMetadataContext m && m != targetMetadata)
-                AddCallback(key, callback, m);
-            return callback;
-        }
-
-        public ItemOrIReadOnlyList<INavigationCallback> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata) =>
-            GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), (request as IHasTarget<object?>)?.Target ?? request);
-
-        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext) =>
-            InvokeCallbacks(navigationContext, callbackType, null, false, default);
-
-        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext,
-            Exception exception) =>
-            InvokeCallbacks(navigationContext, callbackType, exception, false, default);
-
-        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext,
-            CancellationToken cancellationToken) =>
-            InvokeCallbacks(navigationContext, callbackType, null, true, cancellationToken);
 
         private bool InvokeCallbacks(INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled,
             CancellationToken cancellationToken)
@@ -148,9 +174,8 @@ namespace MugenMvvm.Navigation.Components
             if (toInvoke.IsEmpty)
                 return false;
 
-            for (var i = 0; i < toInvoke.Count; i++)
+            foreach (var callback in toInvoke)
             {
-                var callback = toInvoke[i];
                 if (exception != null)
                     callback.SetException(navigationContext, exception);
                 else if (canceled)
@@ -160,26 +185,6 @@ namespace MugenMvvm.Navigation.Components
             }
 
             return true;
-        }
-
-        private ItemOrIReadOnlyList<INavigationCallback> GetCallbacks(IReadOnlyMetadataContext? metadata, object target)
-        {
-            var canMoveNext = true;
-            var list = new ItemOrListEditor<INavigationCallback>(3);
-            while (true)
-            {
-                AddCallbacks(InternalMetadata.ShowingCallbacks, metadata, ref list);
-                AddCallbacks(InternalMetadata.ClosingCallbacks, metadata, ref list);
-                AddCallbacks(InternalMetadata.CloseCallbacks, metadata, ref list);
-
-                if (!list.IsEmpty || !canMoveNext)
-                    break;
-                if (list.IsEmpty)
-                    metadata = GetTargetMetadata(target, true);
-                canMoveNext = false;
-            }
-
-            return list.ToItemOrList();
         }
 
         private IReadOnlyMetadataContext? GetTargetMetadata(object? target, bool isReadonly)
@@ -199,10 +204,10 @@ namespace MugenMvvm.Navigation.Components
             if (isReadonly)
             {
                 attachedValues.TryGet(InternalConstant.CallbackMetadataKey, out var m);
-                return (IReadOnlyMetadataContext?) m;
+                return (IReadOnlyMetadataContext?)m;
             }
 
-            return attachedValues.GetOrAdd(InternalConstant.CallbackMetadataKey, this, (o, manager) => new MetadataContext());
+            return attachedValues.GetOrAdd(InternalConstant.CallbackMetadataKey, this, (_, _) => new MetadataContext());
         }
     }
 }

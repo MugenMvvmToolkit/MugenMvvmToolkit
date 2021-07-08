@@ -10,8 +10,7 @@ namespace MugenMvvm.Interfaces.Navigation.Components
     public interface INavigationCallbackManagerComponent : IComponent<INavigationDispatcher>
     {
         INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId,
-            NavigationType navigationType,
-            object request, IReadOnlyMetadataContext? metadata);
+            NavigationType navigationType, object request, IReadOnlyMetadataContext? metadata);
 
         ItemOrIReadOnlyList<INavigationCallback> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata);
 

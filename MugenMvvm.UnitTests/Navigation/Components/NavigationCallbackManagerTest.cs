@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
+using MugenMvvm.Tests.Internal;
 using MugenMvvm.Tests.Metadata;
 using MugenMvvm.Tests.Navigation;
 using Should;
@@ -26,19 +27,45 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             NavigationDispatcher.AddComponent(_callbackManager);
         }
 
-        [Fact]
-        public void TryAddNavigationCallbackShouldIgnoreUnknownType()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(2)]
+        [InlineData(10)]
+        public void ShouldSetDisposedExceptionIfTargetWasDisposed(int count)
         {
-            var result = GetPresenterResult(new TestMetadataOwner<IMetadataContext>
-            {
-                HasMetadata = true,
-                Metadata = new MetadataContext()
-            });
-            _callbackManager.TryAddNavigationCallback(NavigationDispatcher, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata)
-                            .ShouldBeNull();
-        }
+            var target = new TestHasDisposeCallback();
+            var result = GetPresenterResult(target);
+            var type = NavigationCallbackType.Close;
+            var callbacks = new List<INavigationCallback>();
+            var tokens = new List<ActionToken>();
+            target.RegisterDisposeToken = token => tokens.Add(token);
 
-        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
+            for (var i = 0; i < count; i++)
+            {
+                var callback = _callbackManager.TryAddNavigationCallback(NavigationDispatcher, type, result.NavigationId, result.NavigationType, result, DefaultMetadata)!;
+                callbacks.Add(callback);
+                callback.AddCallback(new TestNavigationCallbackListener
+                {
+                    OnCompleted = _ => throw new NotSupportedException(),
+                    OnCanceled = (_, _) => throw new NotSupportedException(),
+                    OnError = (context, ex) =>
+                    {
+                        ex.ShouldBeType<ObjectDisposedException>();
+                        context.Target.ShouldEqual(target);
+                        context.NavigationMode.ShouldEqual(NavigationMode.Close);
+                        context.NavigationProvider.ShouldEqual(NavigationProvider.System);
+                        context.NavigationType.ShouldEqual(result.NavigationType);
+                        context.NavigationId.ShouldEqual(result.NavigationId);
+                        callbacks.Remove(callback);
+                    }
+                });
+            }
+
+            foreach (var token in tokens)
+                token.Dispose();
+            callbacks.Count.ShouldEqual(0);
+            _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldBeEmpty();
+        }
 
         [Theory]
         [InlineData(true, 1)]
@@ -84,6 +111,18 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             addedCallbacks.Count.ShouldEqual(1);
         }
 
+        [Fact]
+        public void TryAddNavigationCallbackShouldIgnoreUnknownType()
+        {
+            var result = GetPresenterResult(new TestMetadataOwner<IMetadataContext>
+            {
+                HasMetadata = true,
+                Metadata = new MetadataContext()
+            });
+            _callbackManager.TryAddNavigationCallback(NavigationDispatcher, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, DefaultMetadata)
+                            .ShouldBeNull();
+        }
+
         [Theory]
         [InlineData(true, 1)]
         [InlineData(false, 1)]
@@ -91,7 +130,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [InlineData(false, 2)]
         [InlineData(true, 10)]
         [InlineData(false, 10)]
-        public void TryInvokeNavigationCallbacksShouldInvokeCallbacks1(bool metadataOwnerTarget, int count)
+        public void TryInvokeNavigationCallbacksShouldInvokeCallbacksCancel(bool metadataOwnerTarget, int count)
         {
             var target = metadataOwnerTarget
                 ? new TestMetadataOwner<IMetadataContext>
@@ -111,21 +150,22 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 callbacks.Add(callback);
                 callback.AddCallback(new TestNavigationCallbackListener
                 {
-                    OnCompleted = context =>
+                    OnCompleted = _ => throw new NotSupportedException(),
+                    OnCanceled = (context, token) =>
                     {
+                        token.ShouldEqual(DefaultCancellationToken);
                         context.ShouldEqual(navigationContext);
                         callbacks.Remove(callback);
                     },
-                    OnCanceled = (_, _) => throw new NotSupportedException(),
                     OnError = (_, _) => throw new NotSupportedException()
                 });
             }
 
-            var wrongIdCtx = GetNavigationContext(this, NavigationMode.New);
-            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, wrongIdCtx).ShouldBeFalse();
+            var wrongIdCtx = GetNavigationContext(target, NavigationMode.New);
+            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, wrongIdCtx, DefaultCancellationToken).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext).ShouldBeTrue();
+            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext, DefaultCancellationToken).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
             _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldBeEmpty();
         }
@@ -137,7 +177,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [InlineData(false, 2)]
         [InlineData(true, 10)]
         [InlineData(false, 10)]
-        public void TryInvokeNavigationCallbacksShouldInvokeCallbacks2(bool metadataOwnerTarget, int count)
+        public void TryInvokeNavigationCallbacksShouldInvokeCallbacksError(bool metadataOwnerTarget, int count)
         {
             var exception = new Exception();
             var target = metadataOwnerTarget
@@ -185,7 +225,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
         [InlineData(false, 2)]
         [InlineData(true, 10)]
         [InlineData(false, 10)]
-        public void TryInvokeNavigationCallbacksShouldInvokeCallbacks3(bool metadataOwnerTarget, int count)
+        public void TryInvokeNavigationCallbacksShouldInvokeCallbacksSuccess(bool metadataOwnerTarget, int count)
         {
             var target = metadataOwnerTarget
                 ? new TestMetadataOwner<IMetadataContext>
@@ -205,24 +245,25 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 callbacks.Add(callback);
                 callback.AddCallback(new TestNavigationCallbackListener
                 {
-                    OnCompleted = _ => throw new NotSupportedException(),
-                    OnCanceled = (context, token) =>
+                    OnCompleted = context =>
                     {
-                        token.ShouldEqual(DefaultCancellationToken);
                         context.ShouldEqual(navigationContext);
                         callbacks.Remove(callback);
                     },
+                    OnCanceled = (_, _) => throw new NotSupportedException(),
                     OnError = (_, _) => throw new NotSupportedException()
                 });
             }
 
-            var wrongIdCtx = GetNavigationContext(target, NavigationMode.New);
-            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, wrongIdCtx, DefaultCancellationToken).ShouldBeFalse();
+            var wrongIdCtx = GetNavigationContext(this, NavigationMode.New);
+            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, wrongIdCtx).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext, DefaultCancellationToken).ShouldBeTrue();
+            _callbackManager.TryInvokeNavigationCallbacks(NavigationDispatcher, type, navigationContext).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
             _callbackManager.TryGetNavigationCallbacks(NavigationDispatcher, target, DefaultMetadata).ShouldBeEmpty();
         }
+
+        protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
     }
 }

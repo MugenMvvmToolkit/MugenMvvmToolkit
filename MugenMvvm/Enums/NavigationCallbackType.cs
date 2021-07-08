@@ -9,9 +9,9 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class NavigationCallbackType : EnumBase<NavigationCallbackType, int>
     {
-        public static readonly NavigationCallbackType Showing = new(1);
-        public static readonly NavigationCallbackType Closing = new(2);
-        public static readonly NavigationCallbackType Close = new(3);
+        public static readonly NavigationCallbackType Showing = new(1, nameof(Showing));
+        public static readonly NavigationCallbackType Closing = new(2, nameof(Closing));
+        public static readonly NavigationCallbackType Close = new(3, nameof(Close));
 
         public NavigationCallbackType(int value, string? name = null) : base(value, name)
         {
