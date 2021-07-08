@@ -6,19 +6,23 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
     public class ViewModelCleaner : IViewModelLifecycleListener, IHasPriority
     {
         private readonly IAttachedValueManager? _attachedValueManager;
+        private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
 
-        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueManager = null)
+        public ViewModelCleaner(IPresenter? presenter = null, IViewManager? viewManager = null, IAttachedValueManager? attachedValueManager = null)
         {
+            _presenter = presenter;
             _viewManager = viewManager;
             _attachedValueManager = attachedValueManager;
         }
@@ -28,11 +32,16 @@ namespace MugenMvvm.ViewModels.Components
         public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewModelLifecycleState.Disposed)
-                Cleanup(viewModel, lifecycleState, state, metadata);
+            if (lifecycleState == ViewModelLifecycleState.Disposing)
+                OnDisposing(viewModel, state, metadata);
+            else if (lifecycleState == ViewModelLifecycleState.Disposed)
+                OnDisposed(viewModel, state, metadata);
         }
 
-        protected virtual void Cleanup(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnDisposing(IViewModelBase viewModel, object? state, IReadOnlyMetadataContext? metadata) =>
+            _presenter.DefaultIfNull().TryClose(viewModel, default, metadata.WithValue(NavigationMetadata.ForceClose, true));
+
+        protected virtual void OnDisposed(IViewModelBase viewModel, object? state, IReadOnlyMetadataContext? metadata)
         {
             var viewManager = _viewManager.DefaultIfNull(viewModel);
             foreach (var v in viewManager.GetViews(viewModel, metadata))

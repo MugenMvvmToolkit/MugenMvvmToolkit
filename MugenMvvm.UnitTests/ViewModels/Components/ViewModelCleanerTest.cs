@@ -12,6 +12,7 @@ using MugenMvvm.Internal;
 using MugenMvvm.Messaging.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Tests.Messaging;
+using MugenMvvm.Tests.Presentation;
 using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Tests.Views;
 using MugenMvvm.ViewModels;
@@ -27,7 +28,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
     {
         public ViewModelCleanerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            ViewModelManager.AddComponent(new ViewModelCleaner(ViewManager, AttachedValueManager));
+            ViewModelManager.AddComponent(new ViewModelCleaner(Presenter, ViewManager, AttachedValueManager));
         }
 
         [Fact]
@@ -77,6 +78,29 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             viewModel.Metadata.Set(ViewModelMetadata.ViewModel, viewModel);
             ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Metadata.TryGet(ViewModelMetadata.ViewModel, out var vm).ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldCloseViews()
+        {
+            var closeCount = 0;
+            var viewModel = new TestCleanerViewModel();
+            Presenter.AddComponent(new TestPresenterComponent
+            {
+                TryClose = (_, o, m, _) =>
+                {
+                    o.ShouldEqual(viewModel);
+                    m!.Get(NavigationMetadata.ForceClose).ShouldBeTrue();
+                    ++closeCount;
+                    return default;
+                }
+            });
+
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposing, this, DefaultMetadata);
+            closeCount.ShouldEqual(1);
+
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
+            closeCount.ShouldEqual(1);
         }
 
         [Fact]
