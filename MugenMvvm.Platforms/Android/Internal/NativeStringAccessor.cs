@@ -13,12 +13,9 @@ namespace MugenMvvm.Android.Internal
             get => new(_handle.ToPointer(), Length);
         }
 
-        public int Length
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get;
-            private set;
-        }
+        public int Length { get; private set; }
+
+        public override string ToString() => new(Span);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Initialize(IntPtr handle, int length)
@@ -26,7 +23,5 @@ namespace MugenMvvm.Android.Internal
             _handle = handle;
             Length = length;
         }
-
-        public override string ToString() => new(Span);
     }
 }

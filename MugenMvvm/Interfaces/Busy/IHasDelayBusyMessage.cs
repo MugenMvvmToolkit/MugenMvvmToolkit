@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Busy
 {
-    public interface IHasBusyDelayMessage
+    public interface IHasDelayBusyMessage
     {
         int Delay { get; }
     }

@@ -738,13 +738,12 @@ namespace MugenMvvm.Bindings.Extensions
             return objects;
         }
 
-        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata,
-            ref ActionToken unsubscriber,
-            ref IWeakReference? lastValueRef)
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember,
+            IReadOnlyMetadataContext? metadata, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
         {
-            unsubscriber.Dispose();
             if (target == null || lastMember is not IAccessorMemberInfo propertyInfo)
             {
+                unsubscriber.Dispose();
                 unsubscriber = ActionToken.NoDo;
                 return;
             }
@@ -753,6 +752,7 @@ namespace MugenMvvm.Bindings.Extensions
             if (value == lastValueRef?.Target)
                 return;
 
+            unsubscriber.Dispose();
             if (value.IsNullOrUnsetValue())
             {
                 unsubscriber = ActionToken.NoDo;

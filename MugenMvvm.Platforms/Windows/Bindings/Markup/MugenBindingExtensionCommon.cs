@@ -168,7 +168,6 @@ namespace MugenMvvm.Windows.Bindings.Markup
                    Equals(TargetNullValue, other.TargetNullValue) && Trace == other.Trace;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void BoolParameter(ref ItemOrListEditor<KeyValuePair<string?, object>> editor, IExpressionNode parameter, bool? value)
         {
             if (!value.HasValue)

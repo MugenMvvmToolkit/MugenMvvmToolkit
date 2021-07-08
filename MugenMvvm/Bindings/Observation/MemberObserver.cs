@@ -17,6 +17,7 @@ namespace MugenMvvm.Bindings.Observation
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken>? _handler;
         private readonly object? _member;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemberObserver(Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> handler, object member)
         {
             Should.NotBeNull(handler, nameof(handler));

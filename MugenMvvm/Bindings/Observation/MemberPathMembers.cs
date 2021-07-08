@@ -40,7 +40,7 @@ namespace MugenMvvm.Bindings.Observation
             get
             {
                 if (_membersRaw == null)
-                    return (Exception?) _target;
+                    return (Exception?)_target;
                 return null;
             }
         }
@@ -68,7 +68,7 @@ namespace MugenMvvm.Bindings.Observation
             if (_membersRaw == null)
             {
                 if (_target is Exception e)
-                    throw e;
+                    ExceptionManager.Throw(e);
                 return false;
             }
 

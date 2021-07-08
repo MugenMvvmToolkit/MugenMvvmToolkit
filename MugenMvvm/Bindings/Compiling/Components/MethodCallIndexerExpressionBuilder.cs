@@ -677,13 +677,19 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly Expression? Expression;
             public readonly Type Type;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TargetData(Type type, Expression? expression)
             {
                 Type = type;
                 Expression = expression;
             }
 
-            public bool IsStatic => Expression == null;
+            [MemberNotNullWhen(false, nameof(Expression))]
+            public bool IsStatic
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Expression == null;
+            }
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -693,6 +699,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly Expression? Expression;
             public readonly Type? Type;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ArgumentData(IExpressionNode node, Expression? expression, Type? type)
             {
                 Should.NotBeNull(node, nameof(node));
@@ -721,12 +728,14 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly IMethodMemberInfo? Method;
             private readonly object? _args;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MethodData(IMethodMemberInfo method)
                 : this(method, null)
             {
                 Method = method;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MethodData(IMethodMemberInfo method, IMethodMemberInfo? unresolvedMethod, object? args = null)
             {
                 Method = method;
@@ -740,6 +749,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             public int ExpectedParameterCount
             {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
                     if (_args == null)
@@ -752,9 +762,17 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
             }
 
-            public ItemOrArray<Expression> Expressions => ItemOrArray.FromRawValue<Expression>(_args);
+            public ItemOrArray<Expression> Expressions
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ItemOrArray.FromRawValue<Expression>(_args);
+            }
 
-            public ItemOrIReadOnlyList<IParameterInfo> Parameters => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
+            public ItemOrIReadOnlyList<IParameterInfo> Parameters
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
+            }
 
             public Type GetExpectedParameterType(int index)
             {

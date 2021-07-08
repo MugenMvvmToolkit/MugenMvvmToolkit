@@ -175,7 +175,6 @@ namespace MugenMvvm.Extensions
         public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent =>
             owner.GetComponents<TComponent>(metadata).FirstOrDefault();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Add(this IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(collection, nameof(collection));

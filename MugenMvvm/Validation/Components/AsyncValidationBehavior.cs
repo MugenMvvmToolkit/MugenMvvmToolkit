@@ -55,8 +55,9 @@ namespace MugenMvvm.Validation.Components
 
                 task.ContinueWith((_, s) =>
                 {
-                    var state = (Tuple<AsyncValidationBehavior, string, CancellationTokenSource, IReadOnlyMetadataContext?>) s!;
+                    var state = (Tuple<AsyncValidationBehavior, string, CancellationTokenSource, IReadOnlyMetadataContext?>)s!;
                     state.Item1.OnAsyncValidationCompleted(state.Item2, state.Item3, state.Item4);
+                    state.Item3.Dispose();
                 }, Tuple.Create(this, member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
             }
 

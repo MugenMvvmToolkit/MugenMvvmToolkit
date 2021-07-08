@@ -75,7 +75,7 @@ namespace MugenMvvm.Bindings.Observation
             if (_member == null)
             {
                 if (_target is Exception e)
-                    throw e;
+                    ExceptionManager.Throw(e);
                 return false;
             }
 

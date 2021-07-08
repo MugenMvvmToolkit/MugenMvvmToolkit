@@ -40,16 +40,24 @@ namespace MugenMvvm.Validation.Components
 
         public object Target { get; }
 
-        public Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (_disposeToken == null)
             {
                 Validate(validator, member, metadata);
-                return Task.CompletedTask;
+                return;
             }
 
-            return ValidateAsync(validator, member,
-                cancellationToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeToken.Token).Token : _disposeToken.Token, metadata);
+            var token = cancellationToken.CanBeCanceled ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeToken.Token) : _disposeToken;
+            try
+            {
+                await ValidateAsync(validator, member, token.Token, metadata).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (cancellationToken.CanBeCanceled)
+                    token.Dispose();
+            }
         }
 
         private async Task ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)

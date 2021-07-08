@@ -290,7 +290,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
             _itemCollection2.Reset(new[] { 1, 2, 3, 4, 5 });
             Assert();
-            _targetCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            _targetCollection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
         }
 
@@ -653,7 +653,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _itemCollection1.Reset(new[] { 1, 2, 3, 4, 5 });
             Assert();
-            _targetCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            _targetCollection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
 
             _itemCollection1[0] = 200;

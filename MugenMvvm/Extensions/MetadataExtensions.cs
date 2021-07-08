@@ -15,15 +15,12 @@ namespace MugenMvvm.Extensions
     {
         private static Action<IReadOnlyMetadataContext, object, object>? _notNullValidateAction;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder)
             where T : class =>
             builder.WithValidation(_notNullValidateAction ??= (ctx, k, value) => Should.NotBeNull(value, nameof(value)));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IReadOnlyMetadataContext ToContext<T>(this IMetadataContextKey<T> key, T value) => new SingleValueMetadataContext(key.ToValue(value));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static KeyValuePair<IMetadataContextKey, object?> ToValue<T>(this IMetadataContextKey<T> key, T value)
         {
             Should.NotBeNull(key, nameof(key));

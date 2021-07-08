@@ -55,9 +55,8 @@ namespace MugenMvvm.Extensions
         public static async ValueTask<bool> WhenAll(this ItemOrListEditor<INavigationCallback> callbacks, bool handleCancel, bool isSerializable)
         {
             var result = false;
-            for (var i = 0; i < callbacks.Count; i++)
+            foreach (var callback in callbacks)
             {
-                var callback = callbacks[i];
                 if (callback == null)
                     continue;
                 try
@@ -91,7 +90,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(busyManager, nameof(busyManager));
             if (task.IsCompleted)
                 return task;
-            if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
+            if (millisecondsDelay == 0 && message is IHasDelayBusyMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
             var token = busyManager.BeginBusy(millisecondsDelay > 0 ? new DelayBusyRequest(message, millisecondsDelay) : message, metadata);
             task.ContinueWith((t, o) => ((IDisposable) o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
@@ -112,7 +111,7 @@ namespace MugenMvvm.Extensions
             if (task.IsCompleted)
                 return task.Result;
 
-            if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
+            if (millisecondsDelay == 0 && message is IHasDelayBusyMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
             using var token = busyManager.BeginBusy(millisecondsDelay > 0 ? new DelayBusyRequest(message, millisecondsDelay) : message, metadata);
             return await task.ConfigureAwait(false);

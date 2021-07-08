@@ -44,16 +44,20 @@ namespace MugenMvvm.Extensions
             return component == null ? collection.AsEnumerable() : component.Decorate(collection);
         }
 
-        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> value)
+        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrArray<T> itemOrArray) => Reset(collection, (ItemOrIEnumerable<T>)itemOrArray);
+
+        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIReadOnlyList<T> itemOrIReadOnly) => Reset(collection, (ItemOrIEnumerable<T>)itemOrIReadOnly);
+
+        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> itemOrIEnumerable)
         {
             Should.NotBeNull(collection, nameof(collection));
-            if (value.List is IReadOnlyCollection<T> l)
+            if (itemOrIEnumerable.List is IReadOnlyCollection<T> l)
                 collection.Reset(l);
             else
             {
                 using var _ = collection.BatchUpdate();
                 collection.Clear();
-                foreach (var item in value)
+                foreach (var item in itemOrIEnumerable)
                     collection.Add(item);
             }
         }
