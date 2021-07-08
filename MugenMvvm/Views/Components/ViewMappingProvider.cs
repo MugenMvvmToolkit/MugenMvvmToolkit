@@ -72,22 +72,23 @@ namespace MugenMvvm.Views.Components
                     }
                     else if (vm != null && view != null)
                     {
-                        if (mapping.IsValidViewModelType(vm.GetType(), vm, metadata) && mapping.IsValidViewType(type ?? view.GetType(), view, metadata))
+                        if (mapping.IsValidViewModelType(vm.GetType(), vm, mappings.Count, metadata) &&
+                            mapping.IsValidViewType(type ?? view.GetType(), view, mappings.Count, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (vm != null)
                     {
-                        if (mapping.IsValidViewModelType(vm.GetType(), vm, metadata))
+                        if (mapping.IsValidViewModelType(vm.GetType(), vm, mappings.Count, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (type != null)
                     {
-                        if (mapping.IsValidViewModelType(type, null, metadata) || mapping.IsValidViewType(type, null, metadata))
+                        if (mapping.IsValidViewModelType(type, null, mappings.Count, metadata) || mapping.IsValidViewType(type, null, mappings.Count, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (view != null)
                     {
-                        if (mapping.IsValidViewType(view.GetType(), view, metadata))
+                        if (mapping.IsValidViewType(view.GetType(), view, mappings.Count, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                 }
@@ -110,18 +111,21 @@ namespace MugenMvvm.Views.Components
                 Mapping = mapping;
             }
 
-            public bool IsValidViewType(Type viewType, object? target, IReadOnlyMetadataContext? metadata) => IsValidType(Mapping.ViewType, viewType, target, metadata);
+            public bool IsValidViewType(Type viewType, object? target, int resolvedCount, IReadOnlyMetadataContext? metadata) =>
+                IsValidType(Mapping.ViewType, viewType, target, resolvedCount, metadata);
 
-            public bool IsValidViewModelType(Type viewModelType, object? target, IReadOnlyMetadataContext? metadata) =>
-                IsValidType(Mapping.ViewModelType, viewModelType, target, metadata);
+            public bool IsValidViewModelType(Type viewModelType, object? target, int resolvedCount, IReadOnlyMetadataContext? metadata) =>
+                IsValidType(Mapping.ViewModelType, viewModelType, target, resolvedCount, metadata);
 
-            private bool IsValidType(Type mappingType, Type requestedType, object? target, IReadOnlyMetadataContext? metadata)
+            private bool IsValidType(Type mappingType, Type requestedType, object? target, int resolvedCount, IReadOnlyMetadataContext? metadata)
             {
                 if (_name != GetViewNameFromContext(target, metadata))
                     return false;
 
                 if (mappingType.IsGenericTypeDefinition)
                 {
+                    if (resolvedCount != 0)
+                        return false;
                     if (requestedType.IsGenericType && mappingType == requestedType.GetGenericTypeDefinition())
                         return true;
                 }
