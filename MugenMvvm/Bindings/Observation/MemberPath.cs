@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Collections;
@@ -86,6 +87,9 @@ namespace MugenMvvm.Bindings.Observation
         public ItemOrIReadOnlyList<string> Members => ItemOrIReadOnlyList.FromRawValue<string>(_members);
 
         string? IValueHolder<string>.Value { get; set; }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsMultiPath(string? path) => path != null && (path.IndexOf('.') >= 0 || path.IndexOf('[') >= 0);
 
         public static IMemberPath Get(string path)
         {
