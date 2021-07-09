@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -48,6 +49,7 @@ namespace MugenMvvm.Ios.Views
                 {
                     source = new MugenTableViewSource(tableView, GetCellTemplateSelector(tableView));
                     tableView.Source = source;
+                    BindableMembers.For<object>().ItemsSource().TryRaise(view);
                 }
 
                 source.CollectionAdapter.Collection = value;
@@ -60,6 +62,7 @@ namespace MugenMvvm.Ios.Views
                 {
                     source = new MugenCollectionViewSource(collection, GetCellTemplateSelector(collection));
                     collection.Source = source;
+                    BindableMembers.For<object>().ItemsSource().TryRaise(view);
                 }
 
                 source.CollectionAdapter.Collection = value;

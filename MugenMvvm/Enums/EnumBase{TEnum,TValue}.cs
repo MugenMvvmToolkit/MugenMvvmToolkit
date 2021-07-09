@@ -19,9 +19,7 @@ namespace MugenMvvm.Enums
         private static Dictionary<TValue, TEnum> _enumerations = Init();
         private static readonly Dictionary<string, TEnum> EnumerationNamesField = new(StringComparer.OrdinalIgnoreCase);
 
-
         private static TEnum[]? _values;
-
         private string? _name;
 
 #pragma warning disable CS8618

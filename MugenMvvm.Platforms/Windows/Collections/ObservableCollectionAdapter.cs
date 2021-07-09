@@ -41,6 +41,7 @@ namespace MugenMvvm.Windows.Collections
 #else
             control.ItemsSource = this;
 #endif
+            BindableMembers.For<object>().ItemsSource().TryRaise(control);
         }
 
         public DiffableBindableCollectionAdapter Adapter { get; }

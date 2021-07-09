@@ -6,6 +6,7 @@ using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Constants;
 using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Bindings.Extensions;
+using MugenMvvm.Bindings.Members;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
@@ -86,6 +87,7 @@ namespace MugenMvvm.Android.Views
                     ViewMugenExtensions.RemoveParentObserver(target);
                     provider = new ContentItemsSourceProvider(target, (IContentTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
                     NativeBindableMemberMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
+                    BindableMembers.For<object>().ItemsSource().TryRaise(view);
                 }
 
                 provider.CollectionAdapter.Collection = value;
@@ -97,6 +99,7 @@ namespace MugenMvvm.Android.Views
                     ViewMugenExtensions.RemoveParentObserver(target);
                     provider = new ResourceItemsSourceProvider(target, (IResourceTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
                     NativeBindableMemberMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
+                    BindableMembers.For<object>().ItemsSource().TryRaise(view);
                 }
 
                 provider.CollectionAdapter.Collection = value;
