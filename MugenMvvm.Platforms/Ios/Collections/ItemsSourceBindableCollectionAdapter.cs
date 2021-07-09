@@ -30,21 +30,24 @@ namespace MugenMvvm.Ios.Collections
             Should.NotBeNull(collectionViewAdapter, nameof(collectionViewAdapter));
             DiffableComparer = diffableComparer;
             CollectionViewAdapter = collectionViewAdapter;
-            BatchLimit = 2;
         }
 
         public ICollectionViewAdapter CollectionViewAdapter { get; }
 
+        [Preserve]
         public IDiffableEqualityComparer? DiffableComparer { get; set; }
 
+        [Preserve]
         public bool DetectMoves { get; set; } = true;
 
+        [Preserve]
         public int DiffUtilAsyncLimit
         {
             get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
             set => _diffUtilAsyncLimit = value;
         }
 
+        [Preserve]
         public int DiffUtilMaxLimit
         {
             get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
@@ -158,6 +161,19 @@ namespace MugenMvvm.Ios.Collections
             }
         }
 
+        protected override void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
+        {
+            var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
+            for (var i = 0; i < events.Count; i++)
+            {
+                var e = events[i];
+                if (e.Action != CollectionChangedAction.Changed || e.ChangedArgs == CollectionMetadata.ReloadItem)
+                    e.Raise(Items, ref callback);
+            }
+
+            callback.DispatchLastEvent();
+        }
+
         protected NSIndexPath[] GetIndexPaths(int startingPosition, int count)
         {
             var indexPaths = new NSIndexPath[count];
@@ -248,9 +264,14 @@ namespace MugenMvvm.Ios.Collections
 
         void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
-            _pendingReloads ??= new List<(int, int)>();
-            _pendingReloads.Add((finalPosition, count));
-            _pendingReloadCount += count;
+            if (_diffResult.IsEmpty)
+                NotifyReload(finalPosition, count);
+            else
+            {
+                _pendingReloads ??= new List<(int, int)>();
+                _pendingReloads.Add((finalPosition, count));
+                _pendingReloadCount += count;
+            }
         }
 
         protected sealed class Closure

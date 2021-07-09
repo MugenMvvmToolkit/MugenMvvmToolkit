@@ -210,7 +210,9 @@ namespace MugenMvvm.Bindings.Extensions
                                                        if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
                                                                        .TrySetItemsSource(viewManager, target, value, metadata))
                                                            ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                                       ((INotifiableMemberInfo)member).Raise(target, null, metadata);
                                                    })
+                                                   .ObservableAutoHandler()
                                                    .Build());
             var itemsSourceRaw = Members.BindableMembers.For<T>()
                                         .ItemsSourceRaw()
@@ -229,7 +231,9 @@ namespace MugenMvvm.Bindings.Extensions
                                             if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
                                                             .TrySetItemsSource(viewManager, target, value, metadata))
                                                 ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                                            ((INotifiableMemberInfo)member).Raise(target, null, metadata);
                                         })
+                                        .ObservableAutoHandler()
                                         .Build();
             attachedMemberProvider.Register(itemsSourceRaw);
             if (itemsSourceRawAlias != null)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Android.Native.Interfaces;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
@@ -28,16 +29,20 @@ namespace MugenMvvm.Android.Collections
             _isAlive = true;
         }
 
+        [Preserve]
         public IDiffableEqualityComparer? DiffableComparer { get; set; }
 
+        [Preserve]
         public bool DetectMoves { get; set; } = true;
 
+        [Preserve]
         public int DiffUtilAsyncLimit
         {
             get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
             set => _diffUtilAsyncLimit = value;
         }
 
+        [Preserve]
         public int DiffUtilMaxLimit
         {
             get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
@@ -168,15 +173,12 @@ namespace MugenMvvm.Android.Collections
 
         protected override void RaiseBatchUpdate(List<CollectionChangedEvent> events, int version)
         {
-            Dictionary<(int, object?), object?>? items = null;
             var callback = new DiffUtil.BatchingListUpdateCallback(this, true);
             for (var i = 0; i < events.Count; i++)
             {
                 var e = events[i];
-                if (e.Action == CollectionChangedAction.Changed && e.ChangedArgs != CollectionMetadata.ReloadItem)
-                    continue;
-                e.ApplyToSource(Items, ref items, false);
-                e.Raise(ref callback);
+                if (e.Action != CollectionChangedAction.Changed || e.ChangedArgs == CollectionMetadata.ReloadItem)
+                    e.Raise(Items, ref callback);
             }
 
             callback.DispatchLastEvent();

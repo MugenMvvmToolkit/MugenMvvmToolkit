@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -24,7 +25,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Collections
 {
-    public class BindableCollectionAdapter : ReadOnlyCollection<object?>, IThreadDispatcherHandler, IValueHolder<Delegate>
+    public class BindableCollectionAdapter : ReadOnlyCollection<object?>, IThreadDispatcherHandler, IValueHolder<Delegate>, IHasTarget<IEnumerable?>
     {
         protected WeakListener? Listener;
         protected List<object?>? ResetCache;
@@ -75,12 +76,14 @@ namespace MugenMvvm.Collections
             }
         }
 
+        [Preserve]
         public int BatchLimit
         {
             get => _batchLimit.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchLimit);
             set => _batchLimit = value;
         }
 
+        [Preserve]
         public int BatchDelay
         {
             get => _batchDelay.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchDelay);
@@ -92,6 +95,8 @@ namespace MugenMvvm.Collections
         protected int Version { get; private set; }
 
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
+
+        IEnumerable? IHasTarget<IEnumerable?>.Target => Collection;
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 
@@ -614,21 +619,34 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            public void Raise(ref DiffUtil.BatchingListUpdateCallback callback)
+            public void Raise(IList<object?> source, ref DiffUtil.BatchingListUpdateCallback callback)
             {
                 switch (Action)
                 {
                     case CollectionChangedAction.Add:
+                        if (callback.IsInBatch && !callback.IsBatchInsert(NewIndex, NewIndex, 1))
+                            callback.DispatchLastEvent();
+                        source.Insert(NewIndex, NewItem);
                         callback.OnInserted(NewIndex, NewIndex, 1);
                         break;
                     case CollectionChangedAction.Move:
+                        callback.DispatchLastEvent();
+                        source.RemoveAt(OldIndex);
+                        source.Insert(NewIndex, NewItem);
                         callback.OnMoved(OldIndex, NewIndex, OldIndex, NewIndex);
                         break;
                     case CollectionChangedAction.Remove:
+                        if (callback.IsInBatch && !callback.IsBatchRemove(OldIndex, 1))
+                            callback.DispatchLastEvent();
+                        source.RemoveAt(OldIndex);
                         callback.OnRemoved(OldIndex, 1);
                         break;
                     case CollectionChangedAction.Replace:
                     case CollectionChangedAction.Changed:
+                        if (callback.IsInBatch && !callback.IsBatchChange(OldIndex, OldIndex, 1, false))
+                            callback.DispatchLastEvent();
+                        if (Action == CollectionChangedAction.Replace)
+                            source[OldIndex] = NewItem;
                         callback.OnChanged(OldIndex, OldIndex, 1, false);
                         break;
                     default:

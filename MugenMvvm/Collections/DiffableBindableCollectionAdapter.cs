@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Models;
@@ -22,18 +23,23 @@ namespace MugenMvvm.Collections
         {
         }
 
+        [Preserve]
         public IDiffableEqualityComparer? DiffableComparer { get; set; }
 
+        [Preserve]
         public bool DetectMoves { get; set; } = true;
 
+        [Preserve]
         public bool NotifyOnReload { get; set; }
 
+        [Preserve]
         public int DiffUtilAsyncLimit
         {
             get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
             set => _diffUtilAsyncLimit = value;
         }
 
+        [Preserve]
         public int DiffUtilMaxLimit
         {
             get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);

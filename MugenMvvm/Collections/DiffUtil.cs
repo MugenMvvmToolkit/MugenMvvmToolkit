@@ -301,6 +301,12 @@ namespace MugenMvvm.Collections
                 FindMatchingItems();
             }
 
+            public bool IsEmpty
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _callback == null;
+            }
+
             private void AddEdgeDiagonals()
             {
                 // see if we should add 1 to the 0,0
@@ -614,13 +620,22 @@ namespace MugenMvvm.Collections
             [MemberNotNullWhen(false, nameof(_callback))]
             public bool IsEmpty => _callback == null;
 
+            public bool IsInBatch
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _lastEventType != TypeNone;
+            }
+
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private bool IsBatchInsert(int position, int finalPosition, int count) =>
+            public bool IsBatchInsert(int position, int finalPosition, int count) =>
                 _lastEventType == TypeAdd && position >= _lastEventPosition && position <= _lastEventPosition + _lastEventCount &&
                 (_ignoreFinalPosition || _lastEventFinalPosition >= finalPosition && _lastEventFinalPosition <= finalPosition + count);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private bool IsBatchChange(int position, int finalPosition, int count, bool moved) =>
+            public bool IsBatchRemove(int position, int count) => _lastEventType == TypeRemove && _lastEventPosition >= position && _lastEventPosition <= position + count;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool IsBatchChange(int position, int finalPosition, int count, bool moved) =>
                 _lastEventType == TypeChange && _lastMoved == moved && !(position > _lastEventPosition + _lastEventCount || position + count < _lastEventPosition) &&
                 (_ignoreFinalPosition || !(finalPosition > _lastEventFinalPosition + _lastEventCount || finalPosition + count < _lastEventFinalPosition));
 
