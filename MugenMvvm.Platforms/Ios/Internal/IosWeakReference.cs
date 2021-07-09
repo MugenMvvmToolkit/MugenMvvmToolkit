@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Foundation;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Ios.Extensions;
@@ -8,7 +9,7 @@ namespace MugenMvvm.Ios.Internal
 {
     public sealed class IosWeakReference : WeakReference, IWeakReference
     {
-        private IntPtr _targetHandle;
+        private volatile IntPtr _targetHandle;
 
         public IosWeakReference(NSObject target) : base(target, true)
         {
@@ -35,7 +36,7 @@ namespace MugenMvvm.Ios.Internal
 
         internal void OnDealloc()
         {
-            _targetHandle = IntPtr.Zero;
+            Interlocked.Exchange(ref _targetHandle, IntPtr.Zero);
             base.Target = null;
         }
 

@@ -7,6 +7,7 @@ using ObjCRuntime;
 
 namespace MugenMvvm.Ios.Internal
 {
+    [Register("IosAttachedValueHolder")]
     public sealed class IosAttachedValueHolder : NSObject
     {
         [DllImport(ObjCRuntime.Constants.ObjectiveCLibrary)]
@@ -15,7 +16,7 @@ namespace MugenMvvm.Ios.Internal
         [DllImport(ObjCRuntime.Constants.ObjectiveCLibrary)]
         private static extern IntPtr objc_getAssociatedObject(IntPtr target, IntPtr key);
 
-        private const int OBJC_ASSOCIATION_RETAIN_NONATOMIC = 1;
+        private const int OBJC_ASSOCIATION_RETAIN = 01401;
         private static readonly IntPtr KeyHandle = NSString.CreateNative(IosInternalConstants.AttachedHolderKey, false);
 
         public readonly IosWeakReference WeakReference;
@@ -38,7 +39,7 @@ namespace MugenMvvm.Ios.Internal
                     if (optional)
                         return null;
                     var holder = new IosAttachedValueHolder(target);
-                    objc_setAssociatedObject(target.Handle, KeyHandle, holder.Handle, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                    objc_setAssociatedObject(target.Handle, KeyHandle, holder.Handle, OBJC_ASSOCIATION_RETAIN);
                     return holder;
                 }
             }
