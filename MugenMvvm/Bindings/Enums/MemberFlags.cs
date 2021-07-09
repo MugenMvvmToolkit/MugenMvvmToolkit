@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -32,13 +33,6 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly EnumFlags<MemberFlags> StaticPublic = Static | Public;
         public static readonly EnumFlags<MemberFlags> StaticNonPublic = Static | NonPublic;
 
-        public static EnumFlags<MemberFlags> All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension | NonObservable;
-
-        public static EnumFlags<MemberFlags> InstancePublicAll = All & ~(Static | NonPublic);
-        public static EnumFlags<MemberFlags> StaticPublicAll = All & ~(Instance | NonPublic);
-        public static EnumFlags<MemberFlags> InstanceAll = All & ~Static;
-        public static EnumFlags<MemberFlags> StaticAll = All & ~Instance;
-
         public MemberFlags(ushort value, int priority, string? name = null, long? flag = null) : base(value, name, flag)
         {
             Priority = priority;
@@ -47,6 +41,36 @@ namespace MugenMvvm.Bindings.Enums
         [Preserve(Conditional = true)]
         protected MemberFlags()
         {
+        }
+
+        public static EnumFlags<MemberFlags> All
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => GetAllFlags();
+        }
+
+        public static EnumFlags<MemberFlags> InstancePublicAll
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => All & ~(Static | NonPublic);
+        }
+
+        public static EnumFlags<MemberFlags> StaticPublicAll
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => All & ~(Instance | NonPublic);
+        }
+
+        public static EnumFlags<MemberFlags> InstanceAll
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => All & ~Static;
+        }
+
+        public static EnumFlags<MemberFlags> StaticAll
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => All & ~Instance;
         }
 
         public int Priority { get; init; }

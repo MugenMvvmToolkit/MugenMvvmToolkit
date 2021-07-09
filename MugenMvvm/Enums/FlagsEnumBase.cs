@@ -10,6 +10,9 @@ namespace MugenMvvm.Enums
         where TEnum : FlagsEnumBase<TEnum, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>, IConvertible
     {
+        // ReSharper disable once StaticMemberInGenericType
+        private static long _allFlags;
+
         protected FlagsEnumBase()
         {
         }
@@ -18,10 +21,14 @@ namespace MugenMvvm.Enums
             : base(value, name)
         {
             Flag = flag ?? ConvertValue(value);
+            _allFlags |= Flag;
         }
 
         [DataMember(Name = "_f")]
         public long Flag { get; internal set; }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static EnumFlags<TEnum> GetAllFlags() => new(_allFlags);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator EnumFlags<TEnum>(FlagsEnumBase<TEnum, TValue>? value) => ReferenceEquals(value, null) ? default : new EnumFlags<TEnum>(value.Flag);
