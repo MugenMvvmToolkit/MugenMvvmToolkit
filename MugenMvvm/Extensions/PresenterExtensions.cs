@@ -51,7 +51,7 @@ namespace MugenMvvm.Extensions
                     callbacks.Add(callback);
             }
 
-            return callbacks.WhenAll(true, isSerializable);
+            return callbacks.WhenAll(false, true, isSerializable).AsValueTask();
         }
 
         public static ValueTaskAwaiter<INavigationContext> GetAwaiter(this ShowPresenterResult showResult) => showResult.CloseCallback.AsTask(true).GetAwaiter();

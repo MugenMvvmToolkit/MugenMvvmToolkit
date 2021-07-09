@@ -38,7 +38,7 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata) => metadata == null || metadata.Count == 0;
+        public static bool IsNullOrEmpty([NotNullWhen(false)] this IReadOnlyMetadataContext? metadata) => metadata == null || metadata.Count == 0;
 
         public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata)
         {

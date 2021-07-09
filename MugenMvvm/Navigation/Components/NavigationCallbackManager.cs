@@ -62,8 +62,8 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrIReadOnlyList<INavigationCallback> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata)
         {
-            var targetMetadata = (IMetadataContext?)GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, true);
-            if (targetMetadata == null)
+            var targetMetadata = GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, true);
+            if (targetMetadata.IsNullOrEmpty())
                 return default;
 
             var list = new ItemOrListEditor<INavigationCallback>(3);

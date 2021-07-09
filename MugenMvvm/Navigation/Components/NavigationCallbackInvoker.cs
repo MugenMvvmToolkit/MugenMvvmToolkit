@@ -50,8 +50,7 @@ namespace MugenMvvm.Navigation.Components
         }
 
         private void InvokeCallbacks(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception,
-            bool canceled,
-            CancellationToken cancellationToken)
+            bool canceled, CancellationToken cancellationToken)
         {
             var components = Owner.GetComponents<INavigationCallbackManagerComponent>(navigationContext.GetMetadataOrDefault());
             if (exception != null)

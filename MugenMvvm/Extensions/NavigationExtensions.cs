@@ -99,7 +99,7 @@ namespace MugenMvvm.Extensions
                 }
             }
 
-            return callbacks.WhenAll(false, false).AsTask();
+            return callbacks.WhenAll(false, false, false);
         }
 
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
@@ -223,7 +223,7 @@ namespace MugenMvvm.Extensions
                 }
             }
 
-            return callbacks.WhenAll(false, isSerializable).AsTask();
+            return callbacks.WhenAll(false, false, isSerializable);
         }
 
         public static ValueTask<INavigationContext> AsTask(this INavigationCallback callback, bool isSerializable)

@@ -52,7 +52,7 @@ namespace MugenMvvm.Extensions
             return Task.WhenAll(editor.AsList());
         }
 
-        public static async ValueTask<bool> WhenAll(this ItemOrListEditor<INavigationCallback> callbacks, bool handleCancel, bool isSerializable)
+        public static async Task<bool> WhenAll(this ItemOrListEditor<INavigationCallback> callbacks, bool throwOnCancel, bool throwOnDispose, bool isSerializable)
         {
             var result = false;
             foreach (var callback in callbacks)
@@ -66,7 +66,12 @@ namespace MugenMvvm.Extensions
                 }
                 catch (OperationCanceledException)
                 {
-                    if (!handleCancel)
+                    if (throwOnCancel)
+                        throw;
+                }
+                catch (ObjectDisposedException)
+                {
+                    if (throwOnDispose)
                         throw;
                 }
             }
