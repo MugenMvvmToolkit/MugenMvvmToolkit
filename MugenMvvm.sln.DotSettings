@@ -1,5 +1,9 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/CalculateInheritedTypeMembers/@EntryValue">True</s:Boolean>
+	<s:Boolean x:Key="/Default/CodeInspection/Highlighting/IdentifierHighlightingEnabled/@EntryValue">True</s:Boolean>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UnusedParameter_002ELocal/@EntryIndexedValue">HINT</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeCleanup/RecentlyUsedProfile/@EntryValue">Built-in: Full Cleanup</s:String>
+	<s:Int64 x:Key="/Default/CodeStyle/CodeFormatting/CppFormatting/WRAP_LIMIT/@EntryValue">180</s:Int64>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_FOR/@EntryValue">RequiredForMultiline</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_FOREACH/@EntryValue">RequiredForMultiline</s:String>
 	<s:String x:Key="/Default/CodeStyle/CodeFormatting/CSharpCodeStyle/BRACES_FOR_IFELSE/@EntryValue">RequiredForMultiline</s:String>
@@ -20,13 +24,6 @@
   &lt;TypePattern DisplayName="Non-reorderable types"&gt;&#xD;
     &lt;TypePattern.Match&gt;&#xD;
       &lt;Or&gt;&#xD;
-        &lt;And&gt;&#xD;
-          &lt;Kind Is="Interface" /&gt;&#xD;
-          &lt;Or&gt;&#xD;
-            &lt;HasAttribute Name="System.Runtime.InteropServices.InterfaceTypeAttribute" /&gt;&#xD;
-            &lt;HasAttribute Name="System.Runtime.InteropServices.ComImport" /&gt;&#xD;
-          &lt;/Or&gt;&#xD;
-        &lt;/And&gt;&#xD;
         &lt;Kind Is="Struct" /&gt;&#xD;
         &lt;HasAttribute Name="JetBrains.Annotations.NoReorderAttribute" /&gt;&#xD;
         &lt;HasAttribute Name="JetBrains.Annotations.NoReorder" /&gt;&#xD;
@@ -40,7 +37,10 @@
         &lt;HasMember&gt;&#xD;
           &lt;And&gt;&#xD;
             &lt;Kind Is="Method" /&gt;&#xD;
-            &lt;HasAttribute Name="Xunit.FactAttribute" Inherited="True" /&gt;&#xD;
+            &lt;Or&gt;&#xD;
+              &lt;HasAttribute Name="Xunit.FactAttribute" Inherited="True" /&gt;&#xD;
+              &lt;HasAttribute Name="Xunit.TheoryAttribute" Inherited="True" /&gt;&#xD;
+            &lt;/Or&gt;&#xD;
           &lt;/And&gt;&#xD;
         &lt;/HasMember&gt;&#xD;
       &lt;/And&gt;&#xD;
@@ -77,11 +77,14 @@
         &lt;Kind Order="Constructor" /&gt;&#xD;
       &lt;/Entry.SortBy&gt;&#xD;
     &lt;/Entry&gt;&#xD;
-    &lt;Entry Priority="100" DisplayName="Test Methods"&gt;&#xD;
+    &lt;Entry DisplayName="Test Methods" Priority="100"&gt;&#xD;
       &lt;Entry.Match&gt;&#xD;
         &lt;And&gt;&#xD;
           &lt;Kind Is="Method" /&gt;&#xD;
-          &lt;HasAttribute Name="Xunit.FactAttribute" /&gt;&#xD;
+          &lt;Or&gt;&#xD;
+            &lt;HasAttribute Name="Xunit.FactAttribute" Inherited="True" /&gt;&#xD;
+            &lt;HasAttribute Name="Xunit.TheoryAttribute" Inherited="True" /&gt;&#xD;
+          &lt;/Or&gt;&#xD;
         &lt;/And&gt;&#xD;
       &lt;/Entry.Match&gt;&#xD;
       &lt;Entry.SortBy&gt;&#xD;
@@ -128,7 +131,7 @@
         &lt;/And&gt;&#xD;
       &lt;/Entry.Match&gt;&#xD;
     &lt;/Entry&gt;&#xD;
-    &lt;Entry Priority="100" DisplayName="Test Methods"&gt;&#xD;
+    &lt;Entry DisplayName="Test Methods" Priority="100"&gt;&#xD;
       &lt;Entry.Match&gt;&#xD;
         &lt;And&gt;&#xD;
           &lt;Kind Is="Method" /&gt;&#xD;
@@ -191,8 +194,8 @@
         &lt;Kind Is="Event" /&gt;&#xD;
       &lt;/Entry.Match&gt;&#xD;
       &lt;Entry.SortBy&gt;&#xD;
-        &lt;Static /&gt;&#xD;
         &lt;Access /&gt;&#xD;
+        &lt;Static /&gt;        &#xD;
         &lt;Abstract /&gt;&#xD;
         &lt;ImplementsInterface /&gt;&#xD;
         &lt;Virtual /&gt;&#xD;
@@ -200,21 +203,13 @@
         &lt;Sealed /&gt;&#xD;
       &lt;/Entry.SortBy&gt;&#xD;
     &lt;/Entry&gt;&#xD;
-    &lt;Entry DisplayName="Interfaces"&gt;&#xD;
-      &lt;Entry.Match&gt;&#xD;
-        &lt;Kind Is="Interface" /&gt;&#xD;
-      &lt;/Entry.Match&gt;&#xD;
-      &lt;Entry.SortBy&gt;&#xD;
-        &lt;Access /&gt;&#xD;
-      &lt;/Entry.SortBy&gt;&#xD;
-    &lt;/Entry&gt;&#xD;
     &lt;Entry DisplayName="Properties"&gt;&#xD;
       &lt;Entry.Match&gt;&#xD;
         &lt;Kind Is="Property" /&gt;&#xD;
       &lt;/Entry.Match&gt;&#xD;
       &lt;Entry.SortBy&gt;&#xD;
-        &lt;Static /&gt;&#xD;
         &lt;Access /&gt;&#xD;
+        &lt;Static /&gt;        &#xD;
         &lt;Abstract /&gt;&#xD;
         &lt;ImplementsInterface /&gt;&#xD;
         &lt;Virtual /&gt;&#xD;
@@ -232,7 +227,7 @@
         &lt;Kind Is="Indexer" /&gt;&#xD;
       &lt;/Entry.Match&gt;&#xD;
       &lt;Entry.SortBy&gt;&#xD;
-        &lt;Access /&gt;&#xD;
+        &lt;Access /&gt;        &#xD;
         &lt;Abstract /&gt;&#xD;
         &lt;ImplementsInterface /&gt;&#xD;
         &lt;Virtual /&gt;&#xD;
@@ -245,13 +240,21 @@
         &lt;Kind Is="Method" /&gt;&#xD;
       &lt;/Entry.Match&gt;&#xD;
       &lt;Entry.SortBy&gt;&#xD;
-        &lt;Static /&gt;&#xD;
         &lt;Access /&gt;&#xD;
+        &lt;Static /&gt;        &#xD;
         &lt;Abstract /&gt;&#xD;
         &lt;ImplementsInterface /&gt;&#xD;
         &lt;Virtual /&gt;&#xD;
         &lt;Override /&gt;&#xD;
         &lt;Sealed /&gt;&#xD;
+      &lt;/Entry.SortBy&gt;&#xD;
+    &lt;/Entry&gt;&#xD;
+    &lt;Entry DisplayName="Interfaces"&gt;&#xD;
+      &lt;Entry.Match&gt;&#xD;
+        &lt;Kind Is="Interface" /&gt;&#xD;
+      &lt;/Entry.Match&gt;&#xD;
+      &lt;Entry.SortBy&gt;&#xD;
+        &lt;Access /&gt;&#xD;
       &lt;/Entry.SortBy&gt;&#xD;
     &lt;/Entry&gt;&#xD;
     &lt;Entry DisplayName="Delegates"&gt;&#xD;
@@ -335,18 +338,34 @@
     &lt;/Entry&gt;&#xD;
   &lt;/FilePattern&gt;&#xD;
 &lt;/Patterns&gt;</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/Generate/=DisposePattern/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/Generate/=DisposePattern/Options/=ChangeFinalize/@EntryIndexedValue">Replace</s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Generate/=EqualityComparer/@KeyIndexDefined">True</s:Boolean>
-	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityComparer/Options/=UseSystemHashCode/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityComparer/Options/=UseSystemHashCode/@EntryIndexedValue">False</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/Generate/=EqualityMembers/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityMembers/Options/=EqualityOperators/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityMembers/Options/=ImplementIEquatable/@EntryIndexedValue">True</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=EqualityMembers/Options/=UseSystemHashCode/@EntryIndexedValue">True</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/Generate/=Formatting/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/Generate/=Formatting/Options/=UseNameOf/@EntryIndexedValue">True</s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Generate/=Implementations/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/Generate/=Implementations/Options/=Async/@EntryIndexedValue">False</s:String>
 	<s:String x:Key="/Default/CodeStyle/Generate/=Implementations/Options/=Mutable/@EntryIndexedValue">False</s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Generate/=Overrides/@KeyIndexDefined">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/Generate/=Overrides/Options/=Async/@EntryIndexedValue">False</s:String>
 	<s:String x:Key="/Default/CodeStyle/Generate/=Overrides/Options/=Mutable/@EntryIndexedValue">False</s:String>
+	<s:Boolean x:Key="/Default/CodeStyle/Generate/=RelationalMembers/@KeyIndexDefined">True</s:Boolean>
+	<s:String x:Key="/Default/CodeStyle/Generate/=RelationalMembers/Options/=ImplementIComparable/@EntryIndexedValue">False</s:String>
+	<s:String x:Key="/Default/CodeStyle/Generate/=RelationalMembers/Options/=RelationalOperators/@EntryIndexedValue">False</s:String>
 	<s:Boolean x:Key="/Default/CodeStyle/Naming/CSharpAutoNaming/IsNotificationDisabled/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=OS/@EntryIndexedValue">iOS</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=OS/@EntryIndexedValue">WPF</s:String>
 	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=OS/@EntryIndexedValue">UWP</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=QL/@EntryIndexedValue">QL</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=RLP/@EntryIndexedValue">RLP</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=SQ/@EntryIndexedValue">SQ</s:String>
+	<s:String x:Key="/Default/CodeStyle/Naming/CSharpNaming/Abbreviations/=SS/@EntryIndexedValue">SS</s:String>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EFeature_002EServices_002ECpp_002ECodeStyle_002ESettingsUpgrade_002EFunctionReturnStyleSettingsUpgrader/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpKeepExistingMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpPlaceEmbeddedOnSameLineMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpUseContinuousIndentInsideBracesMigration/@EntryIndexedValue">True</s:Boolean>
