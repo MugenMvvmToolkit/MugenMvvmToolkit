@@ -507,6 +507,8 @@ namespace MugenMvvm.Android.Extensions
         {
             if (state == AndroidViewLifecycleState.PendingInitialization)
                 states.Add(AndroidViewLifecycleState.PendingInitialization);
+            else if (state == ViewLifecycleState.Initialized)
+                states.Remove(AndroidViewLifecycleState.PendingInitialization);
         }
 
         private static IExpressionNode? ConvertAndroidDigits(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider)

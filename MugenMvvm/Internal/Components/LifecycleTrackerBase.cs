@@ -34,19 +34,20 @@ namespace MugenMvvm.Internal.Components
             lock (_commonStates)
             {
                 if (target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.LifecycleListKey, out var value))
-                    return ((HashSet<T>)value!).Contains(state);
+                    return ((HashSet<T>) value!).Contains(state);
             }
 
             return false;
         }
 
-        protected virtual TTarget GetTarget(TTarget target) => target;
+        protected virtual TTarget GetTarget(object target) => (TTarget) target;
 
-        protected void OnLifecycleChanged(TTarget target, T lifecycleState, IReadOnlyMetadataContext? metadata)
+        protected void OnLifecycleChanged(object targetRaw, T lifecycleState, IReadOnlyMetadataContext? metadata)
         {
             if (Trackers.Count == 0)
                 return;
 
+            var target = GetTarget(targetRaw);
             lock (_commonStates)
             {
                 var attachedValues = target.AttachedValues(metadata, _attachedValueManager);
@@ -70,6 +71,6 @@ namespace MugenMvvm.Internal.Components
         }
 
         bool ILifecycleTrackerComponent<TOwner, T>.IsInState(TOwner owner, object target, T state, IReadOnlyMetadataContext? metadata) =>
-            IsInState(owner, (TTarget)target, state, metadata);
+            IsInState(owner, GetTarget(target), state, metadata);
     }
 }
