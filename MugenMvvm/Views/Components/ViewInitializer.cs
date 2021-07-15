@@ -17,15 +17,15 @@ namespace MugenMvvm.Views.Components
 
         public int Priority { get; init; } = ViewComponentPriority.PreInitializer;
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (view is not IView viewImp)
+            if (view.View == null)
                 return;
 
             if (lifecycleState == ViewLifecycleState.Initializing)
-                Initialize(viewImp, state, metadata);
+                Initialize(view.View, state, metadata);
             else if (lifecycleState == ViewLifecycleState.Clearing)
-                Cleanup(viewImp, state, metadata);
+                Cleanup(view.View, state, metadata);
         }
 
         protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata)
@@ -43,7 +43,7 @@ namespace MugenMvvm.Views.Components
         protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.RemoveComponent(this);
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            (component as IInitializableView)?.Initialize((IView)collection.Owner, null, metadata);
+            (component as IInitializableView)?.Initialize((IView) collection.Owner, null, metadata);
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {

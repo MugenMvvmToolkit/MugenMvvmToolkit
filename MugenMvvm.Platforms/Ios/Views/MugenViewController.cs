@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Foundation;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Ios.Enums;
 using UIKit;

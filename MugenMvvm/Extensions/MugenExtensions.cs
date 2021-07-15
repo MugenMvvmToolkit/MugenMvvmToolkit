@@ -259,7 +259,7 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
         }
@@ -278,14 +278,13 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        public static object Unwrap(object target) => Unwrap<object>(target)!;
-
-        public static T? Unwrap<T>(object? target) where T : class
+        [return: NotNullIfNotNull("target")]
+        public static T? Unwrap<T>(T? target) where T : class
         {
             while (true)
             {
                 if (target is not IWrapper<T> t)
-                    return target as T;
+                    return target;
                 target = t.Target;
             }
         }
@@ -294,8 +293,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo)(object)value!;
+                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo) (object) value!;
         }
 
         [StringFormatMethod("format")]
@@ -344,7 +343,7 @@ namespace MugenMvvm.Extensions
 
         internal static void CommandNotifierOnPropertyChangedHandler(this IWeakReference weakReference, object? sender, PropertyChangedEventArgs args)
         {
-            var handler = (PropertyChangedCommandObserver?)weakReference.Target;
+            var handler = (PropertyChangedCommandObserver?) weakReference.Target;
             if (handler == null)
             {
                 if (sender is INotifyPropertyChanged propertyChanged)

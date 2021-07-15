@@ -2,11 +2,11 @@
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
@@ -14,7 +14,7 @@ namespace MugenMvvm.Android.Views
     {
         public int Priority { get; init; } = ViewComponentPriority.PostInitializer;
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == AndroidViewLifecycleState.Resuming)
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Appearing, state, metadata);
@@ -26,7 +26,7 @@ namespace MugenMvvm.Android.Views
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Disappeared, state, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Finished || lifecycleState == AndroidViewLifecycleState.Dismissed ||
                      lifecycleState == AndroidViewLifecycleState.DismissedAllowingStateLoss || lifecycleState == AndroidViewLifecycleState.Canceled ||
-                     lifecycleState == AndroidViewLifecycleState.Destroyed && MugenExtensions.Unwrap(view) is IActivityView activity && activity.IsFinishing)
+                     lifecycleState == AndroidViewLifecycleState.Destroyed && view.TryGet<IActivityView>(out var activity) && activity.IsFinishing)
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Closed, state, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Finishing || lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition ||
                      lifecycleState == AndroidViewLifecycleState.Dismissing || lifecycleState == AndroidViewLifecycleState.DismissingAllowingStateLoss)

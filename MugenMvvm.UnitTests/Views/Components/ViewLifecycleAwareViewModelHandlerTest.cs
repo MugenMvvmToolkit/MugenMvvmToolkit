@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 ++invokeCount;
             };
             var component = new ViewLifecycleAwareViewModelHandler();
-            component.OnLifecycleChanged(null!, view, lifecycleState, state, DefaultMetadata);
+            component.OnLifecycleChanged(null!, new ViewInfo(view), lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
         }
 

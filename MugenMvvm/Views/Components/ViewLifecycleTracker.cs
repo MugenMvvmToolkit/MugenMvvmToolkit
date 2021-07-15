@@ -24,8 +24,8 @@ namespace MugenMvvm.Views.Components
 
         public int Priority { get; init; } = ViewComponentPriority.LifecycleTracker;
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-            => OnLifecycleChanged(view, lifecycleState, metadata);
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            => OnLifecycleChanged(view.RawView, lifecycleState, metadata);
 
         protected override object GetTarget(object target) => MugenExtensions.Unwrap(target);
 

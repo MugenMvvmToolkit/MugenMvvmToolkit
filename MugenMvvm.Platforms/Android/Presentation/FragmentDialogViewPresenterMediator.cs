@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presentation;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Presentation
 {
@@ -68,9 +69,9 @@ namespace MugenMvvm.Android.Presentation
                 return watcher.Task;
             }
 
-            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                if (!Equals(MugenExtensions.Unwrap(view), _view))
+                if (!view.IsSameView(_view))
                     return;
 
                 if (lifecycleState == ViewLifecycleState.Appeared)

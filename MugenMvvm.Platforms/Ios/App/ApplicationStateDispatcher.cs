@@ -76,7 +76,7 @@ namespace MugenMvvm.Ios.App
                         var view = _viewManager.DefaultIfNull().TryInitializeAsync(ViewMapping.Undefined, viewModelViewRequest, default, metadata).GetResult();
                         if (view != null)
                         {
-                            request.ViewController = (UIViewController)view.Target;
+                            request.ViewController = (UIViewController) view.Target;
                             request.ViewController.RestorationIdentifier = request.RestorationIdentifier;
                             _presenter.DefaultIfNull().TryShow(ViewModelViewRequest.GetRequestOrRaw(viewModelViewRequest, vm, view.Target), default, metadata);
                         }
@@ -84,7 +84,7 @@ namespace MugenMvvm.Ios.App
                 }
                 else if (viewType != null && request.RestorationIdentifier == IosInternalConstants.RootViewControllerId)
                 {
-                    var controller = (UIViewController?)_serviceProvider.DefaultIfNull().GetService(viewType, metadata);
+                    var controller = (UIViewController?) _serviceProvider.DefaultIfNull().GetService(viewType, metadata);
                     if (controller != null && !_presenter.DefaultIfNull().TryShow(controller, default, metadata).IsEmpty)
                     {
                         controller.RestorationIdentifier = IosInternalConstants.RootViewControllerId;
@@ -94,28 +94,28 @@ namespace MugenMvvm.Ios.App
             }
         }
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewLifecycleState.Initialized && MugenExtensions.Unwrap(view) is UIViewController viewController
-                                                                 && view is IView vw && viewController.RestorationIdentifier == null)
-                viewController.RestorationIdentifier = vw.ViewModel.GetId();
+            if (lifecycleState == ViewLifecycleState.Initialized && view.TryGet<UIViewController>(out var viewController)
+                                                                 && view.View != null && viewController.RestorationIdentifier == null)
+                viewController.RestorationIdentifier = view.View.ViewModel.GetId();
             else if (lifecycleState == IosViewLifecycleState.EncodingRestorableState && state is NSCoder coder)
             {
                 var serializer = _serializer.DefaultIfNull();
                 if (!serializer.IsSupported(SerializationFormat.AppStateBytes))
                     return;
 
-                if (view is IView v)
+                if (view.View != null)
                 {
-                    var stateMeta = ViewModelMetadata.ViewModel.ToContext(v.ViewModel);
+                    var stateMeta = ViewModelMetadata.ViewModel.ToContext(view.View.ViewModel);
                     ReadOnlyMemory<byte> buffer = default;
                     if (serializer.TrySerialize(SerializationFormat.AppStateBytes, stateMeta, ref buffer, metadata))
                     {
                         coder.Encode(buffer.ToArray(), IosInternalConstants.ViewModelStateKey);
-                        coder.Encode(v.Target.GetType().AssemblyQualifiedName, IosInternalConstants.ViewControllerTypeKey);
+                        coder.Encode(view.View.Target.GetType().AssemblyQualifiedName, IosInternalConstants.ViewControllerTypeKey);
                     }
                 }
-                else if (view is UIViewController vc && vc.RestorationIdentifier == IosInternalConstants.RootViewControllerId)
+                else if (view.TryGet<UIViewController>(out var vc) && vc.RestorationIdentifier == IosInternalConstants.RootViewControllerId)
                     coder.Encode(vc.GetType().AssemblyQualifiedName, IosInternalConstants.ViewControllerTypeKey);
             }
         }

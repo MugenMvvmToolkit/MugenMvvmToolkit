@@ -12,10 +12,7 @@ namespace MugenMvvm.Views.Components
     {
         public int Priority { get; init; } = ViewComponentPriority.PostInitializer;
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
-        {
-            if (view is IView v)
-                (v.ViewModel as IViewLifecycleAwareViewModel)?.OnViewLifecycleChanged(v, lifecycleState, state, metadata);
-        }
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata) =>
+            (view.View?.ViewModel as IViewLifecycleAwareViewModel)?.OnViewLifecycleChanged(view.View!, lifecycleState, state, metadata);
     }
 }

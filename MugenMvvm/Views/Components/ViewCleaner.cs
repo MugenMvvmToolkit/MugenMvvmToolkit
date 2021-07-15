@@ -27,15 +27,15 @@ namespace MugenMvvm.Views.Components
 
         protected IAttachedValueManager AttachedValueManager => _attachedValueManager.DefaultIfNull();
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (view is not IView viewImp)
+            if (view.View == null)
                 return;
 
             if (lifecycleState == ViewLifecycleState.Initializing)
-                Initialize(viewImp, state, metadata);
+                Initialize(view.View, state, metadata);
             else if (lifecycleState == ViewLifecycleState.Cleared)
-                Cleanup(viewImp, state, metadata);
+                Cleanup(view.View, state, metadata);
         }
 
         protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata) => view.Components.AddComponent(this);

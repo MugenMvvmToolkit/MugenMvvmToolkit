@@ -33,11 +33,11 @@ namespace MugenMvvm.UnitTests.Views.Components
             {
                 OnLifecycleChanged = (m, o, lifecycleState, arg3, arg5) =>
                 {
-                    if (o == this)
+                    if (o.RawView == this)
                         return;
                     ++invokeCount;
                     m.ShouldEqual(ViewManager);
-                    o.ShouldEqual(_view);
+                    o.RawView.ShouldEqual(_view);
                     lifecycleState.ShouldEqual(st);
                     arg3.ShouldEqual(state);
                     arg5.ShouldEqual(DefaultMetadata);
@@ -72,11 +72,11 @@ namespace MugenMvvm.UnitTests.Views.Components
             {
                 OnLifecycleChanged = (m, o, lifecycleState, arg3, arg5) =>
                 {
-                    if (o == this)
+                    if (o.RawView == this)
                         return;
                     ++invokeCount;
                     m.ShouldEqual(ViewManager);
-                    o.ShouldEqual(_view);
+                    o.RawView.ShouldEqual(_view);
                     lifecycleState.ShouldEqual(st);
                     arg3.ShouldEqual(state);
                     arg5.ShouldEqual(DefaultMetadata);

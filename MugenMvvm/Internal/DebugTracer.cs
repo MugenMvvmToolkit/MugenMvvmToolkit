@@ -35,6 +35,7 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Internal
 {
@@ -403,7 +404,7 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
                 Logger.Trace()?.Log($"{ViewTag}before ({lifecycleState}) {Dump(viewManager, view)}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);

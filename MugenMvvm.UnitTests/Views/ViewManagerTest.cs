@@ -199,7 +199,7 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         ++invokeCount;
                         m.ShouldEqual(ViewManager);
-                        v.ShouldEqual(view);
+                        v.View.ShouldEqual(view);
                         st.ShouldEqual(state);
                         viewLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);

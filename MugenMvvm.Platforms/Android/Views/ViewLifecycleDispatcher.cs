@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
@@ -51,29 +52,28 @@ namespace MugenMvvm.Android.Views
             return false;
         }
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if ((lifecycleState == AndroidViewLifecycleState.Started || lifecycleState == AndroidViewLifecycleState.Resumed) &&
-                !viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization, metadata) &&
-                !viewManager.IsInState(view, AndroidViewLifecycleState.Finishing))
+                !viewManager.IsInState(view.RawView, AndroidViewLifecycleState.PendingInitialization, metadata) &&
+                !viewManager.IsInState(view.RawView, AndroidViewLifecycleState.Finishing))
             {
-                if (lifecycleState == AndroidViewLifecycleState.Started && view is not IView && viewManager.GetViews(view, metadata).IsEmpty)
+                if (lifecycleState == AndroidViewLifecycleState.Started && view.View == null && viewManager.GetViews(view.SourceView, metadata).IsEmpty)
                 {
-                    if (!_presenter.DefaultIfNull(view).TryShow(view, default, metadata).IsEmpty)
+                    if (!_presenter.DefaultIfNull(view.RawView).TryShow(view.RawView, default, metadata).IsEmpty)
                         viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
                 }
-                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view is IActivityView activityView &&
-                         viewManager.GetViews(view).IsEmpty)
+                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view.RawView is IActivityView activityView &&
+                         viewManager.GetViews(view.SourceView).IsEmpty)
                     activityView.Finish();
             }
 
-            if (lifecycleState == AndroidViewLifecycleState.Destroyed && view is IView v)
-                viewManager.TryCleanupAsync(v, state, default, metadata);
+            if (lifecycleState == AndroidViewLifecycleState.Destroyed && view.View != null)
+                viewManager.TryCleanupAsync(view.View, state, default, metadata);
 
-            view = MugenExtensions.Unwrap(view);
-            if (lifecycleState == AndroidViewLifecycleState.Starting && view is IActivityView && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
+            if (lifecycleState == AndroidViewLifecycleState.Starting && view.Is<IActivityView>() && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activating, state, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Started && view is IActivityView && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
+            else if (lifecycleState == AndroidViewLifecycleState.Started && view.Is<IActivityView>() && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activated, state, metadata);
         }
     }

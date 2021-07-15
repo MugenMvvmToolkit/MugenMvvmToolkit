@@ -42,7 +42,7 @@ namespace MugenMvvm.Views.Components
         [Preserve(Conditional = true)]
         public void TryUpdateView<TView>(IView view, bool clear, IReadOnlyMetadataContext? metadata) where TView : class
         {
-            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>)view.ViewModel;
+            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>) view.ViewModel;
             if (clear)
             {
                 if (viewModel.View == view.Target)
@@ -63,10 +63,12 @@ namespace MugenMvvm.Views.Components
                 view.ViewModel = vm;
         }
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (view is not IView viewImp)
+            var viewImp = view.View;
+            if (viewImp == null)
                 return;
+
             if (lifecycleState == ViewLifecycleState.Initialized)
             {
                 viewImp.Components.AddComponent(this);
@@ -144,7 +146,7 @@ namespace MugenMvvm.Views.Components
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            TryUpdateViewModel(component, ((IView)collection.Owner).ViewModel);
+            TryUpdateViewModel(component, ((IView) collection.Owner).ViewModel);
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
             TryUpdateViewModel(component, null);

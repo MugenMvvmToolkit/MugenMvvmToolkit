@@ -14,6 +14,7 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Presentation
 {
@@ -160,15 +161,17 @@ namespace MugenMvvm.Presentation
 
         protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenterMediator.Cleanup(this, view, navigationContext);
 
-        void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             try
             {
-                if (View == null && lifecycleState == ViewLifecycleState.Initializing && view is IView v &&
-                    Equals(v.ViewModel, ViewModel) && v.Mapping.Id == Mapping.Id && !viewManager.IsInState(v.Target, ViewLifecycleState.Closed, metadata))
-                    UpdateView(v, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
+                if (View == null && lifecycleState == ViewLifecycleState.Initializing && view.View != null &&
+                    Equals(view.View.ViewModel, ViewModel) && view.View.Mapping.Id == Mapping.Id &&
+                    !viewManager.IsInState(view.View.Target, ViewLifecycleState.Closed, metadata))
+                    UpdateView(view.View, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
-                if (View != null && Equals(View.Target, MugenExtensions.Unwrap(view)))
+                if (View != null && view.IsSameView(View))
                     OnViewLifecycleChanged(lifecycleState, state, metadata);
             }
             catch (Exception e)

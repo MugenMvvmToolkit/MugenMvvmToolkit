@@ -7,17 +7,17 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Extensions.Components
 {
     public static class ViewComponentExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void OnLifecycleChanged(this ItemOrArray<IViewLifecycleListener> components, IViewManager viewManager, object view, ViewLifecycleState lifecycleState,
+        public static void OnLifecycleChanged(this ItemOrArray<IViewLifecycleListener> components, IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState,
             object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             foreach (var c in components)

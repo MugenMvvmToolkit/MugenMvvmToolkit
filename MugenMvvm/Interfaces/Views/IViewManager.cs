@@ -4,6 +4,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Interfaces.Views
 {
@@ -11,7 +12,7 @@ namespace MugenMvvm.Interfaces.Views
     {
         bool IsInState(object view, ViewLifecycleState state, IReadOnlyMetadataContext? metadata = null);
 
-        void OnLifecycleChanged(object view, ViewLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null);
+        void OnLifecycleChanged(ViewInfo view, ViewLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrIReadOnlyList<IView> GetViews(object request, IReadOnlyMetadataContext? metadata = null);
 

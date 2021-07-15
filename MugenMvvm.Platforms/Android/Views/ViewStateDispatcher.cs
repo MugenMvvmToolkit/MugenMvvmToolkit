@@ -37,10 +37,10 @@ namespace MugenMvvm.Android.Views
 
         public int Priority { get; init; } = ViewComponentPriority.StateManager;
 
-        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && TryGetBundle(state, out var bundle))
-                PreserveState(v, bundle, metadata);
+            if (lifecycleState == AndroidViewLifecycleState.SavingState && view.View != null && TryGetBundle(state, out var bundle))
+                PreserveState(view.View, bundle, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Creating && TryGetBundle(state, out bundle))
                 TryRestore(viewManager, view, bundle, state, metadata);
             else if (lifecycleState == AndroidViewLifecycleState.Created)
@@ -76,12 +76,13 @@ namespace MugenMvvm.Android.Views
 
         private static string? GetViewModelId(object view) => view is IActivityView activityView ? ActivityMugenExtensions.GetViewModelId(activityView) : null;
 
-        private void TryRestore(IViewManager viewManager, object view, Bundle? b, object? state, IReadOnlyMetadataContext? metadata)
+        private void TryRestore(IViewManager viewManager, ViewInfo viewInfo, Bundle? b, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (viewManager.IsInState(view, AndroidViewLifecycleState.PendingInitialization) || viewManager.IsInState(view, AndroidViewLifecycleState.Finishing))
+            if (viewManager.IsInState(viewInfo.RawView, AndroidViewLifecycleState.PendingInitialization) ||
+                viewManager.IsInState(viewInfo.RawView, AndroidViewLifecycleState.Finishing))
                 return;
 
-            view = MugenExtensions.Unwrap(view);
+            var view = viewInfo.SourceView;
             var request = TryRestoreState(view, b, metadata);
             if (b == null)
             {
@@ -106,7 +107,7 @@ namespace MugenMvvm.Android.Views
                     viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
             }
             else
-                viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
+                viewManager.OnLifecycleChanged(viewInfo, AndroidViewLifecycleState.PendingInitialization, state, metadata);
         }
 
         private void Finish(IActivityView activityView)

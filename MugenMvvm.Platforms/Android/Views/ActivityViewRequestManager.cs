@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
@@ -46,7 +47,6 @@ namespace MugenMvvm.Android.Views
         private sealed class PendingActivityHandler : TaskCompletionSource<object>, IViewLifecycleListener, IHasPriority
         {
             private readonly CancellationToken _cancellationToken;
-
             private readonly IActivityViewRequest _request;
 
             public PendingActivityHandler(IActivityViewRequest request, CancellationToken cancellationToken)
@@ -57,23 +57,21 @@ namespace MugenMvvm.Android.Views
 
             public int Priority => ViewComponentPriority.PreInitializer;
 
-            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
+            public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
-                view = MugenExtensions.Unwrap(view);
                 if (!_request.IsTargetActivity(view, lifecycleState, state, metadata))
                     return;
 
                 viewManager.RemoveComponent(this);
                 if (_cancellationToken.IsCancellationRequested)
                 {
-                    if (view is IActivityView activityView)
-                        activityView.Finish();
+                    view.TryGet<IActivityView>()?.Finish();
                     TrySetCanceled(_cancellationToken);
                 }
                 else
                 {
                     viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
-                    TrySetResult(view);
+                    TrySetResult(view.SourceView);
                 }
             }
         }
