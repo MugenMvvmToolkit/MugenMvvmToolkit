@@ -33,11 +33,16 @@ namespace MugenMvvm.Enums
         {
             Value = value;
             _name = name;
-            if (!_enumerations.ContainsKey(value))
+            lock (_enumerations)
             {
-                _enumerations[value] = (TEnum)this;
-                EnumerationNamesField[Name] = (TEnum)this;
-                _values = null;
+                if (!_enumerations.ContainsKey(value))
+                {
+                    _enumerations[value] = (TEnum) this;
+                    EnumerationNamesField[Name] = (TEnum) this;
+                    _values = null;
+                }
+                else if (EnumBase.ThrowOnDuplicate)
+                    ExceptionManager.ThrowDuplicateEnum(_enumerations[value], this);
             }
         }
 
@@ -116,8 +121,15 @@ namespace MugenMvvm.Enums
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator TValue(EnumBase<TEnum, TValue> value) => value.Value;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TEnum[] GetAll() => _values ??= Enumerations.Values.ToArray();
+        public static TEnum[] GetAll()
+        {
+            if (_values != null)
+                return _values;
+            lock (_enumerations)
+            {
+                return _values ??= Enumerations.Values.ToArray();
+            }
+        }
 
         public static TEnum Get(TValue value)
         {
@@ -143,7 +155,10 @@ namespace MugenMvvm.Enums
                 return false;
             }
 
-            return Enumerations.TryGetValue(value, out result);
+            lock (_enumerations)
+            {
+                return Enumerations.TryGetValue(value, out result);
+            }
         }
 
         public static TEnum GetByName(string value, bool ignoreCase = false)
@@ -171,7 +186,10 @@ namespace MugenMvvm.Enums
                 return false;
             }
 
-            return EnumerationNames.TryGetValue(value, out result) && (ignoreCase || value.Equals(result.Name));
+            lock (_enumerations)
+            {
+                return EnumerationNames.TryGetValue(value, out result) && (ignoreCase || value.Equals(result.Name));
+            }
         }
 
         public static void SetEnums(Dictionary<TValue, TEnum> enumerations)
@@ -187,9 +205,12 @@ namespace MugenMvvm.Enums
         public static void SetEnum(TValue value, TEnum enumeration)
         {
             Should.NotBeNull(enumeration, nameof(enumeration));
-            _enumerations[value] = enumeration;
-            EnumerationNamesField[enumeration.Name] = enumeration;
-            _values = null;
+            lock (_enumerations)
+            {
+                _enumerations[value] = enumeration;
+                EnumerationNamesField[enumeration.Name] = enumeration;
+                _values = null;
+            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

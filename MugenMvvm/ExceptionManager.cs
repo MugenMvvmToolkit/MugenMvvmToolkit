@@ -186,5 +186,9 @@ namespace MugenMvvm
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowCannotUseExpressionClosure(object expression) => throw new InvalidOperationException(CannotUseExpressionClosureFormat1.Format(expression));
+
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowDuplicateEnum(object oldValue, object newValue) => throw new InvalidOperationException(DuplicateEnumFormat2.Format(oldValue, newValue));
     }
 }

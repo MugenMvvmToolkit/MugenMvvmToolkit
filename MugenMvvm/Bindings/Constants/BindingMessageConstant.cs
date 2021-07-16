@@ -46,5 +46,6 @@
         public const string CannotParseBindingParameterFormat3 = "Cannot parse binding parameter '{0}' expected parameter value '{1}' current value '{2}'";
         public const string CannotConvertTypeFormat2 = "Cannot convert value from '{0}' to type '{1}'";
         public const string CannotUseExpressionClosureFormat1 = "Cannot use expression '{0}' because it has closure, please review and fix it";
+        public const string DuplicateEnumFormat2 = "Unable to register enum {0} because another enum exists with the same value {1}";
     }
 }
