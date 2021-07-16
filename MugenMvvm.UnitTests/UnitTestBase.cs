@@ -41,6 +41,11 @@ namespace MugenMvvm.UnitTests
         protected static readonly ReadOnlyDictionary<string, object?> EmptyDictionary = new(new Dictionary<string, object?>());
         protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
 
+        static UnitTestBase()
+        {
+            EnumBase.ThrowOnDuplicate = false;
+        }
+
         public UnitTestBase(ITestOutputHelper? outputHelper = null)
         {
             if (outputHelper != null)

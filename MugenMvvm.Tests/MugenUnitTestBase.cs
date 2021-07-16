@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Threading;
 using MugenMvvm.App;
@@ -119,45 +120,165 @@ namespace MugenMvvm.Tests
 
         protected IReflectionManager ReflectionManager => _reflectionManager ??= GetReflectionManager();
 
-        protected ILogger Logger => _logger ??= GetLogger();
+        [AllowNull]
+        protected ILogger Logger
+        {
+            get => _logger ??= GetLogger();
+            set => _logger = value;
+        }
 
-        protected IWeakReferenceManager WeakReferenceManager => _weakReferenceManager ??= GetWeakReferenceManager();
+        [AllowNull]
+        protected IWeakReferenceManager WeakReferenceManager
+        {
+            get => _weakReferenceManager ??= GetWeakReferenceManager();
+            set => _weakReferenceManager = value;
+        }
 
-        protected IMessenger Messenger => _messenger ??= GetMessenger();
+        [AllowNull]
+        protected IMessenger Messenger
+        {
+            get => _messenger ??= GetMessenger();
+            set => _messenger = value;
+        }
 
-        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher ??= GetNavigationDispatcher();
+        [AllowNull]
+        protected INavigationDispatcher NavigationDispatcher
+        {
+            get => _navigationDispatcher ??= GetNavigationDispatcher();
+            set => _navigationDispatcher = value;
+        }
 
-        protected IPresenter Presenter => _presenter ??= GetPresenter();
+        [AllowNull]
+        protected IPresenter Presenter
+        {
+            get => _presenter ??= GetPresenter();
+            set => _presenter = value;
+        }
 
-        protected ISerializer Serializer => _serializer ??= GetSerializer();
+        [AllowNull]
+        protected ISerializer Serializer
+        {
+            get => _serializer ??= GetSerializer();
+            set => _serializer = value;
+        }
 
-        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher ??= GetThreadDispatcher();
+        [AllowNull]
+        protected IThreadDispatcher ThreadDispatcher
+        {
+            get => _threadDispatcher ??= GetThreadDispatcher();
+            set => _threadDispatcher = value;
+        }
 
-        protected IValidationManager ValidationManager => _validationManager ??= GetValidationManager();
+        [AllowNull]
+        protected IValidationManager ValidationManager
+        {
+            get => _validationManager ??= GetValidationManager();
+            set => _validationManager = value;
+        }
 
-        protected IViewModelManager ViewModelManager => _viewModelManager ??= GetViewModelManager();
+        [AllowNull]
+        protected IViewModelManager ViewModelManager
+        {
+            get => _viewModelManager ??= GetViewModelManager();
+            set => _viewModelManager = value;
+        }
 
-        protected IViewManager ViewManager => _viewManager ??= GetViewManager();
+        [AllowNull]
+        protected IViewManager ViewManager
+        {
+            get => _viewManager ??= GetViewManager();
+            set => _viewManager = value;
+        }
 
-        protected IWrapperManager WrapperManager => _wrapperManager ??= GetWrapperManager();
+        [AllowNull]
+        protected IWrapperManager WrapperManager
+        {
+            get => _wrapperManager ??= GetWrapperManager();
+            set => _wrapperManager = value;
+        }
 
-        protected IGlobalValueConverter GlobalValueConverter => _globalValueConverter ??= GetGlobalValueConverter();
+        [AllowNull]
+        protected IGlobalValueConverter GlobalValueConverter
+        {
+            get => _globalValueConverter ??= GetGlobalValueConverter();
+            set => _globalValueConverter = value;
+        }
 
-        protected IBindingManager BindingManager => _bindingManager ??= GetBindingManager();
+        [AllowNull]
+        protected IBindingManager BindingManager
+        {
+            get => _bindingManager ??= GetBindingManager();
+            set => _bindingManager = value;
+        }
 
-        protected IMemberManager MemberManager => _memberManager ??= GetMemberManager();
+        [AllowNull]
+        protected IMemberManager MemberManager
+        {
+            get => _memberManager ??= GetMemberManager();
+            set => _memberManager = value;
+        }
 
-        protected IObservationManager ObservationManager => _observationManager ??= GetObservationManager();
+        [AllowNull]
+        protected IObservationManager ObservationManager
+        {
+            get => _observationManager ??= GetObservationManager();
+            set => _observationManager = value;
+        }
 
-        protected IResourceManager ResourceManager => _resourceManager ??= GetResourceManager();
+        [AllowNull]
+        protected IResourceManager ResourceManager
+        {
+            get => _resourceManager ??= GetResourceManager();
+            set => _resourceManager = value;
+        }
 
-        protected IExpressionParser ExpressionParser => _expressionParser ??= GetExpressionParser();
+        [AllowNull]
+        protected IExpressionParser ExpressionParser
+        {
+            get => _expressionParser ??= GetExpressionParser();
+            set => _expressionParser = value;
+        }
 
-        protected IExpressionCompiler ExpressionCompiler => _expressionCompiler ??= GetExpressionCompiler();
+        [AllowNull]
+        protected IExpressionCompiler ExpressionCompiler
+        {
+            get => _expressionCompiler ??= GetExpressionCompiler();
+            set => _expressionCompiler = value;
+        }
 
-        protected IServiceProvider ServiceProvider => _serviceProvider ??= GetServiceProvider();
+        [AllowNull]
+        protected IServiceProvider ServiceProvider
+        {
+            get => _serviceProvider ??= GetServiceProvider();
+            set => _serviceProvider = value;
+        }
 
-        protected IMetadataContext Metadata => _metadata ??= GetMetadata();
+        [AllowNull]
+        protected IMetadataContext Metadata
+        {
+            get => _metadata ??= GetMetadata();
+            set => _metadata = value;
+        }
+
+        protected Dictionary<Type, PropertyInfo> Services
+        {
+            get
+            {
+                if (_services == null)
+                {
+                    var services = new Dictionary<Type, PropertyInfo>();
+                    foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
+                    {
+                        if (typeof(IComponentOwner).IsAssignableFrom(propertyInfo.PropertyType))
+                            services[propertyInfo.PropertyType] = propertyInfo;
+                    }
+
+                    _services = services;
+                }
+
+                return _services;
+            }
+        }
 
         public void Dispose()
         {
@@ -175,19 +296,7 @@ namespace MugenMvvm.Tests
 
         public virtual object? GetService(Type serviceType)
         {
-            if (_services == null)
-            {
-                var services = new Dictionary<Type, PropertyInfo>();
-                foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
-                {
-                    if (typeof(IComponentOwner).IsAssignableFrom(propertyInfo.PropertyType))
-                        services[propertyInfo.PropertyType] = propertyInfo;
-                }
-
-                _services = services;
-            }
-
-            if (_services.TryGetValue(serviceType, out var p))
+            if (Services.TryGetValue(serviceType, out var p))
                 return p.GetValue(this);
 
             return ServiceProvider.GetService(serviceType);
@@ -225,7 +334,8 @@ namespace MugenMvvm.Tests
 
         protected static NavigationContext GetNavigationContext(object? target = null, NavigationMode? navigationMode = null, NavigationType? navigationType = null,
             string? navigationId = null, INavigationProvider? navigationProvider = null, IReadOnlyMetadataContext? metadata = null) =>
-            new(target, navigationProvider ?? TestNavigationProvider.Instance, navigationId ?? NewId(), navigationType ?? NavigationType.Popup, navigationMode ?? NavigationMode.New, metadata);
+            new(target, navigationProvider ?? TestNavigationProvider.Instance, navigationId ?? NewId(), navigationType ?? NavigationType.Popup, navigationMode ?? NavigationMode.New
+                , metadata);
 
         protected virtual IAttachedValueManager GetAttachedValueManager()
         {
@@ -370,15 +480,7 @@ namespace MugenMvvm.Tests
             return collectionManager;
         }
 
-        protected virtual void OnDispose()
-        {
-            if (_disposeTokens != null)
-            {
-                for (var i = 0; i < _disposeTokens.Count; i++)
-                    _disposeTokens.Items[i].Dispose();
-                _disposeTokens = null;
-            }
-        }
+        protected virtual void OnDispose() => ClearDisposeTokens();
 
         protected void RegisterDisposeToken(ActionToken token)
         {
@@ -402,6 +504,34 @@ namespace MugenMvvm.Tests
 
             if (inline)
                 token.Dispose();
+        }
+
+        protected void ClearServices()
+        {
+            foreach (var service in Services)
+            {
+                try
+                {
+                    service.Value.SetValue(this, null);
+                }
+                catch
+                {
+                    // ignored
+                }
+            }
+        }
+
+        protected void ClearDisposeTokens()
+        {
+            lock (this)
+            {
+                if (_disposeTokens != null)
+                {
+                    for (var i = 0; i < _disposeTokens.Count; i++)
+                        _disposeTokens.Items[i].Dispose();
+                    _disposeTokens = null;
+                }
+            }
         }
 
         protected T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : class, IViewModelBase => ViewModelManager.GetViewModel<T>(metadata);

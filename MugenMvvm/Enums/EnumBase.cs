@@ -12,7 +12,7 @@ namespace MugenMvvm.Enums
         private static readonly Dictionary<Type, Func<string?, IEnum?, bool, IEnum?>> TypeToNameResolver = new(InternalEqualityComparer.Type);
         private static readonly Dictionary<Type, Delegate> TypeToValueResolver = new(InternalEqualityComparer.Type);
 
-        public static bool ThrowOnDuplicate { get; set; }
+        public static bool ThrowOnDuplicate { get; set; } = true;
 
         [return: NotNullIfNotNull("defaultValue")]
         public static IEnum? TryGet<TValue>(Type enumType, TValue value, IEnum? defaultValue = null)
