@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 TraversalType = ExpressionTraversalType.Get(value)
             };
             var exp = new MemberExpressionNode(target, MemberName);
-            var expressionNode = (MemberExpressionNode)exp.Accept(visitor, DefaultMetadata);
+            var expressionNode = (MemberExpressionNode)exp.Accept(visitor, Metadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
             expressionNode.Member.ShouldEqual(MemberName);
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             {
                 Visit = (node, context) => target
             };
-            new MemberExpressionNode(target, MemberName).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(target);
+            new MemberExpressionNode(target, MemberName).Accept(testExpressionVisitor, Metadata).ShouldEqual(target);
         }
 
         [Theory]
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 Visit = (node, context) =>
                 {
                     nodes.Add(node);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return node;
                 },
                 TraversalType = ExpressionTraversalType.Get(value)
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var exp = new MemberExpressionNode(target, MemberName);
 
             var result = visitor.TraversalType == ExpressionTraversalType.Preorder ? new IExpressionNode[] { exp, target } : new IExpressionNode[] { target, exp };
-            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
+            exp.Accept(visitor, Metadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
 

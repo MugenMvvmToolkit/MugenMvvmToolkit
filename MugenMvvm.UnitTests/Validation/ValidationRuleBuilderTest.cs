@@ -24,13 +24,13 @@ namespace MugenMvvm.UnitTests.Validation
                 s.ShouldEqual(value);
                 ct.ShouldEqual(DefaultCancellationToken);
                 state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return errorTcs.Task;
             }).Build().Item!;
             rule.IsAsync.ShouldBeTrue();
 
 
-            var task = rule.ValidateAsync(target, memberName, DefaultCancellationToken, DefaultMetadata);
+            var task = rule.ValidateAsync(target, memberName, DefaultCancellationToken, Metadata);
             invokeCount.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Validation
 
             errorTcs = new TaskCompletionSource<object?>();
             error = null;
-            task = rule.ValidateAsync(target, memberName, DefaultCancellationToken, DefaultMetadata);
+            task = rule.ValidateAsync(target, memberName, DefaultCancellationToken, Metadata);
             invokeCount.ShouldEqual(2);
             task.IsCompleted.ShouldBeFalse();
             errorTcs.TrySetResult(error);
@@ -65,18 +65,18 @@ namespace MugenMvvm.UnitTests.Validation
                 o.ShouldEqual(target);
                 s.ShouldEqual(value);
                 state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return error;
             }).Build().Item!;
             rule.IsAsync.ShouldBeFalse();
 
-            var errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
+            var errors = await rule.ValidateAsync(target, memberName, default, Metadata);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, error));
 
             error = null;
-            errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
+            errors = await rule.ValidateAsync(target, memberName, default, Metadata);
             invokeCount.ShouldEqual(2);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, null)).ShouldBeTrue();
@@ -212,17 +212,17 @@ namespace MugenMvvm.UnitTests.Validation
                        {
                            model.ShouldEqual(validationModel);
                            s.ShouldEqual(validationModel.Property);
-                           m.ShouldEqual(DefaultMetadata);
+                           m.ShouldEqual(Metadata);
                            c.ShouldEqual(DefaultCancellationToken);
                            return tcs.Task;
                        }, () => error, (model, context) =>
                        {
                            model.ShouldEqual(validationModel);
-                           context.ShouldEqual(DefaultMetadata);
+                           context.ShouldEqual(Metadata);
                            return canValidate;
                        }, new[] { dpMember }).Build().Item!;
 
-            var task = rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, DefaultMetadata);
+            var task = rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, Metadata);
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
             var errors = await task;
@@ -231,7 +231,7 @@ namespace MugenMvvm.UnitTests.Validation
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, error)).ShouldBeTrue();
 
             tcs = new TaskCompletionSource<bool>();
-            task = rule.ValidateAsync(validationModel, dpMember, DefaultCancellationToken, DefaultMetadata);
+            task = rule.ValidateAsync(validationModel, dpMember, DefaultCancellationToken, Metadata);
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(false);
             await task;
@@ -241,13 +241,13 @@ namespace MugenMvvm.UnitTests.Validation
 
             canValidate = false;
             tcs = new TaskCompletionSource<bool>();
-            errors = await rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, DefaultMetadata);
+            errors = await rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, Metadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
 
             canValidate = true;
             validationModel.Property = "test";
-            task = rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, DefaultMetadata);
+            task = rule.ValidateAsync(validationModel, propertyName, DefaultCancellationToken, Metadata);
             task.IsCompleted.ShouldBeFalse();
             tcs.TrySetResult(true);
             errors = await task;
@@ -267,32 +267,32 @@ namespace MugenMvvm.UnitTests.Validation
             var rule = new ValidationRuleBuilder<ValidationModel>()
                        .For(propertyName, model => model.Property).Must((model, s, m) =>
                        {
-                           m.ShouldEqual(DefaultMetadata);
+                           m.ShouldEqual(Metadata);
                            return !string.IsNullOrEmpty(model.Property) && !string.IsNullOrEmpty(s);
                        }, () => error, (model, context) =>
                        {
                            model.ShouldEqual(validationModel);
-                           context.ShouldEqual(DefaultMetadata);
+                           context.ShouldEqual(Metadata);
                            return canValidate;
                        }, new[] { dpMember }).Build().Item!;
 
 
-            var errors = await rule.ValidateAsync(validationModel, propertyName, default, DefaultMetadata);
+            var errors = await rule.ValidateAsync(validationModel, propertyName, default, Metadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, error)).ShouldBeTrue();
 
-            errors = await rule.ValidateAsync(validationModel, dpMember, default, DefaultMetadata);
+            errors = await rule.ValidateAsync(validationModel, dpMember, default, Metadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, error)).ShouldBeTrue();
 
             canValidate = false;
-            errors = await rule.ValidateAsync(validationModel, propertyName, default, DefaultMetadata);
+            errors = await rule.ValidateAsync(validationModel, propertyName, default, Metadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
 
             canValidate = true;
             validationModel.Property = "test";
-            errors = await rule.ValidateAsync(validationModel, propertyName, default, DefaultMetadata);
+            errors = await rule.ValidateAsync(validationModel, propertyName, default, Metadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(validationModel, propertyName, null)).ShouldBeTrue();
         }
@@ -426,24 +426,24 @@ namespace MugenMvvm.UnitTests.Validation
                 o.ShouldEqual(target);
                 s.ShouldEqual(value);
                 state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return error;
             }, (o, state, m) =>
             {
                 o.ShouldEqual(target);
                 state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return canValidate;
             }).Build().Item!;
 
 
-            var errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
+            var errors = await rule.ValidateAsync(target, memberName, default, Metadata);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, error)).ShouldBeTrue();
 
             canValidate = false;
-            errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
+            errors = await rule.ValidateAsync(target, memberName, default, Metadata);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, null)).ShouldBeTrue();
         }
@@ -463,27 +463,27 @@ namespace MugenMvvm.UnitTests.Validation
                 o.ShouldEqual(target);
                 s.ShouldEqual(value);
                 state.ShouldEqual(this);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return error;
             }, null, new[] { dMember }).Build().Item!;
 
 
-            var errors = await rule.ValidateAsync(target, memberName, default, DefaultMetadata);
+            var errors = await rule.ValidateAsync(target, memberName, default, Metadata);
             invokeCount.ShouldEqual(1);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, error)).ShouldBeTrue();
 
-            errors = await rule.ValidateAsync(target, dMember, default, DefaultMetadata);
+            errors = await rule.ValidateAsync(target, dMember, default, Metadata);
             invokeCount.ShouldEqual(2);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, error)).ShouldBeTrue();
 
-            errors = await rule.ValidateAsync(target, "", default, DefaultMetadata);
+            errors = await rule.ValidateAsync(target, "", default, Metadata);
             invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(1);
             errors.Contains(new ValidationErrorInfo(target, memberName, error)).ShouldBeTrue();
 
-            errors = await rule.ValidateAsync(target, "e", default, DefaultMetadata);
+            errors = await rule.ValidateAsync(target, "e", default, Metadata);
             invokeCount.ShouldEqual(3);
             errors.Count.ShouldEqual(0);
         }

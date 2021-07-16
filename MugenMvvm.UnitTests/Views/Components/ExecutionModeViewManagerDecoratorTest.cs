@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public ExecutionModeViewManagerDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _viewModel = new TestViewModel();
-            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, _viewModel);
+            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this, _viewModel);
             _decorator = new ExecutionModeViewManagerDecorator(ThreadDispatcher);
             ViewManager.AddComponent(_decorator);
         }
@@ -56,13 +56,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(ViewManager);
                     v.ShouldEqual(_view);
                     r.ShouldEqual(_viewModel);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return new ValueTask<bool>(result);
                 }
             });
 
-            var r = await ViewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, DefaultMetadata);
+            var r = await ViewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, Metadata);
             r.ShouldEqual(result);
             action.ShouldBeNull();
         }
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(ViewManager);
                     v.ShouldEqual(_view);
                     r.ShouldEqual(_viewModel);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)
                         throw ex;
@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTests.Views.Components
 
             if (state == 1)
                 cancellationTokenSource.Cancel();
-            var task = ViewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, DefaultMetadata);
+            var task = ViewManager.TryCleanupAsync(_view, _viewModel, cancellationToken, Metadata);
             task.IsCompleted.ShouldEqual(state == 1);
             action?.Invoke();
             await task.WaitSafeAsync();
@@ -156,13 +156,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(ViewManager);
                     viewMapping.ShouldEqual(_view.Mapping);
                     r.ShouldEqual(_viewModel);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.InitializeAsync(_view.Mapping, _viewModel, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.InitializeAsync(_view.Mapping, _viewModel, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             action.ShouldBeNull();
         }
 
@@ -199,7 +199,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(ViewManager);
                     viewMapping.ShouldEqual(_view.Mapping);
                     r.ShouldEqual(_viewModel);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)
                         throw ex;
@@ -207,7 +207,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 }
             });
 
-            var task = ViewManager.InitializeAsync(_view.Mapping, _viewModel, cancellationToken, DefaultMetadata);
+            var task = ViewManager.InitializeAsync(_view.Mapping, _viewModel, cancellationToken, Metadata);
             if (state == 1)
                 cancellationTokenSource.Cancel();
             task.IsCompleted.ShouldBeFalse();

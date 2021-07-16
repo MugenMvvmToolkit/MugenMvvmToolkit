@@ -33,19 +33,19 @@ namespace MugenMvvm.UnitTests.Internal
                     ++invokeCount;
                     level.ShouldEqual(logLevel);
                     if (withMetadata)
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     else
                         metadata.ShouldBeNull();
                     return canLog;
                 }) { Priority = -i });
             }
 
-            Logger.CanLog(logLevel, withMetadata ? DefaultMetadata : null).ShouldEqual(true);
+            Logger.CanLog(logLevel, withMetadata ? Metadata : null).ShouldEqual(true);
             invokeCount.ShouldEqual(count);
         }
 
         [Fact]
-        public void CanLogShouldReturnFalseNoComponents() => Logger.CanLog(LogLevel.Info, DefaultMetadata).ShouldBeFalse();
+        public void CanLogShouldReturnFalseNoComponents() => Logger.CanLog(LogLevel.Info, Metadata).ShouldBeFalse();
 
         [Theory]
         [InlineData(1)]
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Internal
                     {
                         l.ShouldEqual(Logger);
                         o.ShouldEqual(request);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         ++invokeCount;
                         if (isLast)
                             return result;
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Internal
                 });
             }
 
-            Logger.GetLogger(request, DefaultMetadata).ShouldEqual(result);
+            Logger.GetLogger(request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -100,18 +100,18 @@ namespace MugenMvvm.UnitTests.Internal
                     exception.ShouldEqual(exc);
                     level.ShouldEqual(logLevel);
                     if (withMetadata)
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     else
                         metadata.ShouldBeNull();
                 }, (level, context) => true) { Priority = -i });
             }
 
-            Logger.Log(logLevel, message, exception, withMetadata ? DefaultMetadata : null);
+            Logger.Log(logLevel, message, exception, withMetadata ? Metadata : null);
             invokeCount.ShouldEqual(count);
         }
 
         [Fact]
-        public void LogShouldNotThrowNoComponents() => Logger.Log(LogLevel.Info, string.Empty, null, DefaultMetadata);
+        public void LogShouldNotThrowNoComponents() => Logger.Log(LogLevel.Info, string.Empty, null, Metadata);
 
         protected override ILogger GetLogger() => GetComponentOwner(ComponentCollectionManager);
 

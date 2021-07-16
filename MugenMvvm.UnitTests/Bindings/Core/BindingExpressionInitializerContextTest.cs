@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var targetExp = MemberExpressionNode.Self;
             var sourceExp = MemberExpressionNode.Source;
             var parameters = new[] { MemberExpressionNode.Self, MemberExpressionNode.Source };
-            context.Initialize(target, source, targetExp, sourceExp, parameters, DefaultMetadata);
+            context.Initialize(target, source, targetExp, sourceExp, parameters, Metadata);
 
             context.Target.ShouldEqual(target);
             context.Source.ShouldEqual(source);

@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             var value = "";
             var expression = new BindingParameterExpression(value, null);
-            expression.ToBindingParameter(this, this, DefaultMetadata).ShouldEqual(new BindingParameterValue(value, null));
+            expression.ToBindingParameter(this, this, Metadata).ShouldEqual(new BindingParameterValue(value, null));
         }
 
         [Fact]
@@ -40,12 +40,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     t.ShouldEqual(target);
                     s.ShouldEqual(source);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return result;
                 }
             };
             var parameterExpression = new BindingParameterExpression(value, _compiledExpression);
-            parameterExpression.ToBindingParameter(target, source, DefaultMetadata).ShouldEqual(new BindingParameterValue(result, _compiledExpression));
+            parameterExpression.ToBindingParameter(target, source, Metadata).ShouldEqual(new BindingParameterValue(result, _compiledExpression));
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     {
                         t.ShouldEqual(target);
                         s.ShouldEqual(source);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         return result1;
                     }
                 },
@@ -73,13 +73,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     {
                         t.ShouldEqual(target);
                         s.ShouldEqual(source);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         return result2;
                     }
                 }
             };
             var parameterExpression = new BindingParameterExpression(value, _compiledExpression);
-            var bindingParameterValue = parameterExpression.ToBindingParameter(target, source, DefaultMetadata);
+            var bindingParameterValue = parameterExpression.ToBindingParameter(target, source, Metadata);
             bindingParameterValue.Expression.ShouldEqual(_compiledExpression);
             ((object[])bindingParameterValue.Parameter!).ShouldEqual(new[] { result1, result2 });
         }

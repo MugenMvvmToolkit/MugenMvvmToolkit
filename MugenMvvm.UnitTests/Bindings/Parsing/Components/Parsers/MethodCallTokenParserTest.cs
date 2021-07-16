@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotMethodCallExpression()
         {
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -26,38 +26,38 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             const string typeArg1 = "t1";
             const string typeArg2 = "t2";
 
-            Context.Initialize($"{memberName}()", DefaultMetadata);
+            Context.Initialize($"{memberName}()", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, default));
 
-            Context.Initialize($"{memberName}<{typeArg1}, {typeArg2}>()", DefaultMetadata);
+            Context.Initialize($"{memberName}<{typeArg1}, {typeArg2}>()", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, default, new[] { typeArg1, typeArg2 }));
 
-            Context.Initialize($"{memberName}(1,2)", DefaultMetadata);
+            Context.Initialize($"{memberName}(1,2)", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new MethodCallExpressionNode(null, memberName, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) }));
 
-            Context.Initialize($"{memberName}<{typeArg1}, {typeArg2}>(1,2)", DefaultMetadata);
+            Context.Initialize($"{memberName}<{typeArg1}, {typeArg2}>(1,2)", Metadata);
             Parser.TryParse(Context, null)
                   .ShouldEqual(new MethodCallExpressionNode(null, memberName, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) },
                       new[] { typeArg1, typeArg2 }));
 
-            Context.Initialize($".{memberName}()", DefaultMetadata);
+            Context.Initialize($".{memberName}()", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, default));
 
-            Context.Initialize($".{memberName}<{typeArg1}, {typeArg2}>()", DefaultMetadata);
+            Context.Initialize($".{memberName}<{typeArg1}, {typeArg2}>()", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, default, new[] { typeArg1, typeArg2 }));
 
-            Context.Initialize($".{memberName}(1,2)", DefaultMetadata);
+            Context.Initialize($".{memberName}(1,2)", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) }));
 
-            Context.Initialize($".{memberName}<{typeArg1}, {typeArg2}>(1,2)", DefaultMetadata);
+            Context.Initialize($".{memberName}<{typeArg1}, {typeArg2}>(1,2)", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new MethodCallExpressionNode(ConstantExpressionNode.Null, memberName, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) },
                       new[] { typeArg1, typeArg2 }));
 
-            Context.Initialize($"{memberName}<{typeArg1}, {typeArg2}>(1,2)", DefaultMetadata);
+            Context.Initialize($"{memberName}<{typeArg1}, {typeArg2}>(1,2)", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldBeNull();
         }
     }

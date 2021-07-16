@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Threading
                     {
                         d.ShouldEqual(ThreadDispatcher);
                         mode.ShouldEqual(mode);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         ++executeCount;
                         return result;
                     }
@@ -38,13 +38,13 @@ namespace MugenMvvm.UnitTests.Threading
                 ThreadDispatcher.AddComponent(component);
             }
 
-            ThreadDispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
+            ThreadDispatcher.CanExecuteInline(mode, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             result = true;
             mode = ThreadExecutionMode.Current;
-            ThreadDispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
+            ThreadDispatcher.CanExecuteInline(mode, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
 
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Threading
                         h.ShouldEqual(handler);
                         mode.ShouldEqual(m);
                         state.ShouldEqual(ThreadDispatcher);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         ++executeCount;
                         return isLast;
                     },
@@ -80,12 +80,12 @@ namespace MugenMvvm.UnitTests.Threading
             }
 
             handler = new Action<ThreadDispatcher>(t => { });
-            ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, DefaultMetadata);
+            ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, Metadata);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             handler = new TestThreadDispatcherHandler();
-            ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, DefaultMetadata);
+            ThreadDispatcher.TryExecute(mode, handler, ThreadDispatcher, Metadata);
             executeCount.ShouldEqual(count);
         }
 

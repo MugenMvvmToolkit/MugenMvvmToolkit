@@ -28,31 +28,31 @@ namespace MugenMvvm.UnitTests.Threading.Components
         {
             _synchronizationContext.Callback.ShouldBeNull();
             var component = new SynchronizationContextThreadDispatcher(_synchronizationContext);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeFalse();
+            component.CanExecuteInline(null!, ThreadExecutionMode.Main, Metadata).ShouldBeFalse();
 
             _synchronizationContext.Callback.ShouldNotBeNull();
             _synchronizationContext.Invoke();
-            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeTrue();
+            component.CanExecuteInline(null!, ThreadExecutionMode.Main, Metadata).ShouldBeTrue();
         }
 
         [Fact]
         public void CanExecuteInlineShouldReturnFalseBackground()
         {
             var component = new SynchronizationContextThreadDispatcher(SynchronizationContext.Current!);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Background, DefaultMetadata).ShouldBeFalse();
+            component.CanExecuteInline(null!, ThreadExecutionMode.Background, Metadata).ShouldBeFalse();
         }
 
         [Fact]
-        public void CanExecuteInlineShouldReturnFalseMainAsync() => ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.MainAsync, DefaultMetadata).ShouldBeFalse();
+        public void CanExecuteInlineShouldReturnFalseMainAsync() => ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.MainAsync, Metadata).ShouldBeFalse();
 
         [Fact]
-        public void CanExecuteInlineShouldReturnTrueCurrent() => ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.Current, DefaultMetadata).ShouldBeTrue();
+        public void CanExecuteInlineShouldReturnTrueCurrent() => ThreadDispatcher.CanExecuteInline(ThreadExecutionMode.Current, Metadata).ShouldBeTrue();
 
         [Fact]
         public void CanExecuteInlineShouldReturnTrueMain()
         {
             var component = new SynchronizationContextThreadDispatcher(SynchronizationContext.Current!);
-            component.CanExecuteInline(null!, ThreadExecutionMode.Main, DefaultMetadata).ShouldBeTrue();
+            component.CanExecuteInline(null!, ThreadExecutionMode.Main, Metadata).ShouldBeTrue();
         }
 
         [Fact]
@@ -80,22 +80,22 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, action, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, action, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, actionWithState, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, handler, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, handler, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, handlerWithState, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(1);
 
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, ThreadDispatcher, ThreadDispatcher, DefaultMetadata).ShouldBeFalse();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.Current, ThreadDispatcher, ThreadDispatcher, Metadata).ShouldBeFalse();
         }
 
         [Fact]
@@ -128,37 +128,37 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, action, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, action, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, actionWithState, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, handler, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, handler, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, handlerWithState, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, callback, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, callback, state, Metadata).ShouldBeTrue();
             executed.ShouldEqual(0);
             _synchronizationContext.Invoke();
             executed.ShouldEqual(1);
 
 
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, ThreadDispatcher, ThreadDispatcher, DefaultMetadata).ShouldBeFalse();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.MainAsync, ThreadDispatcher, ThreadDispatcher, Metadata).ShouldBeFalse();
         }
 
         [Fact]
@@ -204,35 +204,35 @@ namespace MugenMvvm.UnitTests.Threading.Components
             };
 
             executed = 0;
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, action, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, action, state, Metadata).ShouldBeTrue();
             tcs.Task.Wait();
             executed.ShouldEqual(1);
 
             executed = 0;
             tcs = new TaskCompletionSource<object?>();
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, actionWithState, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, actionWithState, state, Metadata).ShouldBeTrue();
             tcs.Task.Wait();
             executed.ShouldEqual(1);
 
             executed = 0;
             tcs = new TaskCompletionSource<object?>();
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, handler, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, handler, state, Metadata).ShouldBeTrue();
             tcs.Task.Wait();
             executed.ShouldEqual(1);
 
             executed = 0;
             tcs = new TaskCompletionSource<object?>();
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, handlerWithState, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, handlerWithState, state, Metadata).ShouldBeTrue();
             tcs.Task.Wait();
             executed.ShouldEqual(1);
 
             executed = 0;
             tcs = new TaskCompletionSource<object?>();
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, callback, state, DefaultMetadata).ShouldBeTrue();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, callback, state, Metadata).ShouldBeTrue();
             tcs.Task.Wait();
             executed.ShouldEqual(1);
 
-            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, ThreadDispatcher, ThreadDispatcher, DefaultMetadata).ShouldBeFalse();
+            ThreadDispatcher.TryExecute(ThreadExecutionMode.BackgroundAsync, ThreadDispatcher, ThreadDispatcher, Metadata).ShouldBeFalse();
         }
 
         protected override IThreadDispatcher GetThreadDispatcher() => new ThreadDispatcher(ComponentCollectionManager);

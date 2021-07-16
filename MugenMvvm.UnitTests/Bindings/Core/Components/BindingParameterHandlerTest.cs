@@ -67,10 +67,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
-            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldBeNull();
+            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), targetNullValue, Metadata).ShouldBeNull();
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), targetNullValue, DefaultMetadata).ShouldEqual(targetNullValue);
+            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), targetNullValue, Metadata).ShouldEqual(targetNullValue);
         }
 
         [Fact]
@@ -90,12 +90,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     o.ShouldEqual(value);
                     type.ShouldEqual(targetMember.Type);
                     arg3.ShouldEqual(converterParameter);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return result;
                 }
             };
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
-            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
+            handler.InterceptSourceValue(Binding, new MemberPathLastMember(this, targetMember), value, Metadata).ShouldEqual(result);
         }
 
         [Fact]
@@ -107,10 +107,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var fallback = new object();
             var handler = new BindingParameterHandler(default, default, new BindingParameterValue(fallback, null), default);
-            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(fallback);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, Metadata).ShouldEqual(fallback);
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, DefaultMetadata).ShouldEqual(0);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), BindingMetadata.UnsetValue, Metadata).ShouldEqual(0);
         }
 
         [Fact]
@@ -122,10 +122,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             };
             var targetNullValue = new object();
             var handler = new BindingParameterHandler(default, default, default, new BindingParameterValue(targetNullValue, null));
-            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(targetNullValue);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), null, Metadata).ShouldEqual(targetNullValue);
 
             handler = new BindingParameterHandler(default, default, default, default);
-            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), null, DefaultMetadata).ShouldEqual(null);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), null, Metadata).ShouldEqual(null);
         }
 
         [Fact]
@@ -145,12 +145,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     o.ShouldEqual(value);
                     type.ShouldEqual(targetMember.Type);
                     arg3.ShouldEqual(converterParameter);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return result;
                 }
             };
             var handler = new BindingParameterHandler(new BindingParameterValue(converter, null), new BindingParameterValue(converterParameter, null), default, default);
-            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), value, DefaultMetadata).ShouldEqual(result);
+            handler.InterceptTargetValue(Binding, new MemberPathLastMember(this, targetMember), value, Metadata).ShouldEqual(result);
         }
     }
 }

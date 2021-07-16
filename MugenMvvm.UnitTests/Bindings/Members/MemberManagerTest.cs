@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         m.ShouldEqual(memberType);
                         f.ShouldEqual(memberFlags);
                         r.ShouldEqual(request);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         if (isLast)
                             return member;
                         return default;
@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 MemberManager.AddComponent(component);
             }
 
-            var result = MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
+            var result = MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata);
             result.Count.ShouldEqual(1);
             result.Item.ShouldEqual(member);
             invokeCount.ShouldEqual(count);

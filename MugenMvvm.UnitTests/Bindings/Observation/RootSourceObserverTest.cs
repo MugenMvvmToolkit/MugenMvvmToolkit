@@ -75,37 +75,37 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 }
             };
             observer.Add(listener);
-            observer.Get(DefaultMetadata).ShouldEqual(target);
-            observer.Get(target, DefaultMetadata).ShouldEqual(target);
+            observer.Get(Metadata).ShouldEqual(target);
+            observer.Get(target, Metadata).ShouldEqual(target);
             changedCount.ShouldEqual(0);
 
             canReturnParent = true;
-            parentListener?.TryHandle(parent, this, DefaultMetadata);
-            observer.Get(DefaultMetadata).ShouldEqual(parent);
-            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
+            parentListener?.TryHandle(parent, this, Metadata);
+            observer.Get(Metadata).ShouldEqual(parent);
+            observer.Get(target, Metadata).ShouldEqual(parent);
             changedCount.ShouldEqual(1);
 
             canReturnParent = false;
             var parentObserver = RootSourceObserver.GetOrAdd(parent);
-            parentObserver.Raise(parent, parentObserver, DefaultMetadata);
+            parentObserver.Raise(parent, parentObserver, Metadata);
             canReturnParent = true;
-            observer.Get(DefaultMetadata).ShouldEqual(parent);
-            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
+            observer.Get(Metadata).ShouldEqual(parent);
+            observer.Get(target, Metadata).ShouldEqual(parent);
             changedCount.ShouldEqual(2);
 
             canReturnParent = false;
-            parentListener?.TryHandle(parent, this, DefaultMetadata);
-            observer.Get(DefaultMetadata).ShouldEqual(target);
-            observer.Get(target, DefaultMetadata).ShouldEqual(target);
+            parentListener?.TryHandle(parent, this, Metadata);
+            observer.Get(Metadata).ShouldEqual(target);
+            observer.Get(target, Metadata).ShouldEqual(target);
             changedCount.ShouldEqual(3);
 
-            parentObserver.Raise(parent, parentObserver, DefaultMetadata);
+            parentObserver.Raise(parent, parentObserver, Metadata);
             changedCount.ShouldEqual(3);
 
             canReturnParent = true;
-            parentListener?.TryHandle(parent, this, DefaultMetadata);
-            observer.Get(DefaultMetadata).ShouldEqual(parent);
-            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
+            parentListener?.TryHandle(parent, this, Metadata);
+            observer.Get(Metadata).ShouldEqual(parent);
+            observer.Get(target, Metadata).ShouldEqual(parent);
             changedCount.ShouldEqual(4);
 
             observer.Remove(listener);
@@ -116,10 +116,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             RootSourceObserver.Clear(target);
             parentListener.ShouldBeNull();
-            parentObserver.Raise(parent, this, DefaultMetadata);
+            parentObserver.Raise(parent, this, Metadata);
             changedCount.ShouldEqual(4);
-            observer.Get(DefaultMetadata).ShouldEqual(parent);
-            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
+            observer.Get(Metadata).ShouldEqual(parent);
+            observer.Get(target, Metadata).ShouldEqual(parent);
         }
 
         [Fact]
@@ -142,8 +142,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             var target = new object();
             var observer = RootSourceObserver.GetOrAdd(target);
-            observer.Get(DefaultMetadata).ShouldEqual(target);
-            observer.Get(target, DefaultMetadata).ShouldEqual(target);
+            observer.Get(Metadata).ShouldEqual(target);
+            observer.Get(target, Metadata).ShouldEqual(target);
         }
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);

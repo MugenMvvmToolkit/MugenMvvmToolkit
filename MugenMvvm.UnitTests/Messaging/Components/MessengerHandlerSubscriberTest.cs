@@ -71,16 +71,16 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             else
                 Messenger.TrySubscribe(handler, ThreadExecutionMode.Current);
 
-            ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(int), DefaultMetadata)!;
+            ctx = new MessageContext(this, intMessage, Metadata);
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(int), Metadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
             invokedStringCount.ShouldEqual(0);
 
-            ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), DefaultMetadata)!;
+            ctx = new MessageContext(this, stringMessage, Metadata);
+            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), Metadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -113,15 +113,15 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             else
                 Messenger.TrySubscribe(handler, ThreadExecutionMode.Current);
 
-            ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(int), DefaultMetadata)!;
+            ctx = new MessageContext(this, intMessage, Metadata);
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(int), Metadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
 
-            ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), DefaultMetadata)!;
+            ctx = new MessageContext(this, stringMessage, Metadata);
+            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), Metadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -159,16 +159,16 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             else
                 Messenger.TrySubscribe(handler, ThreadExecutionMode.Current);
 
-            ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(int), DefaultMetadata)!;
+            ctx = new MessageContext(this, intMessage, Metadata);
+            var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(int), Metadata)!;
             canHandleType.ShouldEqual(typeof(int));
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
 
-            ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), DefaultMetadata)!;
+            ctx = new MessageContext(this, stringMessage, Metadata);
+            handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), Metadata)!;
             canHandleType.ShouldEqual(typeof(string));
             handlers.Count.ShouldEqual(1);
             handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
@@ -198,21 +198,21 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             {
                 var handler = new TestMessengerHandler();
                 ThreadExecutionMode.TryGet(i, out var mode);
-                Messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
+                Messenger.TrySubscribe(handler, mode, Metadata).ShouldBeTrue();
 
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
             }
 
-            var subscribers = Messenger.GetSubscribers(DefaultMetadata)!;
+            var subscribers = Messenger.GetSubscribers(Metadata)!;
             subscribers.Count.ShouldEqual(hashSet.Count);
             foreach (var messengerSubscriberInfo in subscribers)
                 hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
             hashSet.Count.ShouldEqual(0);
 
             foreach (var messengerSubscriberInfo in subscribers)
-                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
-            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, Metadata).ShouldBeTrue();
+            Messenger.GetSubscribers(Metadata).ShouldBeEmpty();
         }
 
         [Theory]
@@ -230,12 +230,12 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 if (keepAlive)
                     list.Add(handler.Target!);
                 ThreadExecutionMode.TryGet(i, out var mode);
-                Messenger.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
+                Messenger.TrySubscribe(handler, mode, Metadata).ShouldBeTrue();
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
             }
 
-            var subscribers = Messenger.GetSubscribers(DefaultMetadata)!;
+            var subscribers = Messenger.GetSubscribers(Metadata)!;
             subscribers.Count.ShouldEqual(hashSet.Count);
             foreach (var messengerSubscriberInfo in subscribers)
                 hashSet.Remove(messengerSubscriberInfo).ShouldBeTrue();
@@ -244,16 +244,16 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             GcCollect();
 
             foreach (var messengerSubscriberInfo in subscribers)
-                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, DefaultMetadata).ShouldBeTrue();
-            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+                Messenger.TryUnsubscribe(messengerSubscriberInfo.Subscriber!, Metadata).ShouldBeTrue();
+            Messenger.GetSubscribers(Metadata).ShouldBeEmpty();
         }
 
         [Fact]
         public void TrySubscribeUnsubscribeShouldReturnFalseNotSupported()
         {
-            Messenger.TrySubscribe(this, null, DefaultMetadata).ShouldBeFalse();
+            Messenger.TrySubscribe(this, null, Metadata).ShouldBeFalse();
             Messenger.GetSubscribers().ShouldBeEmpty();
-            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldBeFalse();
+            Messenger.TryUnsubscribe(this, Metadata).ShouldBeFalse();
         }
 
         [Theory]
@@ -262,10 +262,10 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         public void TryUnsubscribeAllShouldRemoveAllSubscribers(int count)
         {
             for (var i = 0; i < count; i++)
-                Messenger.TrySubscribe(new TestMessengerHandler(), ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), DefaultMetadata).ShouldBeTrue();
+                Messenger.TrySubscribe(new TestMessengerHandler(), ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), Metadata).ShouldBeTrue();
 
-            _messengerHandlerComponent.TryUnsubscribeAll(Messenger, DefaultMetadata);
-            Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+            _messengerHandlerComponent.TryUnsubscribeAll(Messenger, Metadata);
+            Messenger.GetSubscribers(Metadata).ShouldBeEmpty();
         }
 
         protected override IMessenger GetMessenger() => new Messenger(ComponentCollectionManager);

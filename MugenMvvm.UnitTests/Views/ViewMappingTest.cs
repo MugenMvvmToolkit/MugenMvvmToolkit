@@ -13,8 +13,8 @@ namespace MugenMvvm.UnitTests.Views
             var id = "id";
             var viewType = typeof(string);
             var viewModelType = typeof(TestViewModel);
-            var mapping = new ViewMapping(id, viewModelType, viewType, DefaultMetadata);
-            mapping.Metadata.ShouldEqual(DefaultMetadata);
+            var mapping = new ViewMapping(id, viewModelType, viewType, Metadata);
+            mapping.Metadata.ShouldEqual(Metadata);
             mapping.Id.ShouldEqual(id);
             mapping.ViewType.ShouldEqual(viewType);
             mapping.ViewModelType.ShouldEqual(viewModelType);

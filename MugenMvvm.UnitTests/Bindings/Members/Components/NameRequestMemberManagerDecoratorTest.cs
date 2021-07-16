@@ -24,8 +24,8 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         [Fact]
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
-            _provider.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _provider.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, "", Metadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, Metadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     return members;
                 }
             });
@@ -62,12 +62,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     types.ShouldEqual(memberType);
                     type.ShouldEqual(t);
                     s.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return members;
                 }
             });
 
-            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(members);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata).ShouldEqual(members);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }

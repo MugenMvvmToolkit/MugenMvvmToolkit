@@ -42,18 +42,18 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 }
             });
 
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
             MemberManager.RemoveComponent(_memberCache);
             invokeCount = 0;
-            _memberCache.TryGetMembers(MemberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _memberCache.TryGetMembers(MemberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _memberCache.TryGetMembers(MemberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _memberCache.TryGetMembers(MemberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _memberCache.TryGetMembers(MemberManager, type1, memberType, memberFlags, request1, Metadata).IsEmpty.ShouldBeTrue();
+            _memberCache.TryGetMembers(MemberManager, type1, memberType, memberFlags, request1, Metadata).IsEmpty.ShouldBeTrue();
+            _memberCache.TryGetMembers(MemberManager, type2, memberType, memberFlags, request2, Metadata).IsEmpty.ShouldBeTrue();
+            _memberCache.TryGetMembers(MemberManager, type2, memberType, memberFlags, request2, Metadata).IsEmpty.ShouldBeTrue();
             invokeCount.ShouldEqual(0);
         }
 
@@ -79,26 +79,26 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 }
             });
 
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
-            MemberManager.TryInvalidateCache(null, DefaultMetadata);
+            MemberManager.TryInvalidateCache(null, Metadata);
             invokeCount = 0;
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
-            MemberManager.TryInvalidateCache(type1, DefaultMetadata);
+            MemberManager.TryInvalidateCache(type1, Metadata);
             invokeCount = 0;
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type1, memberType, memberFlags, request1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type2, memberType, memberFlags, request2, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -121,18 +121,18 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     m.ShouldEqual(memberType);
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     return result;
                 }
             });
 
-            MemberManager.TryGetMembers(type, memberType, memberFlags, this, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type, memberType, memberFlags, this, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, this, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, this, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
             request = 1;
-            MemberManager.TryGetMembers(type, memberType, memberFlags, 1, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type, memberType, memberFlags, 1, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, 1, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, 1, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(4);
         }
 
@@ -155,13 +155,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     m.ShouldEqual(memberType);
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     return result;
                 }
             });
 
-            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -184,14 +184,14 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     m.ShouldEqual(memberType);
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     return result;
                 }
             });
 
-            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
-            MemberManager.TryGetMembers(type, memberType, memberFlags, new MemberTypesRequest(request.Name, request.Types.ToArray()), DefaultMetadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata).ShouldEqual(result);
+            MemberManager.TryGetMembers(type, memberType, memberFlags, new MemberTypesRequest(request.Name, request.Types.ToArray()), Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 

@@ -26,29 +26,29 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     ++invokeCount;
                     m.ShouldEqual(BindingManager);
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testExp;
                 }
             };
             BindingManager.AddComponent(cache);
             BindingManager.AddComponent(component);
 
-            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
-            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
 
             //invalidate
-            BindingManager.TryInvalidateCache(this, DefaultMetadata);
-            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
-            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.TryInvalidateCache(this, Metadata);
+            BindingManager.ParseBindingExpression(request, Metadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(2);
 
             //add new component
             BindingManager.RemoveComponent(component);
             BindingManager.AddComponent(component);
-            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
-            BindingManager.ParseBindingExpression(request, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, Metadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(request, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(3);
         }
 

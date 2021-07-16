@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                     s.ShouldEqual(Serializer);
                     f.ShouldEqual(_deserializationFormat);
                     r.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return ctx;
                 }
             });
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 });
             }
 
-            Serializer.Deserialize(_deserializationFormat, request, null, DefaultMetadata).ShouldEqual(result);
+            Serializer.Deserialize(_deserializationFormat, request, null, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
 
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                         s.ShouldEqual(Serializer);
                         t.ShouldEqual(_deserializationFormat);
                         r.ShouldEqual(request);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         if (isLast)
                             return true;
                         return false;
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 Serializer.AddComponent(component);
             }
 
-            Serializer.IsSupported(_deserializationFormat, request, DefaultMetadata).ShouldEqual(true);
+            Serializer.IsSupported(_deserializationFormat, request, Metadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 
@@ -117,7 +117,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                         s.ShouldEqual(Serializer);
                         t.ShouldEqual(_serializationFormat);
                         r.ShouldEqual(request);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         if (isLast)
                             return true;
                         return false;
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 Serializer.AddComponent(component);
             }
 
-            Serializer.IsSupported(_serializationFormat, request, DefaultMetadata).ShouldEqual(true);
+            Serializer.IsSupported(_serializationFormat, request, Metadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 
@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                     s.ShouldEqual(Serializer);
                     f.ShouldEqual(_serializationFormat);
                     r.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return ctx;
                 }
             });
@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Serialization.Components
                 Serializer.AddComponent(component);
             }
 
-            Serializer.Serialize(_serializationFormat, request, null, DefaultMetadata).ShouldEqual(result);
+            Serializer.Serialize(_serializationFormat, request, null, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
 

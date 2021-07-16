@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTests.Views
             viewInfo.TryGet<ViewInfoTest>(out var viewInfoTest).ShouldBeTrue();
             viewInfoTest.ShouldEqual(this);
             viewInfo.IsSameView(this).ShouldBeTrue();
-            viewInfo.IsSameView(DefaultMetadata).ShouldBeFalse();
+            viewInfo.IsSameView(Metadata).ShouldBeFalse();
             viewInfo.Equals(new ViewInfo(this)).ShouldBeTrue();
         }
 
@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Views
             v.ShouldEqual(rawView);
             viewInfo.IsSameView(this).ShouldBeTrue();
             viewInfo.IsSameView(rawView).ShouldBeTrue();
-            viewInfo.IsSameView(DefaultMetadata).ShouldBeFalse();
+            viewInfo.IsSameView(Metadata).ShouldBeFalse();
             viewInfo.Equals(new ViewInfo(this)).ShouldBeTrue();
             viewInfo.Equals(new ViewInfo(rawView)).ShouldBeTrue();
         }

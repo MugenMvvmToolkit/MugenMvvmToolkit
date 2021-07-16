@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotUnaryExpression()
         {
             Context.Parsers = new DigitTokenParser();
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -26,18 +26,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 
             Context.Parsers = new ITokenParserComponent[] { new DigitTokenParser(), new MemberTokenParser() };
 
-            Context.Initialize("-1", DefaultMetadata);
+            Context.Initialize("-1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
 
             Parser.Mapping['-'] = new[] { token };
-            Context.Initialize("-1", DefaultMetadata);
+            Context.Initialize("-1", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, ConstantExpressionNode.Get(1)));
 
-            Context.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
+            Context.Initialize($"-{memberName}.{memberName}", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(new MemberExpressionNode(null, memberName), memberName)));
 
             token.IsSingleExpression = true;
-            Context.Initialize($"-{memberName}.{memberName}", DefaultMetadata);
+            Context.Initialize($"-{memberName}.{memberName}", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new UnaryExpressionNode(token, new MemberExpressionNode(null, memberName)));
         }
     }

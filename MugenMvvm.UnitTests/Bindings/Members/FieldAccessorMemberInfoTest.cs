@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 target.ShouldEqual(this);
                 member.ShouldEqual(fieldInfo);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, fieldInfo);
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
@@ -87,28 +87,28 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
             memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance | (nonObservable ? MemberFlags.NonObservable : default));
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
             if (fieldName == nameof(Field1))
             {
                 Field1 = "test";
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(Field1);
-                memberInfo.SetValue(this, nameof(Field1), DefaultMetadata);
+                memberInfo.GetValue(this, Metadata).ShouldEqual(Field1);
+                memberInfo.SetValue(this, nameof(Field1), Metadata);
                 Field1.ShouldEqual(nameof(Field1));
             }
             else if (fieldName == nameof(Field2))
             {
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(Field2);
-                memberInfo.SetValue(this, int.MaxValue, DefaultMetadata);
+                memberInfo.GetValue(this, Metadata).ShouldEqual(Field2);
+                memberInfo.SetValue(this, int.MaxValue, Metadata);
                 Field2.ShouldEqual(int.MaxValue);
             }
             else if (fieldName == nameof(InitOnlyField))
             {
                 memberInfo.CanWrite.ShouldBeFalse();
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(InitOnlyField);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", DefaultMetadata));
+                memberInfo.GetValue(this, Metadata).ShouldEqual(InitOnlyField);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", Metadata));
             }
         }
 
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 target.ShouldEqual(this);
                 member.ShouldEqual(fieldInfo);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, fieldInfo);
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
@@ -159,28 +159,28 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
             memberInfo.MemberFlags.ShouldEqual(MemberFlags.Static | MemberFlags.Public | (nonObservable ? MemberFlags.NonObservable : default));
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
             if (fieldName == nameof(Field1Static))
             {
                 Field1Static = "test";
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(Field1Static);
-                memberInfo.SetValue(null, nameof(Field1Static), DefaultMetadata);
+                memberInfo.GetValue(null, Metadata).ShouldEqual(Field1Static);
+                memberInfo.SetValue(null, nameof(Field1Static), Metadata);
                 Field1Static.ShouldEqual(nameof(Field1Static));
             }
             else if (fieldName == nameof(Field2Static))
             {
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(Field2Static);
-                memberInfo.SetValue(null, int.MaxValue, DefaultMetadata);
+                memberInfo.GetValue(null, Metadata).ShouldEqual(Field2Static);
+                memberInfo.SetValue(null, int.MaxValue, Metadata);
                 Field2Static.ShouldEqual(int.MaxValue);
             }
             else if (fieldName == nameof(InitOnlyStaticField))
             {
                 memberInfo.CanWrite.ShouldBeFalse();
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(InitOnlyStaticField);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", DefaultMetadata));
+                memberInfo.GetValue(null, Metadata).ShouldEqual(InitOnlyStaticField);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", Metadata));
             }
         }
 

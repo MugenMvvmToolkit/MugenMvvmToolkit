@@ -21,10 +21,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 b.ShouldEqual(Binding);
                 arg3.ShouldEqual(target);
                 arg4.ShouldEqual(source);
-                arg5.ShouldEqual(DefaultMetadata);
+                arg5.ShouldEqual(Metadata);
                 return result;
             }, state);
-            provider.TryGetComponent(Binding, target, source, DefaultMetadata).ShouldEqual(result);
+            provider.TryGetComponent(Binding, target, source, Metadata).ShouldEqual(result);
         }
     }
 }

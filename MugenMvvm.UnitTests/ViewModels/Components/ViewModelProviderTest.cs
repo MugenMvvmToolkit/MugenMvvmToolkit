@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         }
 
         [Fact]
-        public void ShouldIgnoreNonGuidRequest() => ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+        public void ShouldIgnoreNonGuidRequest() => ViewModelManager.TryGetViewModel(this, Metadata).ShouldBeNull();
 
         [Fact]
         public void ShouldUseServiceResolverAndCheckInitializedState()
@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             {
                 IsInState = (_, vm, st, m) =>
                 {
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     vm.ShouldEqual(viewModel);
                     return st == ViewModelLifecycleState.Initialized;
                 }
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 return viewModel;
             };
 
-            ViewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
+            ViewModelManager.TryGetViewModel(viewModel.GetType(), Metadata).ShouldEqual(viewModel);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 OnLifecycleChanged = (_, vm, state, _, m) =>
                 {
                     vm.ShouldEqual(viewModel);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     lifecycleStates.Add(state);
                 }
             });
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 return viewModel;
             };
 
-            ViewModelManager.TryGetViewModel(viewModel.GetType(), DefaultMetadata).ShouldEqual(viewModel);
+            ViewModelManager.TryGetViewModel(viewModel.GetType(), Metadata).ShouldEqual(viewModel);
             lifecycleStates.Count.ShouldEqual(2);
             lifecycleStates[0].ShouldEqual(ViewModelLifecycleState.Initializing);
             lifecycleStates[1].ShouldEqual(ViewModelLifecycleState.Initialized);

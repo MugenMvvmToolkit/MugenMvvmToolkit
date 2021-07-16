@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Presentation
         public ViewModelPresenterMediatorBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _vm = new TestViewModel();
-            _mapping = new ViewMapping("id", _vm.GetType(), typeof(object), DefaultMetadata);
+            _mapping = new ViewMapping("id", _vm.GetType(), typeof(object), Metadata);
             _view = new View(_mapping, new object(), _vm);
             _navigationContext = new NavigationContext(this, NavigationProvider.System, "t", NavigationType.Popup, NavigationMode.New);
             NavigationDispatcher.AddComponent(new NavigationContextProvider());
@@ -82,23 +82,23 @@ namespace MugenMvvm.UnitTests.Presentation
             var mediator = GetMediator<object>(_vm, _mapping);
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             mediator.CloseViewHandler = context =>
             {
-                mediator.OnViewClosed(DefaultMetadata);
+                mediator.OnViewClosed(Metadata);
                 return null;
             };
-            mediator.TryShow(null, default, DefaultMetadata);
+            mediator.TryShow(null, default, Metadata);
 
             canClose = false;
             var cancelEventArgs = new CancelableRequest();
-            mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
+            mediator.OnViewClosing(cancelEventArgs, Metadata);
             cancelEventArgs.Cancel!.Value.ShouldBeTrue();
             tcs.SetResult(true);
             cancelEventArgs.Cancel = null;
-            mediator.OnViewClosing(cancelEventArgs, DefaultMetadata);
+            mediator.OnViewClosing(cancelEventArgs, Metadata);
             cancelEventArgs.Cancel!.Value.ShouldBeFalse();
         }
 
@@ -115,11 +115,11 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.NavigationTypeField = NavigationType.Page;
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             mediator.TryClose(null, DefaultCancellationToken, NavigationMetadata.NavigationType.ToContext(NavigationType.Background));
             closeCount.ShouldEqual(0);
 
@@ -139,15 +139,15 @@ namespace MugenMvvm.UnitTests.Presentation
             };
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
 
-            mediator.TryClose(this, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryClose(this, DefaultCancellationToken, Metadata);
             closeCount.ShouldEqual(0);
 
-            mediator.TryClose(_view.Target, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryClose(_view.Target, DefaultCancellationToken, Metadata);
             closeCount.ShouldEqual(1);
         }
 
@@ -167,12 +167,12 @@ namespace MugenMvvm.UnitTests.Presentation
             };
             mediator.CloseViewHandler = context =>
             {
-                mediator.OnViewClosed(DefaultMetadata);
+                mediator.OnViewClosed(Metadata);
                 return null;
             };
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
 
@@ -188,12 +188,12 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             initCount.ShouldEqual(1);
             clearMediatorCount.ShouldEqual(0);
             clearCount.ShouldEqual(0);
 
-            mediator.TryClose(null, default, DefaultMetadata);
+            mediator.TryClose(null, default, Metadata);
             initCount.ShouldEqual(1);
             clearMediatorCount.ShouldEqual(1);
             clearCount.ShouldEqual(1);
@@ -215,19 +215,19 @@ namespace MugenMvvm.UnitTests.Presentation
             var cancelCount = 0;
             var contextCount = 0;
             var ignore = true;
-            var metadata = DefaultMetadata;
+            var metadata = Metadata;
 
             var mediator = GetMediator<object>(_vm, _mapping);
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             mediator.CloseViewHandler = context =>
             {
                 if (state == 3)
                     throw exception;
-                mediator.OnViewClosed(DefaultMetadata);
+                mediator.OnViewClosed(Metadata);
                 return null;
             };
             NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
@@ -362,19 +362,19 @@ namespace MugenMvvm.UnitTests.Presentation
             var mediator = GetMediator<object>(_vm, _mapping);
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             mediator.CloseViewHandler = context =>
             {
                 ++closeCount;
-                mediator.OnViewClosed(DefaultMetadata);
+                mediator.OnViewClosed(Metadata);
                 return null;
             };
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
 
             canClose = false;
-            mediator.TryClose(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryClose(null, DefaultCancellationToken, Metadata);
             tcs.SetResult(result);
             if (result)
             {
@@ -404,7 +404,7 @@ namespace MugenMvvm.UnitTests.Presentation
             {
                 ++showCount;
                 context.NavigationMode.ShouldEqual(NavigationMode.New);
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             mediator.ActivateViewHandler = context =>
@@ -412,7 +412,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 ++activateCount;
                 context.NavigationMode.ShouldEqual(NavigationMode.Refresh);
                 if (result)
-                    mediator.OnViewActivated(DefaultMetadata);
+                    mediator.OnViewActivated(Metadata);
                 return new ValueTask<bool>(result);
             };
             mediator.OnNavigatedHandler = context =>
@@ -426,13 +426,13 @@ namespace MugenMvvm.UnitTests.Presentation
                 return true;
             };
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             showCount.ShouldEqual(1);
             navigateCount.ShouldEqual(1);
             cancelCount.ShouldEqual(0);
             activateCount.ShouldEqual(0);
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             showCount.ShouldEqual(1);
             activateCount.ShouldEqual(1);
             if (result)
@@ -493,7 +493,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             initCount.ShouldEqual(1);
             clearMediatorCount.ShouldEqual(1);
             clearCount.ShouldEqual(1);
@@ -508,11 +508,11 @@ namespace MugenMvvm.UnitTests.Presentation
             {
                 ++showCount;
                 context.NavigationMode.ShouldEqual(NavigationMode.New);
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             showCount.ShouldEqual(1);
 
             showCount = 0;
@@ -521,10 +521,10 @@ namespace MugenMvvm.UnitTests.Presentation
             {
                 ++showCount;
                 context.NavigationMode.ShouldEqual(NavigationMode.Restore);
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             showCount.ShouldEqual(1);
         }
 
@@ -547,7 +547,7 @@ namespace MugenMvvm.UnitTests.Presentation
             var mediator = GetMediator<object>(_vm, _mapping);
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
@@ -562,7 +562,7 @@ namespace MugenMvvm.UnitTests.Presentation
                     navigationId = nId;
                     type.ShouldEqual(mediator.NavigationType);
                     mode.ShouldEqual(NavigationMode.New);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return _navigationContext;
                 }
             });
@@ -620,7 +620,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            var presenterResult = mediator.TryShow(null, cts.Token, DefaultMetadata)!;
+            var presenterResult = mediator.TryShow(null, cts.Token, Metadata)!;
             contextCount.ShouldEqual(1);
             presenterResult.NavigationProvider.ShouldEqual(mediator);
             presenterResult.NavigationType.ShouldEqual(mediator.NavigationType);
@@ -659,7 +659,7 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.InitializeViewHandler = context => { ++initCount; };
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             ViewManager.RemoveComponents<TestViewManagerComponent>();
@@ -682,7 +682,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            mediator.TryShow(includeView ? _view.Target : null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(includeView ? _view.Target : null, DefaultCancellationToken, Metadata);
             initCount.ShouldEqual(1);
             mediator.View.ShouldEqual(_view);
             mediator.CurrentView.ShouldEqual(_view.Target);
@@ -701,13 +701,13 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.ShowViewHandler = context =>
             {
                 ++showCount;
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
             mediator.ActivateViewHandler = context =>
             {
                 ++activateCount;
-                mediator.OnViewActivated(DefaultMetadata);
+                mediator.OnViewActivated(Metadata);
                 return new ValueTask<bool>(true);
             };
 
@@ -729,7 +729,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             mediator.View.ShouldEqual(_view);
             mediator.CurrentView.ShouldEqual(_view.Target);
             cleanupCount.ShouldEqual(0);
@@ -785,7 +785,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 ++showCount;
                 return null;
             };
-            mediator.TryShow(null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(null, DefaultCancellationToken, Metadata);
             tcs.SetResult(result);
             WaitCompletion();
             if (result)
@@ -809,7 +809,7 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.InitializeViewHandler = context => ++initCount;
             mediator.ShowViewHandler = context =>
             {
-                mediator.OnViewShown(DefaultMetadata);
+                mediator.OnViewShown(Metadata);
                 return null;
             };
 
@@ -820,7 +820,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 return wrappedView;
             }));
 
-            mediator.TryShow(includeView ? _view.Target : null, DefaultCancellationToken, DefaultMetadata);
+            mediator.TryShow(includeView ? _view.Target : null, DefaultCancellationToken, Metadata);
             initCount.ShouldEqual(1);
             mediator.View.ShouldEqual(_view);
             mediator.CurrentView.ShouldEqual(wrappedView);

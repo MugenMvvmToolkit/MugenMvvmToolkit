@@ -26,12 +26,12 @@ namespace MugenMvvm.UnitTests.Components
                     ++executed;
                     c.ShouldEqual(ComponentCollectionManager);
                     o.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return result;
                 }
             });
 
-            ComponentCollectionManager.GetComponentCollection(this, DefaultMetadata).ShouldEqual(result);
+            ComponentCollectionManager.GetComponentCollection(this, Metadata).ShouldEqual(result);
             executed.ShouldEqual(1);
         }
 
@@ -55,10 +55,10 @@ namespace MugenMvvm.UnitTests.Components
                     executed++;
                     provider.ShouldEqual(ComponentCollectionManager);
                     collection.ShouldEqual(result);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                 }
             });
-            ComponentCollectionManager.GetComponentCollection(this, DefaultMetadata).ShouldEqual(result);
+            ComponentCollectionManager.GetComponentCollection(this, Metadata).ShouldEqual(result);
             executed.ShouldEqual(1);
         }
 

@@ -34,10 +34,10 @@ namespace MugenMvvm.UnitTests.App.Components
                     ctx = context;
                 }
             });
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Initialized, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Initialized, null, Metadata);
             ctx.ShouldBeNull();
 
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, Metadata);
             ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx.Target.ShouldEqual(Application);
 
             ctx = null;
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, Metadata);
             ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
@@ -65,10 +65,10 @@ namespace MugenMvvm.UnitTests.App.Components
                     ctx = context;
                 }
             });
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Initialized, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Initialized, null, Metadata);
             ctx.ShouldBeNull();
 
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Activating, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Activating, null, Metadata);
             ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx.Target.ShouldEqual(Application);
 
             ctx = null;
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivating, null, Metadata);
             ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
@@ -89,11 +89,11 @@ namespace MugenMvvm.UnitTests.App.Components
         {
             Application.IsInState(ApplicationLifecycleState.Activated).ShouldBeFalse();
 
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, Metadata);
             Application.IsInState(ApplicationLifecycleState.Activated).ShouldBeTrue();
             Application.IsInState(ApplicationLifecycleState.Deactivated).ShouldBeFalse();
 
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, Metadata);
             Application.IsInState(ApplicationLifecycleState.Activated).ShouldBeFalse();
             Application.IsInState(ApplicationLifecycleState.Deactivated).ShouldBeTrue();
         }
@@ -114,11 +114,11 @@ namespace MugenMvvm.UnitTests.App.Components
                 }
             });
 
-            Application.OnLifecycleChanged(state, null, DefaultMetadata);
+            Application.OnLifecycleChanged(state, null, Metadata);
             invokeCount.ShouldEqual(1);
 
             state = ApplicationLifecycleState.Activated;
-            Application.OnLifecycleChanged(state, null, DefaultMetadata);
+            Application.OnLifecycleChanged(state, null, Metadata);
             invokeCount.ShouldEqual(2);
         }
 
@@ -135,18 +135,18 @@ namespace MugenMvvm.UnitTests.App.Components
                     s.ShouldEqual(InternalConstant.BackgroundNavigationId);
                     arg3.ShouldEqual(NavigationType.Background);
                     arg4.ShouldEqual(Application);
-                    arg5.ShouldEqual(DefaultMetadata);
+                    arg5.ShouldEqual(Metadata);
                     invokeCount++;
                     return null;
                 }
             });
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, Metadata);
 
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
             callbackType = NavigationCallbackType.Close;
-            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, DefaultMetadata);
+            Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

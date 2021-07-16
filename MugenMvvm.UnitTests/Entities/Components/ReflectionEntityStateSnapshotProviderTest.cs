@@ -29,9 +29,9 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldDumpValues()
         {
             var stateModel = GetModel();
-            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, Metadata)!;
 
-            var values = snapshot.Dump(stateModel, DefaultMetadata);
+            var values = snapshot.Dump(stateModel, Metadata);
             values.Count.ShouldEqual(3);
             var v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
             stateModel.String = null;
             stateModel.Guid = Guid.Empty;
 
-            values = snapshot.Dump(stateModel, DefaultMetadata);
+            values = snapshot.Dump(stateModel, Metadata);
             values.Count.ShouldEqual(3);
             v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldSaveAndRestoreState()
         {
             var stateModel = GetModel();
-            var entitySnapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var entitySnapshot = EntityManager.TryGetSnapshot(stateModel, Metadata)!;
 
             stateModel.Int = int.MaxValue;
             stateModel.Int.ShouldEqual(int.MaxValue);
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldTrackEntityChanges()
         {
             var stateModel = GetModel();
-            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, Metadata)!;
 
             snapshot.HasChanges(stateModel).ShouldBeFalse();
 
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Entities.Components
         public void ShouldTrackPropertyChanges()
         {
             var stateModel = GetModel();
-            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, Metadata)!;
 
             snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
             snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
@@ -145,9 +145,9 @@ namespace MugenMvvm.UnitTests.Entities.Components
             var stateModel = GetModel();
             _entityStateSnapshotProvider.MemberFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance;
             _entityStateSnapshotProvider.MemberFilter = info => info.Name == nameof(stateModel.Guid);
-            var snapshot = EntityManager.TryGetSnapshot(stateModel, DefaultMetadata)!;
+            var snapshot = EntityManager.TryGetSnapshot(stateModel, Metadata)!;
 
-            var values = snapshot.Dump(stateModel, DefaultMetadata);
+            var values = snapshot.Dump(stateModel, Metadata);
             values.Count.ShouldEqual(1);
             var v = values.Single(value => ((PropertyInfo)value.Member!).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);

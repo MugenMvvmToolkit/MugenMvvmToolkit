@@ -30,19 +30,19 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         [Fact]
         public void TryGetMembersShouldHandleArray()
         {
-            MemberManager.TryGetMembers(typeof(int[]), MemberType.Method, MemberFlags.All, "[1]", DefaultMetadata).IsEmpty.ShouldBeTrue();
+            MemberManager.TryGetMembers(typeof(int[]), MemberType.Method, MemberFlags.All, "[1]", Metadata).IsEmpty.ShouldBeTrue();
 
-            var member = (MethodAccessorMemberInfo)MemberManager.TryGetMembers(typeof(int[]), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
+            var member = (MethodAccessorMemberInfo)MemberManager.TryGetMembers(typeof(int[]), MemberType.Accessor, MemberFlags.All, "[1]", Metadata).Item!;
             member.ShouldNotBeNull();
 
             var array = new[] { 1, 2 };
-            member.GetValue(array, DefaultMetadata).ShouldEqual(array[1]);
+            member.GetValue(array, Metadata).ShouldEqual(array[1]);
 
             array = new[] { 1, 5 };
-            member.GetValue(array, DefaultMetadata).ShouldEqual(array[1]);
+            member.GetValue(array, Metadata).ShouldEqual(array[1]);
 
             array = new[] { 1, 2 };
-            member.SetValue(array, int.MaxValue, DefaultMetadata);
+            member.SetValue(array, int.MaxValue, Metadata);
             array[1].ShouldEqual(int.MaxValue);
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             const int index = 1;
 
             var members = MemberManager
-                          .TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index.ToString(CultureInfo.InvariantCulture)}]", DefaultMetadata)
+                          .TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index.ToString(CultureInfo.InvariantCulture)}]", Metadata)
                           .OfType<MethodAccessorMemberInfo>()
                           .ToList();
             members.Count.ShouldEqual(4);
@@ -79,11 +79,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     indexValue.ShouldEqual(value);
                 }
             };
-            member.GetValue(indexerTest, DefaultMetadata).ShouldEqual(index);
+            member.GetValue(indexerTest, Metadata).ShouldEqual(index);
             getter.ShouldEqual(1);
             setter.ShouldEqual(0);
 
-            member.SetValue(indexerTest, indexValue, DefaultMetadata);
+            member.SetValue(indexerTest, indexValue, Metadata);
             getter.ShouldEqual(1);
             setter.ShouldEqual(1);
         }
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             const int index1 = 2;
             var args = new[] { 2, 3, 4, 56 };
 
-            var member = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}, {string.Join(" , ", args)}]", DefaultMetadata)
+            var member = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}, {string.Join(" , ", args)}]", Metadata)
                                       .OfType<MethodAccessorMemberInfo>()
                                       .Single();
             member.ArgumentFlags.HasFlag(ArgumentFlags.ParamArray).ShouldBeTrue();
@@ -119,11 +119,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     indexValue.ShouldEqual(value);
                 }
             };
-            member.GetValue(indexerTest, DefaultMetadata).ShouldEqual(index1);
+            member.GetValue(indexerTest, Metadata).ShouldEqual(index1);
             getter.ShouldEqual(1);
             setter.ShouldEqual(0);
 
-            member.SetValue(indexerTest, indexValue, DefaultMetadata);
+            member.SetValue(indexerTest, indexValue, Metadata);
             getter.ShouldEqual(1);
             setter.ShouldEqual(1);
         }
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleIndexerEmptyArray()
         {
             const int index1 = 2;
-            var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}]", DefaultMetadata)
+            var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}]", Metadata)
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(4);
@@ -161,11 +161,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     indexValue.ShouldEqual(value);
                 }
             };
-            member.GetValue(indexerTest, DefaultMetadata).ShouldEqual(index1);
+            member.GetValue(indexerTest, Metadata).ShouldEqual(index1);
             getter.ShouldEqual(1);
             setter.ShouldEqual(0);
 
-            member.SetValue(indexerTest, indexValue, DefaultMetadata);
+            member.SetValue(indexerTest, indexValue, Metadata);
             getter.ShouldEqual(1);
             setter.ShouldEqual(1);
         }
@@ -174,7 +174,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleIndexerMetadata()
         {
             const string index1 = "test";
-            var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
+            var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", Metadata)
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(2);
@@ -190,22 +190,22 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                 {
                     ++getter;
                     i1.ShouldEqual(index1);
-                    i2.ShouldEqual(DefaultMetadata);
+                    i2.ShouldEqual(Metadata);
                     return index1;
                 },
                 SetIndexMetadata = (i1, i2, value) =>
                 {
                     ++setter;
                     i1.ShouldEqual(index1);
-                    i2.ShouldEqual(DefaultMetadata);
+                    i2.ShouldEqual(Metadata);
                     indexValue.ShouldEqual(value);
                 }
             };
-            member.GetValue(indexerTest, DefaultMetadata).ShouldEqual(index1);
+            member.GetValue(indexerTest, Metadata).ShouldEqual(index1);
             getter.ShouldEqual(1);
             setter.ShouldEqual(0);
 
-            member.SetValue(indexerTest, indexValue, DefaultMetadata);
+            member.SetValue(indexerTest, indexValue, Metadata);
             getter.ShouldEqual(1);
             setter.ShouldEqual(1);
         }
@@ -214,7 +214,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         public void TryGetMembersShouldHandleIndexerOptional()
         {
             const string index1 = "t1";
-            var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", DefaultMetadata)
+            var members = MemberManager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"['{index1}']", Metadata)
                                        .OfType<MethodAccessorMemberInfo>()
                                        .ToList();
             members.Count.ShouldEqual(2);
@@ -241,11 +241,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     indexValue.ShouldEqual(value);
                 }
             };
-            member.GetValue(indexerTest, DefaultMetadata).ShouldEqual(index1);
+            member.GetValue(indexerTest, Metadata).ShouldEqual(index1);
             getter.ShouldEqual(1);
             setter.ShouldEqual(0);
 
-            member.SetValue(indexerTest, indexValue, DefaultMetadata);
+            member.SetValue(indexerTest, indexValue, Metadata);
             getter.ShouldEqual(1);
             setter.ShouldEqual(1);
         }
@@ -253,21 +253,21 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         [Fact]
         public void TryGetMembersShouldHandleStringIndexer()
         {
-            var member = (MethodAccessorMemberInfo)MemberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, "[1]", DefaultMetadata).Item!;
+            var member = (MethodAccessorMemberInfo)MemberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, "[1]", Metadata).Item!;
             member.ShouldNotBeNull();
 
             var value = "12";
-            member.GetValue(value, DefaultMetadata).ShouldEqual(value[1]);
+            member.GetValue(value, Metadata).ShouldEqual(value[1]);
 
             value = "13";
-            member.GetValue(value, DefaultMetadata).ShouldEqual(value[1]);
+            member.GetValue(value, Metadata).ShouldEqual(value[1]);
 
-            ShouldThrow<InvalidOperationException>(() => member.SetValue(value, int.MaxValue, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => member.SetValue(value, int.MaxValue, Metadata));
         }
 
         [Fact]
         public void TryGetMembersShouldIgnoreNonIndexerMembers() =>
-            MemberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerGetterName, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            MemberManager.TryGetMembers(typeof(string), MemberType.Accessor, MemberFlags.All, BindingInternalConstant.IndexerGetterName, Metadata).IsEmpty.ShouldBeTrue();
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
 

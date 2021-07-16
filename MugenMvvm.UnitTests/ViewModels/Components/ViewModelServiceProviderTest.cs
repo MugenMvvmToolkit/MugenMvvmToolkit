@@ -28,24 +28,24 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         [Fact]
         public void TryGetServiceShouldReturnBusyManager()
         {
-            var service = (IBusyManager)ViewModelManager.TryGetService(new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
+            var service = (IBusyManager)ViewModelManager.TryGetService(new TestViewModel(), typeof(IBusyManager), Metadata)!;
             service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
         }
 
         [Fact]
         public void TryGetServiceShouldReturnMessenger()
         {
-            var service = (IMessenger)ViewModelManager.TryGetService(new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
+            var service = (IMessenger)ViewModelManager.TryGetService(new TestViewModel(), typeof(IMessenger), Metadata)!;
             service.GetComponent<IMessagePublisherComponent>().ShouldNotBeNull();
             service.GetComponent<IMessengerSubscriberComponent>().ShouldNotBeNull();
         }
 
         [Fact]
         public void TryGetServiceShouldReturnMetadataContext() =>
-            ViewModelManager.TryGetService(new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
+            ViewModelManager.TryGetService(new TestViewModel(), typeof(IMetadataContext), Metadata).ShouldBeType<MetadataContext>();
 
         [Fact]
-        public void TryGetServiceShouldReturnNullUnknownComponent() => ViewModelManager.TryGetService(new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
+        public void TryGetServiceShouldReturnNullUnknownComponent() => ViewModelManager.TryGetService(new TestViewModel(), typeof(object), Metadata).ShouldBeNull();
 
         [Fact]
         public void TryGetServiceShouldReturnValidator()
@@ -58,11 +58,11 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 TryGetValidator = (_, o, context) =>
                 {
                     o.ShouldEqual(vm);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return validator;
                 }
             });
-            ViewModelManager.TryGetService(vm, typeof(IValidator), DefaultMetadata).ShouldEqual(validator);
+            ViewModelManager.TryGetService(vm, typeof(IValidator), Metadata).ShouldEqual(validator);
         }
 
         protected override IViewModelManager GetViewModelManager() => new ViewModelManager(ComponentCollectionManager);

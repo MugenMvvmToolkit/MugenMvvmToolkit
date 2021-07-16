@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 TraversalType = ExpressionTraversalType.Get(value)
             };
             var exp = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
-            var expressionNode = (BinaryExpressionNode)exp.Accept(visitor, DefaultMetadata);
+            var expressionNode = (BinaryExpressionNode)exp.Accept(visitor, Metadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Left.ShouldEqual(leftChanged);
             expressionNode.Right.ShouldEqual(rightChanged);
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             {
                 Visit = (node, context) => left
             };
-            new BinaryExpressionNode(BinaryTokenType.Equality, left, right).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(left);
+            new BinaryExpressionNode(BinaryTokenType.Equality, left, right).Accept(testExpressionVisitor, Metadata).ShouldEqual(left);
         }
 
         [Theory]
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
                 Visit = (node, context) =>
                 {
                     nodes.Add(node);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return node;
                 },
                 TraversalType = ExpressionTraversalType.Get(value)
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions
             var exp2 = new BinaryExpressionNode(BinaryTokenType.Equality, exp4, exp5);
             var exp1 = new BinaryExpressionNode(BinaryTokenType.Addition, exp2, exp3);
 
-            exp1.Accept(visitor, DefaultMetadata).ShouldEqual(exp1);
+            exp1.Accept(visitor, Metadata).ShouldEqual(exp1);
             if (visitor.TraversalType == ExpressionTraversalType.Inorder)
                 nodes.ShouldEqual(new IExpressionNode[] { exp4, exp2, exp5, exp1, exp3 });
             else if (visitor.TraversalType == ExpressionTraversalType.Preorder)

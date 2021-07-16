@@ -68,13 +68,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         v.ShouldEqual(Validator);
                         m.ShouldEqual(expectedMember);
                         t.ShouldEqual(tcs.Task);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                     }
                 });
             }
 
             invokeCount.ShouldEqual(0);
-            var task = Validator.ValidateAsync(expectedMember, CancellationToken.None, DefaultMetadata);
+            var task = Validator.ValidateAsync(expectedMember, CancellationToken.None, Metadata);
             invokeCount.ShouldEqual(count);
             tcs.TrySetResult(null);
             await task;

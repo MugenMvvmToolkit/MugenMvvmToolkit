@@ -28,11 +28,11 @@ namespace MugenMvvm.UnitTests.Views.Components
                 v.ShouldEqual(view);
                 l.ShouldEqual(lifecycleState);
                 s.ShouldEqual(state);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 ++invokeCount;
             };
             var component = new ViewLifecycleAwareViewModelHandler();
-            component.OnLifecycleChanged(null!, new ViewInfo(view), lifecycleState, state, DefaultMetadata);
+            component.OnLifecycleChanged(null!, new ViewInfo(view), lifecycleState, state, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

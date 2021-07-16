@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             _viewModel = new TestInitializableViewModel();
             _rawView = new TestInitializableView();
-            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestInitializableView), DefaultMetadata), _rawView, _viewModel, null, ComponentCollectionManager);
+            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestInitializableView), Metadata), _rawView, _viewModel, null, ComponentCollectionManager);
             _viewInitializer = new ViewInitializer { SetDataContext = false };
             ViewManager.AddComponent(_viewInitializer);
             RegisterDisposeToken(WithGlobalService(MemberManager));
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 invokeCount++;
                 v.ShouldEqual(_view);
                 o.ShouldEqual(state);
-                arg3.ShouldEqual(DefaultMetadata);
+                arg3.ShouldEqual(Metadata);
             };
             var componentView = new TestInitializableView
             {
@@ -62,24 +62,24 @@ namespace MugenMvvm.UnitTests.Views.Components
                     componentInvokeCount++;
                     v.ShouldEqual(_view);
                     o.ShouldEqual(state);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                 }
             };
 
             _view.Components.TryAdd(componentView);
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, Metadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
 
             state = null;
             _view.Components.Remove(componentView);
-            _view.Components.TryAdd(componentView, DefaultMetadata);
+            _view.Components.TryAdd(componentView, Metadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(2);
 
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Clearing, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Clearing, state, Metadata);
             _view.Components.Remove(componentView);
-            _view.Components.TryAdd(componentView, DefaultMetadata);
+            _view.Components.TryAdd(componentView, Metadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(2);
         }
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             });
 
             _viewInitializer.SetDataContext = true;
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, Metadata);
             _view.Target.BindableMembers().DataContext().ShouldEqual(_viewModel);
         }
 
@@ -110,12 +110,12 @@ namespace MugenMvvm.UnitTests.Views.Components
                     ++invokeCount;
                     o.ShouldEqual(_view.Target);
                     m.ShouldEqual(ThreadExecutionMode.Main);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return true;
                 }
             });
 
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, this, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

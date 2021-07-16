@@ -37,13 +37,13 @@ namespace MugenMvvm.UnitTests.Validation
                         v.ShouldEqual(Validator);
                         m.ShouldEqual(memberName);
                         s.ShouldEqual(source);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     }
                 };
                 Validator.AddComponent(component);
             }
 
-            Validator.ClearErrors(memberName, source, DefaultMetadata);
+            Validator.ClearErrors(memberName, source, Metadata);
             count.ShouldEqual(componentCount);
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Validation
             var source = new object();
             var errors = new ItemOrListEditor<object>(new List<object>());
             ItemOrIReadOnlyList<string> memberName = "test";
-            Validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, null, Metadata);
             errors.Count.ShouldEqual(0);
 
             for (var i = 0; i < componentCount; i++)
@@ -109,14 +109,14 @@ namespace MugenMvvm.UnitTests.Validation
                         v.ShouldEqual(Validator);
                         src.ShouldEqual(source);
                         members.ShouldEqual(memberName);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         editor.Add(s);
                     }
                 };
                 Validator.AddComponent(component);
             }
 
-            Validator.GetErrors(memberName, ref errors, source, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, source, Metadata);
             errors.Count.ShouldEqual(componentCount);
             var list = errors.AsList();
             for (var i = 0; i < componentCount; i++)
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTests.Validation
             var source = new object();
             var errors = new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>());
             ItemOrIReadOnlyList<string> memberName = "test";
-            Validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, null, Metadata);
             errors.Count.ShouldEqual(0);
 
             for (var i = 0; i < componentCount; i++)
@@ -145,14 +145,14 @@ namespace MugenMvvm.UnitTests.Validation
                         v.ShouldEqual(Validator);
                         src.ShouldEqual(source);
                         members.ShouldEqual(memberName);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         editor.Add(new ValidationErrorInfo(this, s, s));
                     }
                 };
                 Validator.AddComponent(component);
             }
 
-            Validator.GetErrors(memberName, ref errors, source, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, source, Metadata);
             errors.Count.ShouldEqual(componentCount);
             var list = errors.AsList();
             for (var i = 0; i < componentCount; i++)
@@ -179,7 +179,7 @@ namespace MugenMvvm.UnitTests.Validation
                         v.ShouldEqual(Validator);
                         m.ShouldEqual(expectedMember);
                         s.ShouldEqual(source);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         return hasErrors;
                     },
                     Priority = -i
@@ -187,17 +187,17 @@ namespace MugenMvvm.UnitTests.Validation
                 Validator.AddComponent(component);
             }
 
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            Validator.HasErrors(expectedMember, source, Metadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
 
             count = 0;
             expectedMember = "t";
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            Validator.HasErrors(expectedMember, source, Metadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
 
             count = 0;
             hasErrors = true;
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeTrue();
+            Validator.HasErrors(expectedMember, source, Metadata).ShouldBeTrue();
             count.ShouldEqual(1);
         }
 
@@ -220,13 +220,13 @@ namespace MugenMvvm.UnitTests.Validation
                         v.ShouldEqual(Validator);
                         e.ShouldEqual(errors);
                         s.ShouldEqual(source);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     }
                 };
                 Validator.AddComponent(component);
             }
 
-            Validator.SetErrors(source, errors, DefaultMetadata);
+            Validator.SetErrors(source, errors, Metadata);
             count.ShouldEqual(componentCount);
         }
 
@@ -251,14 +251,14 @@ namespace MugenMvvm.UnitTests.Validation
                         v.ShouldEqual(Validator);
                         m.ShouldEqual(memberName);
                         token.ShouldEqual(DefaultCancellationToken);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         return tcs.Task;
                     }
                 };
                 Validator.AddComponent(component);
             }
 
-            var task = Validator.ValidateAsync(memberName, DefaultCancellationToken, DefaultMetadata);
+            var task = Validator.ValidateAsync(memberName, DefaultCancellationToken, Metadata);
             task.IsCompleted.ShouldBeFalse();
 
             for (var i = 0; i < componentCount - 1; i++)

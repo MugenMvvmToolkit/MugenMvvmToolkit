@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(expectedPath);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
@@ -79,24 +79,24 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     request.HasStablePath.ShouldBeTrue();
                     request.Optional.ShouldBeTrue();
                     request.Observable.ShouldBeTrue();
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return observer;
                 }
             });
 
             expectedTarget = t;
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
-            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, src, Metadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, null, Metadata).ShouldEqual(observer);
 
             exp = new BindingMemberExpressionNode(Path, 0,
                 BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath |
                 BindingMemberExpressionFlags.ObservableMethods, MemberFlags.All, "M");
             expectedTarget = src;
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, src, Metadata).ShouldEqual(observer);
 
             expectedPath = $"DataContext.{Path}";
             expectedTarget = t;
-            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, null, Metadata).ShouldEqual(observer);
 
             exp = new BindingMemberExpressionNode(Path, 0, BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional |
                                                            BindingMemberExpressionFlags.StablePath |
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                                                            BindingMemberExpressionFlags.ParentDataContext, MemberFlags.All, "M");
             expectedPath = $"Parent.DataContext.{Path}";
             expectedTarget = t;
-            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, null, Metadata).ShouldEqual(observer);
         }
 
         [Theory]
@@ -173,7 +173,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(expectedPath);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
@@ -182,19 +182,19 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var source = new object();
 
             var exp = new BindingMemberExpressionNode(inputPath, 0, BindingMemberExpressionFlags.Target, MemberFlags.All);
-            exp.GetSource(target, source, DefaultMetadata, out var p).ShouldEqual(target);
+            exp.GetSource(target, source, Metadata, out var p).ShouldEqual(target);
             p.ShouldEqual(path);
 
-            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
+            exp.GetSource(target, null, Metadata, out p).ShouldEqual(target);
             p.ShouldEqual(path);
 
             expectedPath = inputPath;
             exp = new BindingMemberExpressionNode(inputPath, 0, default, MemberFlags.All);
-            exp.GetSource(target, source, DefaultMetadata, out p).ShouldEqual(source);
+            exp.GetSource(target, source, Metadata, out p).ShouldEqual(source);
             p.ShouldEqual(path);
 
             expectedPath = dataContextInputPath;
-            exp.GetSource(target, null, DefaultMetadata, out p).ShouldEqual(target);
+            exp.GetSource(target, null, Metadata, out p).ShouldEqual(target);
             p.ShouldEqual(path);
         }
 

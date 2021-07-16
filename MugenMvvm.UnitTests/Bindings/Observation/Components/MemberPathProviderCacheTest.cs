@@ -24,23 +24,23 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     ++invokeCount;
                     om.ShouldEqual(ObservationManager);
                     o.ShouldEqual(path.Path);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
 
-            ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
-            ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
+            ObservationManager.GetMemberPath(path.Path, Metadata).ShouldEqual(path);
+            ObservationManager.GetMemberPath(path.Path, Metadata).ShouldEqual(path);
             invokeCount.ShouldEqual(1);
 
-            ObservationManager.TryInvalidateCache(this, DefaultMetadata);
+            ObservationManager.TryInvalidateCache(this, Metadata);
             invokeCount = 0;
-            ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
-            ObservationManager.GetMemberPath(path.Path, DefaultMetadata).ShouldEqual(path);
+            ObservationManager.GetMemberPath(path.Path, Metadata).ShouldEqual(path);
+            ObservationManager.GetMemberPath(path.Path, Metadata).ShouldEqual(path);
             invokeCount.ShouldEqual(1);
 
             ObservationManager.RemoveComponent(decorator);
-            decorator.TryGetMemberPath(ObservationManager, path.Path, DefaultMetadata).ShouldBeNull();
+            decorator.TryGetMemberPath(ObservationManager, path.Path, Metadata).ShouldBeNull();
         }
     }
 }

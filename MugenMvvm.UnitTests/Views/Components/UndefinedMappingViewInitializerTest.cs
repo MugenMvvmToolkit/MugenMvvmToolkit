@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public UndefinedMappingViewInitializerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _viewModel = new TestViewModel();
-            _viewMapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
+            _viewMapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata);
             _view = new View(_viewMapping, this, _viewModel);
             ViewManager.AddComponent(new UndefinedMappingViewInitializer());
         }
@@ -42,13 +42,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(ViewManager);
                     v.ShouldEqual(_view);
                     r.ShouldEqual(_viewModel);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return new ValueTask<bool>(result);
                 }
             });
 
-            var r = await ViewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, DefaultMetadata);
+            var r = await ViewManager.TryCleanupAsync(_view, _viewModel, DefaultCancellationToken, Metadata);
             r.ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(request);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return _viewMapping;
                 }
             });
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(request.ViewModel);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return new View(_viewMapping, oldView, request.ViewModel!);
                 }
             });
@@ -92,13 +92,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(_viewMapping);
                     request.View.ShouldEqual(view);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(request);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return new[] { new ViewMapping("1", typeof(IViewModelBase), typeof(object)), new ViewMapping("1", typeof(IViewModelBase), typeof(object)) };
                 }
             });
@@ -128,13 +128,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     vm.ShouldEqual(ViewManager);
                     m.ShouldEqual(mapping);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -153,13 +153,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     vm.ShouldEqual(ViewManager);
                     m.ShouldEqual(_viewMapping);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.TryInitializeAsync(_viewMapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.TryInitializeAsync(_viewMapping, request, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     vm.ShouldEqual(ViewManager);
                     o.ShouldEqual(request);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return newMapping;
                 }
             });
@@ -191,13 +191,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.ShouldEqual(newMapping);
                     request.View.ShouldBeNull();
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -218,16 +218,16 @@ namespace MugenMvvm.UnitTests.Views.Components
                     m.Id.ShouldEqual($"a{request.ViewModel!.GetType().Name}{typeof(int).Name}");
                     m.ViewModelType.ShouldEqual(request.ViewModel.GetType());
                     m.ViewType.ShouldEqual(typeof(int));
-                    m.Metadata.ShouldEqual(DefaultMetadata);
+                    m.Metadata.ShouldEqual(Metadata);
                     request.View.ShouldBeNull();
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -246,7 +246,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(request);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return newMapping;
                 }
             });
@@ -258,13 +258,13 @@ namespace MugenMvvm.UnitTests.Views.Components
                     vm.ShouldEqual(ViewManager);
                     m.ShouldEqual(newMapping);
                     r.ShouldEqual(request);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
                     return result;
                 }
             });
 
-            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.TryInitializeAsync(mapping, request, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -278,7 +278,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(request);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return _viewMapping;
                 }
             });
@@ -288,7 +288,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(request.ViewModel);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return _view;
                 }
             });
@@ -297,7 +297,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 TryInitializeAsync = (_, _, _, _, _) => throw new NotSupportedException()
             });
 
-            (await ViewManager.TryInitializeAsync(ViewMapping.Undefined, request, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(_view);
+            (await ViewManager.TryInitializeAsync(ViewMapping.Undefined, request, DefaultCancellationToken, Metadata)).ShouldEqual(_view);
         }
 
         protected override IViewManager GetViewManager() => new ViewManager(ComponentCollectionManager);

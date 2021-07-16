@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var handledParameters = new List<IExpressionNode>();
             var newNode = ConstantExpressionNode.Get(1);
 
-            _context.Initialize(this, this, target, source, parameters.ToList(), DefaultMetadata);
+            _context.Initialize(this, this, target, source, parameters.ToList(), Metadata);
             _initializer.ParameterVisitors.Add(new TestExpressionVisitor
             {
                 TraversalType = ExpressionTraversalType.Postorder,
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parameters = new IExpressionNode[] { new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5") };
             var newNode = ConstantExpressionNode.Get(1);
 
-            _context.Initialize(this, this, target, source, parameters, DefaultMetadata);
+            _context.Initialize(this, this, target, source, parameters, Metadata);
             _initializer.SourceVisitors.Add(new TestExpressionVisitor
             {
                 TraversalType = ExpressionTraversalType.Postorder,
@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             var parameters = new IExpressionNode[] { new MemberExpressionNode(null, "3"), new MemberExpressionNode(null, "4"), new MemberExpressionNode(null, "5") };
             var newNode = ConstantExpressionNode.Get(1);
 
-            _context.Initialize(this, this, target, source, parameters, DefaultMetadata);
+            _context.Initialize(this, this, target, source, parameters, Metadata);
             _initializer.TargetVisitors.Add(new TestExpressionVisitor
             {
                 TraversalType = ExpressionTraversalType.Postorder,

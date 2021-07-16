@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             Binding.Dispose = () => ++disposeCount;
 
             var mode = dispose ? OneTimeBindingMode.Instance : OneTimeBindingMode.NonDisposeInstance;
-            ((IAttachableComponent)mode).OnAttaching(Binding, DefaultMetadata).ShouldBeFalse();
+            ((IAttachableComponent)mode).OnAttaching(Binding, Metadata).ShouldBeFalse();
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }
@@ -100,21 +100,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             isAvailableSource = true;
             if (lastMemberChanged)
-                listener.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
             else
-                listener.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
             disposeCount.ShouldEqual(0);
             updateCount.ShouldEqual(0);
 
             isAvailableTarget = true;
-            listener.OnSourceError(Binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            listener.OnSourceError(Binding, EmptyPathObserver.Empty, new Exception(), Metadata);
             disposeCount.ShouldEqual(0);
             updateCount.ShouldEqual(0);
 
             if (lastMemberChanged)
-                listener.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
             else
-                listener.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                listener.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }

@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Presentation
         {
             _viewPresenter = new TestViewPresenterMediator();
             var vm = new TestViewModel();
-            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), DefaultMetadata);
+            var mapping = new ViewMapping("id", vm.GetType(), typeof(object), Metadata);
             _view = new View(mapping, new object(), vm);
             NavigationDispatcher.AddComponent(new NavigationContextProvider());
             ViewManager.AddComponent(new TestViewManagerComponent
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
 
             ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
             navigatedCount.ShouldEqual(1);
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
 
             ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Closed);
             navigatedCount.ShouldEqual(0);
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Presentation
         [Fact]
         public void ShouldInitCleanViewFromLifecycle()
         {
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
             ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
             _mediator.View.ShouldEqual(_view);
 
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTests.Presentation
             });
 
 
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
             _mediator.View.ShouldEqual(_view);
 
             navigatingCount.ShouldEqual(1);
@@ -250,7 +250,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 ++cleanupCount;
             };
 
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTests.Presentation
             cleanupCount.ShouldEqual(0);
 
             ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -268,7 +268,7 @@ namespace MugenMvvm.UnitTests.Presentation
             cleanupCount.ShouldEqual(0);
 
             ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Appeared);
-            _mediator.TryClose(null, default, DefaultMetadata);
+            _mediator.TryClose(null, default, Metadata);
             getViewRequestCount.ShouldEqual(1);
             initializeCount.ShouldEqual(1);
             showCount.ShouldEqual(1);
@@ -316,7 +316,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 }
             });
 
-            _mediator.TryShow(null, default, DefaultMetadata);
+            _mediator.TryShow(null, default, Metadata);
 
             if (state != ViewLifecycleState.Closed)
                 _mediator.View.ShouldEqual(_view);

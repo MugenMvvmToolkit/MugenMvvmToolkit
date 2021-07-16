@@ -26,8 +26,8 @@ namespace MugenMvvm.UnitTests.Internal.Components
             });
 
             var target = new TestValueHolder<IWeakReference>();
-            WeakReferenceManager.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);
-            WeakReferenceManager.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);
+            WeakReferenceManager.TryGetWeakReference(target, Metadata).ShouldEqual(weak);
+            WeakReferenceManager.TryGetWeakReference(target, Metadata).ShouldEqual(weak);
             target.Value.ShouldEqual(weak);
             invokeCount.ShouldEqual(1);
         }

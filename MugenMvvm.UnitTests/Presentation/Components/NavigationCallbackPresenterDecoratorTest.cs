@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     suspended.ShouldBeTrue();
                     id.ShouldEqual(presenterResult1.NavigationType == navType ? presenterResult1.NavigationId : presenterResult2.NavigationId);
                     addedCallbacks.Add(((IPresenterResult)target, callbackType));
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return null;
                 }
             });
@@ -53,12 +53,12 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     suspended.ShouldBeFalse();
                     suspended = true;
                     o.ShouldEqual(Presenter);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return ActionToken.FromDelegate((_, _) => suspended = false);
                 }
             });
 
-            Presenter.Show(this, default, DefaultMetadata);
+            Presenter.Show(this, default, Metadata);
             suspended.ShouldBeFalse();
             addedCallbacks.Count.ShouldEqual(4);
             addedCallbacks.ShouldContain((presenterResult1, NavigationCallbackType.Showing));
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     suspended.ShouldBeTrue();
                     id.ShouldEqual(presenterResult1.NavigationType == navType ? presenterResult1.NavigationId : presenterResult2.NavigationId);
                     addedCallbacks.Add(((IPresenterResult)target, callbackType));
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return null;
                 }
             });
@@ -97,12 +97,12 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     suspended.ShouldBeFalse();
                     suspended = true;
                     o.ShouldEqual(Presenter);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return ActionToken.FromDelegate((_, _) => suspended = false);
                 }
             });
 
-            Presenter.TryClose(this, default, DefaultMetadata);
+            Presenter.TryClose(this, default, Metadata);
             suspended.ShouldBeFalse();
             addedCallbacks.Count.ShouldEqual(2);
             addedCallbacks.ShouldContain((presenterResult1, NavigationCallbackType.Closing));

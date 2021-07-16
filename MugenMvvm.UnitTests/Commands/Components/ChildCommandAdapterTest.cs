@@ -60,21 +60,21 @@ namespace MugenMvvm.UnitTests.Commands.Components
             void Assert()
             {
                 if (canExecuteIfAnyCanExecute)
-                    Command.CanExecute(parameter, DefaultMetadata).ShouldEqual(canExecute1 || canExecute2);
+                    Command.CanExecute(parameter, Metadata).ShouldEqual(canExecute1 || canExecute2);
                 else
-                    Command.CanExecute(parameter, DefaultMetadata).ShouldEqual(canExecute1 && canExecute2);
+                    Command.CanExecute(parameter, Metadata).ShouldEqual(canExecute1 && canExecute2);
             }
 
             var cmd1 = CompositeCommand.Create<object?>(this, (_, _) => { }, (p, m) =>
             {
                 p.ShouldEqual(parameter);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return canExecute1;
             });
             var cmd2 = CompositeCommand.Create<object?>(this, (_, _) => { }, (p, m) =>
             {
                 p.ShouldEqual(parameter);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return canExecute2;
             });
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void CanExecuteShouldReturnDefaultResultNoCommands(bool result)
         {
             _adapter.CanExecuteEmptyResult = result;
-            Command.CanExecute(null, DefaultMetadata).ShouldEqual(result);
+            Command.CanExecute(null, Metadata).ShouldEqual(result);
         }
 
         [Fact]
@@ -108,21 +108,21 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var cmd1 = CompositeCommand.Create<object?>(this, (p, m) =>
             {
                 p.ShouldEqual(parameter);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 ++cmd1Count;
             });
             var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
             {
                 p.ShouldEqual(parameter);
                 c.ShouldEqual(DefaultCancellationToken);
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 ++cmd2Count;
                 return Task.CompletedTask;
             });
 
             Command.AddChildCommand(cmd1);
             Command.AddChildCommand(cmd2);
-            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, DefaultMetadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata)).ShouldBeTrue();
 
             cmd1Count.ShouldEqual(1);
             cmd2Count.ShouldEqual(1);
@@ -142,10 +142,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
             invokeCount.ShouldEqual(0);
 
-            cmd.RaiseCanExecuteChanged(DefaultMetadata);
+            cmd.RaiseCanExecuteChanged(Metadata);
             invokeCount.ShouldEqual(1);
 
-            cmd.RaiseCanExecuteChanged(DefaultMetadata);
+            cmd.RaiseCanExecuteChanged(Metadata);
             invokeCount.ShouldEqual(2);
         }
 
@@ -156,15 +156,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var cmd = CompositeCommand.Create<object?>(this, (p, m) => { ++count; }, commandManager: CommandManager);
 
             Command.AddChildCommand(cmd);
-            (await Command.ExecuteAsync(null, DefaultCancellationToken, DefaultMetadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata)).ShouldBeTrue();
             count.ShouldEqual(1);
 
             _adapter.SuppressExecute = true;
-            (await Command.ExecuteAsync(null, DefaultCancellationToken, DefaultMetadata)).ShouldBeFalse();
+            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata)).ShouldBeFalse();
             count.ShouldEqual(1);
 
             _adapter.SuppressExecute = false;
-            (await Command.ExecuteAsync(null, DefaultCancellationToken, DefaultMetadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata)).ShouldBeTrue();
             count.ShouldEqual(2);
         }
 
@@ -195,13 +195,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var cmd = CompositeCommand.Create<object?>(this, (_, _) => { }, (p, m) => false, commandManager: CommandManager);
             Command.AddChildCommand(cmd);
 
-            Command.CanExecute(null, DefaultMetadata).ShouldBeFalse();
+            Command.CanExecute(null, Metadata).ShouldBeFalse();
 
             _adapter.SuppressExecute = true;
-            Command.CanExecute(null, DefaultMetadata).ShouldBeTrue();
+            Command.CanExecute(null, Metadata).ShouldBeTrue();
 
             _adapter.SuppressExecute = false;
-            Command.CanExecute(null, DefaultMetadata).ShouldBeFalse();
+            Command.CanExecute(null, Metadata).ShouldBeFalse();
         }
     }
 }

@@ -58,10 +58,10 @@ namespace MugenMvvm.UnitTests.ViewModels
             });
 
             invokeCount.ShouldEqual(0);
-            _viewModel.GetViewModel<TestViewModel>(DefaultMetadata).ShouldEqual(result);
+            _viewModel.GetViewModel<TestViewModel>(Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            _viewModel.GetViewModel(typeof(TestViewModel), DefaultMetadata).ShouldEqual(result);
+            _viewModel.GetViewModel(typeof(TestViewModel), Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
         }
 

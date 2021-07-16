@@ -16,12 +16,12 @@ namespace MugenMvvm.UnitTests.Presentation
             var target = new object();
             var id = "test";
             var navigationType = NavigationType.Alert;
-            var presenterResult = new PresenterResult(target, id, TestNavigationProvider.Instance, navigationType, DefaultMetadata);
+            var presenterResult = new PresenterResult(target, id, TestNavigationProvider.Instance, navigationType, Metadata);
             presenterResult.Target.ShouldEqual(target);
             presenterResult.NavigationType.ShouldEqual(navigationType);
             presenterResult.NavigationId.ShouldEqual(id);
             presenterResult.NavigationProvider.ShouldEqual(TestNavigationProvider.Instance);
-            presenterResult.Metadata.ShouldEqual(DefaultMetadata);
+            presenterResult.Metadata.ShouldEqual(Metadata);
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>

@@ -16,14 +16,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotAssignExpression()
         {
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Get(1)).ShouldBeNull();
         }
 
         [Fact]
         public void TryParseShouldParseAssignExpression()
         {
-            Context.Initialize("=1", DefaultMetadata);
+            Context.Initialize("=1", Metadata);
             Parser.TryParse(Context, MemberExpressionNode.Empty)
                   .ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Empty, ConstantExpressionNode.Get(1)));
         }

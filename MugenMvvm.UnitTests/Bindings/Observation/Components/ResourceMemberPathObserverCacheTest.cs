@@ -35,27 +35,27 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     om.ShouldEqual(ObservationManager);
                     t.ShouldEqual(resource);
                     r.ShouldEqual(request);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return new TestMemberPathObserver();
                 }
             });
 
-            var memberPathObserver1 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
-            var memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            var memberPathObserver1 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
+            var memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
             memberPathObserver1.ShouldEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
             memberPathObserver1.IsDisposable.ShouldBeFalse();
 
             ObservationManager.TryInvalidateCache();
-            memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
             memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
             memberPathObserver1.IsDisposable.ShouldBeTrue();
             memberPathObserver2.IsDisposable.ShouldBeFalse();
 
-            memberPathObserver1 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            memberPathObserver1 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
             memberPathObserver1.ShouldEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
 
             ObservationManager.TryInvalidateCache(nameof(resource));
-            memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
             memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
             memberPathObserver1.IsDisposable.ShouldBeTrue();
             memberPathObserver2.IsDisposable.ShouldBeFalse();
@@ -74,12 +74,12 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     om.ShouldEqual(ObservationManager);
                     t.ShouldEqual(resource);
                     r.ShouldEqual(request);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return new TestMemberPathObserver();
                 }
             });
-            var memberPathObserver1 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
-            var memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, DefaultMetadata);
+            var memberPathObserver1 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
+            var memberPathObserver2 = ObservationManager.GetMemberPathObserver(resource, request, Metadata);
             memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
             memberPathObserver1.IsDisposable.ShouldBeTrue();
             memberPathObserver2.IsDisposable.ShouldBeTrue();

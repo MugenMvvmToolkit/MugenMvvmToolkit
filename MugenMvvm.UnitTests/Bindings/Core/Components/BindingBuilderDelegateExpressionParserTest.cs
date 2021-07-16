@@ -30,29 +30,29 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(ConverterRequest);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testExp;
                 }
             };
             BindingManager.AddComponent(cache);
             BindingManager.AddComponent(component);
 
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(1);
 
             //invalidate
-            BindingManager.TryInvalidateCache(this, DefaultMetadata);
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.TryInvalidateCache(this, Metadata);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(2);
 
             //add new component
             BindingManager.RemoveComponent(component);
             BindingManager.AddComponent(component);
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testExp);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testExp);
             invokeCount.ShouldEqual(3);
         }
 

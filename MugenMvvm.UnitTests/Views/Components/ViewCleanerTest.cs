@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             _viewModel = new TestCleanableViewModel();
             _rawView = new TestCleanableView();
-            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestCleanableView), DefaultMetadata), _rawView, _viewModel, null, ComponentCollectionManager);
+            _view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(TestCleanableView), Metadata), _rawView, _viewModel, null, ComponentCollectionManager);
             _viewCleaner = new ViewCleaner(AttachedValueManager);
             ViewManager.AddComponent(_viewCleaner);
             RegisterDisposeToken(WithGlobalService(MemberManager));
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             {
                 invokeCount++;
                 o.ShouldEqual(state);
-                arg3.ShouldEqual(DefaultMetadata);
+                arg3.ShouldEqual(Metadata);
             };
             var componentView = new TestCleanableView
             {
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     componentInvokeCount++;
                     o.ShouldEqual(state);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                 }
             };
 
@@ -69,15 +69,15 @@ namespace MugenMvvm.UnitTests.Views.Components
             _view.Components.Components.TryAdd(this);
 
             state = null;
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, DefaultMetadata);
-            _view.Components.Remove(componentView, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Initializing, state, Metadata);
+            _view.Components.Remove(componentView, Metadata);
             invokeCount.ShouldEqual(0);
             componentInvokeCount.ShouldEqual(1);
-            _view.Components.TryAdd(componentView, DefaultMetadata);
+            _view.Components.TryAdd(componentView, Metadata);
             componentInvokeCount = 0;
             state = "t";
 
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, state, Metadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
             _view.Components.Count.ShouldEqual(0);
@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             _viewModel.ServiceOptional = new Messenger(ComponentCollectionManager);
             _view.Target.BindableMembers().SetDataContext(_viewModel);
             _view.Target.BindableMembers().DataContext().ShouldEqual(_viewModel);
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, Metadata);
             _view.Target.BindableMembers().DataContext().ShouldBeNull();
         }
 
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Views.Components
         public void ShouldClearMetadata()
         {
             _view.Metadata.Set(ViewModelMetadata.Id, "");
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, Metadata);
             _view.Metadata.Count.ShouldEqual(0);
         }
 
@@ -120,12 +120,12 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(_view.Target);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return true;
                 }
             });
 
-            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, ViewLifecycleState.Cleared, this, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

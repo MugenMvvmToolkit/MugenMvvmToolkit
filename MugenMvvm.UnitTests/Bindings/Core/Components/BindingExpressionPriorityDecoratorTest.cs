@@ -43,11 +43,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     m.ShouldEqual(BindingManager);
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return exp;
                 }
             });
-            BindingManager.TryParseBindingExpression(request, DefaultMetadata).Single().ShouldEqual(exp);
+            BindingManager.TryParseBindingExpression(request, Metadata).Single().ShouldEqual(exp);
         }
 
         [Theory]
@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryParseBindingExpression = (_, _, _) => ItemOrIReadOnlyList.FromRawValue<IBindingBuilder>(result)
             });
 
-            var bindingExpressions = BindingManager.TryParseBindingExpression("", DefaultMetadata);
+            var bindingExpressions = BindingManager.TryParseBindingExpression("", Metadata);
             bindingExpressions.ShouldEqual(expected);
         }
 

@@ -30,13 +30,13 @@ namespace MugenMvvm.UnitTests.Commands
                         c.ShouldEqual(CommandManager);
                         o.ShouldEqual(owner);
                         r.ShouldEqual(CommandManager);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         return command;
                     }
                 });
             }
 
-            var compositeCommand = CommandManager.GetCommand<int>(owner, CommandManager, DefaultMetadata);
+            var compositeCommand = CommandManager.GetCommand<int>(owner, CommandManager, Metadata);
             compositeCommand.ShouldEqual(command);
             count.ShouldEqual(1);
         }
@@ -63,19 +63,19 @@ namespace MugenMvvm.UnitTests.Commands
                         CommandManager.ShouldEqual(manager);
                         r.ShouldEqual(CommandManager);
                         c.ShouldEqual(Command);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         ++count;
                     }
                 });
             }
 
-            CommandManager.GetCommand<string>(owner, CommandManager, DefaultMetadata);
+            CommandManager.GetCommand<string>(owner, CommandManager, Metadata);
             count.ShouldEqual(componentCount);
         }
 
         [Fact]
         public void GetCommandShouldThrowNoComponents() =>
-            ShouldThrow<InvalidOperationException>(() => CommandManager.GetCommand<string>(CommandManager, CommandManager, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => CommandManager.GetCommand<string>(CommandManager, CommandManager, Metadata));
 
         protected override ICommandManager GetCommandManager() => GetComponentOwner(ComponentCollectionManager);
 

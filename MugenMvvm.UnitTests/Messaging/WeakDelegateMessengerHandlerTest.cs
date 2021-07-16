@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Messaging
         {
             var sender = new object();
             var msg2 = "test";
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+            var messageContext2 = new MessageContext(sender, msg2, Metadata);
 
             var subscriber = ShouldBeWeekImpl1();
             GcCollect();
@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Messaging
         {
             var sender = new object();
             var msg2 = "test";
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+            var messageContext2 = new MessageContext(sender, msg2, Metadata);
 
             var subscriber = ShouldBeWeekImpl2();
             GcCollect();
@@ -49,8 +49,8 @@ namespace MugenMvvm.UnitTests.Messaging
             var msg1 = new object();
             var msg2 = "test";
 
-            var messageContext1 = new MessageContext(sender, msg1, DefaultMetadata);
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+            var messageContext1 = new MessageContext(sender, msg1, Metadata);
+            var messageContext2 = new MessageContext(sender, msg2, Metadata);
 
             var count = 0;
             var handler = new HandlerImpl
@@ -77,8 +77,8 @@ namespace MugenMvvm.UnitTests.Messaging
             var msg1 = new object();
             var msg2 = "test";
 
-            var messageContext1 = new MessageContext(sender, msg1, DefaultMetadata);
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+            var messageContext1 = new MessageContext(sender, msg1, Metadata);
+            var messageContext2 = new MessageContext(sender, msg2, Metadata);
 
             var count = 0;
             var handler = new HandlerImpl

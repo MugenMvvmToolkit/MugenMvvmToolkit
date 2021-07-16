@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
         }
 
         [Fact]
-        public void ShouldIgnoreNonStringRequest() => ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+        public void ShouldIgnoreNonStringRequest() => ViewModelManager.TryGetViewModel(this, Metadata).ShouldBeNull();
 
         [Theory]
         [InlineData(1, true)]
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 var testViewModel = new TestViewModel();
                 vms.Add(testViewModel);
                 ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
-                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, Metadata);
                 ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
             }
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 var newId = Guid.NewGuid().ToString("N");
                 var oldId = testViewModel.Metadata.Get(ViewModelMetadata.Id);
                 testViewModel.Metadata.Set(ViewModelMetadata.Id, newId);
-                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Restored, i, DefaultMetadata);
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Restored, i, Metadata);
                 ViewModelManager.TryGetViewModel(oldId!).ShouldBeNull();
                 ViewModelManager.TryGetViewModel(newId).ShouldEqual(testViewModel);
             }
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             for (var i = 0; i < count; i++)
             {
                 var testViewModel = vms[i];
-                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, null, DefaultMetadata);
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Disposed, null, Metadata);
                 ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldBeNull();
             }
 
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             {
                 var testViewModel = new TestViewModel();
                 vms.Add(testViewModel);
-                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, DefaultMetadata);
+                ViewModelManager.OnLifecycleChanged(testViewModel, ViewModelLifecycleState.Created, i, Metadata);
                 ViewModelManager.TryGetViewModel(testViewModel.Metadata.Get(ViewModelMetadata.Id)!).ShouldEqual(testViewModel);
             }
 

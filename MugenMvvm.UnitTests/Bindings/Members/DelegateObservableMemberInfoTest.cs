@@ -60,10 +60,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     member.ShouldEqual(m);
                     target.ShouldEqual(t);
                     message.ShouldEqual(msg);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                 });
             m = memberInfo;
-            memberInfo.Raise(t, msg, DefaultMetadata);
+            memberInfo.Raise(t, msg, Metadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -81,11 +81,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 member.ShouldEqual(m);
                 target.ShouldEqual(t);
                 listener.ShouldEqual(l);
-                metadata.ShouldEqual(DefaultMetadata);
+                metadata.ShouldEqual(Metadata);
                 return result;
             }, null);
             m = memberInfo;
-            memberInfo.TryObserve(t, l, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(t, l, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -102,12 +102,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     ++invokeCount;
                     type.ShouldEqual(memberInfo.DeclaringType);
                     o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return new MemberObserver((o1, o2, listener, arg4) => actionToken, memberInfo);
                 }
             });
 
-            var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
+            var token = memberInfo.TryObserve(this, new TestWeakEventListener(), Metadata);
             invokeCount.ShouldEqual(1);
             token.ShouldEqual(actionToken);
         }

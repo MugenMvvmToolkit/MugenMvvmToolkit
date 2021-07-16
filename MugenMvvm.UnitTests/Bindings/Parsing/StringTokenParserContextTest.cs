@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         public StringTokenParserContextTest()
         {
             _context = new StringTokenParserContext();
-            _context.Initialize(SourceString, DefaultMetadata);
+            _context.Initialize(SourceString, Metadata);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             _context.Metadata.Set(BindingMetadata.EventArgs, "");
             _context.Position = 1;
 
-            _context.Initialize(SourceString, DefaultMetadata);
+            _context.Initialize(SourceString, Metadata);
             _context.Position.ShouldEqual(0);
             _context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }

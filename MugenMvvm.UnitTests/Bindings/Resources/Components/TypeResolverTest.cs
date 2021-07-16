@@ -31,20 +31,20 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
             _resolver.Types[alias].ShouldEqual(resource);
             _resolver.Types[resource.Name].ShouldEqual(resource);
             _resolver.Types[resource.FullName!].ShouldEqual(resource);
-            ResourceManager.TryGetType(resource.Name, this, DefaultMetadata).ShouldEqual(resource);
-            ResourceManager.TryGetType(resource.FullName!, this, DefaultMetadata).ShouldEqual(resource);
-            ResourceManager.TryGetType(alias, this, DefaultMetadata).ShouldEqual(resource);
+            ResourceManager.TryGetType(resource.Name, this, Metadata).ShouldEqual(resource);
+            ResourceManager.TryGetType(resource.FullName!, this, Metadata).ShouldEqual(resource);
+            ResourceManager.TryGetType(alias, this, Metadata).ShouldEqual(resource);
 
             _resolver.Types.Remove(resource.Name);
             _resolver.Types.Remove(resource.FullName!);
             _resolver.Types.Remove(alias);
-            ResourceManager.TryGetType(resource.FullName!, this, DefaultMetadata).ShouldBeNull();
-            ResourceManager.TryGetType(resource.Name, this, DefaultMetadata).ShouldBeNull();
-            ResourceManager.TryGetType(alias, this, DefaultMetadata).ShouldBeNull();
+            ResourceManager.TryGetType(resource.FullName!, this, Metadata).ShouldBeNull();
+            ResourceManager.TryGetType(resource.Name, this, Metadata).ShouldBeNull();
+            ResourceManager.TryGetType(alias, this, Metadata).ShouldBeNull();
         }
 
         [Fact]
-        public void TryGetResourceValueShouldReturnNullEmpty() => ResourceManager.TryGetType("test", this, DefaultMetadata).ShouldBeNull();
+        public void TryGetResourceValueShouldReturnNullEmpty() => ResourceManager.TryGetType("test", this, Metadata).ShouldBeNull();
 
         protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
     }

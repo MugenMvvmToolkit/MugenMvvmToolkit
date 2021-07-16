@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             });
             var observer = GetObserver(root, DefaultPath, MemberFlags.InstanceAll, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, Metadata),
                 disposed => currentListener.ShouldBeNull(),
                 isValueType ? 0 : 1, false);
         }

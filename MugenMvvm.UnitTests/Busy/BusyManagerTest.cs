@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Busy
                     {
                         b.ShouldEqual(BusyManager);
                         o.ShouldEqual(BusyManager);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         methodCallCount++;
                         if (i1 == componentCount - 1)
                             return busyToken;
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Busy
                 });
             }
 
-            BusyManager.BeginBusy(BusyManager, DefaultMetadata).ShouldEqual(busyToken);
+            BusyManager.BeginBusy(BusyManager, Metadata).ShouldEqual(busyToken);
             methodCallCount.ShouldEqual(componentCount);
         }
 
@@ -61,13 +61,13 @@ namespace MugenMvvm.UnitTests.Busy
                     {
                         ++methodCallCount;
                         o.ShouldEqual(BusyManager);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         return new[] { new TestBusyToken(), new TestBusyToken() };
                     }
                 });
             }
 
-            new HashSet<IBusyToken>(BusyManager.GetTokens(DefaultMetadata)).Count.ShouldEqual(componentCount * 2);
+            new HashSet<IBusyToken>(BusyManager.GetTokens(Metadata)).Count.ShouldEqual(componentCount * 2);
             methodCallCount.ShouldEqual(componentCount);
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Busy
                         methodCallCount++;
                         b.ShouldEqual(BusyManager);
                         o.ShouldEqual(BusyManager);
-                        arg5.ShouldEqual(DefaultMetadata);
+                        arg5.ShouldEqual(Metadata);
                         if (i1 == componentCount - 1)
                             return busyToken;
                         return null;
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Busy
                 });
             }
 
-            BusyManager.TryGetToken(BusyManager, filter, DefaultMetadata).ShouldEqual(busyToken);
+            BusyManager.TryGetToken(BusyManager, filter, Metadata).ShouldEqual(busyToken);
             methodCallCount.ShouldEqual(componentCount);
         }
 

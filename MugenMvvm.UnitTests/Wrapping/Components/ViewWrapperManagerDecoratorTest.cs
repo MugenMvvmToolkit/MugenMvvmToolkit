@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         {
             var wrapperType = typeof(string);
             var view = new object();
-            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
+            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), view, new TestViewModel());
             var invokeCount = 0;
 
             WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) =>
@@ -31,11 +31,11 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
                 r.ShouldEqual(view);
-                arg4.ShouldEqual(DefaultMetadata);
+                arg4.ShouldEqual(Metadata);
                 return false;
             }, (type, r, arg4) => throw new NotSupportedException()));
 
-            WrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
+            WrapperManager.CanWrap(wrapperType, request, Metadata).ShouldBeFalse();
             invokeCount.ShouldEqual(1);
         }
 
@@ -44,8 +44,8 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         {
             var wrapperType = typeof(object);
             var view = new object();
-            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel());
-            WrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeTrue();
+            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), view, new TestViewModel());
+            WrapperManager.CanWrap(wrapperType, request, Metadata).ShouldBeTrue();
         }
 
         [Fact]
@@ -60,11 +60,11 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
                 r.ShouldEqual(request);
-                arg4.ShouldEqual(DefaultMetadata);
+                arg4.ShouldEqual(Metadata);
                 return false;
             }, (type, r, arg4) => throw new NotSupportedException()));
 
-            WrapperManager.CanWrap(wrapperType, request, DefaultMetadata).ShouldBeFalse();
+            WrapperManager.CanWrap(wrapperType, request, Metadata).ShouldBeFalse();
             invokeCount.ShouldEqual(1);
         }
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
         {
             var wrapperType = typeof(ViewWrapperManagerDecoratorTest);
             var view = new object();
-            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), view, new TestViewModel(), null, ComponentCollectionManager);
+            var request = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), view, new TestViewModel(), null, ComponentCollectionManager);
             var invokeCount = 0;
 
             WrapperManager.AddComponent(new DelegateWrapperManager<object, object>((type, r, arg4) => throw new NotSupportedException(), (type, r, arg4) =>
@@ -81,14 +81,14 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
                 r.ShouldEqual(view);
-                arg4.ShouldEqual(DefaultMetadata);
+                arg4.ShouldEqual(Metadata);
                 return this;
             }));
 
-            WrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            WrapperManager.Wrap(wrapperType, request, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
 
-            WrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            WrapperManager.Wrap(wrapperType, request, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -104,11 +104,11 @@ namespace MugenMvvm.UnitTests.Wrapping.Components
                 ++invokeCount;
                 type.ShouldEqual(wrapperType);
                 r.ShouldEqual(request);
-                arg4.ShouldEqual(DefaultMetadata);
+                arg4.ShouldEqual(Metadata);
                 return this;
             }));
 
-            WrapperManager.Wrap(wrapperType, request, DefaultMetadata).ShouldEqual(this);
+            WrapperManager.Wrap(wrapperType, request, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 

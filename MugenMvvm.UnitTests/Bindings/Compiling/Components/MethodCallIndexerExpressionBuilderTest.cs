@@ -17,6 +17,7 @@ using MugenMvvm.Bindings.Resources;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.Tests.Bindings.Resources;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
@@ -72,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     o.ShouldEqual(this);
                     objects.Item.ShouldEqual(false);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return this;
                 }
             };
@@ -89,7 +90,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var expressionNode = new IndexExpressionNode(ConstantExpressionNode.Get(this), new[] { ConstantExpressionNode.False });
             var build = _component.TryBuild(_context, expressionNode)!;
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -215,7 +216,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var call = GetMethodCall(_context, memberName, false, instance, state, 1, 2);
             call.exp.Invoke(call.parameters, call.compiledArgs);
-            instance.Assert(() => instance.Method3(1, 2, DefaultMetadata), 1, 2, DefaultMetadata);
+            instance.Assert(() => instance.Method3(1, 2, Metadata), 1, 2, Metadata);
         }
 
         [Theory]
@@ -268,7 +269,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     ++invokeCount;
                     o.ShouldEqual(this);
                     objects.IsEmpty.ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return this;
                 }
             };
@@ -285,7 +286,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -303,7 +304,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     ++invokeCount;
                     o.ShouldEqual(this);
                     objects.IsEmpty.ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return this;
                 }
             };
@@ -323,7 +324,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var build = _component.TryBuild(_context, expressionNode)!;
 
             members = new[] { result };
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -469,7 +470,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var call = GetMethodCall(_context, memberName, false, typeof(MethodInvokerStatic), state, 1, 2);
             call.exp.Invoke(call.parameters, call.compiledArgs);
-            MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method3(1, 2, DefaultMetadata), 1, 2, DefaultMetadata);
+            MethodInvokerStatic.Assert(() => MethodInvokerStatic.Method3(1, 2, Metadata), 1, 2, Metadata);
         }
 
         [Theory]
@@ -520,7 +521,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                     ++invokeCount;
                     o.ShouldBeNull();
                     objects.IsEmpty.ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return this;
                 }
             };
@@ -537,7 +538,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName, default);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
 
@@ -602,7 +603,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, default);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata));
+            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, Metadata));
         }
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
@@ -638,7 +639,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     methodInfo.Invoke = (o, objects, arg3) =>
                     {
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(EmptyMetadataContext.Instance);
                         return member.Invoke(o, objects.AsList());
                     };
                 }
@@ -717,7 +718,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var node = new MethodCallExpressionNode(target, method, arguments, ItemOrIReadOnlyList.FromList(typeArgs));
             var expression = _component.TryBuild(context, node);
-            return (expression!, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] { DefaultMetadata }).ToArray());
+            return (expression!, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] { Metadata }).ToArray());
         }
 
         public class MethodInvokerInstance

@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         {
             _initializer = new BindingModeInitializer();
             _context = new BindingExpressionInitializerContext(this);
-            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, Metadata);
         }
 
         [Fact]

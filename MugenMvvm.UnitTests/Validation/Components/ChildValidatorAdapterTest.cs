@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var source = new object();
             var errors = new ItemOrListEditor<object>(new List<object>());
             ItemOrIReadOnlyList<string> memberName = "test";
-            Validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, null, Metadata);
             errors.Count.ShouldEqual(0);
 
             for (var i = 0; i < validatorCount; i++)
@@ -109,14 +109,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         v.ShouldEqual(validator);
                         src.ShouldEqual(source);
                         members.ShouldEqual(memberName);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         editor.Add(s);
                     }
                 });
                 Validator.AddChildValidator(validator);
             }
 
-            Validator.GetErrors(memberName, ref errors, source, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, source, Metadata);
             errors.Count.ShouldEqual(validatorCount);
             var list = errors.AsList();
             for (var i = 0; i < validatorCount; i++)
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             var source = new object();
             var errors = new ItemOrListEditor<ValidationErrorInfo>(new List<ValidationErrorInfo>());
             ItemOrIReadOnlyList<string> memberName = "test";
-            Validator.GetErrors(memberName, ref errors, null, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, null, Metadata);
             errors.Count.ShouldEqual(0);
 
             for (var i = 0; i < validatorCount; i++)
@@ -146,14 +146,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         v.ShouldEqual(validator);
                         src.ShouldEqual(source);
                         members.ShouldEqual(memberName);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         editor.Add(new ValidationErrorInfo(this, s, s));
                     }
                 });
                 Validator.AddChildValidator(validator);
             }
 
-            Validator.GetErrors(memberName, ref errors, source, DefaultMetadata);
+            Validator.GetErrors(memberName, ref errors, source, Metadata);
             errors.Count.ShouldEqual(validatorCount);
             var list = errors.AsList();
             for (var i = 0; i < validatorCount; i++)
@@ -181,7 +181,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         v.ShouldEqual(validator);
                         m.ShouldEqual(expectedMember);
                         s.ShouldEqual(source);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         return hasErrors;
                     },
                     Priority = -i
@@ -189,17 +189,17 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 Validator.AddChildValidator(validator);
             }
 
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            Validator.HasErrors(expectedMember, source, Metadata).ShouldBeFalse();
             count.ShouldEqual(validatorCount);
 
             count = 0;
             expectedMember = "t";
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeFalse();
+            Validator.HasErrors(expectedMember, source, Metadata).ShouldBeFalse();
             count.ShouldEqual(validatorCount);
 
             count = 0;
             hasErrors = true;
-            Validator.HasErrors(expectedMember, source, DefaultMetadata).ShouldBeTrue();
+            Validator.HasErrors(expectedMember, source, Metadata).ShouldBeTrue();
             count.ShouldEqual(1);
         }
 
@@ -226,13 +226,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     v.ShouldEqual(Validator);
                     e.ShouldEqual(member);
                     t.ShouldEqual(task);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     ++count;
                 }
             });
 
             foreach (var validator in validators)
-                validator.GetComponents<IAsyncValidationListener>().OnAsyncValidation(validator, member, task, DefaultMetadata);
+                validator.GetComponents<IAsyncValidationListener>().OnAsyncValidation(validator, member, task, Metadata);
             count.ShouldEqual(validatorCount);
         }
 
@@ -257,13 +257,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 {
                     v.ShouldEqual(Validator);
                     e.ShouldEqual(member);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     ++count;
                 }
             });
 
             foreach (var validator in validators)
-                validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, member, DefaultMetadata);
+                validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(validator, member, Metadata);
             count.ShouldEqual(validatorCount);
         }
 
@@ -289,14 +289,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
                         v.ShouldEqual(validator);
                         m.ShouldEqual(memberName);
                         token.ShouldEqual(DefaultCancellationToken);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         return tcs.Task;
                     }
                 });
                 Validator.AddChildValidator(validator);
             }
 
-            var task = Validator.ValidateAsync(memberName, DefaultCancellationToken, DefaultMetadata);
+            var task = Validator.ValidateAsync(memberName, DefaultCancellationToken, Metadata);
             task.IsCompleted.ShouldBeFalse();
 
             for (var i = 0; i < validatorCount - 1; i++)

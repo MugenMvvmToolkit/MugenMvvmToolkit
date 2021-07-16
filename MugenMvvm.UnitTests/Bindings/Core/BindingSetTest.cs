@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -45,14 +45,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
             var bindingSet = new BindingSet<object>(source, BindingManager);
-            bindingSet.Bind(target, Delegate, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(Binding);
+            bindingSet.Bind(target, Delegate, Metadata);
+            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -79,14 +79,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
             var bindingSet = new BindingSet<object>(BindingManager);
-            bindingSet.Bind(target, source, Delegate, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(Binding);
+            bindingSet.Bind(target, source, Delegate, Metadata);
+            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -114,14 +114,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     ++invokeCount;
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
             var bindingSet = new BindingSet<object>(BindingManager);
-            bindingSet.Bind(target, request, source, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(Binding);
+            bindingSet.Bind(target, request, source, Metadata);
+            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -137,7 +137,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -149,14 +149,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     ++invokeCount;
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
             var bindingSet = new BindingSet<object>(source, BindingManager);
-            bindingSet.Bind(target, request, source: null, DefaultMetadata);
-            bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(Binding);
+            bindingSet.Bind(target, request, source: null, Metadata);
+            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -181,7 +181,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         ++invokeBuilderCount;
                         o.ShouldEqual(target);
                         o1.ShouldEqual(source);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return binding;
                     }
                 };
@@ -208,10 +208,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < bindingCount; i++)
             {
                 foreach (var valueTuple in list)
-                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, Metadata);
             }
 
-            var bindings = bindingSet.BuildIncludeBindings(DefaultMetadata);
+            var bindings = bindingSet.BuildIncludeBindings(Metadata);
             invokeBuilderCount.ShouldEqual(count * bindingCount);
             sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
             var groupBy = bindings.GroupBy(binding => binding);
@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             foreach (var group in groupBy)
                 group.Count().ShouldEqual(bindingCount);
 
-            bindingSet.BuildIncludeBindings(DefaultMetadata).IsEmpty.ShouldBeTrue();
+            bindingSet.BuildIncludeBindings(Metadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -243,7 +243,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         ++invokeBuilderCount;
                         o.ShouldEqual(target);
                         o1.ShouldEqual(source);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return binding;
                     }
                 };
@@ -270,10 +270,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < bindingCount; i++)
             {
                 foreach (var valueTuple in list)
-                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, Metadata);
             }
 
-            bindingSet.Build(DefaultMetadata);
+            bindingSet.Build(Metadata);
             invokeBuilderCount.ShouldEqual(count * bindingCount);
             sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
             bindingSet.Dispose();
@@ -327,7 +327,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < bindingCount; i++)
             {
                 foreach (var valueTuple in list)
-                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, DefaultMetadata);
+                    bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, Metadata);
             }
 
             bindingSet.Dispose();

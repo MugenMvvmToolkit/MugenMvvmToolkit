@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         }
 
         [Fact]
-        public void BuildShouldReturnSelf() => ((IBindingBuilder)_binding).Build(this, null, DefaultMetadata).ShouldEqual(_binding);
+        public void BuildShouldReturnSelf() => ((IBindingBuilder)_binding).Build(this, null, Metadata).ShouldEqual(_binding);
 
         [Fact]
         public void StateShouldBeInvalid()

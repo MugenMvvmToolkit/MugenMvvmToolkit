@@ -27,11 +27,11 @@ namespace MugenMvvm.UnitTests.Views.Components
             var viewModel = new AwareViewModel();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), typeof(AwareViewBase)), new AwareViewBase(), viewModel, null, ComponentCollectionManager);
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, Metadata);
             viewModel.ViewBase.ShouldEqual(view.Target);
             viewModel.View.ShouldBeNull();
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, Metadata);
             viewModel.ViewBase.ShouldBeNull();
             viewModel.View.ShouldBeNull();
 
@@ -39,18 +39,18 @@ namespace MugenMvvm.UnitTests.Views.Components
             WrapperManager.AddComponent(new ViewWrapperManagerDecorator());
             WrapperManager.AddComponent(new DelegateWrapperManager<AwareViewBase, AwareViewBase>((type, v, arg4) =>
             {
-                arg4.ShouldEqual(DefaultMetadata);
+                arg4.ShouldEqual(Metadata);
                 v.ShouldEqual(view.Target);
                 return type == typeof(AwareView);
             }, (type, v, arg4) =>
             {
-                arg4.ShouldEqual(DefaultMetadata);
+                arg4.ShouldEqual(Metadata);
                 v.ShouldEqual(view.Target);
                 type.ShouldEqual(typeof(AwareView));
                 return wrapper;
             }));
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, Metadata);
             viewModel.ViewBase.ShouldEqual(view.Target);
             viewModel.View.ShouldEqual(wrapper);
         }
@@ -61,11 +61,11 @@ namespace MugenMvvm.UnitTests.Views.Components
             var viewModel = new AwareViewModel();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), typeof(AwareView)), new AwareView(), viewModel, null, ComponentCollectionManager);
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, Metadata);
             viewModel.ViewBase.ShouldEqual(view.Target);
             viewModel.View.ShouldEqual(view.Target);
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, Metadata);
             viewModel.ViewBase.ShouldBeNull();
             viewModel.View.ShouldBeNull();
         }
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var rawView = new AwareView();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel, null, ComponentCollectionManager);
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, Metadata);
             rawView.ViewModelBase.ShouldEqual(viewModel);
             rawView.ViewModel.ShouldBeNull();
 
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, Metadata);
             rawView.ViewModelBase.ShouldBeNull();
             rawView.ViewModel.ShouldBeNull();
             rawViewComponent.ViewModelBase.ShouldBeNull();
@@ -108,7 +108,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var rawView = new AwareView();
             var view = new View(new ViewMapping("1", typeof(IViewModelBase), rawView.GetType()), rawView, viewModel, null, ComponentCollectionManager);
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, this, Metadata);
             rawView.ViewModelBase.ShouldEqual(viewModel);
             rawView.ViewModel.ShouldEqual(viewModel);
 
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
 
-            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, this, Metadata);
             rawView.ViewModelBase.ShouldBeNull();
             rawView.ViewModel.ShouldBeNull();
             rawViewComponent.ViewModelBase.ShouldBeNull();

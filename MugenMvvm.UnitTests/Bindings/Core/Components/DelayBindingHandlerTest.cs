@@ -43,13 +43,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             Binding.UpdateTarget = () => throw new NotSupportedException();
             Binding.UpdateSource = () =>
             {
-                component.InterceptSourceValue(null!, default, this, DefaultMetadata).ShouldEqual(this);
+                component.InterceptSourceValue(null!, default, this, Metadata).ShouldEqual(this);
                 ++sourceUpdateCount;
             };
             component.Delay.ShouldEqual((ushort)delay);
-            ((IAttachableComponent)component).OnAttached(Binding, DefaultMetadata);
+            ((IAttachableComponent)component).OnAttached(Binding, Metadata);
 
-            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptSourceValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait, () => invokeAction != null);
             invokeAction.ShouldNotBeNull();
@@ -59,8 +59,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptSourceValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptSourceValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
@@ -70,8 +70,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptSourceValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            ((IDetachableComponent)component).OnDetached(Binding, DefaultMetadata);
+            component.InterceptSourceValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
+            ((IDetachableComponent)component).OnDetached(Binding, Metadata);
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldBeNull();
@@ -99,13 +99,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             Binding.UpdateSource = () => throw new NotSupportedException();
             Binding.UpdateTarget = () =>
             {
-                component.InterceptTargetValue(null!, default, this, DefaultMetadata).ShouldEqual(this);
+                component.InterceptTargetValue(null!, default, this, Metadata).ShouldEqual(this);
                 ++sourceUpdateCount;
             };
             component.Delay.ShouldEqual((ushort)delay);
-            ((IAttachableComponent)component).OnAttached(Binding, DefaultMetadata);
+            ((IAttachableComponent)component).OnAttached(Binding, Metadata);
 
-            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptTargetValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait, () => invokeAction != null);
             invokeAction.ShouldNotBeNull();
@@ -115,8 +115,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptTargetValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
+            component.InterceptTargetValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldNotBeNull();
@@ -126,8 +126,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             invokeAction = null;
             sourceUpdateCount = 0;
-            component.InterceptTargetValue(Binding, default, null, DefaultMetadata).IsDoNothing().ShouldBeTrue();
-            ((IDetachableComponent)component).OnDetached(Binding, DefaultMetadata);
+            component.InterceptTargetValue(Binding, default, null, Metadata).IsDoNothing().ShouldBeTrue();
+            ((IDetachableComponent)component).OnDetached(Binding, Metadata);
             invokeAction.ShouldBeNull();
             WaitCompletion(wait);
             invokeAction.ShouldBeNull();

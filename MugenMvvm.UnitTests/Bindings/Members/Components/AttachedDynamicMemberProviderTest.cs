@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     memberType.ShouldEqual(t);
                     type.ShouldEqual(requestType);
                     name.ShouldEqual(s);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     var info = new TestAccessorMemberInfo();
                     list.Add(info);
                     return info;
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
             }
 
             invalidateCount.ShouldEqual(count);
-            _provider.TryGetMembers(MemberManager, requestType, name, memberType, DefaultMetadata).ShouldEqual(list);
+            _provider.TryGetMembers(MemberManager, requestType, name, memberType, Metadata).ShouldEqual(list);
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;
@@ -74,13 +74,13 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     _provider.Unregister(@delegate);
             }
 
-            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, memberType, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, memberType, Metadata).IsEmpty.ShouldBeTrue();
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
 
         [Fact]
         public void TryGetMembersShouldReturnNullResult() =>
-            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), string.Empty, MemberType.All, Metadata).IsEmpty.ShouldBeTrue();
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);
     }

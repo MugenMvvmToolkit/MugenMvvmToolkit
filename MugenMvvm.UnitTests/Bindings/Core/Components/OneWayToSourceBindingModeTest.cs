@@ -47,22 +47,22 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             Binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
 
             if (lastMember)
-                oneTimeMode.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
             else
-                oneTimeMode.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
 
             updateCount.ShouldEqual(1);
             Binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
 
             isAvailable = true;
-            oneTimeMode.OnSourceError(Binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            oneTimeMode.OnSourceError(Binding, EmptyPathObserver.Empty, new Exception(), Metadata);
             updateCount.ShouldEqual(1);
             Binding.GetComponents<object>().ShouldContain(mode, oneTimeMode);
 
             if (lastMember)
-                oneTimeMode.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
             else
-                oneTimeMode.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+                oneTimeMode.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
             updateCount.ShouldEqual(2);
         }
 
@@ -83,13 +83,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             updateCount.ShouldEqual(1);
             Binding.GetComponents<object>().Single().ShouldEqual(mode);
 
-            mode.OnTargetLastMemberChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+            mode.OnTargetLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
             updateCount.ShouldEqual(2);
 
-            mode.OnTargetPathMembersChanged(Binding, EmptyPathObserver.Empty, DefaultMetadata);
+            mode.OnTargetPathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
             updateCount.ShouldEqual(3);
 
-            mode.OnTargetError(Binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            mode.OnTargetError(Binding, EmptyPathObserver.Empty, new Exception(), Metadata);
             updateCount.ShouldEqual(3);
         }
     }

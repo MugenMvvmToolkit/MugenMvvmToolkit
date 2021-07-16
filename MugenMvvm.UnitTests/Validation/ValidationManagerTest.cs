@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Validation
     public class ValidationManagerTest : ComponentOwnerTestBase<ValidationManager>
     {
         [Fact]
-        public void GetAggregatorValidatorShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => ValidationManager.GetValidator(this, DefaultMetadata));
+        public void GetAggregatorValidatorShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => ValidationManager.GetValidator(this, Metadata));
 
         [Theory]
         [InlineData(1)]
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Validation
                         ++count;
                         m.ShouldEqual(ValidationManager);
                         o.ShouldEqual(requests);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         if (isLast)
                             return Validator;
                         return null;
@@ -49,12 +49,12 @@ namespace MugenMvvm.UnitTests.Validation
                         m.ShouldEqual(ValidationManager);
                         v.ShouldEqual(Validator);
                         o.ShouldEqual(requests);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                     }
                 });
             }
 
-            ValidationManager.GetValidator(requests, DefaultMetadata).ShouldEqual(Validator);
+            ValidationManager.GetValidator(requests, Metadata).ShouldEqual(Validator);
             componentCount.ShouldEqual(count);
             listenerCount.ShouldEqual(count);
         }

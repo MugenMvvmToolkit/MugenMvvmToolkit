@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
                 if (member.Key == MacrosConstant.Action)
                     expressionNode.ShouldEqual(new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + (Default.NextCounter() - 1).ToString()));
                 else
-                    expressionNode.ShouldEqual(member.Value(DefaultMetadata));
+                    expressionNode.ShouldEqual(member.Value(Metadata));
             }
         }
 

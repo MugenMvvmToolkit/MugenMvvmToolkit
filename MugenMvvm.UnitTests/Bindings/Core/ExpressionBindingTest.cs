@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             var components = new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() };
             var binding = new ExpressionBinding(target, ItemOrArray.FromItem<object?>(source), expression);
             binding.State.ShouldEqual(BindingState.Valid);
-            binding.Initialize(components, DefaultMetadata);
+            binding.Initialize(components, Metadata);
             targetListener.ShouldEqual(binding);
             sourceListener.ShouldEqual(binding);
 

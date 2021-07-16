@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             _provider.AsyncValidationEnabled = isAsync;
             _provider.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
-            var validator = ValidationManager.TryGetValidator(this, DefaultMetadata)!;
+            var validator = ValidationManager.TryGetValidator(this, Metadata)!;
             validator.ShouldBeType<Validator>();
             validator.Components.Count.ShouldEqual(isAsync ? 3 : 2);
             validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         {
             var target = new TestViewModelBase(ViewModelManager);
             _provider.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
-            var validator = ValidationManager.TryGetValidator(target, DefaultMetadata)!;
+            var validator = ValidationManager.TryGetValidator(target, Metadata)!;
             validator.ShouldBeType<Validator>();
             validator.Components.Count.ShouldEqual(3);
             validator.Components.Get<CycleHandlerValidatorBehavior>().Count.ShouldEqual(1);

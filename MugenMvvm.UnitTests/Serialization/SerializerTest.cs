@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Serialization
                     s.ShouldEqual(Serializer);
                     f.ShouldEqual(format);
                     r.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return ctx;
                 }
             });
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Serialization
                 Serializer.AddComponent(component);
             }
 
-            Serializer.Deserialize(format, request, null, DefaultMetadata).ShouldEqual(result);
+            Serializer.Deserialize(format, request, null, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTests.Serialization
                         s.ShouldEqual(Serializer);
                         t.ShouldEqual(format);
                         r.ShouldEqual(request);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         if (isLast)
                             return true;
                         return false;
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.Serialization
                 Serializer.AddComponent(component);
             }
 
-            Serializer.IsSupported(format, request, DefaultMetadata).ShouldEqual(true);
+            Serializer.IsSupported(format, request, Metadata).ShouldEqual(true);
             executeCount.ShouldEqual(count);
         }
 
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Serialization
                     s.ShouldEqual(Serializer);
                     f.ShouldEqual(format);
                     r.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return ctx;
                 }
             });
@@ -136,7 +136,7 @@ namespace MugenMvvm.UnitTests.Serialization
                 Serializer.AddComponent(component);
             }
 
-            Serializer.Serialize(format, request, null, DefaultMetadata).ShouldEqual(result);
+            Serializer.Serialize(format, request, null, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
         }
 

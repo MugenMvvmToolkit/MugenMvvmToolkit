@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void AddOrUpdateShouldAddNewValue1()
         {
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.AddOrUpdate(TestPath, this, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(this);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
             v.ShouldEqual(this);
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var invokeCount = 0;
             var item = GetSupportedItem();
 
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.AddOrUpdate(TestPath, this, (i, state) =>
             {
                 ++invokeCount;
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var newValue = new object();
             var item = GetSupportedItem();
 
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.AddOrUpdate(TestPath, newValue, this, (o, key, currentValue, state) =>
             {
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var newValue = new object();
             var item = GetSupportedItem();
 
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.AddOrUpdate(TestPath, this, (it, state) =>
             {
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var item = GetSupportedItem();
 
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             for (var i = 0; i < count; i++)
             {
                 var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ClearShouldClearByPath(int count)
         {
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
 
             for (var i = 0; i < count; i++)
             {
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void GetOrAddShouldAddNewValue1()
         {
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.GetOrAdd(TestPath, this).ShouldEqual(this);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
             v.ShouldEqual(this);
@@ -174,7 +174,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var invokeCount = 0;
             var item = GetSupportedItem();
 
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.GetOrAdd(TestPath, AttachedValueManager, (o, providerComponent) =>
             {
                 ++invokeCount;
@@ -193,7 +193,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
             var oldValue = new object();
             var newValue = new object();
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.GetOrAdd(TestPath, newValue).ShouldEqual(oldValue);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
@@ -205,7 +205,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var oldValue = new object();
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, oldValue, out _);
             attachedValues.GetOrAdd<object, object>(TestPath, this, (_, __) => throw new NotSupportedException()).ShouldEqual(oldValue);
             attachedValues.TryGet(TestPath, out var v).ShouldBeTrue();
@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         {
             var item = GetSupportedItem();
             var weakReference = new WeakReference(item);
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, item, out _);
 
             attachedValues = default;
@@ -242,7 +242,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void ShouldGetSetValues()
         {
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
 
             attachedValues.Contains(TestPath).ShouldBeFalse();
             attachedValues.TryGet(TestPath, out var value).ShouldBeFalse();
@@ -266,7 +266,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public virtual void TryGetValuesShouldReturnAllValues(int count)
         {
             var item = GetSupportedItem();
-            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = AttachedValueManager.TryGetAttachedValues(item, Metadata);
             var hashSet = new HashSet<KeyValuePair<string, object?>>();
             var values = new List<KeyValuePair<string, object?>>();
             for (var i = 0; i < count; i++)
@@ -302,7 +302,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         private WeakReference ClearShouldNotKeepRefImpl(object item, IAttachedValueManager manager)
         {
             var value = new object();
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = manager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, value, out _);
             attachedValues.Remove(TestPath, out value);
             return new WeakReference(value);
@@ -311,7 +311,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         private WeakReference ShouldBeEphemeronImpl1(object item, IAttachedValueManager manager)
         {
             var value = new object();
-            var attachedValues = manager.TryGetAttachedValues(item, DefaultMetadata);
+            var attachedValues = manager.TryGetAttachedValues(item, Metadata);
             attachedValues.Set(TestPath, value, out _);
             return new WeakReference(value);
         }

@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotMemberExpression()
         {
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -24,13 +24,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         {
             const string memberName = "Test";
 
-            Context.Initialize(memberName, DefaultMetadata);
+            Context.Initialize(memberName, Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new MemberExpressionNode(null, memberName));
 
-            Context.Initialize($".{memberName}", DefaultMetadata);
+            Context.Initialize($".{memberName}", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldEqual(new MemberExpressionNode(ConstantExpressionNode.Null, memberName));
 
-            Context.Initialize($"{memberName}", DefaultMetadata);
+            Context.Initialize($"{memberName}", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldBeNull();
         }
     }

@@ -25,8 +25,8 @@ namespace MugenMvvm.UnitTests.Internal
         [Fact]
         public void ShouldCreateClassWithMetadata()
         {
-            var manager = (TestClassMetadata)_serviceProvider.GetService(typeof(TestClassMetadata), DefaultMetadata)!;
-            manager.Metadata.ShouldEqual(DefaultMetadata);
+            var manager = (TestClassMetadata)_serviceProvider.GetService(typeof(TestClassMetadata), Metadata)!;
+            manager.Metadata.ShouldEqual(Metadata);
         }
 
         [Fact]
@@ -48,10 +48,10 @@ namespace MugenMvvm.UnitTests.Internal
             _serviceProvider.RegisterFactory(typeof(MugenServiceProviderTest), (t, m) =>
             {
                 t.ShouldEqual(typeof(MugenServiceProviderTest));
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 return this;
             });
-            _serviceProvider.GetService(typeof(MugenServiceProviderTest), DefaultMetadata).ShouldEqual(this);
+            _serviceProvider.GetService(typeof(MugenServiceProviderTest), Metadata).ShouldEqual(this);
         }
 
         public sealed class TestClassNoParameters

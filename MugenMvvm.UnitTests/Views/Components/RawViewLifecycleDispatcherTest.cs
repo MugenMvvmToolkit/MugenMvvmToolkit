@@ -40,14 +40,14 @@ namespace MugenMvvm.UnitTests.Views.Components
                     o.RawView.ShouldEqual(_view);
                     lifecycleState.ShouldEqual(st);
                     arg3.ShouldEqual(state);
-                    arg5.ShouldEqual(DefaultMetadata);
+                    arg5.ShouldEqual(Metadata);
                 }
             });
 
-            ViewManager.OnLifecycleChanged(this, st, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(this, st, state, Metadata);
             invokeCount.ShouldEqual(0);
 
-            ViewManager.OnLifecycleChanged(_view, st, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, st, state, Metadata);
             invokeCount.ShouldEqual(1);
         }
 
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                 {
                     m.ShouldEqual(ViewManager);
                     o.ShouldEqual(this);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return _view;
                 }
             });
@@ -79,15 +79,15 @@ namespace MugenMvvm.UnitTests.Views.Components
                     o.RawView.ShouldEqual(_view);
                     lifecycleState.ShouldEqual(st);
                     arg3.ShouldEqual(state);
-                    arg5.ShouldEqual(DefaultMetadata);
+                    arg5.ShouldEqual(Metadata);
                 }
             });
 
-            ViewManager.OnLifecycleChanged(this, st, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(this, st, state, Metadata);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
-            ViewManager.OnLifecycleChanged(_view, st, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(_view, st, state, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

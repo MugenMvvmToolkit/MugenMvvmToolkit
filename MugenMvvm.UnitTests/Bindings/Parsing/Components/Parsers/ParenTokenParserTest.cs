@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotParenExpression()
         {
             Context.Parsers = new DigitTokenParser();
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -27,10 +27,10 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
 
             Context.Parsers = new ITokenParserComponent[] { new BinaryTokenParser(), new DigitTokenParser(), Parser };
 
-            Context.Initialize("(1+(1-1+(2-2)))", DefaultMetadata);
+            Context.Initialize("(1+(1-1+(2-2)))", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(expected);
 
-            Context.Initialize("(1+(1-1+(2-2))", DefaultMetadata);
+            Context.Initialize("(1+(1-1+(2-2))", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
     }

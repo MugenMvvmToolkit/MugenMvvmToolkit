@@ -40,8 +40,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             memberPathObserver.Target.ShouldEqual(this);
 
             memberPathObserver.Dispose();
-            memberPathObserver.GetLastMember(DefaultMetadata).IsAvailable.ShouldBeFalse();
-            memberPathObserver.GetMembers(DefaultMetadata).IsAvailable.ShouldBeFalse();
+            memberPathObserver.GetLastMember(Metadata).IsAvailable.ShouldBeFalse();
+            memberPathObserver.GetMembers(Metadata).IsAvailable.ShouldBeFalse();
             memberPathObserver.IsAlive.ShouldBeFalse();
             memberPathObserver.Target.ShouldBeNull();
         }
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         public void GetLastMemberShouldReturnActualMembers()
         {
             var observer = new EmptyPathObserver(this);
-            var members = observer.GetLastMember(DefaultMetadata);
+            var members = observer.GetLastMember(Metadata);
             members.Member.ShouldEqual(ConstantMemberInfo.Target);
             members.Target.ShouldEqual(this);
         }
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         public void GetMembersShouldReturnActualMembers()
         {
             var observer = new EmptyPathObserver(this);
-            var members = observer.GetMembers(DefaultMetadata);
+            var members = observer.GetMembers(Metadata);
             members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
             members.Target.ShouldEqual(this);
         }

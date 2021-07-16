@@ -31,14 +31,14 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             {
                 handler
             };
-            var messageContext = new MessageContext(new object(), this, DefaultMetadata);
+            var messageContext = new MessageContext(new object(), this, Metadata);
             Messenger.AddComponent(new TestMessengerSubscriberComponent
             {
                 TryGetMessengerHandlers = (m, type, context) =>
                 {
                     m.ShouldEqual(Messenger);
                     type.ShouldEqual(messageContext.Message.GetType());
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return messengerHandlers;
                 },
                 TryUnsubscribe = (m, o, _) =>
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             {
                 handler
             };
-            var messageContext = new MessageContext(new object(), this, DefaultMetadata);
+            var messageContext = new MessageContext(new object(), this, Metadata);
             Messenger.AddComponent(new TestMessengerSubscriberComponent
             {
                 TryGetMessengerHandlers = (m, type, context) =>
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                     ++tryGetMessengerHandlersCount;
                     m.ShouldEqual(Messenger);
                     type.ShouldEqual(messageContext.Message.GetType());
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return messengerHandlers;
                 }
             });
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                     return MessengerResult.Handled;
                 }, this, threadExecutionMode)
             };
-            var messageContext = new MessageContext(new object(), this, DefaultMetadata);
+            var messageContext = new MessageContext(new object(), this, Metadata);
             if (threadExecutionMode == null)
                 threadExecutionMode = _messagePublisher.DefaultExecutionMode;
 
@@ -151,7 +151,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 {
                     m.ShouldEqual(Messenger);
                     type.ShouldEqual(messageContext.Message.GetType());
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return messengerHandlers;
                 }
             });
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         [InlineData(10)]
         public void TryPublishShouldUseTryGetMessengerHandlers(int count)
         {
-            var messageContext = new MessageContext(new object(), this, DefaultMetadata);
+            var messageContext = new MessageContext(new object(), this, Metadata);
 
             var result = MessengerResult.Handled;
             var invokedCount = 0;
@@ -190,7 +190,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 {
                     m.ShouldEqual(Messenger);
                     type.ShouldEqual(messageContext.Message.GetType());
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return messengerHandlers;
                 }
             });

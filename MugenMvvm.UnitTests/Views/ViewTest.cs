@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTests.Views
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
-            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata);
             var view = new object();
             var testViewModel = new TestViewModel();
             IView v = new View(mapping, view, testViewModel);
@@ -23,6 +23,6 @@ namespace MugenMvvm.UnitTests.Views
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata) =>
-            new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel(), metadata);
+            new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this, new TestViewModel(), metadata);
     }
 }

@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
         public void DefaultShouldBeEmpty()
         {
             default(MemberObserver).IsEmpty.ShouldBeTrue();
-            default(MemberObserver).TryObserve(this, new TestWeakEventListener(), DefaultMetadata).IsEmpty.ShouldBeTrue();
+            default(MemberObserver).TryObserve(this, new TestWeakEventListener(), Metadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 t.ShouldEqual(target);
                 m.ShouldEqual(member);
                 l.ShouldEqual(listener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             });
 
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             handler.ShouldEqual(h);
             m.ShouldEqual(member);
 
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(result);
+            observer.TryObserve(target, listener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
         }
     }

@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTests.Entities
                     o.ShouldEqual(entity);
                     arg3.ShouldEqual(stateFrom);
                     arg4.ShouldEqual(expectedChangingState);
-                    arg5.ShouldEqual(DefaultMetadata);
+                    arg5.ShouldEqual(Metadata);
                     trackingCollection.ShouldEqual(collection);
                     return expectedChangedState;
                 }
@@ -91,20 +91,20 @@ namespace MugenMvvm.UnitTests.Entities
                     o.ShouldEqual(entity);
                     arg3.ShouldEqual(stateFrom);
                     arg4.ShouldEqual(expectedChangedState);
-                    arg5.ShouldEqual(DefaultMetadata);
+                    arg5.ShouldEqual(Metadata);
                     trackingCollection.ShouldEqual(collection);
                 }
             };
             collection.AddComponent(changingListener);
             collection.AddComponent(changedListener);
 
-            collection.SetState(entity, expectedChangingState, DefaultMetadata);
+            collection.SetState(entity, expectedChangingState, Metadata);
             changingInvokeCount.ShouldEqual(1);
             changedInvokeCount.ShouldEqual(1);
 
             stateFrom = expectedChangedState;
             expectedChangedState = EntityState.Detached;
-            collection.Clear(DefaultMetadata);
+            collection.Clear(Metadata);
             changingInvokeCount.ShouldEqual(1);
             changedInvokeCount.ShouldEqual(2);
         }

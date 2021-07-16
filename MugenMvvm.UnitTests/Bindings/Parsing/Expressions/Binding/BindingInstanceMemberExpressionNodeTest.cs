@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(Path);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
@@ -69,19 +69,19 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     request.HasStablePath.ShouldBeTrue();
                     request.Optional.ShouldBeTrue();
                     request.Observable.ShouldBeTrue();
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return observer;
                 }
             });
 
-            exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource("", "", Metadata).ShouldEqual(observer);
         }
 
         [Fact]
         public void GetBindingSourceShouldReturnRawInstanceEmptyPath()
         {
             var exp = new BindingInstanceMemberExpressionNode(this, "", 0, default, default);
-            exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(this);
+            exp.GetBindingSource("", "", Metadata).ShouldEqual(this);
         }
 
         [Theory]
@@ -151,18 +151,18 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(Path);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
 
             var exp = new BindingInstanceMemberExpressionNode(this, Path, 0, default, MemberFlags.All);
 
-            var target = exp.GetSource("", "", DefaultMetadata, out var p);
+            var target = exp.GetSource("", "", Metadata, out var p);
             target.ShouldEqual(this);
             p.ShouldEqual(path);
 
-            target = exp.GetSource("", "", DefaultMetadata, out p);
+            target = exp.GetSource("", "", Metadata, out p);
             target.ShouldEqual(this);
             p.ShouldEqual(path);
         }

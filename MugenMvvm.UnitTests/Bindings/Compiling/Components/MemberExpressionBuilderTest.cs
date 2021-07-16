@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 GetValue = (o, context) =>
                 {
                     o.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return InstanceProperty;
                 },
                 Type = typeof(string)
@@ -53,9 +53,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(InstanceProperty);
         }
 
         [Fact]
@@ -84,15 +84,15 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return InstanceProperty;
                 },
                 Type = typeof(string)
             };
 
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(InstanceProperty);
             invokeCount.ShouldEqual(2);
         }
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 GetValue = (o, context) =>
                 {
                     o.ShouldBeNull();
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return StaticProperty;
                 },
                 Type = typeof(string)
@@ -151,9 +151,9 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
             var expressionNode = new MemberExpressionNode(TypeAccessExpressionNode.Get(GetType()), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
 
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(StaticProperty);
             StaticProperty = "f";
-            build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] { _context.MetadataExpression }, Metadata).ShouldEqual(StaticProperty);
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
             var build = _component.TryBuild(_context, expressionNode)!;
-            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, DefaultMetadata));
+            ShouldThrow(() => build.Invoke(new[] { _context.MetadataExpression }, Metadata));
         }
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);

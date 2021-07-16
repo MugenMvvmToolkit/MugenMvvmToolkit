@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             {
                 Visit = (_, _) => newNode
             };
-            GetExpression().Accept(visitor, DefaultMetadata).ShouldEqual(newNode);
+            GetExpression().Accept(visitor, Metadata).ShouldEqual(newNode);
         }
 
         [Theory]
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 Visit = (node, context) =>
                 {
                     nodes.Add(node);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return node;
                 },
                 TraversalType = ExpressionTraversalType.Get(value)
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
 
             var exp = GetExpression();
             var result = new IExpressionNode[] { exp };
-            exp.Accept(visitor, DefaultMetadata).ShouldEqual(exp);
+            exp.Accept(visitor, Metadata).ShouldEqual(exp);
             result.ShouldEqual(nodes);
         }
 

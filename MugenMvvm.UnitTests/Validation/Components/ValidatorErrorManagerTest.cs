@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     ++invokeCount;
                     validator.ShouldEqual(Validator);
                     list.ShouldEqual(members);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                 }
             });
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             AddDefaultErrors();
             ignore = false;
 
-            Validator.ClearErrors(default, null, DefaultMetadata);
+            Validator.ClearErrors(default, null, Metadata);
             invokeCount.ShouldEqual(1);
 
             ignore = true;
@@ -71,14 +71,14 @@ namespace MugenMvvm.UnitTests.Validation.Components
             invokeCount = 0;
             ignore = false;
             members = new[] { Member1 };
-            Validator.ClearErrors(Member1, null, DefaultMetadata);
+            Validator.ClearErrors(Member1, null, Metadata);
             invokeCount.ShouldEqual(1);
 
             ignore = true;
             AddDefaultErrors();
             invokeCount = 0;
             ignore = false;
-            Validator.ClearErrors(Member1, NoErrorSource, DefaultMetadata);
+            Validator.ClearErrors(Member1, NoErrorSource, Metadata);
             invokeCount.ShouldEqual(0);
         }
 
@@ -313,27 +313,27 @@ namespace MugenMvvm.UnitTests.Validation.Components
         public void SetErrorsShouldBeValid()
         {
             var errors = new ItemOrListEditor<ValidationErrorInfo>();
-            Validator.SetErrors(TwoErrorSource, _sourceErrors[TwoErrorSource], DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, _sourceErrors[TwoErrorSource], Metadata);
 
             Validator.GetErrors(default, ref errors);
             errors.Count.ShouldEqual(2);
             errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource]);
 
             errors.Clear();
-            Validator.SetErrors(TwoErrorSource, _member1Error, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, _member1Error, Metadata);
             Validator.GetErrors(default, ref errors);
             errors.Count.ShouldEqual(2);
             errors.AsList().ShouldContain(_sourceErrors[TwoErrorSource]);
 
             errors.Clear();
-            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member1Error }, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member1Error }, Metadata);
             Validator.GetErrors(Member1, ref errors);
             errors.Count.ShouldEqual(2);
             errors.AsList().ShouldContain(_member1Error, _member1Error);
 
             errors.Clear();
-            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member1Error }, DefaultMetadata);
-            Validator.SetErrors(TwoErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member1Error }, Metadata);
+            Validator.SetErrors(TwoErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), Metadata);
             Validator.GetErrors(Member1, ref errors);
             errors.Count.ShouldEqual(0);
         }
@@ -350,48 +350,48 @@ namespace MugenMvvm.UnitTests.Validation.Components
                     ++invokeCount;
                     validator.ShouldEqual(Validator);
                     list.ShouldEqual(members);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                 }
             });
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error, _member2Error }, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error, _member2Error }, Metadata);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
             Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error, _member2Error, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null) },
-                DefaultMetadata);
+                Metadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
             members = new[] { Member2 };
-            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error }, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error }, Metadata);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error }, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, new[] { _member1Error, _member2Error }, Metadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, _member1Error, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, _member1Error, Metadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
-            Validator.SetErrors(TwoErrorSource, _member2Error, DefaultMetadata);
+            Validator.SetErrors(TwoErrorSource, _member2Error, Metadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
             members = new[] { Member1 };
-            Validator.SetErrors(SingleErrorSource, _member1Error, DefaultMetadata);
+            Validator.SetErrors(SingleErrorSource, _member1Error, Metadata);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
-            Validator.SetErrors(SingleErrorSource, default, DefaultMetadata);
+            Validator.SetErrors(SingleErrorSource, default, Metadata);
             invokeCount.ShouldEqual(0);
 
             invokeCount = 0;
             members = new[] { Member1 };
-            Validator.SetErrors(SingleErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), DefaultMetadata);
+            Validator.SetErrors(SingleErrorSource, new ValidationErrorInfo(_member1Error.Target, _member1Error.Member, null), Metadata);
             invokeCount.ShouldEqual(1);
         }
 

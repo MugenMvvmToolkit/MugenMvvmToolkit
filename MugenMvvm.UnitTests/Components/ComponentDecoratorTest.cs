@@ -43,8 +43,8 @@ namespace MugenMvvm.UnitTests.Components
             var component2 = new TestThreadDispatcherComponent();
             var components = new ItemOrListEditor<IThreadDispatcherComponent>(new List<IThreadDispatcherComponent> { decorator1, decorator2, component1, component2 });
 
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator2).Decorate(collection, ref components, DefaultMetadata);
-            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator1).Decorate(collection, ref components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator2).Decorate(collection, ref components, Metadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>)decorator1).Decorate(collection, ref components, Metadata);
 
             components.AsList().Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);

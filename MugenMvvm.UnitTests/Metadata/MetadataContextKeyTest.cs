@@ -26,17 +26,17 @@ namespace MugenMvvm.UnitTests.Metadata
         public void FromBuilderShouldSetDefaultValue()
         {
             var key = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField)).DefaultValue(int.MinValue).Build();
-            key.GetDefaultValue(DefaultMetadata, 0).ShouldEqual(int.MinValue);
+            key.GetDefaultValue(Metadata, 0).ShouldEqual(int.MinValue);
 
             var invokeCount = 0;
             key = MetadataContextKey.Create<int>(GetType(), nameof(ContextKeyField)).DefaultValue((context, contextKey, arg3) =>
             {
                 ++invokeCount;
-                context.ShouldEqual(DefaultMetadata);
+                context.ShouldEqual(Metadata);
                 contextKey.ShouldEqual(key);
                 return int.MinValue;
             }).Build();
-            key.GetDefaultValue(DefaultMetadata, 0).ShouldEqual(int.MinValue);
+            key.GetDefaultValue(Metadata, 0).ShouldEqual(int.MinValue);
             invokeCount.ShouldEqual(1);
         }
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Metadata
             contextKey = builder.Setter((context, key, oldV, newV) =>
             {
                 ++setterCount;
-                context.ShouldEqual(DefaultMetadata);
+                context.ShouldEqual(Metadata);
                 key.ShouldEqual(contextKey);
                 oldV.ShouldEqual(oldValue);
                 newV.ShouldEqual(newValue);
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Metadata
             }).Getter((context, key, arg3) =>
             {
                 ++getterCount;
-                context.ShouldEqual(DefaultMetadata);
+                context.ShouldEqual(Metadata);
                 key.ShouldEqual(contextKey);
                 arg3.ShouldEqual(newValue);
                 return oldValue;
@@ -71,13 +71,13 @@ namespace MugenMvvm.UnitTests.Metadata
                     throw new NotSupportedException();
             }).Build();
 
-            contextKey.GetValue(DefaultMetadata, newValue).ShouldEqual(oldValue);
+            contextKey.GetValue(Metadata, newValue).ShouldEqual(oldValue);
             getterCount.ShouldEqual(1);
 
-            contextKey.SetValue(DefaultMetadata, oldValue, newValue).ShouldEqual(newValue);
+            contextKey.SetValue(Metadata, oldValue, newValue).ShouldEqual(newValue);
             setterCount.ShouldEqual(1);
 
-            ShouldThrow<NotSupportedException>(() => contextKey.SetValue(DefaultMetadata, oldValue, int.MaxValue));
+            ShouldThrow<NotSupportedException>(() => contextKey.SetValue(Metadata, oldValue, int.MaxValue));
         }
 
         [Fact]
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Metadata
             contextKey = builder.Setter((context, key, oldV, newV) =>
             {
                 ++setterCount;
-                context.ShouldEqual(DefaultMetadata);
+                context.ShouldEqual(Metadata);
                 key.ShouldEqual(contextKey);
                 oldV.ShouldEqual(oldValue);
                 newV.ShouldEqual(newValue);
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Metadata
             }).Getter((context, key, raw, v) =>
             {
                 ++getterCount;
-                context.ShouldEqual(DefaultMetadata);
+                context.ShouldEqual(Metadata);
                 key.ShouldEqual(contextKey);
                 raw.ShouldEqual(newValue);
                 v.ShouldEqual(newValue);
@@ -111,13 +111,13 @@ namespace MugenMvvm.UnitTests.Metadata
                     throw new NotSupportedException();
             }).Build();
 
-            contextKey.GetValue(DefaultMetadata, newValue, newValue).ShouldEqual(oldValue);
+            contextKey.GetValue(Metadata, newValue, newValue).ShouldEqual(oldValue);
             getterCount.ShouldEqual(1);
 
-            contextKey.SetValue(DefaultMetadata, oldValue, newValue).ShouldEqual(newValue);
+            contextKey.SetValue(Metadata, oldValue, newValue).ShouldEqual(newValue);
             setterCount.ShouldEqual(1);
 
-            ShouldThrow<NotSupportedException>(() => contextKey.SetValue(DefaultMetadata, oldValue, int.MaxValue));
+            ShouldThrow<NotSupportedException>(() => contextKey.SetValue(Metadata, oldValue, int.MaxValue));
         }
 
         [Fact]
@@ -125,9 +125,9 @@ namespace MugenMvvm.UnitTests.Metadata
         {
             var key = MetadataContextKey.Create<int>("test").Build();
             key.Metadata.ShouldBeEmpty();
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldBeFalse();
         }
 
@@ -156,9 +156,9 @@ namespace MugenMvvm.UnitTests.Metadata
             key.Metadata.Count.ShouldEqual(2);
             key.Metadata[metaKey1].ShouldEqual(metaValue3);
             key.Metadata[metaKey2].ShouldEqual(metaValue2);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldBeFalse();
             callbackKey.ShouldEqual(key);
             invokeCount.ShouldEqual(1);
@@ -174,9 +174,9 @@ namespace MugenMvvm.UnitTests.Metadata
                 builder.Serializable();
             var key = builder.Build();
 
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldEqual(serializable);
             if (!serializable)
             {
@@ -203,9 +203,9 @@ namespace MugenMvvm.UnitTests.Metadata
                 builder.Serializable();
             var key = builder.Build();
 
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldEqual(serializable);
 
             if (!serializable)
@@ -229,9 +229,9 @@ namespace MugenMvvm.UnitTests.Metadata
             var meta = new Dictionary<string, object?>();
             var key = MetadataContextKey.FromKey<int>("test", meta);
             key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldBeFalse();
             key.ValueType.ShouldEqual(typeof(int));
         }
@@ -244,9 +244,9 @@ namespace MugenMvvm.UnitTests.Metadata
             var meta = new Dictionary<string, object?>();
             var key = MetadataContextKey.FromMember<int>(GetType(), nameof(ContextKeyField), serializable, meta);
             key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldEqual(serializable);
             if (!serializable)
             {
@@ -271,9 +271,9 @@ namespace MugenMvvm.UnitTests.Metadata
             var meta = new Dictionary<string, object?>();
             var key = MetadataContextKey.FromMember<int>(GetType(), nameof(ContextKeyProperty), serializable, meta);
             key.Metadata.ShouldEqual(meta);
-            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
-            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
-            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            key.GetValue(Metadata, 1).ShouldEqual(1);
+            key.SetValue(Metadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(Metadata, 3).ShouldEqual(3);
             key.IsSerializable.ShouldEqual(serializable);
             if (!serializable)
             {

@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
         [Fact]
         public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest() =>
-            ObservationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            ObservationManager.TryGetMemberObserver(typeof(object), this, Metadata).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void TryGetMemberObserverShouldUseEventFinder1()
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     ++tryObserveCount;
                     o.ShouldEqual(target);
                     l.ShouldEqual(listener);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return token;
                 }
             };
@@ -59,16 +59,16 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 ++invokeCount;
                 type.ShouldEqual(targetType);
                 member.ShouldEqual(o);
-                arg3.ShouldEqual(DefaultMetadata);
+                arg3.ShouldEqual(Metadata);
                 return result;
             };
 
-            var observer = ObservationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(targetType, member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
             tryObserveCount.ShouldEqual(0);
 
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
+            observer.TryObserve(target, listener, Metadata).ShouldEqual(token);
             tryObserveCount.ShouldEqual(1);
         }
 
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     ++tryObserveCount;
                     o.ShouldEqual(target);
                     l.ShouldEqual(listener);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return token;
                 }
             };
@@ -100,16 +100,16 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 ++invokeCount;
                 type.ShouldEqual(targetType);
                 member.ShouldEqual(o);
-                arg3.ShouldEqual(DefaultMetadata);
+                arg3.ShouldEqual(Metadata);
                 return result;
             };
 
-            var observer = ObservationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(targetType, member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
             tryObserveCount.ShouldEqual(0);
 
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
+            observer.TryObserve(target, listener, Metadata).ShouldEqual(token);
             tryObserveCount.ShouldEqual(1);
         }
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     ++tryObserveCount;
                     o.ShouldEqual(target);
                     l.ShouldEqual(listener);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return token;
                 }
             };
@@ -149,14 +149,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             });
 
-            var observer = ObservationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(targetType, member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();
             set.Contains(memberName + BindingInternalConstant.ChangeEventPostfix).ShouldBeTrue();
             tryObserveCount.ShouldEqual(0);
 
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
+            observer.TryObserve(target, listener, Metadata).ShouldEqual(token);
             tryObserveCount.ShouldEqual(1);
         }
 
@@ -180,7 +180,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     ++tryObserveCount;
                     o.ShouldEqual(target);
                     l.ShouldEqual(listener);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return token;
                 }
             };
@@ -197,14 +197,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             });
 
-            var observer = ObservationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(targetType, member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();
             set.Contains(memberName + BindingInternalConstant.ChangeEventPostfix).ShouldBeTrue();
             tryObserveCount.ShouldEqual(0);
 
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
+            observer.TryObserve(target, listener, Metadata).ShouldEqual(token);
             tryObserveCount.ShouldEqual(1);
         }
 
@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                     ++tryObserveCount;
                     o.ShouldEqual(target);
                     l.ShouldEqual(listener);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return token;
                 }
             };
@@ -246,13 +246,13 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
                 }
             });
 
-            var observer = ObservationManager.TryGetMemberObserver(targetType, member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(targetType, member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(1);
             set.Contains(member).ShouldBeTrue();
             tryObserveCount.ShouldEqual(0);
 
-            observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(token);
+            observer.TryObserve(target, listener, Metadata).ShouldEqual(token);
             tryObserveCount.ShouldEqual(1);
         }
 

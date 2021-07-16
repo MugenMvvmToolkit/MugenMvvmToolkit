@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTests.Internal
     public class AttachedValueManagerTest : ComponentOwnerTestBase<AttachedValueManager>
     {
         [Fact]
-        public void TryGetAttachedValuesShouldReturnEmptyNoComponents() => AttachedValueManager.TryGetAttachedValues(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        public void TryGetAttachedValuesShouldReturnEmptyNoComponents() => AttachedValueManager.TryGetAttachedValues(this, Metadata).IsEmpty.ShouldBeTrue();
 
         [Theory]
         [InlineData(1)]
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Internal
                     {
                         owner.ShouldEqual(AttachedValueManager);
                         o.ShouldEqual(request);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         ++invokeCount;
                         if (isLast)
                             return new AttachedValueStorage(this, storageManager, state);
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Internal
                 AttachedValueManager.AddComponent(component);
             }
 
-            var storage = AttachedValueManager.TryGetAttachedValues(request, DefaultMetadata);
+            var storage = AttachedValueManager.TryGetAttachedValues(request, Metadata);
             storageManager.GetCount = (o, o1) =>
             {
                 o.ShouldEqual(request);

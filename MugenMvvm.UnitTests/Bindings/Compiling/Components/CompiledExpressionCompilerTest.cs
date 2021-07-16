@@ -21,17 +21,17 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
         [Fact]
         public void TryCompileShouldReturnCompiledExpressionWithComponents()
         {
-            var compiledExpression = (CompiledExpression)ExpressionCompiler.TryCompile(ConstantExpressionNode.False, DefaultMetadata)!;
+            var compiledExpression = (CompiledExpression)ExpressionCompiler.TryCompile(ConstantExpressionNode.False, Metadata)!;
             compiledExpression.ExpressionBuilders.ShouldBeEmpty();
 
             var testBuilder = new TestExpressionBuilderComponent();
             ExpressionCompiler.AddComponent(testBuilder);
 
-            compiledExpression = (CompiledExpression)ExpressionCompiler.TryCompile(ConstantExpressionNode.False, DefaultMetadata)!;
+            compiledExpression = (CompiledExpression)ExpressionCompiler.TryCompile(ConstantExpressionNode.False, Metadata)!;
             compiledExpression.ExpressionBuilders.Single().ShouldEqual(testBuilder);
 
             ExpressionCompiler.RemoveComponent(testBuilder);
-            compiledExpression = (CompiledExpression)ExpressionCompiler.TryCompile(ConstantExpressionNode.False, DefaultMetadata)!;
+            compiledExpression = (CompiledExpression)ExpressionCompiler.TryCompile(ConstantExpressionNode.False, Metadata)!;
             compiledExpression.ExpressionBuilders.ShouldBeEmpty();
         }
 

@@ -23,10 +23,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             });
             var member = new TestAccessorMemberInfo { MemberFlags = MemberFlags.Instance };
 
-            ObservationManager.TryGetMemberObserver(typeof(object), member, DefaultMetadata).ShouldEqual(memberObserver);
+            ObservationManager.TryGetMemberObserver(typeof(object), member, Metadata).ShouldEqual(memberObserver);
 
             member.MemberFlags |= MemberFlags.NonObservable;
-            ObservationManager.TryGetMemberObserver(typeof(object), member, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            ObservationManager.TryGetMemberObserver(typeof(object), member, Metadata).IsEmpty.ShouldBeTrue();
         }
     }
 }

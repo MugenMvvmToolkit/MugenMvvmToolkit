@@ -58,8 +58,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             memberPathObserver.Dispose();
             if (canDispose)
             {
-                memberPathObserver.GetLastMember(DefaultMetadata).IsAvailable.ShouldBeFalse();
-                memberPathObserver.GetMembers(DefaultMetadata).IsAvailable.ShouldBeFalse();
+                memberPathObserver.GetLastMember(Metadata).IsAvailable.ShouldBeFalse();
+                memberPathObserver.GetMembers(Metadata).IsAvailable.ShouldBeFalse();
                 memberPathObserver.IsAlive.ShouldBeFalse();
                 memberPathObserver.Target.ShouldBeNull();
             }

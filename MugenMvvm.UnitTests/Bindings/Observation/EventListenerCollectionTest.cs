@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             l2.TryHandleDefault = false;
             l3.TryHandleDefault = false;
-            collection.Raise(this, this, DefaultMetadata);
+            collection.Raise(this, this, Metadata);
             collection.AddedCount.ShouldEqual(1);
             collection.RemovedCount.ShouldEqual(0);
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             l1.TryHandleDefault = false;
             l2.TryHandleDefault = false;
             l3.TryHandleDefault = false;
-            collection.Raise(this, this, DefaultMetadata);
+            collection.Raise(this, this, Metadata);
             collection.AddedCount.ShouldEqual(1);
             collection.RemovedCount.ShouldEqual(1);
         }
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                     {
                         o.ShouldEqual(sender);
                         o1.ShouldEqual(msg);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         return listeners[index].IsAlive;
                     }
                 };
@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             for (var i = 0; i < count; i++)
             {
                 collection.Add(listeners[i]);
-                collection.Raise(sender, msg, DefaultMetadata);
+                collection.Raise(sender, msg, Metadata);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
                 collection.Count.ShouldEqual(i + 1);
             }
@@ -124,11 +124,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             for (var i = 0; i < removeCount; i++)
                 listeners[i].IsAlive = false;
 
-            collection.Raise(sender, msg, DefaultMetadata);
+            collection.Raise(sender, msg, Metadata);
             collection.Count.ShouldEqual(listeners.Length - removeCount);
             ValidateInvokeCount(listeners, 1);
 
-            collection.Raise(sender, msg, DefaultMetadata);
+            collection.Raise(sender, msg, Metadata);
             collection.Count.ShouldEqual(listeners.Length - removeCount);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
@@ -139,14 +139,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 tokens.Add(collection.Add(listeners[i]));
             }
 
-            collection.Raise(sender, msg, DefaultMetadata);
+            collection.Raise(sender, msg, Metadata);
             collection.Count.ShouldEqual(listeners.Length);
             ValidateInvokeCount(listeners, 1);
 
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
-                collection.Raise(sender, msg, DefaultMetadata);
+                collection.Raise(sender, msg, Metadata);
                 collection.Count.ShouldEqual(listeners.Length - index - 1);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
@@ -154,26 +154,26 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             for (var i = 0; i < removeCount; i++)
                 collection.Add(listeners[i]);
 
-            collection.Raise(sender, msg, DefaultMetadata);
+            collection.Raise(sender, msg, Metadata);
             collection.Count.ShouldEqual(listeners.Length);
             ValidateInvokeCount(listeners, 1);
 
             for (var index = 0; index < removeCount; index++)
             {
                 collection.Remove(listeners[index]);
-                collection.Raise(sender, msg, DefaultMetadata);
+                collection.Raise(sender, msg, Metadata);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
             for (var i = 0; i < removeCount; i++)
                 collection.Add(listeners[i]);
 
-            collection.Raise(sender, msg, DefaultMetadata);
+            collection.Raise(sender, msg, Metadata);
             ValidateInvokeCount(listeners, 1);
 
             collection.Clear();
             collection.Count.ShouldEqual(0);
-            collection.Raise(sender, msg, DefaultMetadata);
+            collection.Raise(sender, msg, Metadata);
             ValidateInvokeCount(listeners, 0);
         }
 

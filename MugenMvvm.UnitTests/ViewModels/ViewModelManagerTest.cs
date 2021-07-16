@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                         m.ShouldEqual(ViewModelManager);
                         vm.ShouldEqual(viewModel);
                         r.ShouldEqual(serviceType);
-                        ctx.ShouldEqual(DefaultMetadata);
+                        ctx.ShouldEqual(Metadata);
                         if (isLast)
                             return service;
                         return null;
@@ -43,13 +43,13 @@ namespace MugenMvvm.UnitTests.ViewModels
                 });
             }
 
-            ViewModelManager.GetService(viewModel, serviceType, DefaultMetadata).ShouldEqual(service);
+            ViewModelManager.GetService(viewModel, serviceType, Metadata).ShouldEqual(service);
             executeCount.ShouldEqual(count);
         }
 
         [Fact]
         public void GetServiceShouldThrowNoComponents() =>
-            ShouldThrow<InvalidOperationException>(() => ViewModelManager.GetService(new TestViewModel(), typeof(object), DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => ViewModelManager.GetService(new TestViewModel(), typeof(object), Metadata));
 
         [Theory]
         [InlineData(1)]
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.ViewModels
             var target = new TestViewModel();
             var state = ViewModelLifecycleState.Created;
 
-            ViewModelManager.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            ViewModelManager.IsInState(target, state, Metadata).ShouldBeFalse();
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                         o.ShouldEqual(ViewModelManager);
                         s.ShouldEqual(state);
                         t.ShouldEqual(target);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         if (isLast)
                             return true;
                         return false;
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                 });
             }
 
-            ViewModelManager.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            ViewModelManager.IsInState(target, state, Metadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
         }
 
@@ -106,13 +106,13 @@ namespace MugenMvvm.UnitTests.ViewModels
                         vm.ShouldEqual(viewModel);
                         st.ShouldEqual(state);
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     },
                     Priority = i
                 });
             }
 
-            ViewModelManager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
+            ViewModelManager.OnLifecycleChanged(viewModel, lifecycleState, state, Metadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                         ++executeCount;
                         m.ShouldEqual(ViewModelManager);
                         o.ShouldEqual(this);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         if (isLast)
                             return viewModel;
                         return null;
@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTests.ViewModels
                 });
             }
 
-            ViewModelManager.TryGetViewModel(this, DefaultMetadata).ShouldEqual(viewModel);
+            ViewModelManager.TryGetViewModel(this, Metadata).ShouldEqual(viewModel);
             executeCount.ShouldEqual(count);
         }
 

@@ -25,9 +25,9 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Dispose = () => dispose = true
             };
             var parameterValue = new BindingParameterValue(testDisposable, null);
-            parameterValue.GetValue<object>(DefaultMetadata).ShouldEqual(testDisposable);
-            parameterValue.GetValue<TestDisposable>(DefaultMetadata).ShouldEqual(testDisposable);
-            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(DefaultMetadata));
+            parameterValue.GetValue<object>(Metadata).ShouldEqual(testDisposable);
+            parameterValue.GetValue<TestDisposable>(Metadata).ShouldEqual(testDisposable);
+            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(Metadata));
             parameterValue.Dispose();
             dispose.ShouldBeFalse();
         }
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 GetValue = (o, context) =>
                 {
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return result;
                 }
             };
@@ -51,14 +51,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Dispose = () => dispose = true,
                 GetLastMember = metadata =>
                 {
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return new MemberPathLastMember(target, member);
                 }
             };
             var parameterValue = new BindingParameterValue(observer, null);
-            parameterValue.GetValue<object>(DefaultMetadata).ShouldEqual(result);
-            parameterValue.GetValue<BindingParameterValueTest>(DefaultMetadata).ShouldEqual(result);
-            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(DefaultMetadata));
+            parameterValue.GetValue<object>(Metadata).ShouldEqual(result);
+            parameterValue.GetValue<BindingParameterValueTest>(Metadata).ShouldEqual(result);
+            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(Metadata));
             parameterValue.Dispose();
             dispose.ShouldBeTrue();
         }
@@ -73,14 +73,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Invoke = (list, context) =>
                 {
                     list.ShouldEqual(values.Select(o => new ParameterValue(o.GetType(), o)));
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return result;
                 }
             };
             var parameterValue = new BindingParameterValue(values, compiledExpression);
-            parameterValue.GetValue<object>(DefaultMetadata).ShouldEqual(result);
-            parameterValue.GetValue<BindingParameterValueTest>(DefaultMetadata).ShouldEqual(result);
-            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(DefaultMetadata));
+            parameterValue.GetValue<object>(Metadata).ShouldEqual(result);
+            parameterValue.GetValue<BindingParameterValueTest>(Metadata).ShouldEqual(result);
+            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(Metadata));
             parameterValue.Dispose();
         }
 
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 GetValue = (o, context) =>
                 {
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return memberResult;
                 }
             };
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Dispose = () => disposeObserver = true,
                 GetLastMember = metadata =>
                 {
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return new MemberPathLastMember(target, member);
                 }
             };
@@ -119,20 +119,20 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     list.ShouldEqual(values.Select(o =>
                     {
                         if (o is IMemberPathObserver ob)
-                            o = ob.GetLastMember(DefaultMetadata).GetValueOrThrow(DefaultMetadata)!;
+                            o = ob.GetLastMember(Metadata).GetValueOrThrow(Metadata)!;
                         return new ParameterValue(o.GetType(), o);
                     }));
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return result;
                 }
             };
             var parameterValue = new BindingParameterValue(values, compiledExpression);
-            parameterValue.GetValue<object>(DefaultMetadata).ShouldEqual(BindingMetadata.UnsetValue);
-            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(DefaultMetadata));
+            parameterValue.GetValue<object>(Metadata).ShouldEqual(BindingMetadata.UnsetValue);
+            ShouldThrow<InvalidCastException>(() => parameterValue.GetValue<string>(Metadata));
             invokeCount.ShouldEqual(0);
 
             memberResult = "";
-            parameterValue.GetValue<object>(DefaultMetadata).ShouldEqual(result);
+            parameterValue.GetValue<object>(Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
             parameterValue.Dispose();

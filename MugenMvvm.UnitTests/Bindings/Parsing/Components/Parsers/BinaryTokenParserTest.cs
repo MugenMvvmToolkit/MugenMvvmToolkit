@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Components.Parsers;
 using MugenMvvm.Bindings.Parsing.Expressions;
+using MugenMvvm.Metadata;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -20,7 +21,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotBinaryExpression()
         {
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Get(1)).ShouldBeNull();
         }
 
@@ -28,7 +29,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotSupportBinaryExpression()
         {
             Parser.Tokens.Clear();
-            Context.Initialize("+ 1", DefaultMetadata);
+            Context.Initialize("+ 1", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Get(1)).ShouldBeNull();
         }
 
@@ -41,7 +42,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             Parser.Tokens.Clear();
             Parser.Tokens.Add(tokenType);
 
-            Context.Initialize($"{alias} 2", DefaultMetadata);
+            Context.Initialize($"{alias} 2", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Get(1)).ShouldEqual(new BinaryExpressionNode(tokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
         }
 
@@ -84,7 +85,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                 }
             };
             var result = new BinaryExpressionNode(binaryToken, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
-            context.Initialize($"{binaryToken.Value} {((IConstantExpressionNode)result.Right).Value}", DefaultMetadata);
+            context.Initialize($"{binaryToken.Value} {((IConstantExpressionNode)result.Right).Value}", EmptyMetadataContext.Instance);
             return new object[]
             {
                 context, result.Left, result

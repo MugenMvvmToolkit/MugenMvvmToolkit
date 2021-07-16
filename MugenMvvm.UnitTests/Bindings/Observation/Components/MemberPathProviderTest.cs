@@ -16,16 +16,16 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         }
 
         [Fact]
-        public void TryGetMemberPathShouldReturnEmptyPath() => ObservationManager.TryGetMemberPath("", DefaultMetadata).ShouldEqual(MemberPath.Empty);
+        public void TryGetMemberPathShouldReturnEmptyPath() => ObservationManager.TryGetMemberPath("", Metadata).ShouldEqual(MemberPath.Empty);
 
         [Fact]
-        public void TryGetMemberPathShouldReturnEmptyUnsupportedRequest() => ObservationManager.TryGetMemberPath(this, DefaultMetadata).ShouldBeNull();
+        public void TryGetMemberPathShouldReturnEmptyUnsupportedRequest() => ObservationManager.TryGetMemberPath(this, Metadata).ShouldBeNull();
 
         [Fact]
         public void TryGetMemberPathShouldReturnMultiPath()
         {
             const string member = "Test.Test[T]";
-            var path = ObservationManager.TryGetMemberPath(member, DefaultMetadata)!;
+            var path = ObservationManager.TryGetMemberPath(member, Metadata)!;
             path.Path.ShouldEqual(member);
             path.Members.ShouldEqual(new[] { "Test", "Test", "[T]" });
         }
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
         public void TryGetMemberPathShouldReturnSinglePath()
         {
             const string member = "Test";
-            var path = ObservationManager.TryGetMemberPath(member, DefaultMetadata)!;
+            var path = ObservationManager.TryGetMemberPath(member, Metadata)!;
             path.Path.ShouldEqual(member);
             path.Members.Item.ShouldEqual(member);
         }

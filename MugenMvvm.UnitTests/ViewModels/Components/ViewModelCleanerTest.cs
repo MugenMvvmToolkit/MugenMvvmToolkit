@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 TryGetViews = (_, o, arg3) =>
                 {
                     o.ShouldEqual(viewModel);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return view;
                 }
             });
@@ -103,12 +103,12 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 {
                     ++cleanupCount;
                     v.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return new ValueTask<bool>(true);
                 }
             });
 
-            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, Metadata);
             cleanupCount.ShouldEqual(1);
         }
 
@@ -137,10 +137,10 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                 }
             });
 
-            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposing, this, DefaultMetadata);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposing, this, Metadata);
             closeCount.ShouldEqual(1);
 
-            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, DefaultMetadata);
+            ViewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this, Metadata);
             closeCount.ShouldEqual(1);
         }
 

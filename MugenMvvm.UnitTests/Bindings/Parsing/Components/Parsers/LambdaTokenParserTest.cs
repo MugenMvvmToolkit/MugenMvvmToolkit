@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotLambdaExpression()
         {
             Context.Parsers = new ConstantTokenParser();
-            Context.Initialize(InternalConstant.Null, DefaultMetadata);
+            Context.Initialize(InternalConstant.Null, Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -20,14 +20,14 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldParseLambdaExpression()
         {
             Context.Parsers = new DigitTokenParser();
-            Context.Initialize("() => 1", DefaultMetadata);
+            Context.Initialize("() => 1", Metadata);
 
             Parser.TryParse(Context, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), default));
 
-            Context.Initialize("(p1) => 1", DefaultMetadata);
+            Context.Initialize("(p1) => 1", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] { new ParameterExpressionNode("p1") }));
 
-            Context.Initialize("(p1, p2) => 1", DefaultMetadata);
+            Context.Initialize("(p1, p2) => 1", Metadata);
             Parser.TryParse(Context, null)
                   .ShouldEqual(new LambdaExpressionNode(ConstantExpressionNode.Get(1), new[] { new ParameterExpressionNode("p1"), new ParameterExpressionNode("p2") }));
         }

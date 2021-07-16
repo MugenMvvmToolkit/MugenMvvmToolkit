@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             {
                 VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
             };
-            _context.Initialize(this, this, target, source, default, DefaultMetadata);
+            _context.Initialize(this, this, target, source, default, Metadata);
             _context.Components[BindingParameterNameConstant.EventHandler] = null;
             _component.Initialize(BindingManager, _context);
         }
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return null;
                 }
             };
-            _context.Initialize(this, this, target, source, parameters, DefaultMetadata);
+            _context.Initialize(this, this, target, source, parameters, Metadata);
             _component.Initialize(null!, _context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
@@ -312,13 +312,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            _context.Initialize(targetSrc, sourceSrc, target, source, parameters, DefaultMetadata);
+            _context.Initialize(targetSrc, sourceSrc, target, source, parameters, Metadata);
             _component.Initialize(BindingManager, _context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
             _context.Components[BindingParameterNameConstant.Mode].ShouldBeNull();
             var bindingComponentProvider = (IBindingComponentProvider)_context.Components[BindingParameterNameConstant.EventHandler]!;
-            var bindingComponent = (BindingEventHandler)bindingComponentProvider.TryGetComponent(Binding, targetSrc, sourceSrc, DefaultMetadata)!;
+            var bindingComponent = (BindingEventHandler)bindingComponentProvider.TryGetComponent(Binding, targetSrc, sourceSrc, Metadata)!;
             if (parametersSetting)
                 bindingComponent.ShouldBeType<BindingEventHandler>();
             else
@@ -368,7 +368,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return null;
                 }
             };
-            _context.Initialize(this, this, target, source, default, DefaultMetadata);
+            _context.Initialize(this, this, target, source, default, Metadata);
             _component.Initialize(null!, _context);
             sourceVisitCount.ShouldEqual(1);
             _context.Components.ShouldBeEmpty();

@@ -21,19 +21,19 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
 
         [Fact]
         public void TryGetMembersShouldReturnEmptyResultNoPrefix() =>
-            _provider.TryGetMembers(MemberManager, typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), "test", MemberType.Accessor, Metadata).IsEmpty.ShouldBeTrue();
 
         [Fact]
         public void TryGetMembersShouldReturnFakeMember1()
         {
-            _provider.TryGetMembers(MemberManager, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, DefaultMetadata).Item
+            _provider.TryGetMembers(MemberManager, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, Metadata).Item
                      .ShouldBeType<ConstantMemberInfo>();
-            _provider.TryGetMembers(MemberManager, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _provider.TryGetMembers(MemberManager, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, Metadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
         public void TryGetMembersShouldReturnFakeMember2() =>
-            _provider.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefixSymbol}test", MemberType.Accessor, DefaultMetadata).Item
+            _provider.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefixSymbol}test", MemberType.Accessor, Metadata).Item
                      .ShouldBeType<ConstantMemberInfo>();
 
         protected override IMemberManager GetMemberManager() => new MemberManager(ComponentCollectionManager);

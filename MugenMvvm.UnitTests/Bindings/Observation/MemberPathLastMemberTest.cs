@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             try
             {
-                member.GetValueOrThrow(DefaultMetadata);
+                member.GetValueOrThrow(Metadata);
                 throw new NotSupportedException();
             }
             catch (Exception e)
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 {
                     ++getCount;
                     o.ShouldEqual(target);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return target;
                 },
                 SetValue = (t, v, meta) =>
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                     ++setCount;
                     t.ShouldEqual(target);
                     v.ShouldEqual(value);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                 }
             };
             var member = new MemberPathLastMember(target, memberInfo);
@@ -79,14 +79,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             member.Member.ShouldEqual(memberInfo);
             member.ThrowIfError().ShouldBeTrue();
 
-            member.GetValue(DefaultMetadata).ShouldEqual(target);
+            member.GetValue(Metadata).ShouldEqual(target);
             getCount.ShouldEqual(1);
 
             getCount = 0;
-            member.GetValueOrThrow(DefaultMetadata).ShouldEqual(target);
+            member.GetValueOrThrow(Metadata).ShouldEqual(target);
             getCount.ShouldEqual(1);
 
-            member.TrySetValueWithConvert(value, DefaultMetadata);
+            member.TrySetValueWithConvert(value, Metadata);
             setCount.ShouldEqual(1);
         }
 
@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             member.Target.ShouldEqual(BindingMetadata.UnsetValue);
             member.Member.ShouldEqual(ConstantMemberInfo.Unset);
             member.ThrowIfError().ShouldBeFalse();
-            member.GetValueOrThrow(DefaultMetadata).ShouldEqual(BindingMetadata.UnsetValue);
+            member.GetValueOrThrow(Metadata).ShouldEqual(BindingMetadata.UnsetValue);
         }
     }
 }

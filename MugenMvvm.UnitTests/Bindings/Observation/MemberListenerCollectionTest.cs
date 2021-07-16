@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
 
             l2.TryHandleDefault = false;
             l3.TryHandleDefault = false;
-            collection.Raise(this, this, "", DefaultMetadata);
+            collection.Raise(this, this, "", Metadata);
             collection.AddedCount.ShouldEqual(1);
             collection.RemovedCount.ShouldEqual(0);
 
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
             l1.TryHandleDefault = false;
             l2.TryHandleDefault = false;
             l3.TryHandleDefault = false;
-            collection.Raise(this, this, "", DefaultMetadata);
+            collection.Raise(this, this, "", Metadata);
             collection.AddedCount.ShouldEqual(1);
             collection.RemovedCount.ShouldEqual(1);
 

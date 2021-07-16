@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -52,12 +52,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
-            target.Bind(Delegate, DefaultMetadata, BindingManager).Item.ShouldEqual(Binding);
+            target.Bind(Delegate, Metadata, BindingManager).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -85,12 +85,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     ++invokeCount;
                     o.ShouldEqual(del);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
-            target.Bind(source, del, DefaultMetadata, BindingManager).Item.ShouldEqual(Binding);
+            target.Bind(source, del, Metadata, BindingManager).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -118,12 +118,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     ++invokeCount;
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return new[] { testBuilder, testBuilder };
                 }
             });
 
-            var readOnlyList = target.Bind(request, source, DefaultMetadata, BindingManager);
+            var readOnlyList = target.Bind(request, source, Metadata, BindingManager);
             readOnlyList.Count.ShouldEqual(2);
             readOnlyList[0].ShouldEqual(Binding);
             readOnlyList[1].ShouldEqual(Binding);
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                     ++buildInvokeCount;
                     o.ShouldEqual(target);
                     o1.ShouldEqual(source);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return Binding;
                 }
             };
@@ -155,12 +155,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     ++invokeCount;
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return new[] { testBuilder, testBuilder };
                 }
             });
 
-            target.Bind(request, source, DefaultMetadata, BindingManager, false).IsEmpty.ShouldBeTrue();
+            target.Bind(request, source, Metadata, BindingManager, false).IsEmpty.ShouldBeTrue();
             invokeCount.ShouldEqual(1);
             buildInvokeCount.ShouldEqual(2);
         }
@@ -381,12 +381,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 {
                     ++invokeCount;
                     o.ShouldEqual(Delegate);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
             });
 
-            BindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testBuilder);
+            BindingManager.ParseBindingExpression(Delegate, Metadata).Item.ShouldEqual(testBuilder);
             invokeCount.ShouldEqual(1);
         }
 

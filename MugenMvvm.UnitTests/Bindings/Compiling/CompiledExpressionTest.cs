@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             }
 
             compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(default, DefaultMetadata).ShouldEqual(DefaultMetadata);
+            compiledExpression.Invoke(default, Metadata).ShouldEqual(Metadata);
             compileCount.ShouldEqual(count);
         }
 
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             }
 
             compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(new ParameterValue(typeof(string), value1), DefaultMetadata).ShouldEqual(value1);
+            compiledExpression.Invoke(new ParameterValue(typeof(string), value1), Metadata).ShouldEqual(value1);
             compileCount.ShouldEqual(count);
         }
 
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
             }
 
             compiledExpression.ExpressionBuilders = components.ToArray();
-            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), value1), new ParameterValue(typeof(int), value2) }, DefaultMetadata).ShouldEqual(result);
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), value1), new ParameterValue(typeof(int), value2) }, Metadata).ShouldEqual(result);
             compileCount.ShouldEqual(count);
         }
 
@@ -148,16 +148,16 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                     }
                 }
             };
-            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), DefaultMetadata).ShouldEqual(valueSt);
+            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), Metadata).ShouldEqual(valueSt);
             compileCount.ShouldEqual(1);
 
-            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), DefaultMetadata).ShouldEqual(valueSt);
+            compiledExpression.Invoke(new ParameterValue(typeof(string), valueSt), Metadata).ShouldEqual(valueSt);
             compileCount.ShouldEqual(1);
 
-            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), DefaultMetadata).ShouldEqual(valueInt);
+            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), Metadata).ShouldEqual(valueInt);
             compileCount.ShouldEqual(2);
 
-            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), DefaultMetadata).ShouldEqual(valueInt);
+            compiledExpression.Invoke(new ParameterValue(typeof(int), valueInt), Metadata).ShouldEqual(valueInt);
             compileCount.ShouldEqual(2);
         }
 
@@ -190,17 +190,17 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                     }
                 }
             };
-            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2) }, DefaultMetadata).ShouldEqual(result1);
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2) }, Metadata).ShouldEqual(result1);
             compileCount.ShouldEqual(1);
 
-            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2) }, DefaultMetadata).ShouldEqual(result1);
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(int), valueInt1), new ParameterValue(typeof(int), valueInt2) }, Metadata).ShouldEqual(result1);
             compileCount.ShouldEqual(1);
 
-            compiledExpression.Invoke(new[] { new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2) }, DefaultMetadata)
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2) }, Metadata)
                               .ShouldEqual(result2);
             compileCount.ShouldEqual(2);
 
-            compiledExpression.Invoke(new[] { new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2) }, DefaultMetadata)
+            compiledExpression.Invoke(new[] { new ParameterValue(typeof(float), valueFloat1), new ParameterValue(typeof(float), valueFloat2) }, Metadata)
                               .ShouldEqual(result2);
             compileCount.ShouldEqual(2);
         }
@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                     }
                 }
             };
-            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
+            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), Metadata);
             compiledExpression.Metadata.Count.ShouldEqual(1);
             compiledExpression.Metadata.Get(key1).ShouldEqual(value1);
             compileCount.ShouldEqual(1);
@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
         {
             var member1 = new BindingMemberExpressionNode("test", 0, default, default);
             var compiledExpression = new CompiledExpression(new UnaryExpressionNode(UnaryTokenType.BitwiseNegation, member1));
-            ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => compiledExpression.Invoke(new ParameterValue(typeof(object), 1), Metadata));
         }
 
         [Fact]
@@ -262,7 +262,7 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling
                 }
             };
             MugenService.Configuration.InitializeInstance(compiler);
-            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), DefaultMetadata);
+            compiledExpression.Invoke(new ParameterValue(typeof(int), 1), Metadata);
             compileCount.ShouldEqual(1);
             MugenService.Configuration.Clear<ILambdaExpressionCompiler>();
         }

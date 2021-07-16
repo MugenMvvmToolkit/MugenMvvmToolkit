@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 target.ShouldEqual(this);
                 member.ShouldEqual(eventInfo);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, eventInfo);
             var memberInfo = new EventMemberInfo(name, eventInfo, memberObserver);
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.MemberType.ShouldEqual(MemberType.Event);
             memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance);
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
         }
 

@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     {
                         t.ShouldEqual(target);
                         source.ShouldEqual(s);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         throw exception;
                     }
                 };
@@ -45,12 +45,12 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 TryParseBindingExpression = (_, _, _) => expressions
             });
 
-            var result = BindingManager.TryParseBindingExpression("", DefaultMetadata);
+            var result = BindingManager.TryParseBindingExpression("", Metadata);
             result.Count.ShouldEqual(count);
 
             foreach (var t in result)
             {
-                var binding = (InvalidBinding)t.Build(target, source, DefaultMetadata);
+                var binding = (InvalidBinding)t.Build(target, source, Metadata);
                 binding.Exception.ShouldEqual(exception);
             }
         }
@@ -66,15 +66,15 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 {
                     m.ShouldEqual(BindingManager);
                     o.ShouldEqual(request);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     throw exception;
                 }
             });
 
-            var expression = BindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
+            var expression = BindingManager.TryParseBindingExpression(request, Metadata).Item!;
             expression.ShouldNotBeNull();
 
-            var binding = (InvalidBinding)expression.Build(this, this, DefaultMetadata);
+            var binding = (InvalidBinding)expression.Build(this, this, Metadata);
             binding.Exception.ShouldEqual(exception);
         }
 

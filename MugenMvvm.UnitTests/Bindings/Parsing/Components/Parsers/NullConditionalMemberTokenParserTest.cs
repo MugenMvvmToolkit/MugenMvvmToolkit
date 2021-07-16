@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotNullConditionalExpression()
         {
             Context.Parsers = new DigitTokenParser();
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -21,27 +21,27 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         {
             const string memberName = "Test";
             Context.Parsers = new ITokenParserComponent[] { new MemberTokenParser(), new IndexerTokenParser() };
-            Context.Initialize($"?.{memberName}", DefaultMetadata);
+            Context.Initialize($"?.{memberName}", Metadata);
 
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
 
-            Context.Initialize($"?      .{memberName}", DefaultMetadata);
+            Context.Initialize($"?      .{memberName}", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
 
-            Context.Initialize($"?[{memberName}]", DefaultMetadata);
+            Context.Initialize($"?[{memberName}]", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldEqual(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null),
                 new MemberExpressionNode(null, memberName)));
 
-            Context.Initialize($"?      [{memberName}]", DefaultMetadata);
+            Context.Initialize($"?      [{memberName}]", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldEqual(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null),
                 new MemberExpressionNode(null, memberName)));
 
-            Context.Initialize($"?{memberName}", DefaultMetadata);
+            Context.Initialize($"?{memberName}", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldBeNull();
 
-            Context.Initialize("?.", DefaultMetadata);
+            Context.Initialize("?.", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null).ShouldBeNull();
         }
     }

@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 ++count;
                 target.ShouldEqual(this);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, this);
 
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
@@ -81,11 +81,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             parameterInfo.IsDefined(typeof(ObfuscationAttribute)).ShouldBeTrue();
             parameterInfo.IsDefined(typeof(InlineDataAttribute)).ShouldBeFalse();
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
-            memberInfo.Invoke(this, new object[] { name }, DefaultMetadata).ShouldEqual(name);
+            memberInfo.Invoke(this, new object[] { name }, Metadata).ShouldEqual(name);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var parameters = memberInfo.GetParameters();
             parameters.Count.ShouldEqual(1);
 
-            memberInfo.Invoke(this, new object[] { int.MaxValue }, DefaultMetadata).ShouldEqual(int.MaxValue);
+            memberInfo.Invoke(this, new object[] { int.MaxValue }, Metadata).ShouldEqual(int.MaxValue);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
-            memberInfo.Invoke("st", Array.Empty<object?>(), DefaultMetadata).ShouldEqual('s');
+            memberInfo.Invoke("st", Array.Empty<object?>(), Metadata).ShouldEqual('s');
         }
 
         protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);

@@ -29,14 +29,14 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
             _resolver.Add(name, resource);
             _resolver.Resources.Count.ShouldEqual(1);
             _resolver.Resources[name].ShouldEqual(resource);
-            ResourceManager.TryGetResource(name, this, DefaultMetadata).Resource.ShouldEqual(resource);
+            ResourceManager.TryGetResource(name, this, Metadata).Resource.ShouldEqual(resource);
 
             _resolver.Remove(name);
-            ResourceManager.TryGetResource(name, this, DefaultMetadata).IsResolved.ShouldBeFalse();
+            ResourceManager.TryGetResource(name, this, Metadata).IsResolved.ShouldBeFalse();
         }
 
         [Fact]
-        public void TryGetResourceValueShouldReturnUnresolvedResource() => ResourceManager.TryGetResource("test", this, DefaultMetadata).IsResolved.ShouldBeFalse();
+        public void TryGetResourceValueShouldReturnUnresolvedResource() => ResourceManager.TryGetResource("test", this, Metadata).IsResolved.ShouldBeFalse();
 
         protected override IResourceManager GetResourceManager() => new ResourceManager(ComponentCollectionManager);
     }

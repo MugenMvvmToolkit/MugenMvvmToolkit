@@ -23,12 +23,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.CanRead.ShouldBeTrue();
             memberInfo.CanWrite.ShouldEqual(canWrite);
 
-            memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata).IsEmpty.ShouldBeTrue();
-            memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, new TestWeakEventListener(), Metadata).IsEmpty.ShouldBeTrue();
+            memberInfo.GetValue(this, Metadata).ShouldEqual(result);
             if (canWrite)
-                memberInfo.SetValue(this, result, DefaultMetadata);
+                memberInfo.SetValue(this, result, Metadata);
             else
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, result, DefaultMetadata));
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, result, Metadata));
         }
     }
 }

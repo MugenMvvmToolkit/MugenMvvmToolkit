@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Fact]
         public void TryGetCommandShouldReturnDefaultCommandAnyRequest()
         {
-            var command = CommandManager.TryGetCommand<object>(this, this, DefaultMetadata)!;
+            var command = CommandManager.TryGetCommand<object>(this, this, Metadata)!;
             command.GetComponents<object>().Count.ShouldEqual(1);
             command.GetComponentOptional<CommandEventHandler>().ShouldNotBeNull();
         }
@@ -93,20 +93,20 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var canExecuteValue = true;
             Action<IReadOnlyMetadataContext?> execute = m =>
             {
-                m.ShouldEqual(DefaultMetadata);
+                m.ShouldEqual(Metadata);
                 ++executedCount;
             };
             var canExecute = hasCanExecute
                 ? m =>
                 {
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return canExecuteValue;
                 }
                 : (Func<IReadOnlyMetadataContext?, bool>?)null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
+            var metadata = hasMetadata ? Metadata : null;
 
             var request = DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, threadMode, notifiers, canNotify);
 
@@ -114,13 +114,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateCommandExecutor.IDelegateCommandExecutor>();
-            await component.TryExecuteAsync(command, null, DefaultCancellationToken, DefaultMetadata);
+            await component.TryExecuteAsync(command, null, DefaultCancellationToken, Metadata);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {
-                component.CanExecute(command, null, DefaultMetadata).ShouldEqual(canExecuteValue);
+                component.CanExecute(command, null, Metadata).ShouldEqual(canExecuteValue);
                 canExecuteValue = false;
-                command.CanExecute(null, DefaultMetadata).ShouldEqual(canExecuteValue);
+                command.CanExecute(null, Metadata).ShouldEqual(canExecuteValue);
                 if (notifiers != null)
                     command.GetComponent<CommandEventHandler>().ShouldNotBeNull();
             }

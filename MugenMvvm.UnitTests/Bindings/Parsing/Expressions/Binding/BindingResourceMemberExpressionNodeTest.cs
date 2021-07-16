@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return new ResourceResolverResult(resource);
                 }
             });
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual("");
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return MemberPath.Empty;
                 }
             });
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
             var exp = new BindingResourceMemberExpressionNode(ResourceName, "", 0,
                 BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath |
                 BindingMemberExpressionFlags.ObservableMethods, MemberFlags.All, "M");
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(resource);
+            exp.GetBindingSource(t, src, Metadata).ShouldEqual(resource);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return new ResourceResolverResult(resource);
                 }
             });
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(Path);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
@@ -128,12 +128,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     request.HasStablePath.ShouldBeTrue();
                     request.Optional.ShouldBeTrue();
                     request.Observable.ShouldBeTrue();
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return observer;
                 }
             });
 
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, src, Metadata).ShouldEqual(observer);
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return new ResourceResolverResult(resource);
                 }
             });
@@ -166,7 +166,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(nameof(IDynamicResource.Value) + "." + Path);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
@@ -183,12 +183,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                     request.HasStablePath.ShouldBeTrue();
                     request.Optional.ShouldBeTrue();
                     request.Observable.ShouldBeTrue();
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return observer;
                 }
             });
 
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, src, Metadata).ShouldEqual(observer);
         }
 
         [Theory]
@@ -264,7 +264,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return new ResourceResolverResult(resource);
                 }
             });
@@ -274,13 +274,13 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Expressions.Binding
                 TryGetMemberPath = (_, o, arg3) =>
                 {
                     o.ShouldEqual(Path);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return path;
                 }
             });
 
             var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, 0, default, MemberFlags.All);
-            var target = exp.GetSource(t, src, DefaultMetadata, out var p);
+            var target = exp.GetSource(t, src, Metadata, out var p);
             target.ShouldEqual(resource);
             p.ShouldEqual(path);
         }

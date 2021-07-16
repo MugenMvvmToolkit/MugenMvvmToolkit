@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotConstantExpression()
         {
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldParseConstantExpression()
         {
             const string name = "test";
-            Context.Initialize(name, DefaultMetadata);
+            Context.Initialize(name, Metadata);
             Parser.LiteralToExpression.Clear();
             Parser.LiteralToExpression[name] = ConstantExpressionNode.Null;
 

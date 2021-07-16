@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             _context.SetExpression(constantExpression, result);
             _context.Metadata.Set(BindingMetadata.EventArgs, "");
 
-            _context.Initialize(DefaultMetadata);
+            _context.Initialize(Metadata);
             _context.TryGetExpression(constantExpression).ShouldBeNull();
             _context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }

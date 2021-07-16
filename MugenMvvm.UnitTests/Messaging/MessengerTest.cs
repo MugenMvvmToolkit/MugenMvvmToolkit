@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Messaging
         {
             var sender = new object();
             var message = new object();
-            var ctx = new MessageContext(sender, message, DefaultMetadata);
+            var ctx = new MessageContext(sender, message, Metadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Messaging
                         m.ShouldEqual(Messenger);
                         o.ShouldEqual(sender);
                         o1.ShouldEqual(message);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         if (isLast)
                             return ctx;
                         return null;
@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTests.Messaging
                 });
             }
 
-            Messenger.GetMessageContext(sender, message, DefaultMetadata).ShouldEqual(ctx);
+            Messenger.GetMessageContext(sender, message, Metadata).ShouldEqual(ctx);
             invokeCount.ShouldEqual(count);
         }
 
@@ -66,13 +66,13 @@ namespace MugenMvvm.UnitTests.Messaging
                     TryGetSubscribers = (m, arg3) =>
                     {
                         m.ShouldEqual(Messenger);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return new[] { info };
                     }
                 });
             }
 
-            var result = Messenger.GetSubscribers(DefaultMetadata);
+            var result = Messenger.GetSubscribers(Metadata);
             result.Count.ShouldEqual(count);
             foreach (var messengerSubscriberInfo in result)
                 subscribers.Remove(messengerSubscriberInfo);
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTests.Messaging
         }
 
         [Fact]
-        public void GetSubscribersShouldReturnEmptyListNoComponents() => Messenger.GetSubscribers(DefaultMetadata).ShouldBeEmpty();
+        public void GetSubscribersShouldReturnEmptyListNoComponents() => Messenger.GetSubscribers(Metadata).ShouldBeEmpty();
 
         [Theory]
         [InlineData(1)]
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTests.Messaging
                     {
                         ++invokeCount;
                         m.ShouldEqual(Messenger);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         if (isLast)
                             return true;
                         return false;
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Messaging
                 });
             }
 
-            Messenger.HasSubscribers(DefaultMetadata).ShouldEqual(true);
+            Messenger.HasSubscribers(Metadata).ShouldEqual(true);
             invokeCount.ShouldEqual(count);
         }
 
@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTests.Messaging
         [InlineData(10)]
         public void PublishShouldBeHandledByComponents(int count)
         {
-            var ctx = new MessageContext(new object(), new object(), DefaultMetadata);
+            var ctx = new MessageContext(new object(), new object(), Metadata);
             var invokeCount = 0;
             var result = false;
             for (var i = 0; i < count; i++)
@@ -163,18 +163,18 @@ namespace MugenMvvm.UnitTests.Messaging
                         m.ShouldEqual(Messenger);
                         o.ShouldEqual(this);
                         arg3.ShouldEqual(threadMode);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         return result;
                     }
                 });
             }
 
-            Messenger.TrySubscribe(this, threadMode, DefaultMetadata).ShouldEqual(result);
+            Messenger.TrySubscribe(this, threadMode, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
 
             invokeCount = 0;
             result = true;
-            Messenger.TrySubscribe(this, threadMode, DefaultMetadata).ShouldEqual(result);
+            Messenger.TrySubscribe(this, threadMode, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -220,18 +220,18 @@ namespace MugenMvvm.UnitTests.Messaging
                     {
                         ++invokeCount;
                         m.ShouldEqual(Messenger);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return result;
                     }
                 });
             }
 
-            Messenger.UnsubscribeAll(DefaultMetadata).ShouldEqual(result);
+            Messenger.UnsubscribeAll(Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
 
             invokeCount = 0;
             result = true;
-            Messenger.UnsubscribeAll(DefaultMetadata).ShouldEqual(result);
+            Messenger.UnsubscribeAll(Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -252,18 +252,18 @@ namespace MugenMvvm.UnitTests.Messaging
                         ++invokeCount;
                         m.ShouldEqual(Messenger);
                         o.ShouldEqual(this);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return result;
                     }
                 });
             }
 
-            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldEqual(result);
+            Messenger.TryUnsubscribe(this, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
 
             invokeCount = 0;
             result = true;
-            Messenger.TryUnsubscribe(this, DefaultMetadata).ShouldEqual(result);
+            Messenger.TryUnsubscribe(this, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 

@@ -43,10 +43,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             };
 
             var member = target.GetType().GetProperty(propertyName);
-            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member!, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member!, Metadata);
             observer.IsEmpty.ShouldBeFalse();
 
-            var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
+            var actionToken = observer.TryObserve(target, listener, Metadata);
             listener.InvokeCount.ShouldEqual(0);
 
             target.OnPropertyChanged(propertyName);
@@ -74,10 +74,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             };
 
             var member = new TestAccessorMemberInfo { Name = propertyName };
-            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
 
-            var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
+            var actionToken = observer.TryObserve(target, listener, Metadata);
             listener.InvokeCount.ShouldEqual(0);
 
             target.OnPropertyChanged(propertyName);
@@ -105,10 +105,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             };
 
             var member = new TestAccessorMemberInfo { Name = propertyName };
-            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member, Metadata);
             observer.IsEmpty.ShouldBeFalse();
 
-            var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
+            var actionToken = observer.TryObserve(target, listener, Metadata);
             listener.InvokeCount.ShouldEqual(0);
 
             target.Value!.Raise(target, propertyName, propertyName, null);
@@ -149,10 +149,10 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
             });
 
             var member = target.GetType().GetProperty(propertyName);
-            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member!, DefaultMetadata);
+            var observer = ObservationManager.TryGetMemberObserver(target.GetType(), member!, Metadata);
             observer.IsEmpty.ShouldBeFalse();
 
-            var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
+            var actionToken = observer.TryObserve(target, listener, Metadata);
             actionToken.IsEmpty.ShouldBeFalse();
             listener.InvokeCount.ShouldEqual(0);
 
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Components
 
         [Fact]
         public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest() =>
-            ObservationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            ObservationManager.TryGetMemberObserver(typeof(object), this, Metadata).IsEmpty.ShouldBeTrue();
 
         protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);
     }

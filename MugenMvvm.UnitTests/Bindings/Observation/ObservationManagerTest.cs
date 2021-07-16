@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                         om.ShouldEqual(ObservationManager);
                         t.ShouldEqual(type);
                         o.ShouldEqual(request);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         if (isLast)
                             return result;
                         return default;
@@ -45,12 +45,12 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 ObservationManager.AddComponent(component);
             }
 
-            ObservationManager.TryGetMemberObserver(type, request, DefaultMetadata).ShouldEqual(result);
+            ObservationManager.TryGetMemberObserver(type, request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
         [Fact]
-        public void GetMemberObserverShouldReturnEmptyObserver() => ObservationManager.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+        public void GetMemberObserverShouldReturnEmptyObserver() => ObservationManager.TryGetMemberObserver(typeof(object), this, Metadata).IsEmpty.ShouldBeTrue();
 
         [Theory]
         [InlineData(1)]
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                         om.ShouldEqual(ObservationManager);
                         t.ShouldEqual(target);
                         o.ShouldEqual(request);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         if (isLast)
                             return result;
                         return default;
@@ -82,12 +82,12 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 ObservationManager.AddComponent(component);
             }
 
-            ObservationManager.GetMemberPathObserver(target, request, DefaultMetadata).ShouldEqual(result);
+            ObservationManager.GetMemberPathObserver(target, request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
         [Fact]
-        public void GetMemberPathObserverShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPathObserver(this, this, DefaultMetadata));
+        public void GetMemberPathObserverShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPathObserver(this, this, Metadata));
 
         [Theory]
         [InlineData(1)]
@@ -108,7 +108,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                         ++invokeCount;
                         om.ShouldEqual(ObservationManager);
                         o.ShouldEqual(request);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         if (isLast)
                             return result;
                         return null;
@@ -117,12 +117,12 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                 ObservationManager.AddComponent(component);
             }
 
-            ObservationManager.GetMemberPath(request, DefaultMetadata).ShouldEqual(result);
+            ObservationManager.GetMemberPath(request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
         [Fact]
-        public void GetMemberPathShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPath(this, DefaultMetadata));
+        public void GetMemberPathShouldThrowEmpty() => ShouldThrow<InvalidOperationException>(() => ObservationManager.GetMemberPath(this, Metadata));
 
         protected override IObservationManager GetObservationManager() => GetComponentOwner(ComponentCollectionManager);
 

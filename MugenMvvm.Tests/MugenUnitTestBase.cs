@@ -73,8 +73,8 @@ namespace MugenMvvm.Tests
     public abstract class MugenUnitTestBase : IViewModelLifecycleListener, IServiceProvider, IDisposable
     {
         protected static readonly CancellationToken DefaultCancellationToken = new CancellationTokenSource().Token;
-        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Array.Empty<KeyValuePair<IMetadataContextKey, object?>>());
 
+        private IMetadataContext? _metadata;
         private ListInternal<ActionToken>? _disposeTokens;
         private Dictionary<Type, PropertyInfo>? _services;
         private IMugenApplication? _application;
@@ -157,6 +157,8 @@ namespace MugenMvvm.Tests
 
         protected IServiceProvider ServiceProvider => _serviceProvider ??= GetServiceProvider();
 
+        protected IMetadataContext Metadata => _metadata ??= GetMetadata();
+
         public void Dispose()
         {
             if (_isDisposed)
@@ -210,7 +212,7 @@ namespace MugenMvvm.Tests
                 if (o == null)
                     MugenService.Configuration.Clear<T>();
                 else
-                    MugenService.Configuration.InitializeInstance((T)o);
+                    MugenService.Configuration.InitializeInstance((T) o);
             }, oldService);
         }
 
@@ -223,9 +225,7 @@ namespace MugenMvvm.Tests
 
         protected static NavigationContext GetNavigationContext(object? target = null, NavigationMode? navigationMode = null, NavigationType? navigationType = null,
             string? navigationId = null, INavigationProvider? navigationProvider = null, IReadOnlyMetadataContext? metadata = null) =>
-            new(target, navigationProvider ?? TestNavigationProvider.Instance, navigationId ?? NewId(), navigationType ?? NavigationType.Popup, navigationMode ?? NavigationMode.New
-                ,
-                metadata);
+            new(target, navigationProvider ?? TestNavigationProvider.Instance, navigationId ?? NewId(), navigationType ?? NavigationType.Popup, navigationMode ?? NavigationMode.New, metadata);
 
         protected virtual IAttachedValueManager GetAttachedValueManager()
         {
@@ -240,22 +240,22 @@ namespace MugenMvvm.Tests
         protected virtual IBusyManager GetBusyManager()
         {
             var busyManager = new BusyManager(ComponentCollectionManager);
-            busyManager.AddComponent(new BusyTokenManager { Priority = ComponentPriority.Min });
+            busyManager.AddComponent(new BusyTokenManager {Priority = ComponentPriority.Min});
             return busyManager;
         }
 
         protected virtual IEntityManager GetEntityManager()
         {
             var entityManager = new EntityManager(ComponentCollectionManager);
-            entityManager.AddComponent(new EntityTrackingCollectionProvider(ComponentCollectionManager) { Priority = ComponentPriority.Min });
-            entityManager.AddComponent(new ReflectionEntityStateSnapshotProvider(ReflectionManager) { Priority = ComponentPriority.Min });
+            entityManager.AddComponent(new EntityTrackingCollectionProvider(ComponentCollectionManager) {Priority = ComponentPriority.Min});
+            entityManager.AddComponent(new ReflectionEntityStateSnapshotProvider(ReflectionManager) {Priority = ComponentPriority.Min});
             return entityManager;
         }
 
         protected virtual IReflectionManager GetReflectionManager()
         {
             var reflectionManager = new ReflectionManager(ComponentCollectionManager);
-            reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider { Priority = ComponentPriority.Min });
+            reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider {Priority = ComponentPriority.Min});
             reflectionManager.AddComponent(new ReflectionDelegateProviderCache());
             return reflectionManager;
         }
@@ -263,17 +263,19 @@ namespace MugenMvvm.Tests
         protected virtual IWeakReferenceManager GetWeakReferenceManager()
         {
             var weakReferenceManager = new WeakReferenceManager(ComponentCollectionManager);
-            weakReferenceManager.AddComponent(new WeakReferenceProvider { Priority = ComponentPriority.Min });
+            weakReferenceManager.AddComponent(new WeakReferenceProvider {Priority = ComponentPriority.Min});
             return weakReferenceManager;
         }
 
         protected virtual IMessenger GetMessenger()
         {
             var messenger = new Messenger(ComponentCollectionManager);
-            messenger.AddComponent(new MessagePublisher(ThreadDispatcher) { Priority = ComponentPriority.Min });
-            messenger.AddComponent(new MessengerHandlerSubscriber(ReflectionManager) { Priority = ComponentPriority.Min });
+            messenger.AddComponent(new MessagePublisher(ThreadDispatcher) {Priority = ComponentPriority.Min});
+            messenger.AddComponent(new MessengerHandlerSubscriber(ReflectionManager) {Priority = ComponentPriority.Min});
             return messenger;
         }
+
+        protected virtual IMetadataContext GetMetadata() => new MetadataContext();
 
         protected virtual INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);
 
@@ -282,21 +284,21 @@ namespace MugenMvvm.Tests
         protected virtual ISerializer GetSerializer()
         {
             var serializer = new Serializer(ComponentCollectionManager);
-            serializer.AddComponent(new SerializationManager { Priority = ComponentPriority.Min });
+            serializer.AddComponent(new SerializationManager {Priority = ComponentPriority.Min});
             return serializer;
         }
 
         protected virtual IThreadDispatcher GetThreadDispatcher()
         {
             var threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent { Priority = ComponentPriority.Min });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent {Priority = ComponentPriority.Min});
             return threadDispatcher;
         }
 
         protected virtual IValidationManager GetValidationManager()
         {
             var validationManager = new ValidationManager(ComponentCollectionManager);
-            validationManager.AddComponent(new ValidatorProvider(ComponentCollectionManager) { Priority = ComponentPriority.Min });
+            validationManager.AddComponent(new ValidatorProvider(ComponentCollectionManager) {Priority = ComponentPriority.Min});
             return validationManager;
         }
 
@@ -304,16 +306,16 @@ namespace MugenMvvm.Tests
         {
             var viewModelManager = new ViewModelManager(ComponentCollectionManager);
             viewModelManager.AddComponent(new ViewModelServiceProvider(ReflectionManager, ValidationManager, ThreadDispatcher, ComponentCollectionManager)
-                { Priority = ComponentPriority.Min });
+                {Priority = ComponentPriority.Min});
             viewModelManager.AddComponent(this);
-            viewModelManager.AddComponent(new ViewModelProvider(this) { Priority = ComponentPriority.Min });
+            viewModelManager.AddComponent(new ViewModelProvider(this) {Priority = ComponentPriority.Min});
             return viewModelManager;
         }
 
         protected virtual IViewManager GetViewManager()
         {
             var viewManager = new ViewManager(ComponentCollectionManager);
-            viewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ComponentCollectionManager) { Priority = ComponentPriority.Min });
+            viewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ComponentCollectionManager) {Priority = ComponentPriority.Min});
             return viewManager;
         }
 
@@ -322,7 +324,7 @@ namespace MugenMvvm.Tests
         protected virtual IGlobalValueConverter GetGlobalValueConverter()
         {
             var globalValueConverter = new GlobalValueConverter(ComponentCollectionManager);
-            globalValueConverter.AddComponent(new DefaultGlobalValueConverter { Priority = ComponentPriority.Min });
+            globalValueConverter.AddComponent(new DefaultGlobalValueConverter {Priority = ComponentPriority.Min});
             return globalValueConverter;
         }
 
@@ -335,7 +337,7 @@ namespace MugenMvvm.Tests
         protected virtual IResourceManager GetResourceManager()
         {
             var resourceManager = new ResourceManager(ComponentCollectionManager);
-            resourceManager.AddComponent(new TypeResolver { Priority = ComponentPriority.Min });
+            resourceManager.AddComponent(new TypeResolver {Priority = ComponentPriority.Min});
             return resourceManager;
         }
 
@@ -345,14 +347,19 @@ namespace MugenMvvm.Tests
 
         protected virtual IServiceProvider GetServiceProvider() => new MugenServiceProvider(ViewModelManager);
 
-        protected virtual IMugenApplication GetApplication() => new MugenApplication(null, ComponentCollectionManager);
+        protected virtual IMugenApplication GetApplication()
+        {
+            var app = new MugenApplication(null, ComponentCollectionManager);
+            app.Initialize(PlatformInfo.UnitTest);
+            return app;
+        }
 
         protected virtual ILogger GetLogger() => new Logger(ComponentCollectionManager);
 
         protected virtual ICommandManager GetCommandManager()
         {
             var commandManager = new CommandManager(ComponentCollectionManager);
-            commandManager.AddComponent(new CommandProvider(ThreadDispatcher, ComponentCollectionManager) { Priority = ComponentPriority.Min });
+            commandManager.AddComponent(new CommandProvider(ThreadDispatcher, ComponentCollectionManager) {Priority = ComponentPriority.Min});
             return commandManager;
         }
 

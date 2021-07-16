@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var metadata = new MetadataContext();
             if (name != null && !shouldFail)
                 metadata.Set(NavigationMetadata.ViewName, name);
-            _component.AddMapping(vmType, vType, true, name, name, DefaultMetadata);
+            _component.AddMapping(vmType, vType, true, name, name, Metadata);
 
             try
             {
@@ -41,19 +41,19 @@ namespace MugenMvvm.UnitTests.Views.Components
                 var mapping = ViewManager.GetMappings(vm, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vm.GetType());
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vm.GetType());
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 mapping = ViewManager.GetMappings(vm.GetType(), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vm.GetType());
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 ViewManager.GetMappings(new ViewModelImpl(), metadata).ShouldBeEmpty();
@@ -63,25 +63,25 @@ namespace MugenMvvm.UnitTests.Views.Components
                 mapping = ViewManager.GetMappings(view, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 mapping = ViewManager.GetMappings(view.GetType(), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, view), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
                 mapping.Id.ShouldEqual(name ?? vmType.Name + vType.Name);
 
                 ViewManager.GetMappings(new ViewImpl(), metadata).ShouldBeEmpty();
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var metadata = new MetadataContext();
             if (name != null && !shouldFail)
                 metadata.Set(NavigationMetadata.ViewName, name);
-            _component.AddMapping(vmType, vType, false, name, null, DefaultMetadata);
+            _component.AddMapping(vmType, vType, false, name, null, Metadata);
 
             try
             {
@@ -115,88 +115,88 @@ namespace MugenMvvm.UnitTests.Views.Components
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(vm.GetType(), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 vm = new ViewModelImpl();
                 mapping = ViewManager.GetMappings(vm, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(vm.GetType(), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 var view = new BaseView();
                 mapping = ViewManager.GetMappings(view, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(view.GetType(), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 view = new ViewImpl();
                 mapping = ViewManager.GetMappings(view, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(view.GetType(), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(id, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, view), metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
             }
             catch
             {
@@ -214,75 +214,75 @@ namespace MugenMvvm.UnitTests.Views.Components
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
             var id = $"{vmType.Name}{vType.Name}{name}";
-            _component.AddMapping(vmType, vType, false, name, null, DefaultMetadata);
+            _component.AddMapping(vmType, vType, false, name, null, Metadata);
 
             try
             {
                 var vm = new TestViewModel();
                 if (name != null && !shouldFail)
                     vm.Metadata.Set(NavigationMetadata.ViewName, name);
-                var mapping = ViewManager.GetMappings(vm, DefaultMetadata).Single();
+                var mapping = ViewManager.GetMappings(vm, Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
-                mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 vm = new ViewModelImpl();
                 if (name != null && !shouldFail)
                     vm.Metadata.Set(NavigationMetadata.ViewName, name);
-                mapping = ViewManager.GetMappings(vm, DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(vm, Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
-                mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, null), Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 var view = new BaseView();
                 if (name != null && !shouldFail)
                     view.Metadata.Set(NavigationMetadata.ViewName, name);
-                mapping = ViewManager.GetMappings(view, DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(view, Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
-                mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
                 view = new ViewImpl();
                 if (name != null && !shouldFail)
                     view.Metadata.Set(NavigationMetadata.ViewName, name);
-                mapping = ViewManager.GetMappings(view, DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(view, Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
-                mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(new ViewModelViewRequest(null, view), Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
 
-                mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, view), DefaultMetadata).Single();
+                mapping = ViewManager.GetMappings(new ViewModelViewRequest(vm, view), Metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Id.ShouldEqual(id);
-                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Metadata.ShouldEqual(Metadata);
             }
             catch
             {
@@ -296,13 +296,13 @@ namespace MugenMvvm.UnitTests.Views.Components
         {
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
-            _component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);
+            _component.AddMapping(vmType, vType, false, null, null, Metadata);
 
             var vm = new TestViewModel();
-            ViewManager.GetMappings(vm, DefaultMetadata).Single().ShouldNotBeNull();
+            ViewManager.GetMappings(vm, Metadata).Single().ShouldNotBeNull();
 
             _component.ClearMappings();
-            ViewManager.GetMappings(vm, DefaultMetadata).ShouldBeEmpty();
+            ViewManager.GetMappings(vm, Metadata).ShouldBeEmpty();
         }
 
         [Fact]

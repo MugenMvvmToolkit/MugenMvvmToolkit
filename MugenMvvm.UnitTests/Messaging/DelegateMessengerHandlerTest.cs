@@ -22,8 +22,8 @@ namespace MugenMvvm.UnitTests.Messaging
             var sender = new object();
             var msg1 = new object();
             var msg2 = "test";
-            var messageContext1 = new MessageContext(sender, msg1, DefaultMetadata);
-            var messageContext2 = new MessageContext(sender, msg2, DefaultMetadata);
+            var messageContext1 = new MessageContext(sender, msg1, Metadata);
+            var messageContext2 = new MessageContext(sender, msg2, Metadata);
 
             var count = 0;
             var subscriber = new DelegateMessengerHandler<string>((o, s, arg3) =>

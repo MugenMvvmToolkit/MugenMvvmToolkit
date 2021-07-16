@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Wrapping
                     ++executeCount;
                     targetType.ShouldEqual(expectedTargetType);
                     wrapperType.ShouldEqual(wrapperType);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return result;
                 }, (o, type1, arg4) => null)
                 {
@@ -37,12 +37,12 @@ namespace MugenMvvm.UnitTests.Wrapping
                 });
             }
 
-            WrapperManager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
+            WrapperManager.CanWrap(expectedWrapperType, expectedTargetType, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             result = true;
-            WrapperManager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
+            WrapperManager.CanWrap(expectedWrapperType, expectedTargetType, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
 
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTests.Wrapping
                         ++executeCount;
                         t.ShouldEqual(WrapperManager);
                         wrapperType.ShouldEqual(expectedWrapperType);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         if (isLast)
                             return result;
                         return null;
@@ -80,18 +80,18 @@ namespace MugenMvvm.UnitTests.Wrapping
                         m.ShouldEqual(WrapperManager);
                         wrapper.ShouldEqual(result);
                         item.ShouldEqual(WrapperManager);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     }
                 });
             }
 
-            WrapperManager.Wrap(expectedWrapperType, WrapperManager, DefaultMetadata).ShouldEqual(result);
+            WrapperManager.Wrap(expectedWrapperType, WrapperManager, Metadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
             listenerExecuteCount.ShouldEqual(count);
         }
 
         [Fact]
-        public void WrapShouldThrowNoComponents() => ShouldThrow<ArgumentException>(() => WrapperManager.Wrap(typeof(IComponent), this, DefaultMetadata));
+        public void WrapShouldThrowNoComponents() => ShouldThrow<ArgumentException>(() => WrapperManager.Wrap(typeof(IComponent), this, Metadata));
 
         protected override IWrapperManager GetWrapperManager() => GetComponentOwner(ComponentCollectionManager);
 

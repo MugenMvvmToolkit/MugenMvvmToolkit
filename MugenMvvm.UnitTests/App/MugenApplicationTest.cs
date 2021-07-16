@@ -40,10 +40,10 @@ namespace MugenMvvm.UnitTests.App
                     app.ShouldEqual(Application);
                     states.Add(viewModelLifecycleState);
                     st.ShouldEqual(state);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                 }
             });
-            Application.Initialize(device, state, flags, DefaultMetadata);
+            Application.Initialize(device, state, flags, Metadata);
             Application.PlatformInfo.ShouldEqual(device);
             Application.Flags.ShouldEqual(flags | ApplicationFlags.Initialized);
             states.Count.ShouldEqual(2);
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.App
             var count = 0;
             var state = ApplicationLifecycleState.Activated;
 
-            Application.IsInState(state, DefaultMetadata).ShouldBeFalse();
+            Application.IsInState(state, Metadata).ShouldBeFalse();
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.App
                     {
                         t.ShouldEqual(Application);
                         s.ShouldEqual(state);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         o.ShouldEqual(Application);
                         ++count;
                         if (isLast)
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.App
                 Application.Components.TryAdd(component);
             }
 
-            Application.IsInState(state, DefaultMetadata).ShouldBeFalse();
+            Application.IsInState(state, Metadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
         }
 
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTests.App
                         app.ShouldEqual(Application);
                         st.ShouldEqual(state);
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         ++invokeCount;
                     },
                     Priority = i
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.App
                 Application.AddComponent(component);
             }
 
-            Application.OnLifecycleChanged(lifecycleState, state, DefaultMetadata);
+            Application.OnLifecycleChanged(lifecycleState, state, Metadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.App
                         app.ShouldEqual(Application);
                         e.ShouldEqual(ex);
                         t.ShouldEqual(type);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         ++invokeCount;
                     },
                     Priority = i
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTests.App
                 Application.AddComponent(component);
             }
 
-            Application.OnUnhandledException(ex, type, DefaultMetadata);
+            Application.OnUnhandledException(ex, type, Metadata);
             invokeCount.ShouldEqual(count);
         }
 

@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
             var vm = new TestViewModelBase(ViewModelManager);
             if (vmMetadata)
                 vm.Metadata.Set(ViewModelMetadata.ParentViewModel, parentVm);
-            var meta = vmMetadata ? DefaultMetadata : ViewModelMetadata.ParentViewModel.ToContext(parentVm);
+            var meta = vmMetadata ? Metadata : ViewModelMetadata.ParentViewModel.ToContext(parentVm);
 
             parentVm.Messenger.ShouldEqual(messenger);
             parentVm.BusyManager.ShouldEqual(BusyManager);

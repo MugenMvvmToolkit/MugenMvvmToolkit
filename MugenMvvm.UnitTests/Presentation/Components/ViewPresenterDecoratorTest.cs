@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(view);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return new[] { v1, v2 };
                 }
             });
@@ -57,11 +57,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryClose = (_, o, arg4, arg5) =>
                 {
                     closedVms.Add(o);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return presenterResult;
                 }
             });
-            Presenter.TryClose(view, default, DefaultMetadata).ShouldEqual(new[] { presenterResult, presenterResult });
+            Presenter.TryClose(view, default, Metadata).ShouldEqual(new[] { presenterResult, presenterResult });
             invokeCount.ShouldEqual(1);
             closedVms.Count.ShouldEqual(2);
             closedVms.Contains(v1.ViewModel).ShouldBeTrue();
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryGetMappings = (_, o, arg4) =>
                 {
                     o.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return mapping;
                 }
             });
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryGetViewModel = (_, o, arg4) =>
                 {
                     o.ShouldEqual(mapping.ViewModelType);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return viewModel;
                 }
             });
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryGetNavigationCallbacks = (_, o, arg4) =>
                 {
                     o.ShouldEqual(presenterResult);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return callback;
                 }
             });
@@ -117,11 +117,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     var viewRequest = (ViewModelViewRequest)o;
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return presenterResult;
                 }
             });
-            Presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
+            Presenter.TryShow(request, default, Metadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
             callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(disposeViewModel ? 1 : 0);
@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return new[] { ViewMapping.Undefined, ViewMapping.Undefined };
                 }
             });
@@ -149,11 +149,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryShow = (_, o, arg4, arg5) =>
                 {
                     o.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return presenterResult;
                 }
             });
-            Presenter.TryShow(view, default, DefaultMetadata).ShouldEqual(presenterResult);
+            Presenter.TryShow(view, default, Metadata).ShouldEqual(presenterResult);
             invokeCount.ShouldEqual(1);
         }
 
@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 {
                     ++invokeCount;
                     o.ShouldEqual(view);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return new[] { new View(ViewMapping.Undefined, view, new TestViewModel()), new View(ViewMapping.Undefined, view, new TestViewModel()) };
                 }
             });
@@ -180,11 +180,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryShow = (_, o, arg4, arg5) =>
                 {
                     o.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return presenterResult;
                 }
             });
-            Presenter.TryShow(view, default, DefaultMetadata).ShouldEqual(presenterResult);
+            Presenter.TryShow(view, default, Metadata).ShouldEqual(presenterResult);
             invokeCount.ShouldEqual(1);
         }
 
@@ -198,11 +198,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryShow = (_, o, arg4, arg5) =>
                 {
                     o.ShouldEqual(request);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return presenterResult;
                 }
             });
-            Presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
+            Presenter.TryShow(request, default, Metadata).ShouldEqual(presenterResult);
         }
 
         [Theory]
@@ -224,7 +224,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryGetViews = (_, o, context) =>
                 {
                     o.ShouldEqual(view);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                     return viewObj;
                 }
             });
@@ -233,7 +233,7 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                 TryGetNavigationCallbacks = (_, o, arg4) =>
                 {
                     o.ShouldEqual(presenterResult);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return callback;
                 }
             });
@@ -246,11 +246,11 @@ namespace MugenMvvm.UnitTests.Presentation.Components
                     var viewRequest = (ViewModelViewRequest)o;
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     return presenterResult;
                 }
             });
-            Presenter.TryShow(request, default, DefaultMetadata).ShouldEqual(presenterResult);
+            Presenter.TryShow(request, default, Metadata).ShouldEqual(presenterResult);
             disposeCount.ShouldEqual(0);
             callback.SetResult(new NavigationContext(viewModel, NavigationProvider.System, "d", NavigationType.Alert, NavigationMode.Close));
             disposeCount.ShouldEqual(0);

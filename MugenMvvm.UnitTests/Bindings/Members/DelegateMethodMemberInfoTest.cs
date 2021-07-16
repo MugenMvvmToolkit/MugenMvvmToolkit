@@ -55,11 +55,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     member.ShouldEqual(m);
                     target.ShouldEqual(t);
                     objects.ShouldEqual(args);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return result;
                 }, null, null, null, null);
             m = memberInfo;
-            memberInfo.Invoke(t, objects, DefaultMetadata).ShouldEqual(result);
+            memberInfo.Invoke(t, objects, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var values = new object[] { this };
             var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null,
                 (member, target, args, metadata) => "", null, null, null, null);
-            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldBeNull();
+            memberInfo.TryGetAccessor(flags, values, Metadata).ShouldBeNull();
 
             var invokeCount = 0;
             var accessor = new TestAccessorMemberInfo();
@@ -94,10 +94,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     member.ShouldEqual(memberInfo);
                     argumentFlags.ShouldEqual(flags);
                     args.ShouldEqual(values);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return accessor;
                 }, null, null);
-            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
+            memberInfo.TryGetAccessor(flags, values, Metadata).ShouldEqual(accessor);
             invokeCount.ShouldEqual(1);
         }
 

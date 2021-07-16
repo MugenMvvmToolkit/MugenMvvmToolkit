@@ -33,13 +33,13 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     c.ShouldEqual(ExpressionCompiler);
                     e.ShouldEqual(expression1);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return new TestCompiledExpression();
                 }
             });
 
-            var memberPathObserver1 = ExpressionCompiler.Compile(expression1, DefaultMetadata);
-            var memberPathObserver2 = ExpressionCompiler.Compile(expression2, DefaultMetadata);
+            var memberPathObserver1 = ExpressionCompiler.Compile(expression1, Metadata);
+            var memberPathObserver2 = ExpressionCompiler.Compile(expression2, Metadata);
             memberPathObserver1.ShouldEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
         }
 
@@ -58,13 +58,13 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     c.ShouldEqual(ExpressionCompiler);
                     e.ShouldEqual(expression1);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return new TestCompiledExpression();
                 }
             });
 
-            var memberPathObserver1 = ExpressionCompiler.Compile(expression1, DefaultMetadata);
-            var memberPathObserver2 = ExpressionCompiler.Compile(expression2, DefaultMetadata);
+            var memberPathObserver1 = ExpressionCompiler.Compile(expression1, Metadata);
+            var memberPathObserver2 = ExpressionCompiler.Compile(expression2, Metadata);
             memberPathObserver1.ShouldEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
         }
 
@@ -78,24 +78,24 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 {
                     c.ShouldEqual(ExpressionCompiler);
                     e.ShouldEqual(expression);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return new TestCompiledExpression();
                 }
             });
 
-            var memberPathObserver1 = ExpressionCompiler.Compile(expression, DefaultMetadata);
-            var memberPathObserver2 = ExpressionCompiler.Compile(expression, DefaultMetadata);
+            var memberPathObserver1 = ExpressionCompiler.Compile(expression, Metadata);
+            var memberPathObserver2 = ExpressionCompiler.Compile(expression, Metadata);
             memberPathObserver1.ShouldEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
 
             ExpressionCompiler.TryInvalidateCache();
-            memberPathObserver2 = ExpressionCompiler.Compile(expression, DefaultMetadata);
+            memberPathObserver2 = ExpressionCompiler.Compile(expression, Metadata);
             memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
 
-            memberPathObserver1 = ExpressionCompiler.Compile(expression, DefaultMetadata);
+            memberPathObserver1 = ExpressionCompiler.Compile(expression, Metadata);
             memberPathObserver1.ShouldEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
 
             ExpressionCompiler.TryInvalidateCache(expression);
-            memberPathObserver2 = ExpressionCompiler.Compile(expression, DefaultMetadata);
+            memberPathObserver2 = ExpressionCompiler.Compile(expression, Metadata);
             memberPathObserver1.ShouldNotEqual(memberPathObserver2, ReferenceEqualityComparer.Instance);
         }
 

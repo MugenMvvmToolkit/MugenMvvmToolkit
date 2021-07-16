@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotDigitExpression()
         {
-            Context.Initialize(InternalConstant.Null, DefaultMetadata);
+            Context.Initialize(InternalConstant.Null, Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldParseCustomDigitExpression()
         {
             var invokeCount = 0;
-            Context.Initialize("1dp", DefaultMetadata);
+            Context.Initialize("1dp", Metadata);
             Parser.PostfixToConverter.Clear();
             Parser.PostfixToConverter["dp"] = (value, integer, postfix, context, format) =>
             {
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
             if (expression.EndsWith("m", StringComparison.OrdinalIgnoreCase))
                 result = Convert.ToDecimal(result);
 
-            Context.Initialize(expression, DefaultMetadata);
+            Context.Initialize(expression, Metadata);
             if (result == null)
                 Parser.TryParse(Context, null).ShouldBeNull();
             else

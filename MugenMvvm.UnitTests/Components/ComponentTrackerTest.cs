@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Components
         [InlineData(10, 10)]
         public void AddShouldUpdateComponents(int listenersCount, int componentCount)
         {
-            _componentTracker.Attach(_componentCollection, DefaultMetadata);
+            _componentTracker.Attach(_componentCollection, Metadata);
             var executed = 0;
             var expectedCount = 0;
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Components
                 {
                     ++executed;
                     s.ShouldEqual(this);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     components.Count.ShouldEqual(expectedCount);
                     _componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Components
             {
                 ++expectedCount;
                 executed = 0;
-                _componentCollection.TryAdd(new TestAttachableComponent<object>(), DefaultMetadata);
+                _componentCollection.TryAdd(new TestAttachableComponent<object>(), Metadata);
                 executed.ShouldEqual(listenersCount);
             }
         }
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTests.Components
                 {
                     ++executed;
                     s.ShouldEqual(this);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     expectedComponents.ShouldEqual(components);
                 }, this);
             }
@@ -78,12 +78,12 @@ namespace MugenMvvm.UnitTests.Components
                 _componentCollection.TryAdd(new TestAttachableComponent<object>());
 
             expectedComponents = _componentCollection.Get<IComponent>();
-            _componentTracker.Attach(_componentCollection, DefaultMetadata);
+            _componentTracker.Attach(_componentCollection, Metadata);
             executed.ShouldEqual(listenersCount);
 
             executed = 0;
             expectedComponents = Array.Empty<IComponent>();
-            _componentTracker.Detach(_componentCollection, DefaultMetadata);
+            _componentTracker.Detach(_componentCollection, Metadata);
             executed.ShouldEqual(listenersCount);
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Components
         {
             for (var i = 0; i < componentCount; i++)
                 _componentCollection.TryAdd(new TestAttachableComponent<object>());
-            _componentTracker.Attach(_componentCollection, DefaultMetadata);
+            _componentTracker.Attach(_componentCollection, Metadata);
             var executed = 0;
             var expectedCount = componentCount;
 
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Components
                 {
                     ++executed;
                     s.ShouldEqual(this);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     components.Count.ShouldEqual(expectedCount);
                     _componentCollection.Get<IComponent>().ShouldEqual(components);
                 }, this);
@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTests.Components
             {
                 --expectedCount;
                 executed = 0;
-                _componentCollection.Remove(c, DefaultMetadata);
+                _componentCollection.Remove(c, Metadata);
                 executed.ShouldEqual(listenersCount);
             }
         }

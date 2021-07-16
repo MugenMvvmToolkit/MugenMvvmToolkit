@@ -26,10 +26,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
         [Fact]
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
-            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsEmpty.ShouldBeTrue();
-            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Array.Empty<Type>()), DefaultMetadata).IsEmpty
+            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, "", Metadata).IsEmpty.ShouldBeTrue();
+            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, new MemberTypesRequest("", Array.Empty<Type>()), Metadata).IsEmpty
                       .ShouldBeTrue();
-            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            _decorator.TryGetMembers(MemberManager, typeof(object), MemberType.All, MemberFlags.All, this, Metadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
-                    meta.ShouldEqual(DefaultMetadata);
+                    meta.ShouldEqual(Metadata);
                     return members;
                 }
             });
@@ -66,12 +66,12 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Components
                     types.ShouldEqual(memberType);
                     type.ShouldEqual(t);
                     s.ShouldEqual(request.Name);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return members;
                 }
             });
 
-            var list = MemberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
+            var list = MemberManager.TryGetMembers(type, memberType, memberFlags, request, Metadata);
             list.ShouldEqual(expectedResult);
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);

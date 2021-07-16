@@ -34,11 +34,11 @@ namespace MugenMvvm.UnitTests.Validation
                 ++invokeCount;
             };
 
-            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, DefaultMetadata);
+            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, Metadata);
             invokeCount.ShouldEqual(1);
 
             Validator.Dispose();
-            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, DefaultMetadata);
+            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

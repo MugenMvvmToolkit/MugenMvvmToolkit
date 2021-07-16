@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     m.ShouldEqual(BindingManager);
                     o.ShouldEqual(target);
                     b.ShouldEqual(Binding);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return true;
                 },
                 TryUnregister = (m, o, b, arg3) =>
@@ -35,18 +35,18 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     m.ShouldEqual(BindingManager);
                     o.ShouldEqual(target);
                     b.ShouldEqual(Binding);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return true;
                 }
             });
             BindingManager.AddComponent(new BindingHolderLifecycleHandler());
 
             Binding.Target = new TestMemberPathObserver { Target = target };
-            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
+            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Initialized, this, Metadata);
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(0);
 
-            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Disposed, this, DefaultMetadata);
+            BindingManager.OnLifecycleChanged(Binding, BindingLifecycleState.Disposed, this, Metadata);
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 

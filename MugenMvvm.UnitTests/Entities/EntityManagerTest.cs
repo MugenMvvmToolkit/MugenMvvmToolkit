@@ -13,11 +13,11 @@ namespace MugenMvvm.UnitTests.Entities
     public class EntityManagerTest : ComponentOwnerTestBase<EntityManager>
     {
         [Fact]
-        public void GetSnapshotShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => EntityManager.GetSnapshot(this, DefaultMetadata));
+        public void GetSnapshotShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => EntityManager.GetSnapshot(this, Metadata));
 
         [Fact]
         public void GetTrackingCollectionShouldThrowNoComponents() =>
-            ShouldThrow<InvalidOperationException>(() => EntityManager.GetTrackingCollection(EntityManager, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => EntityManager.GetTrackingCollection(EntityManager, Metadata));
 
         [Theory]
         [InlineData(1)]
@@ -36,13 +36,13 @@ namespace MugenMvvm.UnitTests.Entities
                         ++count;
                         m.ShouldEqual(EntityManager);
                         e.ShouldEqual(entity);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return snapshot;
                     }
                 });
             }
 
-            var stateSnapshot = EntityManager.TryGetSnapshot(entity, DefaultMetadata);
+            var stateSnapshot = EntityManager.TryGetSnapshot(entity, Metadata);
             stateSnapshot.ShouldEqual(snapshot);
             count.ShouldEqual(1);
         }
@@ -70,13 +70,13 @@ namespace MugenMvvm.UnitTests.Entities
                         m.ShouldEqual(EntityManager);
                         o.ShouldEqual(snapshot);
                         e.ShouldEqual(entity);
-                        arg5.ShouldEqual(DefaultMetadata);
+                        arg5.ShouldEqual(Metadata);
                         ++count;
                     }
                 });
             }
 
-            EntityManager.TryGetSnapshot(entity, DefaultMetadata);
+            EntityManager.TryGetSnapshot(entity, Metadata);
             count.ShouldEqual(componentCount);
         }
 
@@ -96,13 +96,13 @@ namespace MugenMvvm.UnitTests.Entities
                         ++count;
                         m.ShouldEqual(EntityManager);
                         o.ShouldEqual(this);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return collection;
                     }
                 });
             }
 
-            var trackingCollection = EntityManager.TryGetTrackingCollection(this, DefaultMetadata);
+            var trackingCollection = EntityManager.TryGetTrackingCollection(this, Metadata);
             trackingCollection.ShouldEqual(collection);
             count.ShouldEqual(1);
         }
@@ -129,13 +129,13 @@ namespace MugenMvvm.UnitTests.Entities
                         m.ShouldEqual(EntityManager);
                         o.ShouldEqual(collection);
                         arg3.ShouldEqual(EntityManager);
-                        arg5.ShouldEqual(DefaultMetadata);
+                        arg5.ShouldEqual(Metadata);
                         ++count;
                     }
                 });
             }
 
-            EntityManager.TryGetTrackingCollection(EntityManager, DefaultMetadata);
+            EntityManager.TryGetTrackingCollection(EntityManager, Metadata);
             count.ShouldEqual(componentCount);
         }
 

@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 (member, target, value, metadata) => { }, null, null);
             memberInfo.CanRead.ShouldBeFalse();
             memberInfo.CanWrite.ShouldBeTrue();
-            ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, Metadata));
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 (member, target, metadata) => "", null, null, null);
             memberInfo.CanRead.ShouldBeTrue();
             memberInfo.CanWrite.ShouldBeFalse();
-            ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, "", Metadata));
         }
 
         [Fact]
@@ -44,11 +44,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     ++invokeCount;
                     member.ShouldEqual(m);
                     target.ShouldEqual(t);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return result;
                 }, null, null, null);
             m = memberInfo;
-            memberInfo.GetValue(t, DefaultMetadata).ShouldEqual(result);
+            memberInfo.GetValue(t, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -65,11 +65,11 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                     ++invokeCount;
                     member.ShouldEqual(m);
                     target.ShouldEqual(t);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     value.ShouldEqual(v);
                 }, null, null);
             m = memberInfo;
-            memberInfo.SetValue(t, v, DefaultMetadata);
+            memberInfo.SetValue(t, v, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

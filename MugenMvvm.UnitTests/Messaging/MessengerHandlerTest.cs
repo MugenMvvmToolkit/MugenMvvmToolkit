@@ -13,13 +13,13 @@ namespace MugenMvvm.UnitTests.Messaging
         public void HandleShouldReturnIgnoredDefault()
         {
             MessengerHandler handler = default;
-            handler.Handle(new MessageContext(new object(), new object(), DefaultMetadata)).ShouldEqual(MessengerResult.Ignored);
+            handler.Handle(new MessageContext(new object(), new object(), Metadata)).ShouldEqual(MessengerResult.Ignored);
         }
 
         [Fact]
         public void HandleShouldUseDelegate()
         {
-            var messageContext = new MessageContext(new object(), new object(), DefaultMetadata);
+            var messageContext = new MessageContext(new object(), new object(), Metadata);
             var subscriber = new object();
             var executionMode = ThreadExecutionMode.MainAsync;
             var state = new object();

@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Presentation
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var result = new PresenterResult(this, i.ToString(), TestNavigationProvider.Instance, NavigationType.Alert, DefaultMetadata);
+                var result = new PresenterResult(this, i.ToString(), TestNavigationProvider.Instance, NavigationType.Alert, Metadata);
                 results.Add(result);
                 var component = new TestPresenterComponent
                 {
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTests.Presentation
                         ++invokeCount;
                         p.ShouldEqual(Presenter);
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         arg4.ShouldEqual(DefaultCancellationToken);
                         return new[] { result };
                     },
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 Presenter.AddComponent(component);
             }
 
-            Presenter.Show(request, DefaultCancellationToken, DefaultMetadata).ShouldEqual(results);
+            Presenter.Show(request, DefaultCancellationToken, Metadata).ShouldEqual(results);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Presentation
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+                var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, Metadata);
                 results.Add(result);
                 var component = new TestPresenterComponent
                 {
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTests.Presentation
                         ++invokeCount;
                         p.ShouldEqual(Presenter);
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         arg4.ShouldEqual(DefaultCancellationToken);
                         return new[] { result };
                     },
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 Presenter.AddComponent(component);
             }
 
-            Presenter.TryClose(request, DefaultCancellationToken, DefaultMetadata).ShouldEqual(results);
+            Presenter.TryClose(request, DefaultCancellationToken, Metadata).ShouldEqual(results);
             invokeCount.ShouldEqual(componentCount);
         }
 

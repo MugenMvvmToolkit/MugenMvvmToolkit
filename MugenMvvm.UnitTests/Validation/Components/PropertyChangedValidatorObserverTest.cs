@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             _vm.Messenger.ShouldEqual(Messenger);
             invokeCount.ShouldEqual(0);
-            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, DefaultMetadata);
+            Validator.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(Validator, propertyName, Metadata);
             invokeCount.ShouldEqual(1);
         }
 

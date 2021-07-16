@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotStringExpression()
         {
             Context.Parsers = new DigitTokenParser();
-            Context.Initialize("1", DefaultMetadata);
+            Context.Initialize("1", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [InlineData("@t\"\"", null)]
         public void TryParseShouldParseStringExpression(string expression, object result)
         {
-            Context.Initialize(expression, DefaultMetadata);
+            Context.Initialize(expression, Metadata);
             if (result == null)
                 Parser.TryParse(Context, null).ShouldBeNull();
             else
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     ConstantExpressionNode.Get("{0} test {1}"),
                     new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)), ConstantExpressionNode.Get(2)
                 }, new string[0]);
-            Context.Initialize("$@'{1+1} test {2}'", DefaultMetadata);
+            Context.Initialize("$@'{1+1} test {2}'", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(expected);
 
             expected = new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     ConstantExpressionNode.Get("{0:n} test {1:t}"),
                     new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)), ConstantExpressionNode.Get(2)
                 }, new string[0]);
-            Context.Initialize("@$'{1+1:n} test {2:t}'", DefaultMetadata);
+            Context.Initialize("@$'{1+1:n} test {2:t}'", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(expected);
 
             expected = new MethodCallExpressionNode(TypeAccessExpressionNode.Get<string>(), nameof(string.Format),
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
                     ConstantExpressionNode.Get("{0:n} {test} {1:t}"),
                     new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(1)), ConstantExpressionNode.Get(2)
                 }, new string[0]);
-            Context.Initialize("$'{1+1:n} {{test}} {2:t}'", DefaultMetadata);
+            Context.Initialize("$'{1+1:n} {{test}} {2:t}'", Metadata);
             Parser.TryParse(Context, null).ShouldEqual(expected);
         }
     }

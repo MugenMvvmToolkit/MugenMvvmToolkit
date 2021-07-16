@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTests.Bindings.Converting
                         o.ShouldEqual(value);
                         type1.ShouldEqual(type);
                         arg3.ShouldEqual(member);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         if (isLast)
                         {
                             o = result;
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Bindings.Converting
                 GlobalValueConverter.AddComponent(component);
             }
 
-            GlobalValueConverter.Convert(value, type, member, DefaultMetadata).ShouldEqual(result);
+            GlobalValueConverter.Convert(value, type, member, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 

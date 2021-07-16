@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         [Fact]
         public void TryParseShouldIgnoreNotIndexerExpression()
         {
-            Context.Initialize(InternalConstant.Null, DefaultMetadata);
+            Context.Initialize(InternalConstant.Null, Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
 
@@ -24,17 +24,17 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Parsers
         public void TryParseShouldParseIndexerExpression()
         {
             Context.Parsers = new DigitTokenParser();
-            Context.Initialize("[1,2 , 3]", DefaultMetadata);
+            Context.Initialize("[1,2 , 3]", Metadata);
 
             Parser.TryParse(Context, null)
                   .ShouldEqual(new IndexExpressionNode(null, new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3) }));
 
-            Context.Initialize("[1,2 , 3]", DefaultMetadata);
+            Context.Initialize("[1,2 , 3]", Metadata);
             Parser.TryParse(Context, ConstantExpressionNode.Null)
                   .ShouldEqual(new IndexExpressionNode(ConstantExpressionNode.Null,
                       new[] { ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(3) }));
 
-            Context.Initialize("[1,2,]", DefaultMetadata);
+            Context.Initialize("[1,2,]", Metadata);
             Parser.TryParse(Context, null).ShouldBeNull();
         }
     }

@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                     ++attachedInvokeCount;
                     member.ShouldEqual(memberInfo);
                     t.ShouldEqual(target);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                 });
             }
 
@@ -51,22 +51,22 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 {
                     t.ShouldEqual(isStatic ? typeof(object) : target);
                     message.ShouldEqual(msg);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                     return true;
                 }
             };
-            var actionToken = memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
-            memberInfo.Raise(target, message, DefaultMetadata);
+            var actionToken = memberInfo.TryObserve(target, testEventHandler, Metadata);
+            memberInfo.Raise(target, message, Metadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
                 attachedInvokeCount.ShouldEqual(1);
 
             actionToken.Dispose();
-            memberInfo.Raise(target, message, DefaultMetadata);
+            memberInfo.Raise(target, message, Metadata);
             testEventHandler.InvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
             {
-                memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
+                memberInfo.TryObserve(target, testEventHandler, Metadata);
                 attachedInvokeCount.ShouldEqual(1);
             }
         }
@@ -113,7 +113,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 member.ShouldEqual(memberInfo);
                 o.ShouldEqual(target);
                 listener.ShouldEqual(testEventHandler);
-                metadata.ShouldEqual(DefaultMetadata);
+                metadata.ShouldEqual(Metadata);
                 return result;
             }, (member, o, msg, metadata) =>
             {
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                 member.ShouldEqual(memberInfo);
                 o.ShouldEqual(target);
                 msg.ShouldEqual(message);
-                metadata.ShouldEqual(DefaultMetadata);
+                metadata.ShouldEqual(Metadata);
             });
             if (withAttachedHandler)
             {
@@ -130,17 +130,17 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
                     ++attachedInvokeCount;
                     member.ShouldEqual(memberInfo);
                     t.ShouldEqual(target);
-                    metadata.ShouldEqual(DefaultMetadata);
+                    metadata.ShouldEqual(Metadata);
                 });
             }
 
             if (isStatic)
                 builder = builder.Static();
             memberInfo = builder.Build();
-            memberInfo.TryObserve(target, testEventHandler, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(target, testEventHandler, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(0);
-            memberInfo.Raise(target, message, DefaultMetadata);
+            memberInfo.Raise(target, message, Metadata);
             invokeCount.ShouldEqual(1);
             raiseInvokeCount.ShouldEqual(1);
             if (withAttachedHandler)
@@ -148,7 +148,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members.Builders
 
             if (withAttachedHandler)
             {
-                memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
+                memberInfo.TryObserve(target, testEventHandler, Metadata);
                 attachedInvokeCount.ShouldEqual(1);
             }
         }

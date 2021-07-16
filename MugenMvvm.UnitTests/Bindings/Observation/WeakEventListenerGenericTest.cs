@@ -71,17 +71,17 @@ namespace MugenMvvm.UnitTests.Bindings.Observation
                     ++invokeCount;
                     o.ShouldEqual(sender);
                     o1.ShouldEqual(msg);
-                    m.ShouldEqual(DefaultMetadata);
+                    m.ShouldEqual(Metadata);
                     return result;
                 }
             };
             var listener = new WeakEventListener<object>(target, this);
-            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
+            listener.TryHandle(sender, msg, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
             result = false;
-            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
+            listener.TryHandle(sender, msg, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
     }

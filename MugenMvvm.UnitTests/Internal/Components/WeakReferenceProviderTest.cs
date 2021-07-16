@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTests.Internal.Components
         public void ShouldReturnWeakReference(bool trackResurrection)
         {
             WeakReferenceManager.AddComponent(new WeakReferenceProvider { TrackResurrection = trackResurrection });
-            var weakReference = (WeakReference)WeakReferenceManager.TryGetWeakReference(this, DefaultMetadata)!;
+            var weakReference = (WeakReference)WeakReferenceManager.TryGetWeakReference(this, Metadata)!;
             weakReference.TrackResurrection.ShouldEqual(trackResurrection);
             weakReference.Target.ShouldEqual(this);
         }

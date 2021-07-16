@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         public void GetLastMemberShouldReturnActualMembers()
         {
             var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
-            var members = observer.GetLastMember(DefaultMetadata);
+            var members = observer.GetLastMember(Metadata);
             members.Member.ShouldEqual(ConstantMemberInfo.Target);
             members.Target.ShouldEqual(this);
         }
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         public void GetMembersShouldReturnActualMembers()
         {
             var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
-            var members = observer.GetMembers(DefaultMetadata);
+            var members = observer.GetMembers(Metadata);
             members.Members.Item.ShouldEqual(ConstantMemberInfo.Target);
             members.Target.ShouldEqual(this);
         }
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             });
 
             var observer = new MethodEmptyPathObserver(MethodName, this, flags);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, Metadata),
                 disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 

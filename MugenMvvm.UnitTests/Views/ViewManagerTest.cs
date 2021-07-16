@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Views
         public async Task CleanupAsyncShouldBeHandledByComponents(int componentCount)
         {
             var result = true;
-            var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
+            var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTests.Views
                         m.ShouldEqual(ViewManager);
                         v.ShouldEqual(view);
                         r.ShouldEqual(viewModel);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         token.ShouldEqual(DefaultCancellationToken);
                         if (isLast)
                             return new ValueTask<bool>(result);
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTests.Views
                 ViewManager.AddComponent(component);
             }
 
-            var r = await ViewManager.TryCleanupAsync(view, viewModel, DefaultCancellationToken, DefaultMetadata);
+            var r = await ViewManager.TryCleanupAsync(view, viewModel, DefaultCancellationToken, Metadata);
             r.ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTests.Views
             var view = new object();
             for (var i = 0; i < count; i++)
             {
-                var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
+                var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata);
                 mappings.Add(mapping);
                 ViewManager.AddComponent(new TestViewMappingProviderComponent
                 {
@@ -70,14 +70,14 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         m.ShouldEqual(ViewManager);
                         r.ShouldEqual(view);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         return new[] { mapping };
                     },
                     Priority = -i
                 });
             }
 
-            ViewManager.GetMappings(view, DefaultMetadata).ShouldEqual(mappings);
+            ViewManager.GetMappings(view, Metadata).ShouldEqual(mappings);
         }
 
         [Theory]
@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTests.Views
             var viewModel = new TestViewModel();
             for (var i = 0; i < count; i++)
             {
-                var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
+                var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this, new TestViewModel());
                 views.Add(view);
                 ViewManager.AddComponent(new TestViewProviderComponent
                 {
@@ -97,14 +97,14 @@ namespace MugenMvvm.UnitTests.Views
                     {
                         m.ShouldEqual(ViewManager);
                         r.ShouldEqual(viewModel);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         return new[] { view };
                     },
                     Priority = -i
                 });
             }
 
-            ViewManager.GetViews(viewModel, DefaultMetadata).ShouldEqual(views);
+            ViewManager.GetViews(viewModel, Metadata).ShouldEqual(views);
         }
 
         [Theory]
@@ -112,8 +112,8 @@ namespace MugenMvvm.UnitTests.Views
         [InlineData(10)]
         public async Task InitializeAsyncShouldBeHandledByComponents(int componentCount)
         {
-            var result = new ValueTask<IView?>(new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel()));
-            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata);
+            var result = new ValueTask<IView?>(new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this, new TestViewModel()));
+            var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata);
             var viewModel = new TestViewModel();
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Views
                         m.ShouldEqual(ViewManager);
                         viewMapping.ShouldEqual(mapping);
                         r.ShouldEqual(viewModel);
-                        meta.ShouldEqual(DefaultMetadata);
+                        meta.ShouldEqual(Metadata);
                         token.ShouldEqual(DefaultCancellationToken);
                         if (isLast)
                             return result;
@@ -137,7 +137,7 @@ namespace MugenMvvm.UnitTests.Views
                 });
             }
 
-            (await ViewManager.InitializeAsync(mapping, viewModel, DefaultCancellationToken, DefaultMetadata)).ShouldEqual(result.Result);
+            (await ViewManager.InitializeAsync(mapping, viewModel, DefaultCancellationToken, Metadata)).ShouldEqual(result.Result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTests.Views
         public void InitializeAsyncShouldThrowNoComponents() =>
             ShouldThrow<InvalidOperationException>(() =>
             {
-                var result = ViewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this).Result;
+                var result = ViewManager.InitializeAsync(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this).Result;
             });
 
         [Theory]
@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTests.Views
             var target = new object();
             var state = ViewLifecycleState.Appeared;
 
-            ViewManager.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            ViewManager.IsInState(target, state, Metadata).ShouldBeFalse();
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTests.Views
                         ++count;
                         o.ShouldEqual(ViewManager);
                         t.ShouldEqual(target);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         if (isLast)
                             return true;
                         return false;
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTests.Views
                 });
             }
 
-            ViewManager.IsInState(target, state, DefaultMetadata).ShouldBeFalse();
+            ViewManager.IsInState(target, state, Metadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
         }
 
@@ -189,7 +189,7 @@ namespace MugenMvvm.UnitTests.Views
         {
             var invokeCount = 0;
             var state = "state";
-            var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), DefaultMetadata), this, new TestViewModel());
+            var view = new View(new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata), this, new TestViewModel());
             var lifecycleState = ViewLifecycleState.Initializing;
             for (var i = 0; i < count; i++)
             {
@@ -202,13 +202,13 @@ namespace MugenMvvm.UnitTests.Views
                         v.View.ShouldEqual(view);
                         st.ShouldEqual(state);
                         viewLifecycleState.ShouldEqual(lifecycleState);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     },
                     Priority = i
                 });
             }
 
-            ViewManager.OnLifecycleChanged(view, lifecycleState, state, DefaultMetadata);
+            ViewManager.OnLifecycleChanged(view, lifecycleState, state, Metadata);
             invokeCount.ShouldEqual(count);
         }
 

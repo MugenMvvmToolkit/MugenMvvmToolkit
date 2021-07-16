@@ -43,10 +43,10 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             var inputArgs = isLastParameterMetadata ? new object?[] { "1", 2, null } : new object[] { "1", 2 };
             var checkGetterArgs = inputArgs.ToArray();
             if (isLastParameterMetadata)
-                checkGetterArgs[checkGetterArgs.Length - 1] = DefaultMetadata;
+                checkGetterArgs[checkGetterArgs.Length - 1] = Metadata;
             var checkSetterArgs = inputArgs.Concat(new object[] { setValue }).ToArray();
             if (isLastParameterMetadata)
-                checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
+                checkSetterArgs[checkSetterArgs.Length - 2] = Metadata;
 
             var result = ActionToken.FromDelegate((o, o1) => { });
             var testEventListener = new TestWeakEventListener();
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 ++observeCount;
                 target.ShouldEqual(this);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, this);
 
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         ++getValueCount;
                         target.ShouldEqual(this);
                         checkGetterArgs.ShouldEqual(args);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         return getValue;
                     },
                     TryObserve = (o, listener, arg3) =>
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         ++observeCount;
                         o.ShouldEqual(this);
                         listener.ShouldEqual(testEventListener);
-                        arg3.ShouldEqual(DefaultMetadata);
+                        arg3.ShouldEqual(Metadata);
                         return result;
                     },
                     Type = type
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                         ++setValueCount;
                         target.ShouldEqual(this);
                         checkSetterArgs.ShouldEqual(args);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                         return null;
                     },
                     GetParameters = () => new[] { new TestParameterInfo { ParameterType = type } }
@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
@@ -133,25 +133,25 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.CanRead.ShouldEqual(canRead);
             memberInfo.GetArgs().ShouldEqual(inputArgs);
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             observeCount.ShouldEqual(1);
             observerRequestCount.ShouldEqual(!canRead && canWrite ? 1 : 0);
 
             if (canRead)
             {
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(getValue);
+                memberInfo.GetValue(this, Metadata).ShouldEqual(getValue);
                 getValueCount.ShouldEqual(1);
             }
             else
-                ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
+                ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, Metadata));
 
             if (canWrite)
             {
-                memberInfo.SetValue(this, setValue, DefaultMetadata);
+                memberInfo.SetValue(this, setValue, Metadata);
                 setValueCount.ShouldEqual(1);
             }
             else
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, setValue, DefaultMetadata));
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, setValue, Metadata));
         }
 
         protected override IObservationManager GetObservationManager() => new ObservationManager(ComponentCollectionManager);

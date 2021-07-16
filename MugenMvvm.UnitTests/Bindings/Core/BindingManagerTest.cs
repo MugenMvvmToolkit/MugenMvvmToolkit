@@ -37,13 +37,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         list2.Add(binding);
                         t.ShouldEqual(target);
                         p.ShouldEqual(path);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         return binding;
                     }
                 });
             }
 
-            var result = BindingManager.GetBindings(target, path, DefaultMetadata);
+            var result = BindingManager.GetBindings(target, path, Metadata);
             list1.ShouldEqual(result);
             list1.ShouldEqual(list2);
         }
@@ -67,13 +67,13 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         vm.ShouldEqual(Binding);
                         st.ShouldEqual(state);
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
-                        metadata.ShouldEqual(DefaultMetadata);
+                        metadata.ShouldEqual(Metadata);
                     },
                     Priority = i
                 });
             }
 
-            BindingManager.OnLifecycleChanged(Binding, lifecycleState, state, DefaultMetadata);
+            BindingManager.OnLifecycleChanged(Binding, lifecycleState, state, Metadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                         ++invokeCount;
                         bm.ShouldEqual(BindingManager);
                         r.ShouldEqual(request);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         if (isLast)
                             return expression;
                         return default;
@@ -104,21 +104,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 });
             }
 
-            var result = BindingManager.ParseBindingExpression(request, DefaultMetadata);
+            var result = BindingManager.ParseBindingExpression(request, Metadata);
             result.Count.ShouldEqual(1);
             result.Item.ShouldEqual(expression);
             invokeCount.ShouldEqual(count);
         }
 
         [Fact]
-        public void ParseBindingExpressionShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BindingManager.ParseBindingExpression(this, DefaultMetadata));
+        public void ParseBindingExpressionShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => BindingManager.ParseBindingExpression(this, Metadata));
 
         [Fact]
         public void TryParseBindingExpressionShouldHandleBuildersList()
         {
             var bindingExpressions = new List<IBindingBuilder> { new TestBindingBuilder(), new TestBindingBuilder() };
-            BindingManager.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
-            BindingManager.TryParseBindingExpression(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            BindingManager.TryParseBindingExpression(bindingExpressions, Metadata).List.ShouldEqual(bindingExpressions);
+            BindingManager.TryParseBindingExpression(this, Metadata).IsEmpty.ShouldBeTrue();
         }
 
         protected override IBindingManager GetBindingManager() => GetComponentOwner(ComponentCollectionManager);

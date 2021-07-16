@@ -36,13 +36,13 @@ namespace MugenMvvm.UnitTests.Navigation
                     {
                         d.ShouldEqual(NavigationDispatcher);
                         entry.ShouldEqual(navEntry);
-                        ctx.ShouldEqual(DefaultMetadata);
+                        ctx.ShouldEqual(Metadata);
                         return new[] { info };
                     }
                 });
             }
 
-            var result = NavigationDispatcher.GetNavigationCallbacks(navEntry, DefaultMetadata);
+            var result = NavigationDispatcher.GetNavigationCallbacks(navEntry, Metadata);
             result.Count.ShouldEqual(count);
             foreach (var callback in result)
                 callbacks.Remove(callback);
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Navigation
                         s.ShouldEqual(context.NavigationId);
                         arg3.ShouldEqual(context.NavigationType);
                         arg4.ShouldEqual(context.NavigationMode);
-                        arg5.ShouldEqual(DefaultMetadata);
+                        arg5.ShouldEqual(Metadata);
                         if (isLast)
                             return context;
                         return null;
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTests.Navigation
                 });
             }
 
-            NavigationDispatcher.GetNavigationContext(this, context.NavigationProvider, context.NavigationId, context.NavigationType, context.NavigationMode, DefaultMetadata)
+            NavigationDispatcher.GetNavigationContext(this, context.NavigationProvider, context.NavigationId, context.NavigationType, context.NavigationMode, Metadata)
                                 .ShouldEqual(context);
             invokeCount.ShouldEqual(count);
         }
@@ -110,13 +110,13 @@ namespace MugenMvvm.UnitTests.Navigation
                     TryGetNavigationEntries = (d, ctx) =>
                     {
                         d.ShouldEqual(NavigationDispatcher);
-                        ctx.ShouldEqual(DefaultMetadata);
+                        ctx.ShouldEqual(Metadata);
                         return new[] { info };
                     }
                 });
             }
 
-            var result = NavigationDispatcher.GetNavigationEntries(DefaultMetadata);
+            var result = NavigationDispatcher.GetNavigationEntries(Metadata);
             result.Count.ShouldEqual(count);
             foreach (var navigationEntry in result)
                 entries.Remove(navigationEntry);
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Navigation
 
         [Fact]
         public void GetNavigationEntriesShouldReturnEmptyListNoComponents() =>
-            NavigationDispatcher.GetNavigationEntries(DefaultMetadata).ShouldBeEmpty();
+            NavigationDispatcher.GetNavigationEntries(Metadata).ShouldBeEmpty();
 
         [Theory]
         [InlineData(1)]

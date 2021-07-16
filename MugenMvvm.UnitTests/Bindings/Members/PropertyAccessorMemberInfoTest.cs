@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 target.ShouldEqual(this);
                 member.ShouldEqual(propertyInfo);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, propertyInfo);
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
             memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Instance | (nonObservable ? MemberFlags.NonObservable : default));
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
@@ -80,37 +80,37 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeTrue();
                 Property1 = "test";
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(Property1);
-                memberInfo.SetValue(this, nameof(Property1), DefaultMetadata);
+                memberInfo.GetValue(this, Metadata).ShouldEqual(Property1);
+                memberInfo.SetValue(this, nameof(Property1), Metadata);
                 Property1.ShouldEqual(nameof(Property1));
             }
             else if (fieldName == nameof(ReadOnlyProperty))
             {
                 memberInfo.CanWrite.ShouldBeFalse();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(ReadOnlyProperty);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, nameof(Property1), DefaultMetadata));
+                memberInfo.GetValue(this, Metadata).ShouldEqual(ReadOnlyProperty);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, nameof(Property1), Metadata));
             }
             else if (fieldName == nameof(WriteOnlyProperty))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeFalse();
-                memberInfo.SetValue(this, "", DefaultMetadata);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
+                memberInfo.SetValue(this, "", Metadata);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, Metadata));
             }
             else if (fieldName == nameof(ReadOnlyPropertyGenerated))
             {
                 memberInfo.CanWrite.ShouldBeFalse();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(ReadOnlyPropertyGenerated);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, nameof(Property1), DefaultMetadata));
+                memberInfo.GetValue(this, Metadata).ShouldEqual(ReadOnlyPropertyGenerated);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, nameof(Property1), Metadata));
             }
             else if (fieldName == nameof(Property2))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(Property2);
-                memberInfo.SetValue(this, int.MaxValue, DefaultMetadata);
+                memberInfo.GetValue(this, Metadata).ShouldEqual(Property2);
+                memberInfo.SetValue(this, int.MaxValue, Metadata);
                 Property2.ShouldEqual(int.MaxValue);
             }
         }
@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 target.ShouldEqual(this);
                 member.ShouldEqual(propertyInfo);
                 listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
+                meta.ShouldEqual(Metadata);
                 return result;
             }, propertyInfo);
 
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg4.ShouldEqual(DefaultMetadata);
+                    arg4.ShouldEqual(Metadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
@@ -164,7 +164,7 @@ namespace MugenMvvm.UnitTests.Bindings.Members
             memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
             memberInfo.MemberFlags.ShouldEqual(MemberFlags.Public | MemberFlags.Static | (nonObservable ? MemberFlags.NonObservable : default));
 
-            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            memberInfo.TryObserve(this, testEventListener, Metadata).ShouldEqual(result);
             count.ShouldEqual(1);
             observerRequestCount.ShouldEqual(1);
 
@@ -173,37 +173,37 @@ namespace MugenMvvm.UnitTests.Bindings.Members
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeTrue();
                 Property1Static = "test";
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(Property1Static);
-                memberInfo.SetValue(null, nameof(Property1Static), DefaultMetadata);
+                memberInfo.GetValue(null, Metadata).ShouldEqual(Property1Static);
+                memberInfo.SetValue(null, nameof(Property1Static), Metadata);
                 Property1Static.ShouldEqual(nameof(Property1Static));
             }
             else if (fieldName == nameof(ReadOnlyPropertyStatic))
             {
                 memberInfo.CanWrite.ShouldBeFalse();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(ReadOnlyPropertyStatic);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(null, nameof(Property1Static), DefaultMetadata));
+                memberInfo.GetValue(null, Metadata).ShouldEqual(ReadOnlyPropertyStatic);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(null, nameof(Property1Static), Metadata));
             }
             else if (fieldName == nameof(ReadOnlyPropertyStaticGenerated))
             {
                 memberInfo.CanWrite.ShouldBeFalse();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(ReadOnlyPropertyStaticGenerated);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(null, nameof(Property1Static), DefaultMetadata));
+                memberInfo.GetValue(null, Metadata).ShouldEqual(ReadOnlyPropertyStaticGenerated);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(null, nameof(Property1Static), Metadata));
             }
             else if (fieldName == nameof(WriteOnlyPropertyStatic))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeFalse();
-                memberInfo.SetValue(null, "", DefaultMetadata);
-                ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(null, DefaultMetadata));
+                memberInfo.SetValue(null, "", Metadata);
+                ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(null, Metadata));
             }
             else if (fieldName == nameof(Property2Static))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(Property2Static);
-                memberInfo.SetValue(null, int.MaxValue, DefaultMetadata);
+                memberInfo.GetValue(null, Metadata).ShouldEqual(Property2Static);
+                memberInfo.SetValue(null, int.MaxValue, Metadata);
                 Property2Static.ShouldEqual(int.MaxValue);
             }
         }

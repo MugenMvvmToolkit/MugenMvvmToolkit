@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Commands
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
+            var metadata = hasMetadata ? Metadata : null;
 
             object? r = null;
             CommandManager.AddComponent(new TestCommandProviderComponent
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTests.Commands
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
+            var metadata = hasMetadata ? Metadata : null;
 
             object? r = null;
             CommandManager.AddComponent(new TestCommandProviderComponent
@@ -166,7 +166,7 @@ namespace MugenMvvm.UnitTests.Commands
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
+            var metadata = hasMetadata ? Metadata : null;
 
             object? r = null;
             CommandManager.AddComponent(new TestCommandProviderComponent
@@ -207,7 +207,7 @@ namespace MugenMvvm.UnitTests.Commands
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
-            var metadata = hasMetadata ? DefaultMetadata : null;
+            var metadata = hasMetadata ? Metadata : null;
 
             object? r = null;
             CommandManager.AddComponent(new TestCommandProviderComponent
@@ -293,7 +293,7 @@ namespace MugenMvvm.UnitTests.Commands
                         cmd.ShouldEqual(Command);
                         p.ShouldEqual(this);
                         c.ShouldEqual(DefaultCancellationToken);
-                        m.ShouldEqual(DefaultMetadata);
+                        m.ShouldEqual(Metadata);
                         ++invokeCount;
                         return tc.Task.AsValueTask();
                     },
@@ -301,7 +301,7 @@ namespace MugenMvvm.UnitTests.Commands
                 });
             }
 
-            var task = Command.ExecuteAsync(this, DefaultCancellationToken, DefaultMetadata);
+            var task = Command.ExecuteAsync(this, DefaultCancellationToken, Metadata);
             for (var i = 0; i < tcs.Length; i++)
                 tcs[i].SetResult(i == componentCount - 1);
 

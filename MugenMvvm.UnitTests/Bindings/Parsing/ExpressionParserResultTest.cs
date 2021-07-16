@@ -15,12 +15,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             var target = MemberExpressionNode.Source;
             var source = MemberExpressionNode.EventArgs;
             var parameter = new[] { MemberExpressionNode.Self, MemberExpressionNode.Binding };
-            var memberManagerRequest = new ExpressionParserResult(target, source, parameter, DefaultMetadata);
+            var memberManagerRequest = new ExpressionParserResult(target, source, parameter, Metadata);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.IsEmpty.ShouldBeFalse();
             memberManagerRequest.Parameters.ShouldEqual(parameter);
-            memberManagerRequest.Metadata.ShouldEqual(DefaultMetadata);
+            memberManagerRequest.Metadata.ShouldEqual(Metadata);
         }
 
         [Fact]
@@ -30,12 +30,12 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             var source = MemberExpressionNode.EventArgs;
             var parameter = new[] { MemberExpressionNode.Self, MemberExpressionNode.Binding };
             var memberManagerRequest = new ExpressionParserResult(target, source, parameter,
-                new TestMetadataOwner<IReadOnlyMetadataContext> { Metadata = DefaultMetadata, HasMetadata = true });
+                new TestMetadataOwner<IReadOnlyMetadataContext> { Metadata = Metadata, HasMetadata = true });
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.IsEmpty.ShouldBeFalse();
             memberManagerRequest.Parameters.ShouldEqual(parameter);
-            memberManagerRequest.Metadata.ShouldEqual(DefaultMetadata);
+            memberManagerRequest.Metadata.ShouldEqual(Metadata);
         }
 
         [Fact]

@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             });
 
-            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, DefaultMetadata);
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, Metadata);
             if (ignore)
                 _context.Components[BindingParameterNameConstant.ParameterHandler] = null;
             _initializer.Initialize(null!, _context);
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 
             parameterVisitCount.ShouldEqual(1);
             var bindingComponentProvider = (IBindingComponentProvider)_context.Components[BindingParameterNameConstant.ParameterHandler]!;
-            var component = (BindingParameterHandler)bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
+            var component = (BindingParameterHandler)bindingComponentProvider.TryGetComponent(null!, target, src, Metadata)!;
 
             component.Converter.Parameter.ShouldEqual(converter);
             component.Converter.Expression.ShouldBeNull();
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
         [Fact]
         public void InitializeShouldIgnoreEmptyParameters()
         {
-            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            _context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, Metadata);
             _initializer.Initialize(null!, _context);
             _context.Components.ShouldBeEmpty();
         }

@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var component = new TestComponentCollectionProviderComponent { Priority = i };
                 components.Insert(0, component);
-                componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+                componentCollection.TryAdd(component, Metadata).ShouldBeTrue();
             }
 
             componentCollection.Count.ShouldEqual(components.Count);
@@ -72,17 +72,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     attachedCount++;
                     test.ShouldEqual(binding);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                 }
             };
 
-            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeFalse();
+            componentCollection.TryAdd(component, Metadata).ShouldBeFalse();
             attachingCount.ShouldEqual(1);
             attachedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(0);
 
             canAttach = true;
-            componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+            componentCollection.TryAdd(component, Metadata).ShouldBeTrue();
             attachingCount.ShouldEqual(2);
             attachedCount.ShouldEqual(1);
             binding.GetComponents<object>().Single().ShouldEqual(component);
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     addingCount++;
                     expectedItem.ShouldEqual(o);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return canAdd;
                 }
             };
@@ -118,11 +118,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     addedCount++;
                     expectedItem.ShouldEqual(o);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                 }
             };
             expectedItem = changedListener;
-            componentCollection.AddComponent(changedListener, DefaultMetadata);
+            componentCollection.AddComponent(changedListener, Metadata);
             addedCount.ShouldEqual(0);
             addingCount.ShouldEqual(1);
             addingCount = 0;
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < count; i++)
             {
                 expectedItem = new object();
-                componentCollection.TryAdd(expectedItem, DefaultMetadata).ShouldBeFalse();
+                componentCollection.TryAdd(expectedItem, Metadata).ShouldBeFalse();
             }
 
             addingCount.ShouldEqual(count);
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             for (var i = 0; i < count; i++)
             {
                 expectedItem = new object();
-                componentCollection.TryAdd(expectedItem, DefaultMetadata).ShouldBeTrue();
+                componentCollection.TryAdd(expectedItem, Metadata).ShouldBeTrue();
             }
 
             addingCount.ShouldEqual(count);
@@ -355,11 +355,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     detachedCount++;
                     test.ShouldEqual(binding);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                 }
             };
-            componentCollection.TryAdd(component, DefaultMetadata);
-            componentCollection.Clear(DefaultMetadata);
+            componentCollection.TryAdd(component, Metadata);
+            componentCollection.Clear(Metadata);
             detachedCount.ShouldEqual(1);
         }
 
@@ -375,11 +375,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var component = new TestComponentCollectionProviderComponent { Priority = i };
                 components.Insert(0, component);
-                componentCollection.TryAdd(component, DefaultMetadata);
+                componentCollection.TryAdd(component, Metadata);
             }
 
             componentCollection.Count.ShouldEqual(components.Count);
-            componentCollection.Clear(DefaultMetadata);
+            componentCollection.Clear(Metadata);
             componentCollection.Count.ShouldEqual(0);
             binding.GetComponents<object>().Count.ShouldEqual(0);
         }
@@ -400,7 +400,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     removedCount++;
                     items.Remove(o).ShouldBeTrue();
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                 }
             };
             componentCollection.AddComponent(changedListener);
@@ -409,10 +409,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var o = new object();
                 items.Add(o);
-                componentCollection.TryAdd(o, DefaultMetadata);
+                componentCollection.TryAdd(o, Metadata);
             }
 
-            componentCollection.Clear(DefaultMetadata);
+            componentCollection.Clear(Metadata);
             removedCount.ShouldEqual(count);
             items.Count.ShouldEqual(0);
         }
@@ -484,7 +484,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                              .ToArray();
 
             binding.State.ShouldEqual(BindingState.Valid);
-            binding.Initialize(components, DefaultMetadata);
+            binding.Initialize(components, Metadata);
             targetListener.ShouldEqual(binding);
             sourceListener.ShouldEqual(binding);
 
@@ -535,14 +535,14 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     OnAttachingHandler = (b, ctx) =>
                     {
                         b.ShouldEqual(binding);
-                        ctx.ShouldEqual(DefaultMetadata);
+                        ctx.ShouldEqual(Metadata);
                         return canAddAll || canAdd;
                     },
                     OnAttachedHandler = (b, ctx) =>
                     {
                         ++attachedCount;
                         b.ShouldEqual(binding);
-                        ctx.ShouldEqual(DefaultMetadata);
+                        ctx.ShouldEqual(Metadata);
                     }
                 };
                 components[i] = component;
@@ -550,11 +550,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     addedComponents.Add(component);
             }
 
-            binding.Initialize(components, DefaultMetadata);
+            binding.Initialize(components, Metadata);
             binding.GetComponents<object>().ShouldEqual(addedComponents);
             attachedCount.ShouldEqual(addedComponents.Count);
 
-            ShouldThrow<InvalidOperationException>(() => binding.Initialize(components, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => binding.Initialize(components, Metadata));
         }
 
         [Theory]
@@ -569,7 +569,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var component = new TestComponentCollectionProviderComponent { Priority = i + 1 };
                 components.Insert(0, component);
-                componentCollection.TryAdd(component, DefaultMetadata).ShouldBeTrue();
+                componentCollection.TryAdd(component, Metadata).ShouldBeTrue();
             }
 
             componentCollection.Count.ShouldEqual(components.Count);
@@ -617,19 +617,19 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     detachedCount++;
                     test.ShouldEqual(binding);
-                    context.ShouldEqual(DefaultMetadata);
+                    context.ShouldEqual(Metadata);
                 }
             };
-            componentCollection.TryAdd(component, DefaultMetadata);
+            componentCollection.TryAdd(component, Metadata);
 
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeFalse();
+            componentCollection.Remove(component, Metadata).ShouldBeFalse();
             detachingCount.ShouldEqual(1);
             detachedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(1);
             binding.GetComponents<object>().Single().ShouldEqual(component);
 
             canDetach = true;
-            componentCollection.Remove(component, DefaultMetadata).ShouldBeTrue();
+            componentCollection.Remove(component, Metadata).ShouldBeTrue();
             detachingCount.ShouldEqual(2);
             detachedCount.ShouldEqual(1);
             binding.GetComponents<object>().Count.ShouldEqual(0);
@@ -654,7 +654,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     removingCount++;
                     expectedItem.ShouldEqual(o);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                     return canRemove;
                 }
             };
@@ -666,19 +666,19 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     removedCount++;
                     expectedItem.ShouldEqual(o);
-                    arg3.ShouldEqual(DefaultMetadata);
+                    arg3.ShouldEqual(Metadata);
                 }
             };
             componentCollection.AddComponent(changedListener);
 
             for (var i = 0; i < count; i++)
-                componentCollection.TryAdd(new object(), DefaultMetadata);
+                componentCollection.TryAdd(new object(), Metadata);
 
             var objects = binding.GetComponents<object>().Where(o => o.GetType() == typeof(object)).ToArray();
             foreach (var o in objects)
             {
                 expectedItem = o;
-                componentCollection.Remove(expectedItem, DefaultMetadata).ShouldBeFalse();
+                componentCollection.Remove(expectedItem, Metadata).ShouldBeFalse();
             }
 
             removingCount.ShouldEqual(count);
@@ -691,7 +691,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             foreach (var o in objects)
             {
                 expectedItem = o;
-                componentCollection.Remove(expectedItem, DefaultMetadata).ShouldBeTrue();
+                componentCollection.Remove(expectedItem, Metadata).ShouldBeTrue();
             }
 
             removingCount.ShouldEqual(count);
@@ -712,7 +712,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 var component = new TestComponentCollectionProviderComponent { Priority = i };
                 components.Insert(0, component);
-                componentCollection.TryAdd(component, DefaultMetadata);
+                componentCollection.TryAdd(component, Metadata);
             }
 
             for (var index = 0; index < components.Count; index++)

@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
                         rm.ShouldEqual(ResourceManager);
                         s.ShouldEqual(name);
                         o.ShouldEqual(request);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         if (isLast)
                             return result;
                         return default;
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
                 });
             }
 
-            ResourceManager.TryGetResource(name, request, DefaultMetadata).ShouldEqual(result);
+            ResourceManager.TryGetResource(name, request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
                         rm.ShouldEqual(ResourceManager);
                         s.ShouldEqual(name);
                         o.ShouldEqual(request);
-                        arg4.ShouldEqual(DefaultMetadata);
+                        arg4.ShouldEqual(Metadata);
                         if (isLast)
                             return result;
                         return null;
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources
                 });
             }
 
-            ResourceManager.TryGetType(name, request, DefaultMetadata).ShouldEqual(result);
+            ResourceManager.TryGetType(name, request, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 

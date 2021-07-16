@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             });
             var observer = GetObserver(root, path, memberFlags, hasStablePath, optional);
-            var members = observer.GetLastMember(DefaultMetadata);
+            var members = observer.GetLastMember(Metadata);
             members.IsAvailable.ShouldBeFalse();
             members.Member.ShouldEqual(ConstantMemberInfo.Unset);
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
@@ -121,16 +121,16 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             canReturn = true;
             getMembersCount = 0;
             rootListener.ShouldNotBeNull();
-            rootListener!.TryHandle(this, this, DefaultMetadata);
-            members = observer.GetLastMember(DefaultMetadata);
+            rootListener!.TryHandle(this, this, Metadata);
+            members = observer.GetLastMember(Metadata);
             members.Member.ShouldEqual(accessorInfo3);
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(target2);
             getMembersCount.ShouldEqual(3);
 
             getMembersCount = 0;
-            rootListener!.TryHandle(this, this, DefaultMetadata);
-            members = observer.GetLastMember(DefaultMetadata);
+            rootListener!.TryHandle(this, this, Metadata);
+            members = observer.GetLastMember(Metadata);
             members.Member.ShouldEqual(accessorInfo3);
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(target2);
@@ -156,7 +156,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (_, t, m, f, r, meta) => throw error
             });
             var observer = GetObserver(this, path, memberFlags, hasStablePath, optional);
-            var members = observer.GetLastMember(DefaultMetadata);
+            var members = observer.GetLastMember(Metadata);
             members.IsAvailable.ShouldBeFalse();
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
             members.Error.ShouldEqual(error);
@@ -248,7 +248,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             });
             var observer = GetObserver(root, path, memberFlags, hasStablePath, optional);
-            var members = observer.GetMembers(DefaultMetadata);
+            var members = observer.GetMembers(Metadata);
             members.IsAvailable.ShouldBeFalse();
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
             if (optional)
@@ -259,16 +259,16 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             canReturn = true;
             getMembersCount = 0;
             rootListener.ShouldNotBeNull();
-            rootListener!.TryHandle(this, this, DefaultMetadata);
-            members = observer.GetMembers(DefaultMetadata);
+            rootListener!.TryHandle(this, this, Metadata);
+            members = observer.GetMembers(Metadata);
             members.Members.ShouldEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 });
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
             getMembersCount.ShouldEqual(3);
 
             getMembersCount = 0;
-            rootListener!.TryHandle(this, this, DefaultMetadata);
-            members = observer.GetMembers(DefaultMetadata);
+            rootListener!.TryHandle(this, this, Metadata);
+            members = observer.GetMembers(Metadata);
             members.Members.ShouldEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 });
             members.IsAvailable.ShouldBeTrue();
             members.Target.ShouldEqual(root);
@@ -294,7 +294,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (_, t, m, f, r, meta) => throw error
             });
             var observer = GetObserver(this, path, memberFlags, hasStablePath, optional);
-            var members = observer.GetMembers(DefaultMetadata);
+            var members = observer.GetMembers(Metadata);
             members.IsAvailable.ShouldBeFalse();
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
             members.Error.ShouldEqual(error);
@@ -356,7 +356,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             });
             var observer = GetObserver(root, DefaultPath, MemberFlags.InstanceAll, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata),
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, Metadata),
                 disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 
@@ -400,7 +400,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 }
             });
             var observer = GetObserver(root, DefaultPath, MemberFlags.InstanceAll, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed =>
+            ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, this, Metadata), disposed =>
             {
                 if (disposed)
                     currentListener.ShouldBeNull();

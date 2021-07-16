@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Internal
                     {
                         w.ShouldEqual(WeakReferenceManager);
                         o.ShouldEqual(this);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(Metadata);
                         ++invokeCount;
                         if (canReturn)
                             return result;
@@ -39,15 +39,15 @@ namespace MugenMvvm.UnitTests.Internal
                 WeakReferenceManager.AddComponent(component);
             }
 
-            WeakReferenceManager.GetWeakReference(this, DefaultMetadata).ShouldEqual(result);
+            WeakReferenceManager.GetWeakReference(this, Metadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
         [Fact]
-        public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull() => WeakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(WeakReferenceImpl.Empty);
+        public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull() => WeakReferenceManager.GetWeakReference(null, Metadata).ShouldEqual(WeakReferenceImpl.Empty);
 
         [Fact]
-        public void GetWeakReferenceShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => WeakReferenceManager.GetWeakReference(this, DefaultMetadata));
+        public void GetWeakReferenceShouldThrowNoComponents() => ShouldThrow<InvalidOperationException>(() => WeakReferenceManager.GetWeakReference(this, Metadata));
 
         protected override IWeakReferenceManager GetWeakReferenceManager() => GetComponentOwner(ComponentCollectionManager);
 
