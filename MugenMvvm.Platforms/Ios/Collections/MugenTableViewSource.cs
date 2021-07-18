@@ -33,7 +33,11 @@ namespace MugenMvvm.Ios.Collections
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             var item = GetItemAt(indexPath);
-            var cell = tableView.DequeueReusableCell(ItemTemplateSelector.GetIdentifier(tableView, item), indexPath);
+            var identifier = ItemTemplateSelector.TryGetIdentifier(tableView, item);
+            if (ReferenceEquals(identifier, null))
+                ExceptionManager.ThrowTemplateNotSupported(tableView, item);
+
+            var cell = tableView.DequeueReusableCell(identifier, indexPath);
             cell.BindableMembers().SetDataContext(item);
             if ((cell.Tag & InitializedStateMask) != InitializedStateMask)
             {

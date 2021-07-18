@@ -44,7 +44,7 @@ namespace MugenMvvm.Android.Collections
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(selector, nameof(selector));
             return view.AttachedValues().GetOrAdd(AndroidInternalConstant.ItemsSourceGenerator, selector,
-                (o, templateSelector) => new ContentItemsSourceGenerator((View)o, templateSelector));
+                (o, templateSelector) => new ContentItemsSourceGenerator((View) o, templateSelector));
         }
 
         protected override bool IsChangeEventSupported(object? item, object? args) => false;
@@ -103,14 +103,16 @@ namespace MugenMvvm.Android.Collections
 
         private Object? GetItem(object? item)
         {
-            var template = (Object?)ContentTemplateSelector.SelectTemplate(View, item);
+            if (!ContentTemplateSelector.TrySelectTemplate(View, item, out var template))
+                ExceptionManager.ThrowTemplateNotSupported(View, item);
+
             if (template != null)
             {
                 template.BindableMembers().SetDataContext(item);
                 template.BindableMembers().SetParent(View);
             }
 
-            return template;
+            return (Object?) template;
         }
     }
 }

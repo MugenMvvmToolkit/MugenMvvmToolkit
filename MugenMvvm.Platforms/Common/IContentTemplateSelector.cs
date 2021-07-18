@@ -8,6 +8,6 @@ namespace MugenMvvm.Android.Interfaces
 {
     public interface IContentTemplateSelector
     {
-        object? SelectTemplate(object container, object? item);
+        bool TrySelectTemplate(object container, object? item, out object? template);
     }
 }

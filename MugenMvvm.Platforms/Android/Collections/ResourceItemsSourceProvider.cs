@@ -16,7 +16,13 @@ namespace MugenMvvm.Android.Collections
 
         public virtual int ViewTypeCount => ItemTemplateSelector.TemplateTypeCount;
 
-        public virtual int GetItemViewType(int position) => ItemTemplateSelector.SelectTemplate(Owner, GetItemAt(position));
+        public virtual int GetItemViewType(int position)
+        {
+            var id = ItemTemplateSelector.TrySelectTemplate(Owner, GetItemAt(position));
+            if (id == IResourceTemplateSelector.NoResult)
+                ExceptionManager.ThrowTemplateNotSupported(Owner, GetItemAt(position));
+            return id;
+        }
 
         public virtual void OnBindView(View view, int position) => view.BindableMembers().SetDataContext(GetItemAt(position));
 

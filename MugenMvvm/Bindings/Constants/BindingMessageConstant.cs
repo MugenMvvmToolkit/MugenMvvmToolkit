@@ -47,5 +47,6 @@
         public const string CannotConvertTypeFormat2 = "Cannot convert value from '{0}' to type '{1}'";
         public const string CannotUseExpressionClosureFormat1 = "Cannot use expression '{0}' because it has closure, please review and fix it";
         public const string DuplicateEnumFormat2 = "Unable to register enum {0} because another enum exists with the same value {1}";
+        public const string TemplateNotSupportedFormat2 = "Cannot get template for '{0}', container '{1}'";
     }
 }

@@ -27,6 +27,6 @@ namespace MugenMvvm.Android.Bindings
             return value;
         }
 
-        public int SelectTemplate(object container, object? item) => _templateId;
+        public int TrySelectTemplate(object container, object? item) => _templateId;
     }
 }

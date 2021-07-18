@@ -26,21 +26,31 @@ namespace MugenMvvm.Android.Bindings
             }
         }
 
-        public object? SelectTemplate(object container, object? item)
+        public bool TrySelectTemplate(object container, object? item, out object? template)
         {
-            var template = _selector.SelectTemplate(container, item);
-            if (template == 0)
-                return null;
+            var templateId = _selector.TrySelectTemplate(container, item);
+            if (templateId == IResourceTemplateSelector.NoResult)
+            {
+                template = null;
+                return false;
+            }
 
             if (item is IViewModelBase viewModel && container is Object c)
-                return viewModel.GetOrCreateView(c, template).Target;
-            if (container is Object javaContainer)
-                return ViewMugenExtensions.GetView(javaContainer, template, false, null!);
+            {
+                template = viewModel.GetOrCreateView(c, templateId).Target;
+                return true;
+            }
 
-            ExceptionManager.ThrowNotSupported(nameof(container));
-            return null;
+            if (container is Object javaContainer)
+            {
+                template = ViewMugenExtensions.GetView(javaContainer, templateId, false, null!);
+                return true;
+            }
+
+            template = null;
+            return false;
         }
 
-        public ICharSequence? GetTitle(object container, object? item) => (_selector as ITitleTemplateSelector)?.GetTitle(container, item);
+        public ICharSequence? TryGetTitle(object container, object? item) => (_selector as ITitleTemplateSelector)?.TryGetTitle(container, item);
     }
 }

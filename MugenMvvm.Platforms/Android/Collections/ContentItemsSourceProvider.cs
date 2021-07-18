@@ -17,10 +17,12 @@ namespace MugenMvvm.Android.Collections
         public virtual Object GetContent(int position)
         {
             var item = GetItemAt(position);
-            var content = (Object)ItemTemplateSelector.SelectTemplate(Owner, item)!;
+            if (!ItemTemplateSelector.TrySelectTemplate(Owner, item, out var content) || content == null)
+                ExceptionManager.ThrowTemplateNotSupported(Owner, item);
+
             content.BindableMembers().SetDataContext(item);
             content.BindableMembers().SetParent(Owner);
-            return content;
+            return (Object) content;
         }
 
         public virtual int GetContentPosition(Object? content)

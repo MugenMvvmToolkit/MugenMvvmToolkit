@@ -194,5 +194,11 @@ namespace MugenMvvm
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowDuplicateEnum(object oldValue, object newValue) => throw new InvalidOperationException(DuplicateEnumFormat2.Format(oldValue, newValue));
+
+#if ANDROID || IOS
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowTemplateNotSupported(object container, object? item) => throw new InvalidOperationException(TemplateNotSupportedFormat2.Format(container, item));
+#endif
     }
 }

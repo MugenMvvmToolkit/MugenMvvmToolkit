@@ -12,12 +12,16 @@ namespace MugenMvvm.Ios.Bindings
         {
         }
 
-        public object? SelectTemplate(object container, object? item)
+        public bool TrySelectTemplate(object container, object? item, out object? template)
         {
             if (item is IViewModelBase viewModel)
-                return viewModel.GetOrCreateView().Target;
-            ExceptionManager.ThrowNotSupported(nameof(item));
-            return null;
+            {
+                template = viewModel.GetOrCreateView().Target;
+                return true;
+            }
+
+            template = null;
+            return false;
         }
     }
 }

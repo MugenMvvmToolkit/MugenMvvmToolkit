@@ -9,14 +9,22 @@ namespace MugenMvvm.Android.Bindings
     {
         public bool HasFragments { get; set; }
 
-        public object? SelectTemplate(object container, object? item)
+        public bool TrySelectTemplate(object container, object? item, out object? template)
         {
             if (item == null)
-                return null;
+            {
+                template = null;
+                return true;
+            }
+
             if (item is IViewModelBase viewModel && container is Object c)
-                return viewModel.GetOrCreateView(c, 0).Target;
-            ExceptionManager.ThrowNotSupported(nameof(item));
-            return null;
+            {
+                template = viewModel.GetOrCreateView(c, 0).Target;
+                return true;
+            }
+
+            template = null;
+            return false;
         }
     }
 }

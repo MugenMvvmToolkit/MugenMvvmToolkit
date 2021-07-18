@@ -57,7 +57,7 @@ namespace MugenMvvm.Android.Collections
             return false;
         }
 
-        public virtual ICharSequence GetItemTitleFormatted(int position) => (ItemTemplateSelector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
+        public virtual ICharSequence GetItemTitleFormatted(int position) => (ItemTemplateSelector as ITitleTemplateSelector)?.TryGetTitle(Owner, GetItemAt(position))!;
 
         public virtual void Swap(int indexA, int indexB)
         {

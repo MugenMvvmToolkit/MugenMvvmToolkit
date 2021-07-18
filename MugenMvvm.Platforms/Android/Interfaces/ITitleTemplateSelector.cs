@@ -4,6 +4,6 @@ namespace MugenMvvm.Android.Interfaces
 {
     public interface ITitleTemplateSelector
     {
-        ICharSequence? GetTitle(object container, object? item);
+        ICharSequence? TryGetTitle(object container, object? item);
     }
 }

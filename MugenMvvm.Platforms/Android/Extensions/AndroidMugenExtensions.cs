@@ -443,14 +443,16 @@ namespace MugenMvvm.Android.Extensions
                                                                if (contentTemplateSelector == null)
                                                                    ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                                                               var newValue = (Object?)contentTemplateSelector.SelectTemplate(target, value);
+                                                               if (!contentTemplateSelector.TrySelectTemplate(target, value, out var newValue))
+                                                                   ExceptionManager.ThrowTemplateNotSupported(target, value);
+                                                               
                                                                if (newValue != null)
                                                                {
                                                                    newValue.BindableMembers().SetDataContext(value);
                                                                    newValue.BindableMembers().SetParent(target);
                                                                }
 
-                                                               NativeBindableMemberMugenExtensions.SetContent(target, newValue!);
+                                                               NativeBindableMemberMugenExtensions.SetContent(target, (Object?) newValue);
                                                            })
                                                            .ObservableAutoHandler()
                                                            .Build());

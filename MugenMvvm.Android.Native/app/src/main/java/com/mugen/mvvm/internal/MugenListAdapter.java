@@ -51,10 +51,8 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
         if (getCount() == 0)
             return Adapter.IGNORE_ITEM_VIEW_TYPE;
         if (_viewTypeCount == 1)
-            return super.getItemViewType(position);
-        int resourceId = _provider.getItemViewType(position);
-        if (resourceId == 0)
             return 0;
+        int resourceId = _provider.getItemViewType(position);
         if (_resourceTypeToItemType == null)
             _resourceTypeToItemType = new SparseIntArray();
         int type = _resourceTypeToItemType.get(resourceId, -1);
