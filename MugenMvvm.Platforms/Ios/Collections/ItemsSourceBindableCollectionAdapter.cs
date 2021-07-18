@@ -264,7 +264,7 @@ namespace MugenMvvm.Ios.Collections
 
         void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
-            if (_diffResult.IsEmpty)
+            if (_diffResult.IsEmpty || position == finalPosition && !isMove)
                 NotifyReload(finalPosition, count);
             else
             {
