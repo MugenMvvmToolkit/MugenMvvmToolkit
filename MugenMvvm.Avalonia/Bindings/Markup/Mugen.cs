@@ -43,7 +43,7 @@ namespace MugenMvvm.Avalonia.Bindings.Markup
         internal static void BindDesignMode(IBinding binding)
         {
             if (binding is InvalidBinding b)
-                throw b.Exception;
+                ExceptionManager.Throw(b.Exception);
         }
 
         private static void OnBindChanged(AvaloniaObject target, AvaloniaPropertyChangedEventArgs e)

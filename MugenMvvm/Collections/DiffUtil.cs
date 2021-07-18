@@ -14,8 +14,8 @@ namespace MugenMvvm.Collections
             if (isAsync)
             {
                 return detectMoves
-                    ? Task.Factory.StartNew(o => CalculateDiff((ICallback)o!), cb).AsValueTask()
-                    : Task.Factory.StartNew(o => CalculateDiff((ICallback)o!, false), cb).AsValueTask();
+                    ? Task.Factory.StartNew(o => CalculateDiff((ICallback) o!), cb).AsValueTask()
+                    : Task.Factory.StartNew(o => CalculateDiff((ICallback) o!, false), cb).AsValueTask();
             }
 
             return new ValueTask<DiffResult>(CalculateDiff(cb, detectMoves));
@@ -413,8 +413,8 @@ namespace MugenMvvm.Collections
 
             public int ConvertOldPositionToNew(int oldListPosition)
             {
-                if (oldListPosition < 0 || oldListPosition >= _oldListSize)
-                    throw new IndexOutOfRangeException($"Index out of bounds - passed position = {oldListPosition}, old list size = {_oldListSize}");
+                if ((uint) oldListPosition >= (uint) _oldListSize)
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(oldListPosition));
                 var status = _oldItemStatuses[oldListPosition];
                 if ((status & FlagMask) == 0)
                     return NoPosition;
@@ -423,8 +423,8 @@ namespace MugenMvvm.Collections
 
             public int ConvertNewPositionToOld(int newListPosition)
             {
-                if (newListPosition < 0 || newListPosition >= _newListSize)
-                    throw new IndexOutOfRangeException($"Index out of bounds - passed position = {newListPosition}, new list size = {_newListSize}");
+                if ((uint) newListPosition >= (uint) _newListSize)
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(newListPosition));
                 var status = _newItemStatuses[newListPosition];
                 if ((status & FlagMask) == 0)
                     return NoPosition;
