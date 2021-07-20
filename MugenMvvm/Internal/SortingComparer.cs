@@ -7,7 +7,7 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class SortingComparer<T> : IComparer<T>
+    public abstract class SortingComparer<T> : IComparer<T>
     {
         private readonly ItemOrArray<SortingInfo> _sortInfo;
 
@@ -64,7 +64,7 @@ namespace MugenMvvm.Internal
                 return this;
             }
 
-            public IComparer<T> Build() => new SortingComparer<T>(_sortInfo.ToItemOrArray());
+            public Comparer Build() => new(_sortInfo.ToItemOrArray());
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -92,7 +92,7 @@ namespace MugenMvvm.Internal
                 Should.NotBeNull(expression, nameof(expression));
                 return new SortingInfo((exp, isAsc, x, y) =>
                 {
-                    var func = (Func<T, TValue>)exp;
+                    var func = (Func<T, TValue>) exp;
                     if (isAsc)
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
@@ -102,8 +102,17 @@ namespace MugenMvvm.Internal
             public static SortingInfo Create(Func<T, T, int> compare)
             {
                 Should.NotBeNull(compare, nameof(compare));
-                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>)exp).Invoke(x, y), compare, false);
+                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>) exp).Invoke(x, y), compare, false);
             }
+        }
+
+        public sealed class Comparer : SortingComparer<T>, IComparer<object?>
+        {
+            internal Comparer(ItemOrArray<SortingInfo> sortInfo) : base(sortInfo)
+            {
+            }
+
+            int IComparer<object?>.Compare(object? x, object? y) => Compare((T) x!, (T) y!);
         }
     }
 }

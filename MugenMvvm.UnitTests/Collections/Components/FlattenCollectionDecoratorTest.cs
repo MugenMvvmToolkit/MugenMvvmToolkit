@@ -30,9 +30,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public FlattenCollectionDecoratorTest()
         {
             _itemCollection1 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            _itemCollection1.AddComponent(new FilterCollectionDecorator<int> { Filter = i => i % 2 == 0 });
+            _itemCollection1.AddComponent(new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0});
             _itemCollection2 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            _itemCollection2.AddComponent(new SortingCollectionDecorator(SortingComparer<object?>.Descending(i => (int)i!).Build()));
+            _itemCollection2.AddComponent(new SortingCollectionDecorator(SortingComparer<int>.Descending(i => i).Build()));
 
             _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _targetCollection.AddComponent(new FlattenCollectionDecorator(o =>
@@ -286,11 +286,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             Assert();
 
-            _itemCollection1.Reset(new[] { 1, 2, 3, 4, 5 });
+            _itemCollection1.Reset(new[] {1, 2, 3, 4, 5});
             Assert();
-            _itemCollection2.Reset(new[] { 1, 2, 3, 4, 5 });
+            _itemCollection2.Reset(new[] {1, 2, 3, 4, 5});
             Assert();
-            _targetCollection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _targetCollection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
         }
 
@@ -470,7 +470,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     _targetCollection[0] = random.Next() % 2 == 0 ? "" : _itemCollection1;
                     _targetCollection[1] = random.Next() % 2 == 0 ? "" : _itemCollection2;
                     if (_targetCollection.Count > 2)
-                        _targetCollection[2] = random.Next() % 2 == 0 ? "" : new SynchronizedObservableCollection<int>(ComponentCollectionManager) { int.MaxValue, int.MinValue };
+                        _targetCollection[2] = random.Next() % 2 == 0 ? "" : new SynchronizedObservableCollection<int>(ComponentCollectionManager) {int.MaxValue, int.MinValue};
                 }
             });
             var t4 = Task.Run(() =>
@@ -505,7 +505,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     if (IsCancellationRequested())
                         return;
                     Thread.Sleep(1000);
-                    _itemCollection1.Reset(new[] { 1, 2, 3 });
+                    _itemCollection1.Reset(new[] {1, 2, 3});
                 }
             });
             var t7 = Task.Run(() =>
@@ -595,7 +595,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             SetBatchLimit(batchLimit);
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t1-T1", "t1-T2" };
+            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1", "t1-T2"};
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
 
             for (var i = 0; i < count; i++)
@@ -651,9 +651,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.RemoveAt(0);
             Assert();
 
-            _itemCollection1.Reset(new[] { 1, 2, 3, 4, 5 });
+            _itemCollection1.Reset(new[] {1, 2, 3, 4, 5});
             Assert();
-            _targetCollection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _targetCollection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
 
             _itemCollection1[0] = 200;
@@ -694,9 +694,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.RemoveAt(0);
             Assert();
 
-            _itemCollection1.Reset(new[] { 1, 2, 3, 4, 5 });
+            _itemCollection1.Reset(new[] {1, 2, 3, 4, 5});
             Assert();
-            _targetCollection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _targetCollection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
 
             _itemCollection1[0] = 200;
@@ -725,7 +725,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.Clear();
             var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t3-T1", "t3-T2" };
+            var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t3-T1", "t3-T2"};
 
             _targetCollection.Add("T1");
             _targetCollection.Add(t1);
@@ -765,7 +765,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             t1.Clear();
             Assert();
 
-            t1.Reset(new[] { "T1-T1" });
+            t1.Reset(new[] {"T1-T1"});
             Assert();
 
             _targetCollection.Clear();
@@ -799,7 +799,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _targetCollection.Add("T1");
             _targetCollection.Add("T2");
-            _targetCollection.Insert(1, new[] { "c0-T1", "c0-T2" });
+            _targetCollection.Insert(1, new[] {"c0-T1", "c0-T2"});
             Assert();
 
             _targetCollection.RemoveAt(1);
@@ -808,22 +808,22 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _targetCollection.Add("T3");
             Assert();
 
-            _targetCollection.Insert(1, new[] { "c0-T1", "c0-T2" });
+            _targetCollection.Insert(1, new[] {"c0-T1", "c0-T2"});
             Assert();
 
-            _targetCollection.Insert(2, new[] { "c1-T1", "c1-T2" });
+            _targetCollection.Insert(2, new[] {"c1-T1", "c1-T2"});
             Assert();
 
             _targetCollection[2] = "T4";
             Assert();
 
-            _targetCollection[2] = new[] { "c1-T1", "c1-T2" };
+            _targetCollection[2] = new[] {"c1-T1", "c1-T2"};
             Assert();
 
-            _targetCollection[2] = new[] { "c2-T1", "c2-T2" };
+            _targetCollection[2] = new[] {"c2-T1", "c2-T2"};
             Assert();
 
-            _targetCollection.Reset(new object[] { "T1", new[] { "c0-T1" }, new[] { "c1-T1" }, new string[0], "T2", new[] { "c2-T1", "c2-T2" } });
+            _targetCollection.Reset(new object[] {"T1", new[] {"c0-T1"}, new[] {"c1-T1"}, new string[0], "T2", new[] {"c2-T1", "c2-T2"}});
             Assert();
 
             _targetCollection.Move(5, 0);
@@ -842,8 +842,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             SetBatchLimit(batchLimit);
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t1-T1" };
-            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t2-T1", "t2-T2" };
+            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1"};
+            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
 
             for (var i = 0; i < count; i++)
             {
@@ -894,7 +894,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(2, 3, 0)]
         public void ShouldTrackMoveChanges2(int count, int t1Count, int t2Count)
         {
-            foreach (var l in new[] { 1, int.MaxValue })
+            foreach (var l in new[] {1, int.MaxValue})
             {
                 SetBatchLimit(l);
                 _targetCollection.Clear();
@@ -944,8 +944,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             SetBatchLimit(batchLimit);
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t1-T1" };
-            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t2-T1", "t2-T2" };
+            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1"};
+            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
 
             for (var i = 0; i < count; i++)
             {
@@ -990,7 +990,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(2, 3, 0)]
         public void ShouldTrackReplaceChanges(int count, int t1Count, int t2Count)
         {
-            foreach (var l in new[] { 1, int.MaxValue })
+            foreach (var l in new[] {1, int.MaxValue})
             {
                 SetBatchLimit(l);
                 _targetCollection.Clear();
@@ -1000,7 +1000,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     t1.Add("t1-T" + i);
                 for (var i = 0; i < t2Count; i++)
                     t2.Add("t2-T" + i);
-                var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) { "t3-T1", "t3-T2", "t3-T3" };
+                var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t3-T1", "t3-T2", "t3-T3"};
 
                 for (var i = 0; i < count; i++)
                 {

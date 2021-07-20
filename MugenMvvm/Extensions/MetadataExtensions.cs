@@ -52,7 +52,7 @@ namespace MugenMvvm.Extensions
 
         public static IReadOnlyMetadataContext WithValue<T>(this IReadOnlyMetadataContext? metadata, IMetadataContextKey<T> key, T value)
         {
-            if (metadata.IsNullOrEmpty())
+            if (metadata.IsNullOrEmpty() && metadata is not IMetadataContext)
                 return key.ToContext(value);
 
             var ctx = metadata.ToNonReadonly();

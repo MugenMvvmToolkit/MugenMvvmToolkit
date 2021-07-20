@@ -7,8 +7,12 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Collections;
+using MugenMvvm.Collections.Components;
+using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -35,6 +39,34 @@ namespace MugenMvvm.Extensions
             return v;
         }
 
+        public static void AddGroupByDecorators<T, TGroup>(this IReadOnlyObservableCollection collection, Func<T, TGroup> groupSelector,
+            IEqualityComparer<TGroup>? comparer = null, bool flattenGroup = true, int priority = CollectionComponentPriority.GroupHeaderDecorator,
+            int groupFlattenDecoratorPriorityStep = 5)
+            where TGroup : class, IHasTarget<IList<T>>
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            collection.AddComponent(new GroupHeaderCollectionDecorator<T, TGroup>(groupSelector, (header, action, item, args) =>
+            {
+                if (action == GroupHeaderChangedAction.Clear)
+                {
+                    header.Target.Clear();
+                    (header as IDisposable)?.Dispose();
+                }
+                else if (action == GroupHeaderChangedAction.ItemAdded)
+                    header.Target.Add(item);
+                else if (action == GroupHeaderChangedAction.ItemRemoved)
+                    header.Target.Remove(item);
+                else if (action == GroupHeaderChangedAction.ItemChanged)
+                    (header.Target as IObservableCollection<T>)?.RaiseItemChanged(item, args);
+            }, comparer, priority));
+            if (flattenGroup)
+            {
+                collection.AddComponent(new FilterCollectionDecorator<T>(_ => false, priority - 1));
+                collection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo((o as TGroup)?.Target),
+                    priority - 2 - Math.Max(0, groupFlattenDecoratorPriorityStep)));
+            }
+        }
+
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? Decorate(this IReadOnlyObservableCollection? collection)
         {
@@ -44,9 +76,9 @@ namespace MugenMvvm.Extensions
             return component == null ? collection.AsEnumerable() : component.Decorate(collection);
         }
 
-        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrArray<T> itemOrArray) => Reset(collection, (ItemOrIEnumerable<T>)itemOrArray);
+        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrArray<T> itemOrArray) => Reset(collection, (ItemOrIEnumerable<T>) itemOrArray);
 
-        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIReadOnlyList<T> itemOrIReadOnly) => Reset(collection, (ItemOrIEnumerable<T>)itemOrIReadOnly);
+        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIReadOnlyList<T> itemOrIReadOnly) => Reset(collection, (ItemOrIEnumerable<T>) itemOrIReadOnly);
 
         public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> itemOrIEnumerable)
         {
@@ -212,7 +244,7 @@ namespace MugenMvvm.Extensions
                 source = items;
             }
             else
-                source = new[] { (T)source, value };
+                source = new[] {(T) source, value};
         }
 
         internal static bool RemoveRaw<T>(ref object? source, T value) where T : class
