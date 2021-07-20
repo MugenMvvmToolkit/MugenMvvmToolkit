@@ -65,15 +65,16 @@ namespace MugenMvvm.Bindings.Core.Components
                 return;
 
             var metadata = context.GetMetadataOrDefault();
-            _memberExpressionVisitor.Flags = Flags;
+            var flags = Flags;
             _memberExpressionVisitor.SuppressMethodAccessors =
                 context.TryGetParameterValue<bool?>(BindingParameterNameConstant.SuppressMethodAccessors).GetValueOrDefault(SuppressMethodAccessors);
             _memberExpressionVisitor.SuppressIndexAccessors =
                 context.TryGetParameterValue<bool?>(BindingParameterNameConstant.SuppressIndexAccessors).GetValueOrDefault(SuppressIndexAccessors);
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable);
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.ObservableMethods, BindingMemberExpressionFlags.ObservableMethods);
+            context.ApplyFlags(BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable, ref flags);
+            context.ApplyFlags(BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional, ref flags);
+            context.ApplyFlags(BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath, ref flags);
+            context.ApplyFlags(BindingParameterNameConstant.ObservableMethods, BindingMemberExpressionFlags.ObservableMethods, ref flags);
+            _memberExpressionVisitor.Flags = flags;
 
             context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, true, metadata);
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
@@ -84,7 +85,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 return;
             }
 
-            var flags = _memberExpressionVisitor.Flags;
+            flags = _memberExpressionVisitor.Flags;
             _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods);
             _memberExpressionVisitor.SuppressIndexAccessors = true;
             _memberExpressionVisitor.SuppressMethodAccessors = true;

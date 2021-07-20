@@ -52,9 +52,11 @@ namespace MugenMvvm.Bindings.Core.Components
             if (context.Components.ContainsKey(BindingParameterNameConstant.ParameterHandler))
                 return;
 
-            _memberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
+            EnumFlags<BindingMemberExpressionFlags> flags = BindingMemberExpressionFlags.Observable;
+            context.ApplyFlags(BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional, ref flags);
+            context.ApplyFlags(BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath, ref flags);
+            _memberExpressionVisitor.Flags = flags;
+
             var metadata = context.GetMetadataOrDefault();
             var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
                 BindingParameterNameConstant.Converter, false, metadata);

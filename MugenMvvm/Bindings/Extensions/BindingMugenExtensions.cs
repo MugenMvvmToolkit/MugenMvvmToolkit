@@ -45,7 +45,7 @@ namespace MugenMvvm.Bindings.Extensions
 #if !SPAN_API
         internal static readonly char[] CommaSeparator = {CommaChar};
 #endif
-        internal static readonly char[] DotSeparator = { DotChar };
+        internal static readonly char[] DotSeparator = {DotChar};
         private static readonly int[] ArraySize = new int[1];
 
         public static IMemberPath GetMemberPath(this IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata = null)
@@ -318,14 +318,17 @@ namespace MugenMvvm.Bindings.Extensions
             return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
         }
 
-        public static void ApplyFlags(this IBindingExpressionInitializerContext context, BindingMemberExpressionVisitor memberExpressionVisitor, string parameterName,
-            EnumFlags<BindingMemberExpressionFlags> flag)
+        public static void ApplyFlags(this IBindingExpressionInitializerContext context, string parameterName, EnumFlags<BindingMemberExpressionFlags> flag,
+            ref EnumFlags<BindingMemberExpressionFlags> flags)
         {
             Should.NotBeNull(context, nameof(context));
-            Should.NotBeNull(memberExpressionVisitor, nameof(memberExpressionVisitor));
             var b = context.TryGetParameterValue<bool?>(parameterName);
-            if (b.GetValueOrDefault())
-                memberExpressionVisitor.Flags |= flag;
+            if (b == null)
+                return;
+            if (b.Value)
+                flags |= flag;
+            else
+                flags = flags.RemoveFlags(flag);
         }
 
         [DoesNotReturn]
@@ -724,14 +727,14 @@ namespace MugenMvvm.Bindings.Extensions
             if (args.IsEmpty)
                 return firstArg;
             if (args.HasItem)
-                return new[] { firstArg, args.Item! };
+                return new[] {firstArg, args.Item!};
             return args.List.InsertFirstArg(firstArg);
         }
 
         internal static T[] InsertFirstArg<T>(this T[]? args, T firstArg)
         {
             if (args == null || args.Length == 0)
-                return new[] { firstArg };
+                return new[] {firstArg};
             var objects = new T[args.Length + 1];
             objects[0] = firstArg;
             Array.Copy(args, 0, objects, 1, args.Length);
@@ -776,7 +779,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args)
         {
-            var handler = (BindingEventHandler?)weakReference.Target;
+            var handler = (BindingEventHandler?) weakReference.Target;
             if (handler == null)
             {
                 if (sender is ICommand cmd)
@@ -818,7 +821,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, EnumFlags<MemberFlags> flags, IReadOnlyMetadataContext? metadata)
         {
-            var member = (IAccessorMemberInfo?)memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
+            var member = (IAccessorMemberInfo?) memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
             if (member == null)
                 ExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);
@@ -877,7 +880,7 @@ namespace MugenMvvm.Bindings.Extensions
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
         {
-            var constantExpressionNode = (IConstantExpressionNode)expression;
+            var constantExpressionNode = (IConstantExpressionNode) expression;
             var value = constantExpressionNode.Value;
 
             if (value == null)
