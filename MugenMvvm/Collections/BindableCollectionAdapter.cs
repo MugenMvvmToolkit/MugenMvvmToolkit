@@ -447,7 +447,7 @@ namespace MugenMvvm.Collections
             {
                 _threadDispatcher.DefaultIfNull().Execute(ExecutionMode, state =>
                 {
-                    var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>)state;
+                    var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>)state!;
                     s.Item1.OnCollectionChanged(s.Item2, s.Item3, s.Item4);
                 }, Tuple.Create(this, version, oldValue, newValue));
             }

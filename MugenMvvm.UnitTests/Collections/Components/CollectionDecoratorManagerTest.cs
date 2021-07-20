@@ -330,7 +330,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
             collection.AddComponent(new HeaderFooterCollectionDecorator { Header = "Header", Footer = "Footer" });
-            collection.AddComponent(new GroupHeaderCollectionDecorator(o => ((TestCollectionItem)o!).StableId % 2, null, null, -1));
+            collection.AddComponent(new GroupHeaderCollectionDecorator<object, object>(o => ((TestCollectionItem)o!).StableId % 2, null, null, -1));
             collection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo((o as TestCollectionItem)?.Items)));
             collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
             {
@@ -343,7 +343,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 if (o is TestCollectionItem t && t.StableId % 10 == 0)
                     return true;
                 return null;
-            }, SortingComparer<object?>.Descending(o => ((TestCollectionItem)o!).StableId).Build()));
+            }, SortingComparer<TestCollectionItem>.Descending(o => o.StableId).Build()));
             collection.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(50, item => item != null));
 
             collection.Add(new TestCollectionItem { Id = 1 });

@@ -11,20 +11,19 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class GroupHeaderCollectionDecorator : CollectionDecoratorBase
+    public class GroupHeaderCollectionDecorator<T, TGroup> : CollectionDecoratorBase where TGroup : class
     {
-        private readonly Func<object?, object?> _getHeader;
-        private readonly UpdateHeaderDelegate? _updateHeader;
-        private readonly Dictionary<object, HeaderInfo> _headers;
+        private readonly Func<T, TGroup?> _getGroup;
+        private readonly UpdateGroupDelegate? _updateGroup;
+        private readonly Dictionary<TGroup, GroupInfo> _groups;
 
-        public GroupHeaderCollectionDecorator(Func<object?, object?> getHeader, UpdateHeaderDelegate? updateHeader = null,
-            IEqualityComparer<object>? comparer = null, int priority = CollectionComponentPriority.GroupHeaderDecorator) : base(priority)
-
+        public GroupHeaderCollectionDecorator(Func<T, TGroup?> getGroup, UpdateGroupDelegate? updateGroup = null,
+            IEqualityComparer<TGroup>? comparer = null, int priority = CollectionComponentPriority.GroupHeaderDecorator) : base(priority)
         {
-            Should.NotBeNull(getHeader, nameof(getHeader));
-            _getHeader = getHeader;
-            _updateHeader = updateHeader;
-            _headers = new Dictionary<object, HeaderInfo>(comparer ?? EqualityComparer<object>.Default);
+            Should.NotBeNull(getGroup, nameof(getGroup));
+            _getGroup = getGroup;
+            _updateGroup = updateGroup;
+            _groups = new Dictionary<TGroup, GroupInfo>(comparer ?? EqualityComparer<TGroup>.Default);
             Priority = priority;
         }
 
@@ -40,58 +39,69 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (_updateHeader != null)
+            if (item is T t)
             {
-                var header = _getHeader(item);
-                if (header != null)
-                    _updateHeader(header, GroupHeaderChangedAction.ItemChanged, item);
+                if (_updateGroup != null)
+                {
+                    var group = _getGroup(t);
+                    if (group != null)
+                        _updateGroup(group, GroupHeaderChangedAction.ItemChanged, t, args);
+                }
             }
 
-            index += _headers.Count;
+            index += _groups.Count;
             return true;
         }
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            var header = _getHeader(item);
-            AddHeaderIfNeed(decoratorManager, collection, header, item);
-            index += _headers.Count;
+            if (item is T t)
+            {
+                var group = _getGroup(t);
+                AddGroupIfNeed(decoratorManager, collection, group, t);
+            }
+
+            index += _groups.Count;
             return true;
         }
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var oldItemHeader = _getHeader(oldItem);
-            var newItemHeader = _getHeader(newItem);
-            if (!_headers.Comparer.Equals(oldItemHeader!, newItemHeader!))
+            var oldItemGroup = GetGroup(oldItem);
+            var newItemGroup = GetGroup(newItem);
+            if (!_groups.Comparer.Equals(oldItemGroup!, newItemGroup!))
             {
-                RemoveHeaderIfNeed(decoratorManager, collection, oldItemHeader, oldItem);
-                AddHeaderIfNeed(decoratorManager, collection, newItemHeader, newItem);
+                RemoveGroupIfNeed(decoratorManager, collection, oldItemGroup, oldItemGroup == null ? default! : (T) oldItem!);
+                AddGroupIfNeed(decoratorManager, collection, newItemGroup, newItemGroup == null ? default! : (T) newItem!);
             }
-            else if (oldItemHeader != null && _updateHeader != null)
+            else if (oldItemGroup != null && _updateGroup != null)
             {
-                _updateHeader(oldItemHeader, GroupHeaderChangedAction.ItemRemoved, oldItem);
-                _updateHeader(oldItemHeader, GroupHeaderChangedAction.ItemAdded, newItem);
+                _updateGroup(oldItemGroup, GroupHeaderChangedAction.ItemRemoved, (T) oldItem!, null);
+                _updateGroup(oldItemGroup, GroupHeaderChangedAction.ItemAdded, (T) newItem!, null);
             }
 
-            index += _headers.Count;
+            index += _groups.Count;
             return true;
         }
 
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
             ref int newIndex)
         {
-            oldIndex += _headers.Count;
-            newIndex += _headers.Count;
+            oldIndex += _groups.Count;
+            newIndex += _groups.Count;
             return true;
         }
 
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            var header = _getHeader(item);
-            RemoveHeaderIfNeed(decoratorManager, collection, header, item);
-            index += _headers.Count;
+            if (item is T t)
+            {
+                var group = _getGroup(t);
+                RemoveGroupIfNeed(decoratorManager, collection, group, t);
+            }
+
+            index += _groups.Count;
             return true;
         }
 
@@ -101,81 +111,86 @@ namespace MugenMvvm.Collections.Components
             if (items != null)
             {
                 foreach (var item in items)
-                    AddHeaderIfNeed(decoratorManager, collection, _getHeader(item), item, false);
+                {
+                    if (item is T t)
+                        AddGroupIfNeed(decoratorManager, collection, _getGroup(t), t, false);
+                }
+
                 items = Decorate(items);
             }
 
             return true;
         }
 
+        private TGroup? GetGroup(object? item) => item is T t ? _getGroup(t) : null;
+
         private void Clear()
         {
-            if (_updateHeader != null)
+            if (_updateGroup != null)
             {
-                foreach (var header in _headers)
-                    _updateHeader(header.Key, GroupHeaderChangedAction.Clear, null);
+                foreach (var group in _groups)
+                    _updateGroup(group.Key, GroupHeaderChangedAction.Clear, default!, null);
             }
 
-            _headers.Clear();
+            _groups.Clear();
         }
 
-        private void AddHeaderIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? header, object? item,
-            bool notify = true)
+        private void AddGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TGroup? group, T item, bool notify = true)
         {
-            if (header == null)
+            if (group == null)
                 return;
 
-            if (!_headers.TryGetValue(header, out var info))
+            if (!_groups.TryGetValue(group, out var info))
             {
-                info = new HeaderInfo(_headers.Count);
-                _headers[header] = info;
+                info = new GroupInfo(_groups.Count);
+                _groups[group] = info;
                 if (notify)
-                    decoratorManager.OnAdded(collection, this, header, info.Index);
+                    decoratorManager.OnAdded(collection, this, group, info.Index);
             }
 
             ++info.UsageCount;
-            _updateHeader?.Invoke(header, GroupHeaderChangedAction.ItemAdded, item);
+            _updateGroup?.Invoke(group, GroupHeaderChangedAction.ItemAdded, item, null);
         }
 
-        private void RemoveHeaderIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? header, object? item)
+        private void RemoveGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TGroup? group, T item)
         {
-            if (header == null)
+            if (group == null)
                 return;
 
-            var headerInfo = _headers[header];
-            if (--headerInfo.UsageCount != 0)
+            var groupInfo = _groups[group];
+            if (--groupInfo.UsageCount != 0)
             {
-                _updateHeader?.Invoke(header, GroupHeaderChangedAction.ItemRemoved, item);
+                _updateGroup?.Invoke(group, GroupHeaderChangedAction.ItemRemoved, item, null);
                 return;
             }
 
-            _headers.Remove(header);
-            foreach (var info in _headers)
+            _groups.Remove(group);
+            foreach (var info in _groups)
             {
-                if (info.Value.Index > headerInfo.Index)
+                if (info.Value.Index > groupInfo.Index)
                     --info.Value.Index;
             }
 
-            decoratorManager.OnRemoved(collection, this, header, headerInfo.Index);
-            _updateHeader?.Invoke(header, GroupHeaderChangedAction.Clear, item);
+            decoratorManager.OnRemoved(collection, this, group, groupInfo.Index);
+            _updateGroup?.Invoke(group, GroupHeaderChangedAction.Clear, item, null);
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?> items)
         {
-            foreach (var header in _headers.OrderBy(pair => pair.Value.Index))
-                yield return header.Key;
+            foreach (var group in _groups.OrderBy(pair => pair.Value.Index))
+                yield return group.Key;
             foreach (var item in items)
                 yield return item;
         }
 
-        public delegate void UpdateHeaderDelegate(object header, GroupHeaderChangedAction action, object? item);
+        public delegate void UpdateGroupDelegate(TGroup group, GroupHeaderChangedAction action, T item, object? args);
 
-        private sealed class HeaderInfo
+        private sealed class GroupInfo
         {
             public int UsageCount;
             public int Index;
 
-            public HeaderInfo(int index)
+            public GroupInfo(int index)
             {
                 Index = index;
             }

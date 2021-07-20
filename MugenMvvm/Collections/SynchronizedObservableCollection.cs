@@ -26,7 +26,7 @@ namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(SynchronizedObservableCollection<>.DebuggerProxy))]
-    public sealed class SynchronizedObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection, ISynchronizable,
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection, ISynchronizable,
         IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentChangedHandler, IHasComponentAddingHandler
     {
         private const int DefaultCapacity = 4;
@@ -114,7 +114,7 @@ namespace MugenMvvm.Collections
             {
                 using (Lock())
                 {
-                    if ((uint)index >= (uint)_size)
+                    if ((uint) index >= (uint) _size)
                         ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                     return _items[index];
@@ -125,7 +125,7 @@ namespace MugenMvvm.Collections
                 _preInitializers.Initialize(this, value);
                 using (Lock())
                 {
-                    if ((uint)index >= (uint)_size)
+                    if ((uint) index >= (uint) _size)
                         ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                     var oldItem = _items[index];
@@ -208,7 +208,7 @@ namespace MugenMvvm.Collections
         {
             using (Lock())
             {
-                if ((uint)index >= (uint)_size)
+                if ((uint) index >= (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 RemoveInternal(index);
@@ -228,7 +228,7 @@ namespace MugenMvvm.Collections
             _preInitializers.Initialize(this, item);
             using (Lock())
             {
-                if ((uint)index > (uint)_size)
+                if ((uint) index > (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 InsertInternal(index, item, false);
@@ -272,7 +272,7 @@ namespace MugenMvvm.Collections
                 return default;
             if (Interlocked.Increment(ref _batchCount) == 1)
                 _batchListeners.OnBeginBatchUpdate(this, BatchUpdateType.Source);
-            return ActionToken.FromDelegate((@this, _) => ((SynchronizedObservableCollection<T>)@this!).EndBatchUpdate(), this);
+            return ActionToken.FromDelegate((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
         }
 
         public void Move(int oldIndex, int newIndex)
@@ -282,9 +282,9 @@ namespace MugenMvvm.Collections
 
             using (Lock())
             {
-                if ((uint)oldIndex >= (uint)_size)
+                if ((uint) oldIndex >= (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(oldIndex));
-                if ((uint)newIndex >= (uint)_size)
+                if ((uint) newIndex >= (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(newIndex));
 
                 var obj = _items[oldIndex];
@@ -316,7 +316,7 @@ namespace MugenMvvm.Collections
                         {
                             _lastTakenLocker = locker;
                             ++_lockCount;
-                            return ActionToken.FromDelegate((c, l) => ((SynchronizedObservableCollection<T>)c!).Unlock((ILocker)l!), this, locker);
+                            return ActionToken.FromDelegate((c, l) => ((SynchronizedObservableCollection<T>) c!).Unlock((ILocker) l!), this, locker);
                         }
 
                         return default;
@@ -367,7 +367,7 @@ namespace MugenMvvm.Collections
         private void AddRaw(T item)
         {
             var size = _size;
-            if ((uint)size >= (uint)_items.Length)
+            if ((uint) size >= (uint) _items.Length)
                 EnsureCapacity(size + 1);
 
             _size = size + 1;
@@ -461,7 +461,7 @@ namespace MugenMvvm.Collections
 
         private object? Get(int index) => BoxingExtensions.Box(this[index]);
 
-        private void Set(int index, object? value) => this[index] = (T)value!;
+        private void Set(int index, object? value) => this[index] = (T) value!;
 
         private void EnsureCapacity(int min)
         {
@@ -469,7 +469,7 @@ namespace MugenMvvm.Collections
                 return;
 
             var newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
-            if ((uint)newCapacity > MaxArrayLength)
+            if ((uint) newCapacity > MaxArrayLength)
                 newCapacity = MaxArrayLength;
             if (newCapacity < min)
                 newCapacity = min;
@@ -536,29 +536,29 @@ namespace MugenMvvm.Collections
         {
             using (Lock())
             {
-                InsertInternal(_size, (T)value!, true);
+                InsertInternal(_size, (T) value!, true);
                 return _size - 1;
             }
         }
 
-        bool IList.Contains(object? value) => IsCompatibleObject(value) && Contains((T)value!);
+        bool IList.Contains(object? value) => IsCompatibleObject(value) && Contains((T) value!);
 
-        int IList.IndexOf(object? value) => IsCompatibleObject(value!) ? IndexOf((T)value!) : -1;
+        int IList.IndexOf(object? value) => IsCompatibleObject(value!) ? IndexOf((T) value!) : -1;
 
-        void IList.Insert(int index, object? value) => Insert(index, (T)value!);
+        void IList.Insert(int index, object? value) => Insert(index, (T) value!);
 
         void IList.Remove(object? value)
         {
             if (IsCompatibleObject(value!))
-                Remove((T)value!);
+                Remove((T) value!);
         }
 
-        void IObservableCollection.Reset(IEnumerable? items) => Reset((IReadOnlyCollection<T>?)items);
+        void IObservableCollection.Reset(IEnumerable? items) => Reset((IReadOnlyCollection<T>?) items);
 
         void IObservableCollection.RaiseItemChanged(object item, object? args)
         {
             if (IsCompatibleObject(item))
-                RaiseItemChanged((T)item, args);
+                RaiseItemChanged((T) item, args);
         }
 
         void ISynchronizable.UpdateLocker(ILocker locker)
