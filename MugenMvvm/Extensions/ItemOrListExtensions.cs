@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 
@@ -9,15 +10,15 @@ namespace MugenMvvm.Extensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrArray<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIEnumerable<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyList<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrListEditor<T> editor)
@@ -95,10 +96,37 @@ namespace MugenMvvm.Extensions
         {
             if (array.List != null)
                 array.List[index] = value;
-            else if ((uint)index < (uint)array.Count)
+            else if ((uint) index < (uint) array.Count)
                 array = new ItemOrArray<T>(value);
             else
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+        }
+
+        public static ItemOrArray<T> ToItemOrArray<T>(this List<T> list)
+        {
+            if (list.Count == 0)
+                return default;
+            if (list.Count == 1)
+                return new ItemOrArray<T>(list[0]);
+            return list.ToArray();
+        }
+
+        public static ItemOrArray<T> ToItemOrArray<T>(this IList<T> list)
+        {
+            if (list.Count == 0)
+                return default;
+            if (list.Count == 1)
+                return new ItemOrArray<T>(list[0]);
+            return list.ToArray();
+        }
+
+        public static ItemOrArray<T> ToItemOrArray<T>(this ICollection<T> list)
+        {
+            if (list.Count == 0)
+                return default;
+            if (list.Count == 1)
+                return new ItemOrArray<T>(list.ElementAt(0));
+            return list.ToArray();
         }
 
         internal static ItemOrIReadOnlyList<T> ToItemOrList<T>(this List<T> list, bool clear)
