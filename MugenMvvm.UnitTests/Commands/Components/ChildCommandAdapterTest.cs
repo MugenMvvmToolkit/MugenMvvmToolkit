@@ -128,6 +128,39 @@ namespace MugenMvvm.UnitTests.Commands.Components
             cmd2Count.ShouldEqual(1);
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task ExecuteAsyncShouldBeHandledByCommandsSequentially(bool result)
+        {
+            var parameter = this;
+            var cmd1Count = 0;
+            var cmd2Count = 0;
+            var cmd1 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
+            {
+                p.ShouldEqual(parameter);
+                m.ShouldEqual(Metadata);
+                ++cmd1Count;
+                return new ValueTask<bool>(result);
+            });
+            var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
+            {
+                p.ShouldEqual(parameter);
+                c.ShouldEqual(DefaultCancellationToken);
+                m.ShouldEqual(Metadata);
+                ++cmd2Count;
+                return new ValueTask<bool>(true);
+            });
+
+            Command.AddChildCommand(cmd1);
+            Command.AddChildCommand(cmd2);
+            Command.GetComponent<ChildCommandAdapter>().ExecuteSequentially = true;
+            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata)).ShouldBeTrue();
+
+            cmd1Count.ShouldEqual(1);
+            cmd2Count.ShouldEqual(result ? 0 : 1);
+        }
+
         [Fact]
         public void ShouldListenCanExecuteChangedFromChildCommands()
         {

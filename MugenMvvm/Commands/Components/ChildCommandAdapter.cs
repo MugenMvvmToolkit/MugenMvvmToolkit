@@ -63,6 +63,8 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
+        public bool ExecuteSequentially { get; set; }
+
         public int Priority { get; init; } = CommandComponentPriority.ChildCommandAdapter;
 
         public void Add(ICompositeCommand command)
@@ -114,10 +116,32 @@ namespace MugenMvvm.Commands.Components
 
         public async ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
+            using var t = ExecutionHandler?.Invoke();
+            if (ExecuteSequentially)
+            {
+                if (!CanExecute(command, parameter, metadata))
+                    return false;
+
+                int index = 0;
+                while (true)
+                {
+                    ValueTask<bool> task;
+                    lock (_commands)
+                    {
+                        if (index > _commands.Count - 1)
+                            return false;
+
+                        task = _commands.Items[index].ExecuteAsync(parameter, cancellationToken, metadata);
+                        ++index;
+                    }
+
+                    if (await task.ConfigureAwait(false))
+                        return true;
+                }
+            }
+
             if (SuppressExecute)
                 return false;
-
-            using var t = ExecutionHandler?.Invoke();
             var tasks = new ItemOrListEditor<ValueTask<bool>>();
             var result = false;
             lock (_commands)
