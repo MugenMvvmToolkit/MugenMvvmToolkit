@@ -8,9 +8,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ItemConverterCollectionDecorator : ICollectionDecorator, IHasPriority
+    public sealed class ImmutableItemConverterCollectionDecorator : ICollectionDecorator, IHasPriority
     {
-        public ItemConverterCollectionDecorator(Func<object?, object?> converter, int priority = CollectionComponentPriority.ConverterDecorator)
+        public ImmutableItemConverterCollectionDecorator(Func<object?, object?> converter, int priority = CollectionComponentPriority.ConverterDecorator)
         {
             Should.NotBeNull(converter, nameof(converter));
             Converter = converter;

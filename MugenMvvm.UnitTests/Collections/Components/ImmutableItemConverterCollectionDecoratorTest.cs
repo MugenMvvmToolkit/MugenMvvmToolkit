@@ -10,18 +10,18 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
-    public class ItemConverterCollectionDecoratorTest : UnitTestBase
+    public class ImmutableItemConverterCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
-        private readonly ItemConverterCollectionDecorator _decorator;
+        private readonly ImmutableItemConverterCollectionDecorator _decorator;
 
-        public ItemConverterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public ImmutableItemConverterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ItemConverterCollectionDecorator(o => "Item: " + o);
+            _decorator = new ImmutableItemConverterCollectionDecorator(o => "Item: " + o);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
