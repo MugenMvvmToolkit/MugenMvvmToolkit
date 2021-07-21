@@ -287,6 +287,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 Assert();
             }
 
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i, i * 2 + i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i * 2 + i, i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
             for (var i = 0; i < 10; i++)
             {
                 _collection[i] = i + 101;
@@ -300,6 +314,108 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Clear();
             items.ShouldEqual(expectedItems);
+            Assert();
+        }
+
+        [Fact]
+        public void ShouldTrackUnstableKeys()
+        {
+            _collection.RemoveComponent(_decorator);
+            var eventArgs = NewId();
+            var header = new List<UnstableKey>();
+            var changedItems = new List<UnstableKey>();
+            _getHeader = o => ((UnstableKey) o!).Id! % 2 == 0 ? header : null;
+            _decorator = new GroupHeaderCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
+            {
+                var ints = (List<UnstableKey>) h;
+                if (action == GroupHeaderChangedAction.ItemAdded)
+                    ints.Add((UnstableKey) item!);
+                else if (action == GroupHeaderChangedAction.ItemRemoved)
+                    ints.Remove((UnstableKey) item!);
+                else if (action == GroupHeaderChangedAction.ItemChanged)
+                {
+                    args.ShouldEqual(eventArgs);
+                    changedItems.Add((UnstableKey) item!);
+                }
+                else if (action == GroupHeaderChangedAction.Clear)
+                    ints.Clear();
+            }, null, false);
+            _collection.AddComponent(_decorator);
+
+            var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<UnstableKey>().OrderBy(i => i.Id).ThenBy(key => key.GetHashCode());
+            var items = header.OrderBy(i => i.Id).ThenBy(key => key.GetHashCode());
+            for (var i = 0; i < 100; i++)
+            {
+                var unstableKey = new UnstableKey(i);
+                _collection.Add(unstableKey);
+                items.ShouldEqual(expectedItems);
+                Assert();
+
+                _collection.RaiseItemChanged(unstableKey, eventArgs);
+                changedItems.OrderBy(i => i.Id).ShouldEqual(expectedItems);
+            }
+
+            foreach (UnstableKey key in _collection)
+            {
+                key.Id++;
+                _collection.RaiseItemChanged(key, eventArgs);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Insert(i, new UnstableKey(i));
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.RemoveAt(i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection.Move(i, i + 1);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i, i * 2 + i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 1; i < 10; i++)
+            {
+                _collection.Move(i * 2 + i, i);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection[i] = new UnstableKey(i + 101);
+                items.ShouldEqual(expectedItems);
+                Assert();
+            }
+
+            _collection.Reset(new object[] {new UnstableKey(1), new UnstableKey(2), new UnstableKey(3), new UnstableKey(4), new UnstableKey(5)});
+            Assert();
+
+            foreach (UnstableKey key in _collection)
+            {
+                key.Id++;
+                _collection.RaiseItemChanged(key, null);
+                Assert();
+            }
+
+            _collection.Clear();
             Assert();
         }
 
@@ -346,6 +462,18 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
 
             return -1;
+        }
+
+        private sealed class UnstableKey
+        {
+            public UnstableKey(int id)
+            {
+                Id = id;
+            }
+
+            public int Id { get; set; }
+
+            public override string ToString() => Id.ToString();
         }
     }
 }
