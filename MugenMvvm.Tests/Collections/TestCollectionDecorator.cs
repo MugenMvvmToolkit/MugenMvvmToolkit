@@ -10,7 +10,7 @@ namespace MugenMvvm.Tests.Collections
     {
         public Func<IEnumerable<object?>, IEnumerable<object?>>? Decorate { get; set; }
 
-        public Func<object, int?>? TryGetIndex { get; set; }
+        public Func<IEnumerable<object?>, object, int?>? TryGetIndex { get; set; }
 
         public FuncRef<object?, int, bool>? OnAdded { get; set; }
 
@@ -36,10 +36,10 @@ namespace MugenMvvm.Tests.Collections
                 throw new NotSupportedException();
         }
 
-        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, object item, out int index)
+        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, out int index)
         {
             ThrowIfNeed(TryGetIndex);
-            var i = TryGetIndex?.Invoke(item);
+            var i = TryGetIndex?.Invoke(items, item);
             index = i.GetValueOrDefault(-1);
             return i.HasValue;
         }

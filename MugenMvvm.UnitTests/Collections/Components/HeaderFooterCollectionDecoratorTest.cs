@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 if (o is string header)
                 {
-                    decorator.TryGetIndex(_collection, header, out var index).ShouldBeTrue();
+                    decorator.TryGetIndex(_collection, _collection, header, out var index).ShouldBeTrue();
                     index.ShouldEqual(i);
                 }
 

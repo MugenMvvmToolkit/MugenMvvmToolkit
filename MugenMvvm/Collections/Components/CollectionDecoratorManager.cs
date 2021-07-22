@@ -255,7 +255,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (!decorator.HasAdditionalItems)
                 return -1;
-            if (decorator.TryGetIndex(collection, item, out var index))
+            if (decorator.TryGetIndex(collection, items, item, out var index))
                 return index;
             return items.IndexOf(item);
         }

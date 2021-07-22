@@ -3,6 +3,7 @@ using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
@@ -14,16 +15,45 @@ namespace MugenMvvm.UnitTests.Collections.Components
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
-        private readonly ImmutableItemConverterCollectionDecorator _decorator;
+        private ImmutableItemConverterCollectionDecorator<object> _decorator;
 
         public ImmutableItemConverterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ImmutableItemConverterCollectionDecorator(o => "Item: " + o);
+            _decorator = new ImmutableItemConverterCollectionDecorator<object>(o => "Item: " + o);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
+        }
+
+        [Fact]
+        public void IndexOfShouldBeValid()
+        {
+            _decorator = new ImmutableItemConverterCollectionDecorator<object>(o =>
+            {
+                if (o is int)
+                    return "Item: " + o;
+                return o;
+            });
+            _collection.RemoveComponents<ImmutableItemConverterCollectionDecorator<object>>();
+            ICollectionDecorator decorator = new ImmutableItemConverterCollectionDecorator<int>(o => "Item: " + o);
+            _collection.AddComponent(decorator);
+            _collection.Add("Test1");
+            _collection.Add(1);
+            _collection.Add(2);
+            _collection.Add("Test2");
+
+            int i = 0;
+            foreach (var item in _collection.Decorate())
+            {
+                decorator.TryGetIndex(_collection, _collection, item, out var index).ShouldBeTrue();
+                if (item is int)
+                    index.ShouldEqual(i);
+                else
+                    index.ShouldEqual(-1);
+                ++i;
+            }
         }
 
         [Fact]
@@ -173,7 +203,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
         }
 
@@ -200,7 +230,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.RemoveAt(0);
                 Assert();
 
-                _collection.Reset(new object[] { 1, 2, 3, 4, 5, i });
+                _collection.Reset(new object[] {1, 2, 3, 4, 5, i});
                 Assert();
 
                 _collection[0] = 200;

@@ -39,7 +39,8 @@ namespace MugenMvvm.Collections.Components
 
         protected abstract bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items);
 
-        protected virtual bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object item, out int index)
+        protected virtual bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item,
+            out int index)
         {
             index = -1;
             return false;
@@ -57,7 +58,7 @@ namespace MugenMvvm.Collections.Components
             DecoratorManager = owner.GetComponent<ICollectionDecoratorManagerComponent>();
         }
 
-        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, object item, out int index)
+        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, out int index)
         {
             var decoratorManager = DecoratorManager;
             if (decoratorManager == null)
@@ -66,7 +67,7 @@ namespace MugenMvvm.Collections.Components
                 return false;
             }
 
-            return TryGetIndex(decoratorManager, collection, item, out index);
+            return TryGetIndex(decoratorManager, collection, items, item, out index);
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)

@@ -73,16 +73,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             var decorator = (ICollectionDecorator) _targetCollection.GetComponent<FlattenCollectionDecorator>();
 
-            decorator.TryGetIndex(_targetCollection, source1Item1, out var index).ShouldBeTrue();
+            decorator.TryGetIndex(_targetCollection, _targetCollection, source1Item1, out var index).ShouldBeTrue();
             index.ShouldEqual(2);
 
-            decorator.TryGetIndex(_targetCollection, source1Item2, out index).ShouldBeTrue();
+            decorator.TryGetIndex(_targetCollection, _targetCollection, source1Item2, out index).ShouldBeTrue();
             index.ShouldEqual(3);
 
-            decorator.TryGetIndex(_targetCollection, source2Item1, out index).ShouldBeTrue();
+            decorator.TryGetIndex(_targetCollection, _targetCollection, source2Item1, out index).ShouldBeTrue();
             index.ShouldEqual(4);
 
-            decorator.TryGetIndex(_targetCollection, source2Item2, out index).ShouldBeTrue();
+            decorator.TryGetIndex(_targetCollection, _targetCollection, source2Item2, out index).ShouldBeTrue();
             index.ShouldEqual(5);
         }
 
