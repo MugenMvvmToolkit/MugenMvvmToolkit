@@ -339,7 +339,6 @@ namespace MugenMvvm.Bindings.Extensions
             return types;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<MemberFlags> GetObservableFlags(this MemberInfo member)
         {
             if (member.DeclaringType != null && member.DeclaringType.IsDefined(typeof(NonObservableAttribute), false) || member.IsDefined(typeof(NonObservableAttribute), false))

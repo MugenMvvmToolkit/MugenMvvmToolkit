@@ -581,7 +581,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly object? Args;
             public readonly Type Type;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MethodInvokerKey(Type type, ItemOrArray<object?> args)
             {
                 Type = type;
@@ -749,7 +748,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             public int ExpectedParameterCount
             {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
                     if (_args == null)

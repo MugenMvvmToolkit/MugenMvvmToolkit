@@ -121,7 +121,6 @@ namespace MugenMvvm.Commands.Components
             return executor.ExecuteAsync(command, parameter, cancellationToken, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool CanExecuteInternal(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             var executor = command.GetComponentOptional<IDelegateExecutor>();
@@ -184,7 +183,7 @@ namespace MugenMvvm.Commands.Components
 
                 if (executeAction is Action<T, IReadOnlyMetadataContext?> genericExecute)
                 {
-                    genericExecute((T)parameter!, metadata);
+                    genericExecute((T) parameter!, metadata);
                     return true;
                 }
 
@@ -196,15 +195,15 @@ namespace MugenMvvm.Commands.Components
 
                 if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task> executeTaskParameter)
                 {
-                    await executeTaskParameter((T)parameter!, cancellationToken, metadata).ConfigureAwait(false);
+                    await executeTaskParameter((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
                     return true;
                 }
 
                 if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> executeTaskBool)
                     return await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
 
-                return await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>)executeAction)
-                             .Invoke((T)parameter!, cancellationToken, metadata)
+                return await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>) executeAction)
+                             .Invoke((T) parameter!, cancellationToken, metadata)
                              .ConfigureAwait(false);
             }
 
@@ -229,7 +228,7 @@ namespace MugenMvvm.Commands.Components
 
                 if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
                     return func(metadata);
-                return ((Func<T, IReadOnlyMetadataContext?, bool>)canExecuteDelegate).Invoke((T)parameter!, metadata);
+                return ((Func<T, IReadOnlyMetadataContext?, bool>) canExecuteDelegate).Invoke((T) parameter!, metadata);
             }
 
             public override void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)

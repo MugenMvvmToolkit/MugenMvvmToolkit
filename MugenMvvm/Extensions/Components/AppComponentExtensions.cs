@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
@@ -10,10 +9,8 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class AppComponentExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnLifecycleChanged(this ItemOrArray<IApplicationLifecycleListener> components, IMugenApplication application, ApplicationLifecycleState lifecycleState,
-            object? state,
-            IReadOnlyMetadataContext? metadata)
+            object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(application, nameof(application));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));

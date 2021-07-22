@@ -17,7 +17,6 @@ namespace MugenMvvm.Extensions
             return logger.TryGetLogger(request, metadata) ?? logger;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static LoggerWithLevel? WithLevel(this ILogger? logger, LogLevel level, IReadOnlyMetadataContext? metadata = null)
         {
             if (logger == null || !logger.CanLog(level, metadata))

@@ -213,11 +213,9 @@ namespace MugenMvvm.Validation.Components
                 members.Add(member);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool HasErrors(KeyValuePair<CacheKey, List<ValidationErrorInfo>> error, object? source, string member) =>
             error.Value.Count != 0 && (source == null || source.Equals(error.Key.Source)) && (member == "" || error.Key.Member == member);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void AddErrors(ref ItemOrListEditor<object> errors, List<ValidationErrorInfo> value)
         {
             for (var i = 0; i < value.Count; i++)

@@ -37,9 +37,8 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T DefaultIfNull<T>(this T? component) where T : class, IComponentOwner => component ?? MugenService.Instance<T>();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IComponentOwner =>
-            component ?? (source as IHasService<T>)?.GetService(false) ?? (T?)(source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
+            component ?? (source as IHasService<T>)?.GetService(false) ?? (T?) (source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
 
         public static object? GetService(this IServiceProvider serviceProvider, Type serviceType, IReadOnlyMetadataContext? metadata)
         {

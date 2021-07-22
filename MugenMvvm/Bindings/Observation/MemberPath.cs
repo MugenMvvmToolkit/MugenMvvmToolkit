@@ -88,7 +88,6 @@ namespace MugenMvvm.Bindings.Observation
 
         string? IValueHolder<string>.Value { get; set; }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsMultiPath(string? path) => path != null && (path.IndexOf('.') >= 0 || path.IndexOf('[') >= 0);
 
         public static IMemberPath Get(string path)
