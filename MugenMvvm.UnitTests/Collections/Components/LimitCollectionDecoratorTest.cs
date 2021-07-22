@@ -406,7 +406,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private void Assert()
         {
-            _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
+            _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
             _tracker.ChangedItems.ShouldEqual(_decorator.Limit == null ? _collection : Decorate(_decorator.Limit.Value));
         }
 

@@ -24,6 +24,7 @@ namespace MugenMvvm.Collections.Components
         public ItemHeaderFooterCollectionDecorator(Func<T, bool?> isHeaderOrFooter, IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null,
             int priority = CollectionComponentPriority.HeaderFooterDecorator) : base(priority)
         {
+            Should.NotBeNull(isHeaderOrFooter, nameof(isHeaderOrFooter));
             _isHeaderOrFooter = isHeaderOrFooter;
             _headerComparer = headerComparer;
             _footerComparer = footerComparer;

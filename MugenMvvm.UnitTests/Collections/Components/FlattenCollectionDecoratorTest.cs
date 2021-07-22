@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var tracker = new DecoratorObservableCollectionTracker<object>();
             var assert = new Action(() =>
             {
-                collection.Decorate().ShouldEqual(tracker.ChangedItems);
+                collection.DecoratedItems().ShouldEqual(tracker.ChangedItems);
                 tracker.ChangedItems.ShouldEqual(Decorate(collection));
             });
             tracker.Changed += assert;
@@ -450,7 +450,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             root.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(o => new FlattenItemInfo(o)));
 
             var tracker = new DecoratorObservableCollectionTracker<object>();
-            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.Decorate());
+            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.DecoratedItems());
             root.AddComponent(tracker);
 
             var child1 = new SynchronizedObservableCollection<IReadOnlyObservableCollection>(ComponentCollectionManager);
@@ -559,7 +559,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                     Thread.Sleep(1000);
                     using var l = root.Lock();
-                    tracker.ChangedItems.ShouldEqual(root.Decorate());
+                    tracker.ChangedItems.ShouldEqual(root.DecoratedItems());
                 }
             });
             cts.CancelAfter(TimeSpan.FromSeconds(timeout));
@@ -1193,7 +1193,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private void Assert()
         {
-            _targetCollection.Decorate().ShouldEqual(_tracker.ChangedItems);
+            _targetCollection.DecoratedItems().ShouldEqual(_tracker.ChangedItems);
             _tracker.ChangedItems.ShouldEqual(Decorate());
         }
 
@@ -1215,7 +1215,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 if (enumerable != null)
                 {
                     if (!ReferenceEquals(enumerable, _itemCollection2))
-                        enumerable = enumerable.Decorate();
+                        enumerable = enumerable.DecoratedItems();
 
                     foreach (var nestedItem in enumerable)
                         yield return nestedItem;

@@ -6,7 +6,7 @@
         public static int DiffUtilAsyncLimit = 300;
         public static int DiffUtilMaxLimit = 5000;
         public static int BindableCollectionAdapterBatchDelay = 75;
-        public static int BindableCollectionAdapterBatchLimit = 10;
+        public static int BindableCollectionAdapterBatchLimit = 25;
         public static int FlattenCollectionDecoratorBatchLimit = 30;
     }
 }

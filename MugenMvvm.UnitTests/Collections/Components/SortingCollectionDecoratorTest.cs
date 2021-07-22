@@ -365,7 +365,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.ShouldEqual(_tracker.ChangedItems);
             else
                 _collection.OrderBy(o => o, _decorator.Comparer).ShouldEqual(_tracker.ChangedItems);
-            _collection.Decorate().ShouldEqual(_tracker.ChangedItems);
+            _collection.DecoratedItems().ShouldEqual(_tracker.ChangedItems);
         }
 
         int IComparer<object?>.Compare(object? x1, object? x2)

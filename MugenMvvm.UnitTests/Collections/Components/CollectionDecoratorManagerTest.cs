@@ -108,7 +108,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 }
             };
             collection.AddComponent(decorator);
-            collection.Decorate().ShouldEqual(decoratedItems);
+            collection.DecoratedItems().ShouldEqual(decoratedItems);
         }
 
         [Fact]
@@ -142,7 +142,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             };
             collection.AddComponent(decorator2);
 
-            collection.Decorate().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
+            collection.DecoratedItems().ShouldEqual(decoratedItems1.Concat(decoratedItems2));
         }
 
         [Theory]
@@ -163,7 +163,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator2);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
-            tracker.Changed += () => tracker.ChangedItems.Cast<object>().ShouldEqual(collection.Decorate());
+            tracker.Changed += () => tracker.ChangedItems.Cast<object>().ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(tracker);
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
@@ -242,7 +242,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator2);
 
             var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
-            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(tracker);
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
@@ -322,7 +322,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             });
             var collection = CreateCollection<TestCollectionItem>();
             var tracker = new DecoratorObservableCollectionTracker<object>();
-            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(tracker);
 
             var decorator1 = new SortingCollectionDecorator(comparer);
@@ -347,67 +347,67 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(50, item => item != null));
 
             collection.Add(new TestCollectionItem {Id = 1});
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             var item2 = new TestCollectionItem {Id = 2};
             collection.Insert(1, item2);
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             collection.Remove(item2);
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             collection.RemoveAt(0);
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             collection.Reset(new[]
             {
                 new TestCollectionItem {Id = 1}, new TestCollectionItem {Id = 2}, new TestCollectionItem {Id = 3},
                 new TestCollectionItem {Id = 4}, new TestCollectionItem {Id = 5}
             });
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             collection[0] = new TestCollectionItem {Id = 200};
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             collection.Move(1, 2);
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             collection.Clear();
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
 
             for (var i = 0; i < count; i++)
             {
                 collection.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
-                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+                tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             }
 
             for (var i = 0; i < 10; i++)
             {
                 collection.Move(i, i + 1);
-                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+                tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             }
 
             for (var i = 0; i < 10; i++)
             {
                 collection[i] = new TestCollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
-                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+                tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             }
 
             for (var i = 0; i < count; i++)
             {
                 collection[i].Id = Guid.NewGuid().GetHashCode();
                 collection.RaiseItemChanged(collection[i], null);
-                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+                tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             }
 
             for (var i = 0; i < count; i++)
             {
                 collection.RemoveAt(0);
-                tracker.ChangedItems.ShouldEqual(collection.Decorate());
+                tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             }
 
             collection.Clear();
-            tracker.ChangedItems.ShouldEqual(collection.Decorate());
+            tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
         }
 
         [Fact]
@@ -427,11 +427,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     return decoratedItems;
                 }
             });
-            collection.Decorate().ShouldEqual(decoratedItems);
+            collection.DecoratedItems().ShouldEqual(decoratedItems);
 
             collection.Dispose();
             collection.GetComponents<object>().IsEmpty.ShouldBeTrue();
-            collection.Decorate().ShouldEqual(rawItems);
+            collection.DecoratedItems().ShouldEqual(rawItems);
         }
 
         [Theory]

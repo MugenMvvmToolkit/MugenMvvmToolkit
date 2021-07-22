@@ -372,7 +372,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
 
             _tracker.ChangedItems.ShouldEqual(Decorate(header, footer));
-            _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
+            _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
 
         private IEnumerable<object> Decorate(ItemOrIReadOnlyList<object> header, ItemOrIReadOnlyList<object> footer)

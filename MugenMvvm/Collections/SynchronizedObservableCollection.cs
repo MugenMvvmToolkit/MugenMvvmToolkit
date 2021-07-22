@@ -610,7 +610,7 @@ namespace MugenMvvm.Collections
 
             public IEnumerable<T> Items => _collection.ToArray();
 
-            public IEnumerable<object?> DecoratedItems => _collection.Decorate().ToArray();
+            public IEnumerable<object?> DecoratedItems => _collection.DecoratedItems().ToArray();
         }
     }
 }

@@ -26,7 +26,7 @@ namespace MugenMvvm.Collections
         internal bool IsEmpty => Items == null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<object?> GetItems() => DecoratorListener ? Items!.Decorate() : Items!.AsEnumerable();
+        internal IEnumerable<object?> GetItems() => DecoratorListener ? Items!.DecoratedItems() : Items!.AsEnumerable();
 
         internal FlattenCollectionItemBase GetCollectionItem(FlattenCollectionDecorator decorator)
         {

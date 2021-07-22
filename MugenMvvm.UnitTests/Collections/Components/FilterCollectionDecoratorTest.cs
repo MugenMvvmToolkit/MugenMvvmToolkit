@@ -249,7 +249,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(_collection.Where(o => o is not int i || _filter1(i)).Where(o => o is not TestCollectionItem t || _filter2(t)));
-            _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
+            _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
     }
 }

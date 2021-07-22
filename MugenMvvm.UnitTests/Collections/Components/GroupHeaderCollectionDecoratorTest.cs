@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var decorator = (ICollectionDecorator) _collection.GetComponent<GroupHeaderCollectionDecorator<object, object>>();
 
             var i = 0;
-            foreach (var o in _collection.Decorate())
+            foreach (var o in _collection.DecoratedItems())
             {
                 var indexes = new ItemOrListEditor<int>();
                 decorator.TryGetIndexes(_collection, _collection, o!, ref indexes).ShouldBeTrue();
@@ -455,7 +455,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(Decorate(_collection.GetComponentOptional<GroupHeaderCollectionDecorator<object, object>>() == _decorator ? _getHeader : null));
-            _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
+            _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
 
         private IEnumerable<object> Decorate(Func<object?, object?>? getHeader)

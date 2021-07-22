@@ -127,7 +127,7 @@ namespace MugenMvvm.Collections
                 notifyCollectionChanged.CollectionChanged -= Listener.OnCollectionChanged;
         }
 
-        protected virtual IEnumerable<object?> GetCollectionItems(IEnumerable collection) => collection.Decorate();
+        protected virtual IEnumerable<object?> GetCollectionItems(IEnumerable collection) => collection.DecoratedItems();
 
         protected virtual void OnChanged(object? item, int index, object? args, bool batchUpdate, int version) => (Items as IHasItemChangedSupport)?.OnChanged(item, index, args);
 

@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var tracker = new DecoratorObservableCollectionTracker<object>();
             var assert = new Action(() =>
             {
-                collection.Decorate().ShouldEqual(tracker.ChangedItems);
+                collection.DecoratedItems().ShouldEqual(tracker.ChangedItems);
                 tracker.ChangedItems.ShouldEqual(Decorate(collection, isHeaderOrFooter));
             });
             tracker.Changed += assert;
@@ -361,7 +361,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private void Assert()
         {
-            _tracker.ChangedItems.ShouldEqual(_collection.Decorate());
+            _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
             _tracker.ChangedItems.ShouldEqual(Decorate().ToArray());
         }
 
