@@ -16,6 +16,8 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             ChangedItems = new List<T>();
         }
 
+        public event Action? Changed;
+
         public List<T> ChangedItems { get; }
 
         public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
@@ -43,18 +45,39 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            RaiseChanged();
         }
 
-        public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
+        public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index)
+        {
+            OnAddEvent(ChangedItems, new[] {item}, index);
+            RaiseChanged();
+        }
 
-        public void OnReplaced(IReadOnlyObservableCollection<T> collection, T oldItem, T newItem, int index) =>
+        public void OnReplaced(IReadOnlyObservableCollection<T> collection, T oldItem, T newItem, int index)
+        {
             OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
+            RaiseChanged();
+        }
 
-        public void OnMoved(IReadOnlyObservableCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+        public void OnMoved(IReadOnlyObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        {
+            OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
+            RaiseChanged();
+        }
 
-        public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
+        public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index)
+        {
+            OnRemoveEvent(ChangedItems, new[] {item}, index);
+            RaiseChanged();
+        }
 
-        public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items) => OnReset(ChangedItems, items);
+        public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
+        {
+            OnReset(ChangedItems, items);
+            RaiseChanged();
+        }
 
         private static void OnAddEvent(List<T> items, IList? newItems, int index)
         {
@@ -99,5 +122,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             if (resetItems != null)
                 items.AddRange(resetItems);
         }
+
+        private void RaiseChanged() => Changed?.Invoke();
     }
 }

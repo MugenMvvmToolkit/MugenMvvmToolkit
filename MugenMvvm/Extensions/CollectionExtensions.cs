@@ -271,6 +271,23 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        public static ActionToken SynchronizeWith<T>(this IList<T> target, IReadOnlyObservableCollection<T> source)
+        {
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(source, nameof(source));
+            using var l1 = source.TryLock();
+            using var l2 = TryLock(target);
+            if (target is IObservableCollection<T> observableCollection)
+                observableCollection.Reset(source);
+            else
+            {
+                target.Clear();
+                target.AddRange(source);
+            }
+
+            return source.AddComponent(new CollectionSynchronizer<T>(target));
+        }
+
         [MustUseReturnValue]
         public static ActionToken TryLock(this IReadOnlyObservableCollection? collection) => TryLock(target: collection);
 
