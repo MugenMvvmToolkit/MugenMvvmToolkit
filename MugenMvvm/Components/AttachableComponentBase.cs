@@ -9,7 +9,7 @@ namespace MugenMvvm.Components
     {
         private T? _owner;
 
-        protected T Owner
+        protected internal T Owner
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -20,7 +20,7 @@ namespace MugenMvvm.Components
             }
         }
 
-        protected T? OwnerOptional
+        protected internal T? OwnerOptional
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _owner;

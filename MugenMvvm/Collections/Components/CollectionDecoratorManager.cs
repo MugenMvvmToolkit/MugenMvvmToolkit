@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Attributes;
@@ -65,47 +64,45 @@ namespace MugenMvvm.Collections.Components
         public void RaiseItemChanged(IReadOnlyObservableCollection collection, object item, object? args)
         {
             using var l = collection.TryLock();
-            int index;
-            IEnumerable<object?>? items = null;
-            if (collection is IList list)
-                index = list.IndexOf(item);
-            else
-            {
-                items = collection.AsEnumerable();
-                index = items.IndexOf(item);
-            }
+            var indexes = new ItemOrListEditor<int>();
+            var items = collection.AsEnumerable();
+            items.FindAllIndexOf(item, ref indexes);
 
-            if (index > -1)
+            if (indexes.Count != 0)
             {
-                OnChanged(collection, _decorators, 0, item, index, args);
+                OnChanged(collection, _decorators, 0, item, indexes, args);
                 return;
             }
 
             var decorators = _decorators;
-            items ??= collection.AsEnumerable();
             for (var i = 0; i < decorators.Count; i++)
             {
                 var decorator = decorators[i];
                 items = decorator.Decorate(collection, items);
-                index = IndexOf(collection, decorator, items, item);
-                if (index > -1)
+                FindAllIndexOf(collection, decorator, items, item, ref indexes);
+                if (indexes.Count != 0)
                 {
-                    OnChanged(collection, decorators, i, item, index, args);
+                    OnChanged(collection, decorators, i, item, indexes, args);
                     return;
                 }
             }
         }
 
-        private void OnChanged(IReadOnlyObservableCollection collection, ItemOrArray<ICollectionDecorator> decorators, int startIndex, object? item, int index, object? args)
+        private void OnChanged(IReadOnlyObservableCollection collection, ItemOrArray<ICollectionDecorator> decorators, int startIndex, object? item,
+            ItemOrIReadOnlyList<int> indexes, object? args)
         {
             using var token = BatchUpdate();
-            for (var i = startIndex; i < decorators.Count; i++)
+            foreach (var currentIndex in indexes)
             {
-                if (!decorators[i].OnChanged(collection, ref item, ref index, ref args))
-                    return;
-            }
+                int index = currentIndex;
+                for (var i = startIndex; i < decorators.Count; i++)
+                {
+                    if (!decorators[i].OnChanged(collection, ref item, ref index, ref args))
+                        return;
+                }
 
-            _listeners.OnChanged(collection, item, index, args);
+                _listeners.OnChanged(collection, item, index, args);
+            }
         }
 
         void ICollectionDecoratorManagerComponent.OnChanged(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
@@ -251,13 +248,15 @@ namespace MugenMvvm.Collections.Components
             return components;
         }
 
-        private static int IndexOf(IReadOnlyObservableCollection collection, ICollectionDecorator decorator, IEnumerable<object?> items, object item)
+        private static void FindAllIndexOf(IReadOnlyObservableCollection collection, ICollectionDecorator decorator, IEnumerable<object?> items, object item,
+            ref ItemOrListEditor<int> indexes)
         {
             if (!decorator.HasAdditionalItems)
-                return -1;
-            if (decorator.TryGetIndex(collection, items, item, out var index))
-                return index;
-            return items.IndexOf(item);
+                return;
+
+            indexes.Clear();
+            if (!decorator.TryGetIndexes(collection, items, item, ref indexes))
+                items.FindAllIndexOf(item, ref indexes);
         }
 
         private void Reset(object? component)

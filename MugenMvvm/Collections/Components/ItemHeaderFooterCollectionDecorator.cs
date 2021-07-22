@@ -11,17 +11,17 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemHeaderFooterCollectionDecorator : CollectionDecoratorBase, IComparer<ItemHeaderFooterCollectionDecorator.ItemInfo>
+    public class ItemHeaderFooterCollectionDecorator<T> : CollectionDecoratorBase, IComparer<ItemHeaderFooterCollectionDecorator<T>.ItemInfo>
     {
-        private readonly Func<object?, bool?> _isHeaderOrFooter;
-        private readonly IComparer<object?>? _headerComparer;
-        private readonly IComparer<object?>? _footerComparer;
+        private readonly Func<T, bool?> _isHeaderOrFooter;
+        private readonly IComparer<T>? _headerComparer;
+        private readonly IComparer<T>? _footerComparer;
         private readonly ListInternal<ItemInfo> _headers;
         private readonly ListInternal<ItemInfo> _footers;
-        private IComparer<object?>? _currentComparer;
+        private IComparer<T>? _currentComparer;
         private int _footerIndex;
 
-        public ItemHeaderFooterCollectionDecorator(Func<object?, bool?> isHeaderOrFooter, IComparer<object?>? headerComparer = null, IComparer<object?>? footerComparer = null,
+        public ItemHeaderFooterCollectionDecorator(Func<T, bool?> isHeaderOrFooter, IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null,
             int priority = CollectionComponentPriority.HeaderFooterDecorator) : base(priority)
         {
             _isHeaderOrFooter = isHeaderOrFooter;
@@ -47,21 +47,41 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            var isHeaderOrFooter = _isHeaderOrFooter(item); //todo dynamics
-            if (isHeaderOrFooter != null)
+            if (item is T itemT)
             {
-                if (isHeaderOrFooter.Value)
+                bool? isHeaderOrFooterOld = null;
+                var headerIndex = _headers.IndexOf(new ItemInfo(itemT, index));
+                int footerIndex;
+                if (headerIndex < 0)
                 {
-                    index = _headers.IndexOf(new ItemInfo(item, index));
-                    return index >= 0;
+                    footerIndex = _footers.IndexOf(new ItemInfo(itemT, index));
+                    if (footerIndex >= 0)
+                        isHeaderOrFooterOld = false;
+                }
+                else
+                {
+                    footerIndex = -1;
+                    isHeaderOrFooterOld = true;
                 }
 
-                index = _footers.IndexOf(new ItemInfo(item, index));
-                if (index < 0)
-                    return false;
+                var isHeaderOrFooterNew = _isHeaderOrFooter(itemT);
+                if (isHeaderOrFooterOld != isHeaderOrFooterNew)
+                    return Replace(decoratorManager, collection, isHeaderOrFooterOld, isHeaderOrFooterNew, item, item, ref index, headerIndex, footerIndex);
 
-                index += _footerIndex;
-                return true;
+                if (isHeaderOrFooterNew != null)
+                {
+                    if (isHeaderOrFooterNew.Value)
+                    {
+                        index = headerIndex;
+                        return headerIndex >= 0;
+                    }
+
+                    if (footerIndex < 0)
+                        return false;
+
+                    index = footerIndex + _footerIndex;
+                    return true;
+                }
             }
 
             index = GetIndex(index);
@@ -77,24 +97,29 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var oldItemIsHeaderOrFooter = _isHeaderOrFooter(oldItem);
-            var newItemIsHeaderOrFooter = _isHeaderOrFooter(newItem);
-            if (oldItemIsHeaderOrFooter == null && newItemIsHeaderOrFooter == null)
+            var isHeaderOrFooterOld = oldItem is T oldT ? _isHeaderOrFooter(oldT) : null;
+            var isHeaderOrFooterNew = newItem is T newT ? _isHeaderOrFooter(newT) : null;
+            if (isHeaderOrFooterOld == null && isHeaderOrFooterNew == null)
             {
                 index = GetIndex(index);
                 return true;
             }
 
+            return Replace(decoratorManager, collection, isHeaderOrFooterOld, isHeaderOrFooterNew, oldItem, newItem, ref index);
+        }
+
+        private bool Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
+            bool? isHeaderOrFooterOld, bool? isHeaderOrFooterNew, object? oldItem, object? newItem, ref int index, int? headerIndex = null, int? footerIndex = null)
+        {
             var removeIndex = index;
-            RemoveHeaderOrFooter(oldItem, ref removeIndex, oldItemIsHeaderOrFooter, true);
-            AddHeaderOrFooter(newItem, ref index, newItemIsHeaderOrFooter, true);
+            RemoveHeaderOrFooter(oldItem, ref removeIndex, isHeaderOrFooterOld, true, headerIndex, footerIndex);
+            AddHeaderOrFooter(newItem, ref index, isHeaderOrFooterNew, true);
 
             if (removeIndex == index)
                 return true;
 
             decoratorManager.OnRemoved(collection, this, oldItem, removeIndex);
             decoratorManager.OnAdded(collection, this, newItem, index);
-
             return false;
         }
 
@@ -145,7 +170,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private int Add(ListInternal<ItemInfo> items, object? item, int index, IComparer<object?>? comparer)
+        private int Add(ListInternal<ItemInfo> items, T item, int index, IComparer<T>? comparer)
         {
             _currentComparer = comparer;
             return items.AddOrdered(new ItemInfo(item, index), this);
@@ -160,7 +185,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             if (!hasValue)
-                isHeaderOrFooter = _isHeaderOrFooter(item);
+                isHeaderOrFooter = item is T t ? _isHeaderOrFooter(t) : null;
             if (isHeaderOrFooter == null)
             {
                 if (!ignoreIndexes)
@@ -176,20 +201,20 @@ namespace MugenMvvm.Collections.Components
 
             if (isHeaderOrFooter.Value)
             {
-                index = Add(_headers, item, index, _headerComparer);
+                index = Add(_headers, (T) item!, index, _headerComparer);
                 ++_footerIndex;
             }
             else
-                index = Add(_footers, item, index, _footerComparer) + _footerIndex;
+                index = Add(_footers, (T) item!, index, _footerComparer) + _footerIndex;
 
             return true;
         }
 
-        private void RemoveHeaderOrFooter(object? item, ref int index, bool? isHeaderOrFooter = null, bool hasValue = false)
+        private void RemoveHeaderOrFooter(object? item, ref int index, bool? isHeaderOrFooter = null, bool hasValue = false, int? headerIndex = null, int? footerIndex = null)
         {
             var originalIndex = index;
             if (!hasValue)
-                isHeaderOrFooter = _isHeaderOrFooter(item);
+                isHeaderOrFooter = item is T t ? _isHeaderOrFooter(t) : null;
             if (isHeaderOrFooter == null)
             {
                 index = GetIndex(index);
@@ -197,7 +222,7 @@ namespace MugenMvvm.Collections.Components
             }
             else if (isHeaderOrFooter.Value)
             {
-                index = _headers.IndexOf(new ItemInfo(item, index));
+                index = headerIndex ?? _headers.IndexOf(new ItemInfo((T) item!, index));
                 if (index < 0)
                     ExceptionManager.ThrowNotValidArgument(nameof(item));
                 _headers.RemoveAt(index);
@@ -205,7 +230,7 @@ namespace MugenMvvm.Collections.Components
             }
             else
             {
-                index = _footers.IndexOf(new ItemInfo(item, index));
+                index = footerIndex ?? _footers.IndexOf(new ItemInfo((T) item!, index));
                 if (index < 0)
                     ExceptionManager.ThrowNotValidArgument(nameof(item));
                 _footers.RemoveAt(index);
@@ -227,7 +252,7 @@ namespace MugenMvvm.Collections.Components
             {
                 foreach (var item in items)
                 {
-                    if (_isHeaderOrFooter(item) == null)
+                    if (item is not T t || _isHeaderOrFooter(t) == null)
                         yield return item;
                 }
             }
@@ -275,19 +300,19 @@ namespace MugenMvvm.Collections.Components
         [StructLayout(LayoutKind.Auto)]
         private struct ItemInfo : IEquatable<ItemInfo>
         {
-            public readonly object? Item;
+            public readonly T Item;
 
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
             public int OriginalIndex;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public ItemInfo(object? item, int originalIndex)
+            public ItemInfo(T item, int originalIndex)
             {
                 Item = item;
                 OriginalIndex = originalIndex;
             }
 
-            public bool Equals(ItemInfo other) => Equals(Item, other.Item) && OriginalIndex == other.OriginalIndex;
+            public bool Equals(ItemInfo other) => EqualityComparer<T>.Default.Equals(Item, other.Item) && OriginalIndex == other.OriginalIndex;
         }
     }
 }

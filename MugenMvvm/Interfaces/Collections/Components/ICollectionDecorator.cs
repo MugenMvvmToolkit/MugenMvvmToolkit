@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
@@ -7,7 +8,7 @@ namespace MugenMvvm.Interfaces.Collections.Components
     {
         bool HasAdditionalItems { get; }
 
-        bool TryGetIndex(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, out int index);
+        bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes);
 
         IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items);
 

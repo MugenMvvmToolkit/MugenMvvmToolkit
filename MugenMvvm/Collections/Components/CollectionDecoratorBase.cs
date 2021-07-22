@@ -19,7 +19,7 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; set; }
 
-        protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
+        protected internal ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
 
         protected abstract IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items);
@@ -39,12 +39,8 @@ namespace MugenMvvm.Collections.Components
 
         protected abstract bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items);
 
-        protected virtual bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item,
-            out int index)
-        {
-            index = -1;
-            return false;
-        }
+        protected virtual bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
+            object item, ref ItemOrListEditor<int> indexes) => false;
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -58,16 +54,13 @@ namespace MugenMvvm.Collections.Components
             DecoratorManager = owner.GetComponent<ICollectionDecoratorManagerComponent>();
         }
 
-        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, out int index)
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
         {
             var decoratorManager = DecoratorManager;
             if (decoratorManager == null)
-            {
-                index = -1;
                 return false;
-            }
 
-            return TryGetIndex(decoratorManager, collection, items, item, out index);
+            return TryGetIndexes(decoratorManager, collection, items, item, ref indexes);
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)

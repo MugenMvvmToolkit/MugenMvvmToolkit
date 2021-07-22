@@ -55,19 +55,15 @@ namespace MugenMvvm.Collections.Components
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items) => Decorate(items);
 
-        protected override bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object item, out int index)
+        protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
+            object item, ref ItemOrListEditor<int> indexes)
         {
             foreach (var groupInfo in _groups)
             {
-                if (Equals(groupInfo.Key, item))
-                {
-                    index = groupInfo.Value.Index;
-                    return true;
-                }
+                if (Equals(groupInfo.Key, item)) 
+                    indexes.Add(groupInfo.Value.Index);
             }
 
-            index = -1;
             return true;
         }
 

@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.AddComponent(_tracker);
             _isHeaderOrFooter = o =>
             {
-                var i = (int)o!;
+                var i = (int) o!;
                 if (i % 2 == 0)
                     return true;
                 if (i % 3 == 0)
@@ -35,6 +35,79 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 return null;
             };
             _tracker.Changed += Assert;
+        }
+
+        [Fact]
+        public void ChangeShouldTrackUnstableItems()
+        {
+            var item1 = "Item1";
+            var item2 = "Item2";
+            var item3 = "Item3";
+            var item4 = "Item4";
+            var headers = new List<string>();
+            var footers = new List<string>();
+            var collection = new SynchronizedObservableCollection<string>(ComponentCollectionManager);
+            var isHeaderOrFooter = new Func<string, bool?>(s =>
+            {
+                if (headers.Contains(s))
+                    return true;
+                if (footers.Contains(s))
+                    return false;
+                return null;
+            });
+            collection.AddComponent(new ItemHeaderFooterCollectionDecorator<string>(isHeaderOrFooter));
+
+            var tracker = new DecoratorObservableCollectionTracker<object>();
+            var assert = new Action(() =>
+            {
+                collection.Decorate().ShouldEqual(tracker.ChangedItems);
+                tracker.ChangedItems.ShouldEqual(Decorate(collection, isHeaderOrFooter));
+            });
+            tracker.Changed += assert;
+            collection.AddComponent(tracker);
+            collection.Reset(new[] {item1, item2, item3, item4});
+
+            int itemChangedCount = 0;
+
+            headers.Add(item2);
+            collection.RaiseItemChanged(item2, null);
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+
+            headers.Remove(item2);
+            footers.Add(item2);
+            collection.RaiseItemChanged(item2, null);
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+
+            footers.Remove(item2);
+            collection.RaiseItemChanged(item2, null);
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+
+            headers.Add(item1);
+            collection.RaiseItemChanged(item1, null);
+            ++itemChangedCount;
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+
+            footers.Add(item4);
+            collection.RaiseItemChanged(item4, null);
+            ++itemChangedCount;
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+
+            headers.Remove(item1);
+            collection.RaiseItemChanged(item1, null);
+            ++itemChangedCount;
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+
+            footers.Remove(item4);
+            collection.RaiseItemChanged(item4, null);
+            ++itemChangedCount;
+            assert();
+            tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
         }
 
         [Theory]
@@ -221,7 +294,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
         }
 
@@ -252,7 +325,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.RemoveAt(0);
                 Assert();
 
-                _collection.Reset(new object[] { 1, 2, 3, 4, 5, i });
+                _collection.Reset(new object[] {1, 2, 3, 4, 5, i});
                 Assert();
 
                 _collection[0] = 200;
@@ -283,7 +356,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _footerComparer = SortingComparer<int>.Ascending(o => o).Build();
             }
 
-            _collection.AddComponent(new ItemHeaderFooterCollectionDecorator(_isHeaderOrFooter, _headerComparer, _footerComparer));
+            _collection.AddComponent(new ItemHeaderFooterCollectionDecorator<object>(_isHeaderOrFooter, _headerComparer, _footerComparer));
         }
 
         private void Assert()
@@ -307,6 +380,18 @@ namespace MugenMvvm.UnitTests.Collections.Components
             enumerable = _collection.Where(o => _isHeaderOrFooter(o) == false);
             if (_footerComparer != null)
                 enumerable = enumerable.OrderBy(o => o, _footerComparer);
+            foreach (var item in enumerable)
+                yield return item;
+        }
+
+        private static IEnumerable<object> Decorate(SynchronizedObservableCollection<string> collection, Func<string, bool?> isHeaderOrFooter)
+        {
+            var enumerable = collection.Where(o => isHeaderOrFooter(o) == true);
+            foreach (var item in enumerable)
+                yield return item;
+            foreach (var item in collection.Where(o => isHeaderOrFooter(o) == null))
+                yield return item;
+            enumerable = collection.Where(o => isHeaderOrFooter(o) == false);
             foreach (var item in enumerable)
                 yield return item;
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
@@ -10,7 +11,7 @@ namespace MugenMvvm.Tests.Collections
     {
         public Func<IEnumerable<object?>, IEnumerable<object?>>? Decorate { get; set; }
 
-        public Func<IEnumerable<object?>, object, int?>? TryGetIndex { get; set; }
+        public TryGetIndexesDelegate? TryGetIndexes { get; set; }
 
         public FuncRef<object?, int, bool>? OnAdded { get; set; }
 
@@ -36,12 +37,10 @@ namespace MugenMvvm.Tests.Collections
                 throw new NotSupportedException();
         }
 
-        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, out int index)
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
         {
-            ThrowIfNeed(TryGetIndex);
-            var i = TryGetIndex?.Invoke(items, item);
-            index = i.GetValueOrDefault(-1);
-            return i.HasValue;
+            ThrowIfNeed(TryGetIndexes);
+            return TryGetIndexes?.Invoke(collection, items, item, ref indexes) ?? false;
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)
@@ -85,5 +84,7 @@ namespace MugenMvvm.Tests.Collections
             ThrowIfNeed(OnReset);
             return OnReset?.Invoke(ref items) ?? true;
         }
+
+        public delegate bool TryGetIndexesDelegate(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes);
     }
 }

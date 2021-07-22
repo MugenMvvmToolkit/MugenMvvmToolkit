@@ -8,11 +8,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ImmutableItemConverterCollectionDecorator<T> : ICollectionDecorator, IHasPriority
+    public sealed class ImmutableItemConverterCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority
     {
         private readonly Func<object?, object?> _converter;
 
-        public ImmutableItemConverterCollectionDecorator(Func<T, object?> converter, int priority = CollectionComponentPriority.ConverterDecorator)
+        public ImmutableItemConverterCollectionDecorator(Func<T, TTo> converter, int priority = CollectionComponentPriority.ConverterDecorator)
         {
             Should.NotBeNull(converter, nameof(converter));
             Converter = converter;
@@ -20,7 +20,7 @@ namespace MugenMvvm.Collections.Components
             _converter = converter as Func<object?, object?> ?? Convert;
         }
 
-        public Func<T, object?> Converter { get; }
+        public Func<T, TTo> Converter { get; }
 
         public bool HasAdditionalItems => true;
 
@@ -33,26 +33,22 @@ namespace MugenMvvm.Collections.Components
             return arg;
         }
 
-        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, out int index)
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
         {
-            if (typeof(T) == typeof(object))
-            {
-                index = -1;
+            if (typeof(TTo) == typeof(object))
                 return false;
-            }
 
-            if (item is T itemT)
+            if (item is TTo itemTo)
             {
-                index = 0;
+                var index = 0;
                 foreach (var v in items)
                 {
-                    if (v is T t && EqualityComparer<T>.Default.Equals(itemT, t))
-                        return true;
+                    if (v is T t && EqualityComparer<TTo>.Default.Equals(Converter(t), itemTo))
+                        indexes.Add(index);
                     ++index;
                 }
             }
 
-            index = -1;
             return true;
         }
 

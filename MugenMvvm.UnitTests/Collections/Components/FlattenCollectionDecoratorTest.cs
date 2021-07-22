@@ -15,8 +15,6 @@ using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
 
-#pragma warning disable 4014
-
 namespace MugenMvvm.UnitTests.Collections.Components
 {
     [Collection(SharedContext)]
@@ -35,55 +33,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemCollection2.AddComponent(new SortingCollectionDecorator(SortingComparer<int>.Descending(i => i).Build()));
 
             _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _targetCollection.AddComponent(new FlattenCollectionDecorator(o =>
-                new FlattenCollectionDecorator.FlattenItemInfo(o is string ? null : o as IEnumerable, o != _itemCollection2)));
+            _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable>(o => new FlattenItemInfo(o is string ? null : o, o != _itemCollection2)));
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _targetCollection.AddComponent(_tracker);
             _targetCollection.Add(_itemCollection1);
             _targetCollection.Add(_itemCollection2);
             _tracker.Changed += Assert;
-        }
-
-        [Fact]
-        public void IndexOfShouldBeValid()
-        {
-            _targetCollection.Clear();
-            _targetCollection.RemoveComponents<FlattenCollectionDecorator>();
-            _itemCollection1.RemoveComponents<SortingCollectionDecorator>();
-            _itemCollection1.RemoveComponents<FilterCollectionDecorator<int>>();
-            _itemCollection2.RemoveComponents<SortingCollectionDecorator>();
-            _itemCollection2.RemoveComponents<FilterCollectionDecorator<int>>();
-            _targetCollection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IEnumerable)));
-
-            var targetItem1 = -100;
-            var targetItem2 = -200;
-            var source1Item1 = 100;
-            var source1Item2 = 200;
-            var source2Item1 = 300;
-            var source2Item2 = 400;
-
-            _targetCollection.Add(targetItem1);
-            _targetCollection.Add(targetItem2);
-            _targetCollection.Add(_itemCollection1);
-            _targetCollection.Add(_itemCollection2);
-            _itemCollection1.Add(source1Item1);
-            _itemCollection1.Add(source1Item2);
-            _itemCollection2.Add(source2Item1);
-            _itemCollection2.Add(source2Item2);
-
-            var decorator = (ICollectionDecorator) _targetCollection.GetComponent<FlattenCollectionDecorator>();
-
-            decorator.TryGetIndex(_targetCollection, _targetCollection, source1Item1, out var index).ShouldBeTrue();
-            index.ShouldEqual(2);
-
-            decorator.TryGetIndex(_targetCollection, _targetCollection, source1Item2, out index).ShouldBeTrue();
-            index.ShouldEqual(3);
-
-            decorator.TryGetIndex(_targetCollection, _targetCollection, source2Item1, out index).ShouldBeTrue();
-            index.ShouldEqual(4);
-
-            decorator.TryGetIndex(_targetCollection, _targetCollection, source2Item2, out index).ShouldBeTrue();
-            index.ShouldEqual(5);
         }
 
         [Fact]
@@ -149,6 +104,99 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
+        public void ChangeShouldTrackUnstableItems()
+        {
+            var collection = new SynchronizedObservableCollection<UnstableCollection>(ComponentCollectionManager);
+            collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(c => new FlattenItemInfo(c.Items)));
+            var tracker = new DecoratorObservableCollectionTracker<object>();
+            var assert = new Action(() =>
+            {
+                collection.Decorate().ShouldEqual(tracker.ChangedItems);
+                tracker.ChangedItems.ShouldEqual(Decorate(collection));
+            });
+            tracker.Changed += assert;
+            collection.AddComponent(tracker);
+
+            for (int i = 0; i < 20; i++)
+                collection.Add(new UnstableCollection());
+
+            int itemChangedCount = 0;
+            for (int i = 0; i < collection.Count; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    var items = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {i};
+                    collection[i].Items = items;
+                    collection.RaiseItemChanged(collection[i], null);
+                    assert();
+                    for (int j = 0; j < i; j++)
+                    {
+                        items.Add(j);
+                        assert();
+                    }
+                }
+                else
+                {
+                    collection.RaiseItemChanged(collection[i], null);
+                    itemChangedCount++;
+                }
+
+                tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+                assert();
+            }
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                collection.RaiseItemChanged(collection[i], null);
+                if (collection[i].Items == null)
+                    itemChangedCount++;
+                tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+            }
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    var items = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {i + 1000};
+                    collection[i].Items = items;
+                    collection.RaiseItemChanged(collection[i], null);
+                    assert();
+                    for (int j = 0; j < i; j++)
+                    {
+                        items.Add(j + 1000);
+                        assert();
+                    }
+                }
+                else
+                {
+                    collection.RaiseItemChanged(collection[i], null);
+                    itemChangedCount++;
+                }
+
+                tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+                assert();
+            }
+
+            for (int i = 0; i < collection.Count; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    collection[i].Items = null;
+                    collection.RaiseItemChanged(collection[i], null);
+                    assert();
+                }
+                else
+                {
+                    collection.RaiseItemChanged(collection[i], null);
+                    itemChangedCount++;
+                }
+
+                tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
+                assert();
+            }
+        }
+
+        [Fact]
         public void ClearShouldTrackChanges()
         {
             for (var i = 0; i < 100; i++)
@@ -166,6 +214,63 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
             _targetCollection.Clear();
             Assert();
+        }
+
+        [Fact]
+        public void IndexOfShouldBeValid()
+        {
+            _targetCollection.Clear();
+            _targetCollection.RemoveComponents<FlattenCollectionDecorator>();
+            _itemCollection1.RemoveComponents<SortingCollectionDecorator>();
+            _itemCollection1.RemoveComponents<FilterCollectionDecorator<int>>();
+            _itemCollection2.RemoveComponents<SortingCollectionDecorator>();
+            _itemCollection2.RemoveComponents<FilterCollectionDecorator<int>>();
+            _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable>(o => new FlattenItemInfo(o)));
+
+            var targetItem1 = -100;
+            var targetItem2 = -200;
+            var source1Item1 = 100;
+            var source1Item2 = 200;
+            var source2Item1 = 300;
+            var source2Item2 = 400;
+
+            _targetCollection.Add(targetItem1);
+            _targetCollection.Add(targetItem2);
+            _targetCollection.Add(_itemCollection1);
+            _targetCollection.Add(_itemCollection2);
+
+            _itemCollection1.Add(source1Item1);
+            _itemCollection1.Add(source1Item2);
+            _itemCollection1.Add(source1Item2);
+
+            _itemCollection2.Add(source2Item1);
+            _itemCollection2.Add(source2Item2);
+            _itemCollection2.Add(source2Item2);
+
+            var decorator = (ICollectionDecorator) _targetCollection.GetComponent<FlattenCollectionDecorator>();
+            var indexes = new ItemOrListEditor<int>();
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_targetCollection, _targetCollection, source1Item1, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(1);
+            indexes[0].ShouldEqual(2);
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_targetCollection, _targetCollection, source1Item2, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(2);
+            indexes[0].ShouldEqual(3);
+            indexes[1].ShouldEqual(4);
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_targetCollection, _targetCollection, source2Item1, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(1);
+            indexes[0].ShouldEqual(5);
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_targetCollection, _targetCollection, source2Item2, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(2);
+            indexes[0].ShouldEqual(6);
+            indexes[1].ShouldEqual(7);
         }
 
         [Fact]
@@ -342,17 +447,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             var cts = new CancellationTokenSource();
             var root = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            root.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+            root.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(o => new FlattenItemInfo(o)));
 
             var tracker = new DecoratorObservableCollectionTracker<object>();
             tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.Decorate());
             root.AddComponent(tracker);
 
             var child1 = new SynchronizedObservableCollection<IReadOnlyObservableCollection>(ComponentCollectionManager);
-            child1.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+            child1.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(o => new FlattenItemInfo(o)));
 
             var child2 = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
-            child2.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+            child2.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(o => new FlattenItemInfo(o)));
 
             var nestedChild = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
             child1.Add(nestedChild);
@@ -433,7 +538,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                         }
                     });
 
-                    child.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IReadOnlyObservableCollection)));
+                    child.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(o => new FlattenItemInfo(o)));
                     child.Add(nestedChild1);
 
                     if (index % 2 == 0)
@@ -1119,6 +1224,26 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 yield return item;
             }
+        }
+
+        private IEnumerable<object?> Decorate(SynchronizedObservableCollection<UnstableCollection> collection)
+        {
+            foreach (var item in collection)
+            {
+                if (item.Items != null)
+                {
+                    foreach (var nestedItem in item.Items)
+                        yield return nestedItem;
+                    continue;
+                }
+
+                yield return item;
+            }
+        }
+
+        private sealed class UnstableCollection
+        {
+            public IList<object>? Items { get; set; }
         }
     }
 }

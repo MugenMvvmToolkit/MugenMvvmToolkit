@@ -67,7 +67,7 @@ namespace MugenMvvm.Collections
             _hasItem = hasItem;
         }
 
-        public int Count
+        public readonly int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
@@ -78,7 +78,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool IsEmpty
+        public readonly bool IsEmpty
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Count == 0;
@@ -87,9 +87,9 @@ namespace MugenMvvm.Collections
         public T this[int index]
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
+            readonly get
             {
-                if ((uint)index >= (uint)Count)
+                if ((uint) index >= (uint) Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 return _list == null ? _item! : _list[index];
@@ -97,7 +97,7 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                if ((uint)index >= (uint)Count)
+                if ((uint) index >= (uint) Count)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 if (_list != null)
@@ -107,14 +107,11 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private int DefaultCapacity
+        private readonly int DefaultCapacity
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => _capacity == 0 ? 4 : _capacity;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList<T>.Enumerator GetEnumerator() => new(ToItemOrList());
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrListEditor<T> FromRawValue(object? rawValue)
@@ -125,8 +122,14 @@ namespace MugenMvvm.Collections
                 return new ItemOrListEditor<T>(list);
             if (rawValue is IEnumerable<T> enumerable)
                 return new ItemOrListEditor<T>(new List<T>(enumerable));
-            return new ItemOrListEditor<T>((T)rawValue, null, true);
+            return new ItemOrListEditor<T>((T) rawValue, null, true);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ItemOrIReadOnlyList<T>(ItemOrListEditor<T> items) => items.ToItemOrList();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly ItemOrIReadOnlyList<T>.Enumerator GetEnumerator() => new(ToItemOrList());
 
         public void AddRange(List<T>? values) => AddRange(ItemOrIEnumerable.FromList(values));
 
@@ -167,7 +170,7 @@ namespace MugenMvvm.Collections
                     return;
                 }
 
-                _list = new List<T>(DefaultCapacity) { _item! };
+                _list = new List<T>(DefaultCapacity) {_item!};
                 _item = default!;
                 _hasItem = false;
             }
@@ -184,7 +187,7 @@ namespace MugenMvvm.Collections
                 _list.Add(item!);
             else if (_hasItem)
             {
-                _list = new List<T>(DefaultCapacity) { _item!, item! };
+                _list = new List<T>(DefaultCapacity) {_item!, item!};
                 _item = default;
                 _hasItem = false;
             }
@@ -196,10 +199,10 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Contains(T item) => IndexOf(item) >= 0;
+        public readonly bool Contains(T item) => IndexOf(item) >= 0;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int IndexOf(T item)
+        public readonly int IndexOf(T item)
         {
             if (_list != null)
                 return _list.IndexOf(item);
@@ -227,7 +230,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void RemoveAt(int index)
         {
-            if ((uint)index >= (uint)Count)
+            if ((uint) index >= (uint) Count)
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
             if (_list == null)
             {
@@ -251,7 +254,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal object? GetRawValueInternal()
+        internal readonly object? GetRawValueInternal()
         {
             if (_list == null)
                 return _item;
@@ -262,18 +265,15 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIReadOnlyList<T>(ItemOrListEditor<T> items) => items.ToItemOrList();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIReadOnlyList<T> ToItemOrList()
+        public readonly ItemOrIReadOnlyList<T> ToItemOrList()
         {
             if (_list == null)
                 return ItemOrIReadOnlyList.FromItem(_item, _hasItem);
-            return ItemOrIReadOnlyList.FromList((IReadOnlyList<T>)_list);
+            return ItemOrIReadOnlyList.FromList((IReadOnlyList<T>) _list);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IList<T> AsList()
+        public readonly IList<T> AsList()
         {
             if (_list != null)
                 return _list;
@@ -284,7 +284,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrArray<T> ToItemOrArray()
+        public readonly ItemOrArray<T> ToItemOrArray()
         {
             if (_list == null)
                 return ItemOrArray.FromItem(_item, _hasItem);

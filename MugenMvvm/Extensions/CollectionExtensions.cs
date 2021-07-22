@@ -268,20 +268,15 @@ namespace MugenMvvm.Extensions
             return enumerable.Count();
         }
 
-        internal static int IndexOf(this IEnumerable<object?> items, object item)
+        internal static void FindAllIndexOf(this IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
         {
-            if (items is IList l)
-                return l.IndexOf(item);
-
             int index = 0;
             foreach (var value in items)
             {
                 if (Equals(item, value))
-                    return index;
+                    indexes.Add(index);
                 ++index;
             }
-
-            return -1;
         }
 
         internal static IReadOnlyList<object>? ToReadOnlyList(this IEnumerable? enumerable)

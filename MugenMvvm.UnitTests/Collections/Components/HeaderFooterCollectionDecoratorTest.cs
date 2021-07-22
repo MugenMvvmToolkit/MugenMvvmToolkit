@@ -26,35 +26,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.Changed += Assert;
         }
 
-        [Fact]
-        public void IndexOfShouldBeValid()
-        {
-            var header1 = NewId();
-            var header2 = NewId();
-            var footer1 = NewId();
-            var footer2 = NewId();
-            var targetItem1 = 1;
-            var targetItem2 = 2;
-
-            _collection.Add(targetItem1);
-            _collection.Add(targetItem2);
-            _decorator.Header = new[] {header1, header2};
-            _decorator.Footer = new[] {footer1, footer2};
-
-            ICollectionDecorator decorator = _decorator;
-            int i = 0;
-            foreach (var o in _collection.Decorate())
-            {
-                if (o is string header)
-                {
-                    decorator.TryGetIndex(_collection, _collection, header, out var index).ShouldBeTrue();
-                    index.ShouldEqual(i);
-                }
-
-                ++i;
-            }
-        }
-
         [Theory]
         [MemberData(nameof(GetData))]
         public void AddShouldTrackChanges(string[]? header, string[]? footer)
@@ -110,6 +81,47 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Clear();
             Assert();
+        }
+
+        [Fact]
+        public void IndexOfShouldBeValid()
+        {
+            var header1 = NewId();
+            var header2 = NewId();
+            var footer1 = NewId();
+            var footer2 = NewId();
+            var targetItem1 = 1;
+            var targetItem2 = 2;
+
+            _collection.Add(targetItem1);
+            _collection.Add(targetItem2);
+            _decorator.Header = new[] {header1, header2, header2};
+            _decorator.Footer = new[] {footer1, footer2, footer2};
+
+            ICollectionDecorator decorator = _decorator;
+            var indexes = new ItemOrListEditor<int>();
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_collection, _collection, header1, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(1);
+            indexes[0].ShouldEqual(0);
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_collection, _collection, header2, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(2);
+            indexes[0].ShouldEqual(1);
+            indexes[1].ShouldEqual(2);
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_collection, _collection, footer1, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(1);
+            indexes[0].ShouldEqual(5);
+
+            indexes.Clear();
+            decorator.TryGetIndexes(_collection, _collection, footer2, ref indexes).ShouldBeTrue();
+            indexes.Count.ShouldEqual(2);
+            indexes[0].ShouldEqual(6);
+            indexes[1].ShouldEqual(7);
         }
 
         [Theory]

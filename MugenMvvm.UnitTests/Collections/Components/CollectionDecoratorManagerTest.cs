@@ -330,17 +330,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
             collection.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
-            collection.AddComponent(new GroupHeaderCollectionDecorator<object, object>(o => ((TestCollectionItem) o!).StableId % 2, null, null, true, -1));
-            collection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo((o as TestCollectionItem)?.Items)));
-            collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
+            collection.AddComponent(new GroupHeaderCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, true, -1));
+            collection.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items)));
+            collection.AddComponent(new ItemHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
             {
-                if (o is TestCollectionItem t && t.StableId % 3 == 0)
+                if (t.StableId % 3 == 0)
                     return false;
                 return null;
             }));
-            collection.AddComponent(new ItemHeaderFooterCollectionDecorator(o =>
+            collection.AddComponent(new ItemHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
             {
-                if (o is TestCollectionItem t && t.StableId % 10 == 0)
+                if (t.StableId % 10 == 0)
                     return true;
                 return null;
             }, SortingComparer<TestCollectionItem>.Descending(o => o.StableId).Build()));
