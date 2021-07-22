@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ImmutableItemConverterCollectionDecorator : ICollectionDecorator, IHasPriority
+    public sealed class ImmutableItemConverterCollectionDecorator : ICollectionDecorator, IHasPriority //todo generic
     {
         public ImmutableItemConverterCollectionDecorator(Func<object?, object?> converter, int priority = CollectionComponentPriority.ConverterDecorator)
         {
@@ -19,7 +19,15 @@ namespace MugenMvvm.Collections.Components
 
         public Func<object?, object?> Converter { get; }
 
-        public int Priority { get; init; }
+        public bool HasAdditionalItems => true;
+
+        public int Priority { get; set; }
+
+        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, object item, out int index)
+        {
+            index = -1;
+            return false;
+        }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items) => items.Select(Converter);
 

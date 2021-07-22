@@ -5,6 +5,10 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecorator : IComponent<IReadOnlyObservableCollection>
     {
+        bool HasAdditionalItems { get; }
+
+        bool TryGetIndex(IReadOnlyObservableCollection collection, object item, out int index);
+
         IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items);
 
         bool OnChanged(IReadOnlyObservableCollection collection, ref object? item, ref int index, ref object? args);

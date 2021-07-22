@@ -16,8 +16,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             ChangedItems = new List<T>();
         }
 
-        public int ItemChangedCount { get; set; }
-
         public List<T> ChangedItems { get; }
 
         public void OnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs args)
@@ -40,27 +38,21 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                     OnMoveEvent(items, args.OldItems, args.OldStartingIndex, args.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    OnReset(items, (IEnumerable<T>)sender);
+                    OnReset(items, (IEnumerable<T>) sender);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public void OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args)
-        {
-            ChangedItems[index].ShouldEqual(item);
-            ++ItemChangedCount;
-        }
-
-        public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] { item }, index);
+        public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAddEvent(ChangedItems, new[] {item}, index);
 
         public void OnReplaced(IReadOnlyObservableCollection<T> collection, T oldItem, T newItem, int index) =>
-            OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
+            OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
 
-        public void OnMoved(IReadOnlyObservableCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
+        public void OnMoved(IReadOnlyObservableCollection<T> collection, T item, int oldIndex, int newIndex) => OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
 
-        public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] { item }, index);
+        public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) => OnRemoveEvent(ChangedItems, new[] {item}, index);
 
         public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items) => OnReset(ChangedItems, items);
 
@@ -90,7 +82,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
             items[oldIndex]!.ShouldEqual(oldItems[0]);
             items.RemoveAt(oldIndex);
-            items.Insert(newIndex, (T)oldItems[0]!);
+            items.Insert(newIndex, (T) oldItems[0]!);
         }
 
         private static void OnReplaceEvent(List<T> items, IList? oldItems, IList? newItems, int index)
@@ -98,7 +90,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             if (oldItems == null || newItems == null || oldItems.Count > 1 || newItems.Count > 1)
                 throw new NotSupportedException();
             items[index]!.ShouldEqual(oldItems[0]);
-            items[index] = (T)newItems[0]!;
+            items[index] = (T) newItems[0]!;
         }
 
         private void OnReset(List<T> items, IEnumerable<T>? resetItems)

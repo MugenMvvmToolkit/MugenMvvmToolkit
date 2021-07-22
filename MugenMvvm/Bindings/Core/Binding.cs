@@ -364,7 +364,7 @@ namespace MugenMvvm.Bindings.Core
             }
             else
             {
-                var index = MugenExtensions.IndexOf(items, component);
+                var index = Array.IndexOf(items, component);
                 if (index < 0)
                     return false;
 

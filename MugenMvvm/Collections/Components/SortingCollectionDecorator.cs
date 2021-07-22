@@ -22,6 +22,8 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
+        public override bool HasAdditionalItems => false;
+
         public IComparer<object?>? Comparer
         {
             get => _comparer;

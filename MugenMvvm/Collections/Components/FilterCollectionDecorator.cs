@@ -28,6 +28,8 @@ namespace MugenMvvm.Collections.Components
             NullItemResult = true;
         }
 
+        public override bool HasAdditionalItems => false;
+
         public Func<T, bool>? Filter
         {
             get => _filter;

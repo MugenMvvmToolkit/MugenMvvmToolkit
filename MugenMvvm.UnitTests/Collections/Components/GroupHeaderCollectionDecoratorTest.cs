@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
@@ -32,6 +33,34 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _decorator = new GroupHeaderCollectionDecorator<object, object>(_getHeader);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
+        }
+
+        [Fact]
+        public void IndexOfShouldBeValid()
+        {
+            var targetItem1 = 1;
+            var targetItem2 = 2;
+            var targetItem3 = 3;
+            var targetItem4 = 4;
+
+            _collection.Add(targetItem1);
+            _collection.Add(targetItem2);
+            _collection.Add(targetItem3);
+            _collection.Add(targetItem4);
+
+            var decorator = (ICollectionDecorator) _collection.GetComponent<GroupHeaderCollectionDecorator<object, object>>();
+
+            int i = 0;
+            foreach (var o in _collection.Decorate())
+            {
+                if (o is string header)
+                {
+                    decorator.TryGetIndex(_collection, header, out var index).ShouldBeTrue();
+                    index.ShouldEqual(i);
+                }
+
+                ++i;
+            }
         }
 
         [Fact]

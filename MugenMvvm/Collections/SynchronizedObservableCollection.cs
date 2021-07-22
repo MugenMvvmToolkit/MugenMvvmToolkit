@@ -256,16 +256,6 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public void RaiseItemChanged(T item, object? args)
-        {
-            using (Lock())
-            {
-                var index = IndexOfInternal(item);
-                if (index != -1)
-                    _changedListeners.OnChanged(this, item, index, args);
-            }
-        }
-
         public ActionToken BatchUpdate()
         {
             if (_batchListeners.Count == 0)
@@ -554,12 +544,6 @@ namespace MugenMvvm.Collections
         }
 
         void IObservableCollection.Reset(IEnumerable? items) => Reset((IReadOnlyCollection<T>?) items);
-
-        void IObservableCollection.RaiseItemChanged(object item, object? args)
-        {
-            if (IsCompatibleObject(item))
-                RaiseItemChanged((T) item, args);
-        }
 
         void ISynchronizable.UpdateLocker(ILocker locker)
         {

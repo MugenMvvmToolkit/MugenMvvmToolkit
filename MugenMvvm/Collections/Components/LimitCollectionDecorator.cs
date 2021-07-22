@@ -27,6 +27,8 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
+        public override bool HasAdditionalItems => false;
+
         public Func<T, bool>? Condition
         {
             get => _condition;
@@ -90,7 +92,7 @@ namespace MugenMvvm.Collections.Components
 
             if (IsSatisfied(item))
             {
-                if (!Add(decoratorManager, (T)item!, index))
+                if (!Add(decoratorManager, (T) item!, index))
                     return false;
             }
             else
@@ -133,7 +135,7 @@ namespace MugenMvvm.Collections.Components
                 if (toRemove != NotFound)
                 {
                     _items.RemoveAt(toRemove);
-                    _items.AddOrdered(new ItemInfo((T)item!, newIndex));
+                    _items.AddOrdered(new ItemInfo((T) item!, newIndex));
                 }
 
                 oldIndex = GetIndex(oldIndex, oldIndex > newIndex);
@@ -141,7 +143,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            var value = (T)item!;
+            var value = (T) item!;
             Remove(decoratorManager, value, oldIndex);
             Add(decoratorManager, value, newIndex);
             return false;
@@ -154,7 +156,7 @@ namespace MugenMvvm.Collections.Components
 
             if (IsSatisfied(item))
             {
-                if (!Remove(decoratorManager, (T)item!, index))
+                if (!Remove(decoratorManager, (T) item!, index))
                     return false;
             }
             else
@@ -222,14 +224,14 @@ namespace MugenMvvm.Collections.Components
         private void Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, bool oldSatisfied, bool newSatisfied, object? oldItem,
             object? newItem, int index)
         {
-            if (!oldSatisfied || Remove(decoratorManager, (T)oldItem!, index))
+            if (!oldSatisfied || Remove(decoratorManager, (T) oldItem!, index))
             {
                 if (!oldSatisfied)
                     UpdateIndexes(index, -1);
                 decoratorManager.OnRemoved(collection, this, oldItem, GetIndex(index));
             }
 
-            if (!newSatisfied || Add(decoratorManager, (T)newItem!, index))
+            if (!newSatisfied || Add(decoratorManager, (T) newItem!, index))
             {
                 if (!newSatisfied)
                     UpdateIndexes(index, 1);
@@ -258,7 +260,7 @@ namespace MugenMvvm.Collections.Components
             foreach (var item in items)
             {
                 if (IsSatisfied(item))
-                    _items.Add(new ItemInfo((T)item!, index));
+                    _items.Add(new ItemInfo((T) item!, index));
                 ++index;
             }
 

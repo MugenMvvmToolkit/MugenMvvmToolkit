@@ -10,6 +10,8 @@ namespace MugenMvvm.Interfaces.Collections.Components
 
         IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
 
+        void RaiseItemChanged(IReadOnlyObservableCollection collection, object item, object? args);
+
         void OnChanged(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index, object? args);
 
         void OnAdded(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index);

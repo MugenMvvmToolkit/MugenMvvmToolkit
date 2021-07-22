@@ -17,7 +17,5 @@ namespace MugenMvvm.Interfaces.Collections
         void Move(int oldIndex, int newIndex);
 
         void Reset(IEnumerable? items);
-
-        void RaiseItemChanged(object item, object? args);
     }
 }

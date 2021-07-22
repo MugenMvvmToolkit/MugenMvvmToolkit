@@ -121,13 +121,6 @@ namespace MugenMvvm.Extensions.Components
                 c.OnResetting(collection, items);
         }
 
-        public static void OnChanged<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyObservableCollection<T> collection, T item, int index, object? args)
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            foreach (var c in listeners)
-                c.OnChanged(collection, item, index, args);
-        }
-
         public static void OnAdded<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(collection, nameof(collection));

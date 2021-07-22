@@ -32,6 +32,8 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
+        public override bool HasAdditionalItems => false;
+
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
@@ -45,7 +47,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            var isHeaderOrFooter = _isHeaderOrFooter(item);
+            var isHeaderOrFooter = _isHeaderOrFooter(item); //todo dynamics
             if (isHeaderOrFooter != null)
             {
                 if (isHeaderOrFooter.Value)

@@ -15,7 +15,9 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public int Priority { get; init; }
+        public abstract bool HasAdditionalItems { get; }
+
+        public int Priority { get; set; }
 
         protected ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
 
@@ -37,6 +39,12 @@ namespace MugenMvvm.Collections.Components
 
         protected abstract bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items);
 
+        protected virtual bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object item, out int index)
+        {
+            index = -1;
+            return false;
+        }
+
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
@@ -47,6 +55,18 @@ namespace MugenMvvm.Collections.Components
         {
             base.OnAttached(owner, metadata);
             DecoratorManager = owner.GetComponent<ICollectionDecoratorManagerComponent>();
+        }
+
+        bool ICollectionDecorator.TryGetIndex(IReadOnlyObservableCollection collection, object item, out int index)
+        {
+            var decoratorManager = DecoratorManager;
+            if (decoratorManager == null)
+            {
+                index = -1;
+                return false;
+            }
+
+            return TryGetIndex(decoratorManager, collection, item, out index);
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)

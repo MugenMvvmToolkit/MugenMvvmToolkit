@@ -40,30 +40,35 @@ namespace MugenMvvm.Internal
         {
             private ItemOrListEditor<SortingInfo> _sortInfo;
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Builder(SortingInfo sortingInfo)
             {
                 _sortInfo = new ItemOrListEditor<SortingInfo>(2);
                 _sortInfo.Add(sortingInfo);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Builder ThenBy<TValue>(Func<T, TValue> expression)
             {
                 _sortInfo.Add(SortingInfo.Create(expression, true));
                 return this;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Builder ThenByDescending<TValue>(Func<T, TValue> expression)
             {
                 _sortInfo.Add(SortingInfo.Create(expression, false));
                 return this;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Builder ThenCompare(Func<T, T, int> compare)
             {
                 _sortInfo.Add(SortingInfo.Create(compare));
                 return this;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Comparer Build() => new(_sortInfo.ToItemOrArray());
         }
 

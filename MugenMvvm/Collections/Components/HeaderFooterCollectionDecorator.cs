@@ -22,6 +22,8 @@ namespace MugenMvvm.Collections.Components
             _footerIndex = NoFooterIndex;
         }
 
+        public override bool HasAdditionalItems => _header.Count != 0 || _footer.Count != 0;
+
         public ItemOrIReadOnlyList<object> Header
         {
             get => _header;
@@ -42,6 +44,19 @@ namespace MugenMvvm.Collections.Components
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items) => Decorate(items);
+
+        protected override bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object item, out int index)
+        {
+            index = IndexOf(_header, item);
+            if (index < 0)
+            {
+                index = IndexOf(_footer, item);
+                if (index >= 0)
+                    index += _footerIndex;
+            }
+
+            return true;
+        }
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
@@ -92,6 +107,17 @@ namespace MugenMvvm.Collections.Components
                 _footerIndex = items.CountEx() + _header.Count;
             items = Decorate(items);
             return true;
+        }
+
+        private static int IndexOf(ItemOrIReadOnlyList<object> items, object item)
+        {
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (Equals(items[i], item))
+                    return i;
+            }
+
+            return -1;
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?>? items)

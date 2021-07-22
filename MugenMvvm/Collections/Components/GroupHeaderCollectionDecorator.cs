@@ -38,6 +38,8 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
+        public override bool HasAdditionalItems => _groups.Count != 0;
+
         private bool HasUpdateHandler
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +54,21 @@ namespace MugenMvvm.Collections.Components
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items) => Decorate(items);
+
+        protected override bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object item, out int index)
+        {
+            foreach (var groupInfo in _groups)
+            {
+                if (Equals(groupInfo.Key, item))
+                {
+                    index = groupInfo.Value.Index;
+                    return true;
+                }
+            }
+
+            index = -1;
+            return true;
+        }
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)

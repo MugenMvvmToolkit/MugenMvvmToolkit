@@ -4,15 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Collections;
-using MugenMvvm.Collections.Components;
-using MugenMvvm.Constants;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -39,34 +34,6 @@ namespace MugenMvvm.Extensions
             return v;
         }
 
-        public static void AddGroupByDecorators<T, TGroup>(this IReadOnlyObservableCollection collection, Func<T, TGroup> groupSelector,
-            IEqualityComparer<TGroup>? comparer = null, bool flattenGroup = true, int priority = CollectionComponentPriority.GroupHeaderDecorator,
-            int groupFlattenDecoratorPriorityStep = 5)
-            where TGroup : class, IHasTarget<IList<T>>
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            collection.AddComponent(new GroupHeaderCollectionDecorator<T, TGroup>(groupSelector, (header, action, item, args) =>
-            {
-                if (action == GroupHeaderChangedAction.Clear)
-                {
-                    header.Target.Clear();
-                    (header as IDisposable)?.Dispose();
-                }
-                else if (action == GroupHeaderChangedAction.ItemAdded)
-                    header.Target.Add(item);
-                else if (action == GroupHeaderChangedAction.ItemRemoved)
-                    header.Target.Remove(item);
-                else if (action == GroupHeaderChangedAction.ItemChanged)
-                    (header.Target as IObservableCollection<T>)?.RaiseItemChanged(item, args);
-            }, comparer, priority));
-            if (flattenGroup)
-            {
-                collection.AddComponent(new FilterCollectionDecorator<T>(_ => false, priority - 1));
-                collection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo((o as TGroup)?.Target),
-                    priority - 2 - Math.Max(0, groupFlattenDecoratorPriorityStep)));
-            }
-        }
-
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? Decorate(this IReadOnlyObservableCollection? collection)
         {
@@ -74,6 +41,12 @@ namespace MugenMvvm.Extensions
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             return component == null ? collection.AsEnumerable() : component.Decorate(collection);
+        }
+
+        public static void RaiseItemChanged(this IReadOnlyObservableCollection collection, object item, object? args)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            collection.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.RaiseItemChanged(collection, item, args);
         }
 
         public static void Reset<T>(this IObservableCollection<T> collection, ItemOrArray<T> itemOrArray) => Reset(collection, (ItemOrIEnumerable<T>) itemOrArray);
@@ -102,13 +75,12 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(items, nameof(items));
             Should.NotBeNull(value, nameof(value));
             if (items is List<T> list)
-            {
                 list.AddRange(value);
-                return;
+            else
+            {
+                foreach (var item in value)
+                    items.Add(item);
             }
-
-            foreach (var item in value)
-                items.Add(item);
         }
 
         public static T[] ToArray<T>(this T[] array)
@@ -164,7 +136,7 @@ namespace MugenMvvm.Extensions
 
         public static bool Remove<T>(ref T[] items, T item) where T : class
         {
-            var index = IndexOf(items, item);
+            var index = Array.IndexOf(items, item);
             if (index < 0)
                 return false;
 
@@ -221,17 +193,6 @@ namespace MugenMvvm.Extensions
             return false;
         }
 #endif
-
-        internal static int IndexOf<T>(T[] items, T item) where T : class
-        {
-            for (var i = 0; i < items.Length; i++)
-            {
-                if (items[i] == item)
-                    return i;
-            }
-
-            return -1;
-        }
 
         internal static void AddRaw<T>(ref object? source, T value) where T : class
         {
@@ -304,6 +265,22 @@ namespace MugenMvvm.Extensions
             if (enumerable is IReadOnlyCollection<T> c)
                 return c.Count;
             return enumerable.Count();
+        }
+
+        internal static int IndexOf(this IEnumerable<object?> items, object item)
+        {
+            if (items is IList l)
+                return l.IndexOf(item);
+
+            int index = 0;
+            foreach (var value in items)
+            {
+                if (Equals(item, value))
+                    return index;
+                ++index;
+            }
+
+            return -1;
         }
 
         internal static IReadOnlyList<object>? ToReadOnlyList(this IEnumerable? enumerable)

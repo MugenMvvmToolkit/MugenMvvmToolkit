@@ -14,10 +14,6 @@ namespace MugenMvvm.Collections.Components
         {
         }
 
-        void ICollectionChangedListener<T>.OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args)
-        {
-        }
-
         void ICollectionChangedListener<T>.OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAdded(item);
 
         void ICollectionChangedListener<T>.OnReplaced(IReadOnlyObservableCollection<T> collection, T oldItem, T newItem, int index) => OnReplaced(oldItem, newItem);

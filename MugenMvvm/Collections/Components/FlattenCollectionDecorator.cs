@@ -36,6 +36,8 @@ namespace MugenMvvm.Collections.Components
             _collectionItems = new Dictionary<object, FlattenCollectionItemBase>(InternalEqualityComparer.Reference);
         }
 
+        public override bool HasAdditionalItems => _collectionItems.Count > 0;
+
         public int BatchLimit
         {
             get => _batchLimit.GetValueOrDefault(CollectionMetadata.FlattenCollectionDecoratorBatchLimit);
@@ -50,6 +52,19 @@ namespace MugenMvvm.Collections.Components
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items) => Decorate(items);
+
+        protected override bool TryGetIndex(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object item, out int index)
+        {
+            foreach (var collectionItem in _collectionItems)
+            {
+                index = collectionItem.Value.IndexOf(item);
+                if (index >= 0)
+                    return true;
+            }
+
+            index = -1;
+            return true;
+        }
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
@@ -320,7 +335,7 @@ namespace MugenMvvm.Collections.Components
                 if (!itemType.IsValueType)
                     return new SourceFlattenCollectionItem<object?>().Initialize(Items!, decorator);
 
-                return ((FlattenCollectionItemBase)Activator.CreateInstance(typeof(SourceFlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator);
+                return ((FlattenCollectionItemBase) Activator.CreateInstance(typeof(SourceFlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator);
             }
         }
 
@@ -357,6 +372,17 @@ namespace MugenMvvm.Collections.Components
             {
                 if (Collection is ISynchronizable synchronizable)
                     synchronizable.UpdateLocker(locker);
+            }
+
+            public int IndexOf(object item)
+            {
+                if (Count == 0)
+                    return -1;
+                using var _ = MugenExtensions.TryLock(Collection);
+                var index = GetItems().IndexOf(item);
+                if (index < 0)
+                    return -1;
+                return Decorator.GetIndex(Items[0]) + index;
             }
 
             public void OnAdded(object source, int originalIndex, int index, bool notify, bool isRecycled, out bool isReset)
@@ -565,34 +591,28 @@ namespace MugenMvvm.Collections.Components
 
         private sealed class SourceFlattenCollectionItem<T> : FlattenCollectionItemBase, ICollectionChangedListener<T>
         {
-            public void OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args)
-            {
-                using var _ = BatchIfNeed();
-                OnChanged((IReadOnlyObservableCollection)collection, item, index, args);
-            }
-
             public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index)
             {
                 using var _ = BatchIfNeed();
-                OnAdded((IReadOnlyObservableCollection)collection, item, index);
+                OnAdded((IReadOnlyObservableCollection) collection, item, index);
             }
 
             public void OnReplaced(IReadOnlyObservableCollection<T> collection, T oldItem, T newItem, int index)
             {
                 using var _ = BatchIfNeed();
-                OnReplaced((IReadOnlyObservableCollection)collection, oldItem, newItem, index);
+                OnReplaced((IReadOnlyObservableCollection) collection, oldItem, newItem, index);
             }
 
             public void OnMoved(IReadOnlyObservableCollection<T> collection, T item, int oldIndex, int newIndex)
             {
                 using var _ = BatchIfNeed();
-                OnMoved((IReadOnlyObservableCollection)collection, item, oldIndex, newIndex);
+                OnMoved((IReadOnlyObservableCollection) collection, item, oldIndex, newIndex);
             }
 
             public void OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index)
             {
                 using var _ = BatchIfNeed();
-                OnRemoved((IReadOnlyObservableCollection)collection, item, index);
+                OnRemoved((IReadOnlyObservableCollection) collection, item, index);
             }
 
             public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items) => OnReset(collection, AsObjectEnumerable(items));

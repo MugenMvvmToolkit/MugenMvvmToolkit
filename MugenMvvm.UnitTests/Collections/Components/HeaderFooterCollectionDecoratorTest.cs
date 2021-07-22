@@ -2,6 +2,7 @@
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
@@ -23,6 +24,35 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
             _tracker.Changed += Assert;
+        }
+
+        [Fact]
+        public void IndexOfShouldBeValid()
+        {
+            var header1 = NewId();
+            var header2 = NewId();
+            var footer1 = NewId();
+            var footer2 = NewId();
+            var targetItem1 = 1;
+            var targetItem2 = 2;
+
+            _collection.Add(targetItem1);
+            _collection.Add(targetItem2);
+            _decorator.Header = new[] {header1, header2};
+            _decorator.Footer = new[] {footer1, footer2};
+
+            ICollectionDecorator decorator = _decorator;
+            int i = 0;
+            foreach (var o in _collection.Decorate())
+            {
+                if (o is string header)
+                {
+                    decorator.TryGetIndex(_collection, header, out var index).ShouldBeTrue();
+                    index.ShouldEqual(i);
+                }
+
+                ++i;
+            }
         }
 
         [Theory]
@@ -205,7 +235,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collection.Add(i);
             Assert();
 
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
         }
 
@@ -290,7 +320,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _collection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
 
             _collection[0] = 200;
@@ -307,15 +337,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private static IEnumerable<object?[]> GetData() =>
             new[]
             {
-                new object?[] { null, null },
-                new object?[] { new[] { "header" }, null },
-                new object?[] { new[] { "header1", "header2" }, null },
-                new object?[] { null, new[] { "footer" } },
-                new object?[] { null, new[] { "footer1", "footer2" } },
-                new object?[] { new[] { "header" }, new[] { "footer" } },
-                new object?[] { new[] { "header1", "header2" }, new[] { "footer" } },
-                new object?[] { new[] { "header" }, new[] { "footer1", "footer2" } },
-                new object?[] { new[] { "header1", "header2" }, new[] { "footer1", "footer2" } }
+                new object?[] {null, null},
+                new object?[] {new[] {"header"}, null},
+                new object?[] {new[] {"header1", "header2"}, null},
+                new object?[] {null, new[] {"footer"}},
+                new object?[] {null, new[] {"footer1", "footer2"}},
+                new object?[] {new[] {"header"}, new[] {"footer"}},
+                new object?[] {new[] {"header1", "header2"}, new[] {"footer"}},
+                new object?[] {new[] {"header"}, new[] {"footer1", "footer2"}},
+                new object?[] {new[] {"header1", "header2"}, new[] {"footer1", "footer2"}}
             };
 
         private void Assert()

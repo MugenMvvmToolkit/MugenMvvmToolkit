@@ -16,16 +16,11 @@ namespace MugenMvvm.Tests.Collections
 
         public Action<IReadOnlyObservableCollection<T>, T, int>? OnRemoved { get; set; }
 
-        public Action<IReadOnlyObservableCollection<T>, T, int, object?>? OnChanged { get; set; }
-
         public Action<IReadOnlyObservableCollection<T>, IReadOnlyCollection<T>?>? OnReset { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
         public int Priority { get; set; }
-
-        void ICollectionChangedListener<T>.OnChanged(IReadOnlyObservableCollection<T> collection, T item, int index, object? args) =>
-            OnChanged?.Invoke(collection, item!, index, args);
 
         void ICollectionChangedListener<T>.OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index)
         {

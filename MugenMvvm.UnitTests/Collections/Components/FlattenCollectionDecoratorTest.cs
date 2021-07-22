@@ -45,6 +45,48 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
+        public void IndexOfShouldBeValid()
+        {
+            _targetCollection.Clear();
+            _targetCollection.RemoveComponents<FlattenCollectionDecorator>();
+            _itemCollection1.RemoveComponents<SortingCollectionDecorator>();
+            _itemCollection1.RemoveComponents<FilterCollectionDecorator<int>>();
+            _itemCollection2.RemoveComponents<SortingCollectionDecorator>();
+            _itemCollection2.RemoveComponents<FilterCollectionDecorator<int>>();
+            _targetCollection.AddComponent(new FlattenCollectionDecorator(o => new FlattenCollectionDecorator.FlattenItemInfo(o as IEnumerable)));
+
+            var targetItem1 = -100;
+            var targetItem2 = -200;
+            var source1Item1 = 100;
+            var source1Item2 = 200;
+            var source2Item1 = 300;
+            var source2Item2 = 400;
+
+            _targetCollection.Add(targetItem1);
+            _targetCollection.Add(targetItem2);
+            _targetCollection.Add(_itemCollection1);
+            _targetCollection.Add(_itemCollection2);
+            _itemCollection1.Add(source1Item1);
+            _itemCollection1.Add(source1Item2);
+            _itemCollection2.Add(source2Item1);
+            _itemCollection2.Add(source2Item2);
+
+            var decorator = (ICollectionDecorator) _targetCollection.GetComponent<FlattenCollectionDecorator>();
+
+            decorator.TryGetIndex(_targetCollection, source1Item1, out var index).ShouldBeTrue();
+            index.ShouldEqual(2);
+
+            decorator.TryGetIndex(_targetCollection, source1Item2, out index).ShouldBeTrue();
+            index.ShouldEqual(3);
+
+            decorator.TryGetIndex(_targetCollection, source2Item1, out index).ShouldBeTrue();
+            index.ShouldEqual(4);
+
+            decorator.TryGetIndex(_targetCollection, source2Item2, out index).ShouldBeTrue();
+            index.ShouldEqual(5);
+        }
+
+        [Fact]
         public void AddShouldTrackChanges()
         {
             for (var i = 0; i < 10; i++)
@@ -98,8 +140,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 raiseCount += _itemCollection1[i] % 2 == 0 ? 1 : 0;
                 _tracker.ItemChangedCount.ShouldEqual(raiseCount);
 
+                //ignore changes because we're listening source instead of decorators
                 _itemCollection2.RaiseItemChanged(_itemCollection2[i], null);
-                raiseCount += 1;
                 _tracker.ItemChangedCount.ShouldEqual(raiseCount);
             }
 
