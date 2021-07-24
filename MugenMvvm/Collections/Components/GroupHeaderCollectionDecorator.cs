@@ -9,6 +9,7 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
+#pragma warning disable 8714
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -56,11 +57,14 @@ namespace MugenMvvm.Collections.Components
             IEnumerable<object?> items) => Decorate(items);
 
         protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object item, ref ItemOrListEditor<int> indexes)
+            object? item, ref ItemOrListEditor<int> indexes)
         {
+            if (item == null)
+                return true;
+
             foreach (var groupInfo in _groups)
             {
-                if (Equals(groupInfo.Key, item)) 
+                if (Equals(groupInfo.Key, item))
                     indexes.Add(groupInfo.Value.Index);
             }
 
@@ -255,7 +259,7 @@ namespace MugenMvvm.Collections.Components
                 yield return item;
         }
 
-        public delegate void UpdateGroupDelegate(TGroup group, GroupHeaderChangedAction action, T item, object? args);
+        public delegate void UpdateGroupDelegate(TGroup group, GroupHeaderChangedAction action, T? item, object? args);
 
         [StructLayout(LayoutKind.Auto)]
         private readonly struct ItemGroupInfo

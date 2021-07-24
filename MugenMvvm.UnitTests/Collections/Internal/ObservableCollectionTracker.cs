@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             RaiseChanged();
         }
 
-        public void OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
+        public void OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
         {
             OnReset(ChangedItems, items);
             RaiseChanged();

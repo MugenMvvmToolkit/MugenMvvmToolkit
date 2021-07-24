@@ -35,6 +35,9 @@ namespace MugenMvvm.Models
         public bool IsSuspended => _suspendCount != 0;
 
         [IgnoreDataMember]
+        internal bool HasSubscribers => PropertyChanged != null;
+
+        [IgnoreDataMember]
         [field: NonSerialized]
         IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
@@ -53,7 +56,7 @@ namespace MugenMvvm.Models
         public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase)m!).EndSuspend(), this);
+            return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);
         }
 
         protected virtual void OnEndSuspend(bool isDirty)

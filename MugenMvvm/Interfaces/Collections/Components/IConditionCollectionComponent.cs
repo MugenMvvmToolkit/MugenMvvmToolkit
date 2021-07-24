@@ -13,6 +13,6 @@ namespace MugenMvvm.Interfaces.Collections.Components
 
         bool CanRemove(IReadOnlyObservableCollection<T> collection, T item, int index);
 
-        bool CanReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items);
+        bool CanReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items);
     }
 }

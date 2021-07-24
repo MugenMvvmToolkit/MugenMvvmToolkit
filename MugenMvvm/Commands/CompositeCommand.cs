@@ -107,7 +107,9 @@ namespace MugenMvvm.Commands
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
+#pragma warning disable 4014
         public void Execute(object? parameter = null) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
+#pragma warning restore 4014
 
         public ValueTask<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<ICommandExecutorComponent>().TryExecuteAsync(this, parameter, cancellationToken, metadata);

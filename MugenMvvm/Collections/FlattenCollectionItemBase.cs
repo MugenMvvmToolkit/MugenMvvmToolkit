@@ -50,7 +50,7 @@ namespace MugenMvvm.Collections
                 synchronizable.UpdateLocker(locker);
         }
 
-        public void FindAllIndexOf(object item, ref ItemOrListEditor<int> indexes)
+        public void FindAllIndexOf(object? item, ref ItemOrListEditor<int> indexes)
         {
             if (Count == 0)
                 return;

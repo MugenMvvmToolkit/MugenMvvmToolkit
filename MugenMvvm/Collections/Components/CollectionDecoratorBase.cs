@@ -40,7 +40,7 @@ namespace MugenMvvm.Collections.Components
         protected abstract bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items);
 
         protected virtual bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object item, ref ItemOrListEditor<int> indexes) => false;
+            object? item, ref ItemOrListEditor<int> indexes) => false;
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -54,7 +54,7 @@ namespace MugenMvvm.Collections.Components
             DecoratorManager = owner.GetComponent<ICollectionDecoratorManagerComponent>();
         }
 
-        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
         {
             var decoratorManager = DecoratorManager;
             if (decoratorManager == null)

@@ -46,7 +46,7 @@ namespace MugenMvvm.Collections.Components
             IEnumerable<object?> items) => Decorate(items);
 
         protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object item, ref ItemOrListEditor<int> indexes)
+            object? item, ref ItemOrListEditor<int> indexes)
         {
             FindAllIndexOf(_header, item, 0, ref indexes);
             FindAllIndexOf(_footer, item, _footerIndex, ref indexes);
@@ -104,7 +104,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private static void FindAllIndexOf(ItemOrIReadOnlyList<object> items, object item, int offset, ref ItemOrListEditor<int> indexes)
+        private static void FindAllIndexOf(ItemOrIReadOnlyList<object> items, object? item, int offset, ref ItemOrListEditor<int> indexes)
         {
             for (var i = 0; i < items.Count; i++)
             {

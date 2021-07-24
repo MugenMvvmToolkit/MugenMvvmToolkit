@@ -8,7 +8,7 @@ namespace MugenMvvm.Interfaces.Collections.Components
     {
         bool HasAdditionalItems { get; }
 
-        bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes);
+        bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes);
 
         IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items);
 

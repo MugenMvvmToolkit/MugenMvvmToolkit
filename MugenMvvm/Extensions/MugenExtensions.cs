@@ -7,7 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvm.Bindings.Observation.Observers;
 using MugenMvvm.Collections;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Constants;
@@ -15,6 +17,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Entities;
@@ -359,6 +362,9 @@ namespace MugenMvvm.Extensions
                 return _forceExecuteMetadata ??= CommandMetadata.ForceExecute.ToContext(true);
             return metadata.WithValue(CommandMetadata.ForceExecute, true);
         }
+
+        internal static void AsChangedDelegate<T>(this Action<T, IReadOnlyObservableCollection> action, T target, CollectionObserverBase.ChangedEventInfo<object> eventInfo) =>
+            action(target, eventInfo.Collection);
 
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
         {

@@ -74,7 +74,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static bool CanReset<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
+        public static bool CanReset<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)
@@ -114,7 +114,7 @@ namespace MugenMvvm.Extensions.Components
                 c.OnRemoving(collection, item, index);
         }
 
-        public static void OnResetting<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
+        public static void OnResetting<T>(this ItemOrArray<ICollectionChangingListener<T>> listeners, IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
@@ -149,7 +149,7 @@ namespace MugenMvvm.Extensions.Components
                 c.OnRemoved(collection, item, index);
         }
 
-        public static void OnReset<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
+        public static void OnReset<T>(this ItemOrArray<ICollectionChangedListener<T>> listeners, IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)

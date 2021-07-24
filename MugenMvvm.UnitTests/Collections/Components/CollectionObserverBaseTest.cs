@@ -1,9 +1,9 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
 using Xunit;
@@ -12,33 +12,34 @@ using Xunit.Abstractions;
 namespace MugenMvvm.UnitTests.Collections.Components
 {
     [Collection(SharedContext)]
-    public abstract class ItemObserverCollectionListenerBaseTest : UnitTestBase
+    public abstract class CollectionObserverBaseTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<TestNotifyPropertyChangedModel> _collection;
-        private readonly ItemObserverCollectionListenerBase<object?> _listener;
+        private readonly CollectionObserverBase _listener;
         private TestNotifyPropertyChangedModel? _currentItem;
         private int _collectionChangedCount;
         private int _itemChangedCount;
 
-        protected ItemObserverCollectionListenerBaseTest(ItemObserverCollectionListenerBase<object?> listener, ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        protected CollectionObserverBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<TestNotifyPropertyChangedModel>(ComponentCollectionManager);
-            _listener = listener;
-            _collection.Components.Add(_listener);
-            _listener.AddObserver(this, (s, info) => s == this && info.IsCollectionEvent, (s, item) =>
+            _listener = GetObserver();
+            _listener.AddCollectionObserver(this, (s, c) =>
             {
                 s.ShouldEqual(this);
-                item.ShouldBeNull();
+                c.ShouldEqual(_collection);
                 ++_collectionChangedCount;
             });
-            _listener.AddObserver(this, (s, info) => s == this && info.IsMemberChanged(nameof(_currentItem.Property)), (s, item) =>
+            _listener.AddItemObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), item =>
             {
-                s.ShouldEqual(this);
-                _currentItem.ShouldEqual(item);
+                item.Member.ShouldEqual(nameof(_currentItem.Property));
+                _currentItem.ShouldEqual(item.Item);
                 ++_itemChangedCount;
             });
+            _collection.Components.Add(_listener);
+            _itemChangedCount = 0;
+            _collectionChangedCount = 0;
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
-            RegisterDisposeToken(ActionToken.FromDisposable(_listener));
         }
 
         [Theory]
@@ -188,42 +189,47 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Theory]
         [InlineData(10)]
         [InlineData(100)]
-        public async Task DelayShouldCancelPreviousChanges(int count)
+        public void DelayShouldTrackAllEvents(int count)
         {
             const int delay = 10;
+            var changedItems = new List<object>();
             _listener.ClearObservers();
-            _listener.AddObserver(this, (s, info) => s == this && info.IsCollectionEvent, (s, item) =>
+            _listener.AddCollectionObserver(this, (s, c) =>
             {
                 s.ShouldEqual(this);
-                item.ShouldBeNull();
+                c.ShouldEqual(_collection);
                 ++_collectionChangedCount;
             }, delay);
-            _listener.AddObserver(this, (s, info) => s == this && info.IsMemberChanged(nameof(_currentItem.Property)), (s, item) =>
+            _listener.AddItemObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), item =>
             {
-                s.ShouldEqual(this);
-                _currentItem.ShouldEqual(item);
-                ++_itemChangedCount;
+                item.Member.ShouldEqual(nameof(_currentItem.Property));
+                changedItems.Add(item.Item!);
             }, delay);
+            WaitCompletion(delay, () => _collectionChangedCount == 1);
+            _collectionChangedCount = 0;
+            changedItems.Count.ShouldEqual(0);
 
             for (var i = 0; i < count; i++)
                 _collection.Add(new TestNotifyPropertyChangedModel());
             _collectionChangedCount.ShouldEqual(0);
-            _itemChangedCount.ShouldEqual(0);
+            changedItems.Count.ShouldEqual(0);
 
-            await Task.Delay(delay * 3);
+            WaitCompletion(delay, () => _collectionChangedCount == 1);
             _collectionChangedCount.ShouldEqual(1);
-            _itemChangedCount.ShouldEqual(0);
+            changedItems.Count.ShouldEqual(0);
 
-            _currentItem = _collection[0];
             for (var i = 0; i < count; i++)
             {
-                _currentItem.OnPropertyChanged(nameof(_currentItem.Property));
-                _itemChangedCount.ShouldEqual(0);
+                _collection[i].OnPropertyChanged(nameof(_currentItem.Property));
+                changedItems.Count.ShouldEqual(0);
             }
 
-            WaitCompletion(delay, () => _collectionChangedCount == 1 && _itemChangedCount == 1);
+            WaitCompletion(delay, () => changedItems.Count == count);
             _collectionChangedCount.ShouldEqual(1);
-            _itemChangedCount.ShouldEqual(1);
+            changedItems.Count.ShouldEqual(count);
+            foreach (var item in _collection)
+                changedItems.Remove(item);
+            changedItems.Count.ShouldEqual(0);
         }
 
         [Theory]
@@ -245,6 +251,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _collectionChangedCount.ShouldEqual(i + 1);
                 _itemChangedCount.ShouldEqual(0);
             }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void RaiseChangedShouldNotify(bool force)
+        {
+            const int delay = 10;
+            var invokeCount = 0;
+            var delayInvokeCount = 0;
+            _listener.ClearObservers();
+            _listener.AddItemObserver<object>(_ => true, _ => ++invokeCount);
+            _listener.AddItemObserver<object>(_ => true, _ => ++delayInvokeCount, delay);
+            invokeCount = 0;
+            delayInvokeCount = 0;
+
+            _listener.RaiseChanged(force);
+            invokeCount.ShouldEqual(1);
+            delayInvokeCount.ShouldEqual(force ? 1 : 0);
         }
 
         [Fact]
@@ -297,7 +322,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemChangedCount.ShouldEqual(2);
             _collectionChangedCount.ShouldEqual(2);
 
-            _collection.Reset(new[] { item2 });
+            _collection.Reset(new[] {item2});
             _itemChangedCount.ShouldEqual(2);
             _collectionChangedCount.ShouldEqual(3);
 
@@ -312,46 +337,22 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collectionChangedCount.ShouldEqual(3);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void ShouldRaiseChanged(bool force)
-        {
-            const int delay = 10;
-            var invokeCount = 0;
-            var delayInvokeCount = 0;
-            _listener.ClearObservers();
-            _listener.AddObserver(this, (_, _) => true, (_, _) => ++invokeCount);
-            _listener.AddObserver(this, (_, _) => true, (_, _) => ++delayInvokeCount, delay);
-
-            _listener.RaiseChanged(force);
-            invokeCount.ShouldEqual(1);
-            delayInvokeCount.ShouldEqual(force ? 1 : 0);
-        }
-
         [Fact]
-        public void ShouldRaiseChangeEvent()
+        public void ShouldSubscribeOnPropertyChangeHasObservers()
         {
-            _listener.ClearObservers();
+            _collection.RemoveComponent(_listener);
+            var observer = GetObserver();
+            _collection.AddComponent(observer);
+
             var item1 = new TestNotifyPropertyChangedModel();
-            var item2 = new TestNotifyPropertyChangedModel();
-
-            var invokeCount = 0;
-            _listener.Changed += (sender, args) =>
-            {
-                sender.ShouldEqual(_listener);
-                ++invokeCount;
-            };
             _collection.Add(item1);
-            invokeCount.ShouldEqual(1);
-            _collection.Add(item2);
-            invokeCount.ShouldEqual(2);
+            item1.HasSubscribers.ShouldBeFalse();
 
-            item1.OnPropertyChanged(nameof(item1.Property));
-            invokeCount.ShouldEqual(3);
+            observer.AddCollectionObserver(this, (_, _) => { });
+            item1.HasSubscribers.ShouldBeFalse();
 
-            item2.OnPropertyChanged(nameof(item2.Property));
-            invokeCount.ShouldEqual(4);
+            observer.AddItemObserver<object>(_ => true, _ => { });
+            item1.HasSubscribers.ShouldBeTrue();
         }
 
         [Fact]
@@ -376,7 +377,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemChangedCount.ShouldEqual(0);
             _collectionChangedCount.ShouldEqual(0);
 
-            _collection.Reset(new[] { item2 });
+            _collection.Reset(new[] {item2});
             _itemChangedCount.ShouldEqual(0);
             _collectionChangedCount.ShouldEqual(0);
 
@@ -398,6 +399,77 @@ namespace MugenMvvm.UnitTests.Collections.Components
             item2.OnPropertyChanged(nameof(item1.Property));
             _itemChangedCount.ShouldEqual(1);
             _collectionChangedCount.ShouldEqual(1);
+        }
+
+        [Fact(Skip = ReleaseTest)]
+        public void WeakObserverShouldBeValid()
+        {
+            WeakTest(out var ref1, out var ref2);
+            _itemChangedCount = 0;
+            _collectionChangedCount = 0;
+            GcCollect();
+            GcCollect();
+
+            foreach (var item in _collection)
+                item.OnPropertyChanged(nameof(_currentItem.Property));
+            _collection.Add(new TestNotifyPropertyChangedModel());
+            _itemChangedCount.ShouldEqual(0);
+            _collectionChangedCount.ShouldEqual(0);
+            ref1.IsAlive.ShouldBeFalse();
+            ref2.IsAlive.ShouldBeFalse();
+        }
+
+        protected abstract CollectionObserverBase GetObserver();
+
+        private void WeakTest(out WeakReference weakReference1, out WeakReference weakReference2)
+        {
+            var target1 = new object();
+            var target2 = new object();
+            weakReference1 = new WeakReference(target1);
+            weakReference2 = new WeakReference(target2);
+            var ref1 = weakReference1;
+            var ref2 = weakReference2;
+
+            var count = 10;
+            _listener.ClearObservers();
+            _listener.AddCollectionObserverWeak(target1, (s, c) =>
+            {
+                s.ShouldNotBeNull();
+                s.ShouldEqual(ref1.Target);
+                c.ShouldEqual(_collection);
+                ++_collectionChangedCount;
+            });
+            _listener.AddItemObserverWeak<object, object>(target2, (s, info) =>
+            {
+                s.ShouldNotBeNull();
+                s.ShouldEqual(ref2.Target);
+                return info.IsMemberChanged(nameof(_currentItem.Property));
+            }, (s, item) =>
+            {
+                s.ShouldNotBeNull();
+                s.ShouldEqual(ref2.Target);
+                item.Member.ShouldEqual(nameof(_currentItem.Property));
+                item.Item.ShouldEqual(_currentItem);
+                ++_itemChangedCount;
+            });
+
+            _collectionChangedCount = 0;
+            _itemChangedCount.ShouldEqual(0);
+
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
+
+            _collectionChangedCount.ShouldEqual(count);
+            _itemChangedCount.ShouldEqual(0);
+
+            for (var i = 0; i < count; i++)
+            {
+                _currentItem = _collection[i];
+                _currentItem.OnPropertyChanged(nameof(_currentItem.Property));
+            }
+
+            _collectionChangedCount.ShouldEqual(count);
+            _itemChangedCount.ShouldEqual(count);
         }
     }
 }

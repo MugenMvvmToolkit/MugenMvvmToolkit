@@ -20,6 +20,8 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
+// ReSharper disable PossibleMultipleEnumeration
+
 // ReSharper disable NonAtomicCompoundOperator
 
 namespace MugenMvvm.Collections
@@ -235,7 +237,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public void Reset(IReadOnlyCollection<T>? items)
+        public void Reset(IEnumerable<T>? items)
         {
             if (items != null && _preInitializers.Count != 0)
             {
@@ -543,7 +545,7 @@ namespace MugenMvvm.Collections
                 Remove((T) value!);
         }
 
-        void IObservableCollection.Reset(IEnumerable? items) => Reset((IReadOnlyCollection<T>?) items);
+        void IObservableCollection.Reset(IEnumerable? items) => Reset((IEnumerable<T>?) items);
 
         void ISynchronizable.UpdateLocker(ILocker locker)
         {

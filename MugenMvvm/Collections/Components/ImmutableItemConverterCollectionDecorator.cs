@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ImmutableItemConverterCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority
+    public sealed class ImmutableItemConverterCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority where TTo : class
     {
         private readonly Func<object?, object?> _converter;
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Collections.Components
             return arg;
         }
 
-        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
         {
             if (typeof(TTo) == typeof(object))
                 return false;

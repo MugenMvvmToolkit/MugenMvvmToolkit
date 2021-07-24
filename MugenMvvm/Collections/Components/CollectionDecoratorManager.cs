@@ -61,7 +61,7 @@ namespace MugenMvvm.Collections.Components
                 yield return item;
         }
 
-        public void RaiseItemChanged(IReadOnlyObservableCollection collection, object item, object? args)
+        public void RaiseItemChanged(IReadOnlyObservableCollection collection, object? item, object? args)
         {
             using var l = collection.TryLock();
             var indexes = new ItemOrListEditor<int>();
@@ -248,7 +248,7 @@ namespace MugenMvvm.Collections.Components
             return components;
         }
 
-        private static void FindAllIndexOf(IReadOnlyObservableCollection collection, ICollectionDecorator decorator, IEnumerable<object?> items, object item,
+        private static void FindAllIndexOf(IReadOnlyObservableCollection collection, ICollectionDecorator decorator, IEnumerable<object?> items, object? item,
             ref ItemOrListEditor<int> indexes)
         {
             if (!decorator.HasAdditionalItems)
@@ -300,7 +300,7 @@ namespace MugenMvvm.Collections.Components
         void ICollectionChangedListener<T>.OnRemoved(IReadOnlyObservableCollection<T> collection, T item, int index) =>
             OnRemoved(collection, null, item, index);
 
-        void ICollectionChangedListener<T>.OnReset(IReadOnlyObservableCollection<T> collection, IReadOnlyCollection<T>? items)
+        void ICollectionChangedListener<T>.OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items)
         {
             if (items == null)
                 OnReset(collection, null, null);

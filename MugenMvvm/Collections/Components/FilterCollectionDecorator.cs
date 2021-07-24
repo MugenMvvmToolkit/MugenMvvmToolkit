@@ -14,16 +14,12 @@ namespace MugenMvvm.Collections.Components
     public class FilterCollectionDecorator<T> : CollectionDecoratorBase, IReadOnlyCollection<object?>
     {
         private Func<T, bool>? _filter;
-        private int[] _keys;
-        private int _size;
-        private object?[] _values;
+        private IndexMapList<object?> _list;
 
         public FilterCollectionDecorator(Func<T, bool>? filter = null, int priority = CollectionComponentPriority.FilterDecorator) : base(priority)
         {
             _filter = filter;
-            _keys = Array.Empty<int>();
-            _values = Array.Empty<object?>();
-            _size = 0;
+            _list = IndexMapList<object?>.Get();
             Priority = priority;
             NullItemResult = true;
         }
@@ -45,20 +41,20 @@ namespace MugenMvvm.Collections.Components
         [MemberNotNullWhen(true, nameof(_filter))]
         private bool HasFilter => _filter != null;
 
-        int IReadOnlyCollection<object?>.Count => _size;
+        int IReadOnlyCollection<object?>.Count => _list.Size;
 
         public void Invalidate() => UpdateFilterInternal(_filter);
 
         public IEnumerator<object?> GetEnumerator()
         {
-            for (var i = 0; i < _size; i++)
-                yield return _values[i];
+            for (var i = 0; i < _list.Size; i++)
+                yield return _list.Values[i];
         }
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
-            Clear();
+            _list.Clear();
         }
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
@@ -70,12 +66,12 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            var filterIndex = IndexOfKey(index);
+            var filterIndex = _list.BinarySearch(index);
             if (FilterInternal(item))
             {
-                if (filterIndex == -1)
+                if (filterIndex < 0)
                 {
-                    index = Add(index, item);
+                    index = _list.Add(index, item, filterIndex);
                     decoratorManager.OnAdded(collection, this, item, index);
                 }
                 else
@@ -84,9 +80,9 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            if (filterIndex != -1)
+            if (filterIndex >= 0)
             {
-                RemoveAt(filterIndex);
+                _list.RemoveAt(filterIndex);
                 decoratorManager.OnRemoved(collection, this, item, filterIndex);
             }
 
@@ -98,11 +94,12 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            UpdateIndexes(index, 1);
+            var binarySearchIndex = _list.BinarySearch(index);
+            _list.UpdateIndexes(index, 1, binarySearchIndex);
             if (!FilterInternal(item))
                 return false;
 
-            index = Add(index, item);
+            index = _list.Add(index, item, binarySearchIndex);
             return true;
         }
 
@@ -112,25 +109,25 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            var filterIndex = IndexOfKey(index);
-            if (filterIndex == -1)
+            var filterIndex = _list.BinarySearch(index);
+            if (filterIndex < 0)
             {
                 if (FilterInternal(newItem))
-                    decoratorManager.OnAdded(collection, this, newItem, Add(index, newItem));
+                    decoratorManager.OnAdded(collection, this, newItem, _list.Add(index, newItem, filterIndex));
 
                 return false;
             }
 
             if (FilterInternal(newItem))
             {
-                oldItem = GetValue(filterIndex)!;
-                SetValue(filterIndex, newItem);
+                oldItem = _list.GetValue(filterIndex)!;
+                _list.SetValue(filterIndex, newItem);
                 index = filterIndex;
                 return true;
             }
 
-            var oldValue = GetValue(filterIndex);
-            RemoveAt(filterIndex);
+            var oldValue = _list.GetValue(filterIndex);
+            _list.RemoveAt(filterIndex);
             decoratorManager.OnRemoved(collection, this, oldValue, filterIndex);
             return false;
         }
@@ -141,16 +138,16 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            var filterIndex = IndexOfKey(oldIndex);
-            UpdateIndexes(oldIndex + 1, -1);
-            UpdateIndexes(newIndex, 1);
+            var filterIndex = _list.IndexOfKey(oldIndex);
+            _list.UpdateIndexes(oldIndex + 1, -1);
+            _list.UpdateIndexes(newIndex, 1);
 
             if (filterIndex == -1)
                 return false;
 
-            RemoveAt(filterIndex);
+            _list.RemoveAt(filterIndex);
             oldIndex = filterIndex;
-            newIndex = Add(newIndex, item);
+            newIndex = _list.Add(newIndex, item);
             return true;
         }
 
@@ -159,13 +156,13 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            var filterIndex = IndexOfKey(index);
-            UpdateIndexes(index, -1);
-            if (filterIndex == -1)
+            var removeIndex = _list.BinarySearch(index);
+            _list.UpdateIndexes(index, -1, removeIndex);
+            if (removeIndex < 0)
                 return false;
 
-            RemoveAt(filterIndex);
-            index = filterIndex;
+            _list.RemoveAt(removeIndex);
+            index = removeIndex;
             return true;
         }
 
@@ -174,7 +171,7 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            Clear();
+            _list.Clear();
             if (items != null)
             {
                 UpdateItems(items);
@@ -194,7 +191,7 @@ namespace MugenMvvm.Collections.Components
 
             using var _ = Owner.TryLock();
             _filter = filter;
-            Clear();
+            _list.Clear();
             if (HasFilter)
                 UpdateItems(DecoratorManager.Decorate(Owner, this));
             DecoratorManager.OnReset(Owner, this, this);
@@ -203,13 +200,13 @@ namespace MugenMvvm.Collections.Components
         private void UpdateItems(IEnumerable<object?> items)
         {
             if (items is IReadOnlyCollection<object?> c)
-                EnsureCapacity(c.Count);
+                _list.EnsureCapacity(c.Count);
 
             var index = 0;
             foreach (var item in items)
             {
                 if (FilterInternal(item))
-                    AddRaw(index, item);
+                    _list.AddRaw(index, item);
                 ++index;
             }
         }
@@ -220,141 +217,6 @@ namespace MugenMvvm.Collections.Components
             if (value == null)
                 return NullItemResult;
             return value is not T v || _filter!(v);
-        }
-
-        private void UpdateIndexes(int index, int value)
-        {
-            if (_size == 0)
-                return;
-
-            var start = IndexOfKey(index);
-            if (start == -1)
-            {
-                if (_keys[_size - 1] < index)
-                    return;
-                for (var i = 0; i < _size; i++)
-                {
-                    var key = _keys[i];
-                    if (key >= index)
-                        _keys[i] += value;
-                }
-
-                return;
-            }
-
-            for (var i = start; i < _size; i++)
-                _keys[i] += value;
-        }
-
-        private void AddRaw(int key, object? value) => Insert(_size, key, value);
-
-        private int Add(int key, object? value)
-        {
-            var num = Array.BinarySearch(_keys, 0, _size, key);
-            if (num >= 0)
-                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(key));
-            return Insert(~num, key, value);
-        }
-
-        private void Clear()
-        {
-            Array.Clear(_keys, 0, _size);
-            Array.Clear(_values, 0, _size);
-            _size = 0;
-        }
-
-        private int IndexOfKey(int key)
-        {
-            var num = Array.BinarySearch(_keys, 0, _size, key);
-            if (num < 0)
-                return -1;
-            return num;
-        }
-
-        private object? GetValue(int index)
-        {
-            if (index >= _size)
-                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-
-            return _values[index];
-        }
-
-        private void SetValue(int index, object? value)
-        {
-            if (index >= _size)
-                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-
-            _values[index] = value;
-        }
-
-        private void RemoveAt(int index)
-        {
-            if (index < 0 || index >= _size)
-                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-
-            --_size;
-            if (index < _size)
-            {
-                Array.Copy(_keys, index + 1, _keys, index, _size - index);
-                Array.Copy(_values, index + 1, _values, index, _size - index);
-            }
-
-            _keys[_size] = default;
-            _values[_size] = default!;
-        }
-
-        private void EnsureCapacity(int min)
-        {
-            if (_keys.Length < min)
-            {
-                var num = _keys.Length == 0 ? 4 : _keys.Length * 2;
-                if (num < min)
-                    num = min;
-                SetCapacity(num);
-            }
-        }
-
-        private int Insert(int index, int key, object? value)
-        {
-            if (_size == _keys.Length)
-                EnsureCapacity(_size + 1);
-            if (index < _size)
-            {
-                Array.Copy(_keys, index, _keys, index + 1, _size - index);
-                Array.Copy(_values, index, _values, index + 1, _size - index);
-            }
-
-            _keys[index] = key;
-            _values[index] = value;
-            ++_size;
-            return index;
-        }
-
-        private void SetCapacity(int value)
-        {
-            if (value == _keys.Length)
-                return;
-            if (value < _size)
-                ExceptionManager.ThrowCapacityLessThanCollection(nameof(value));
-
-            if (value > 0)
-            {
-                var keyArray = new int[value];
-                var objArray = new object?[value];
-                if (_size > 0)
-                {
-                    Array.Copy(_keys, 0, keyArray, 0, _size);
-                    Array.Copy(_values, 0, objArray, 0, _size);
-                }
-
-                _keys = keyArray;
-                _values = objArray;
-            }
-            else
-            {
-                _keys = Array.Empty<int>();
-                _values = Array.Empty<object?>();
-            }
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

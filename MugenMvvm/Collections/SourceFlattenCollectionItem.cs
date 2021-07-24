@@ -33,7 +33,7 @@ namespace MugenMvvm.Collections
             OnRemoved((IReadOnlyObservableCollection) collection, item, index);
         }
 
-        public void OnReset(IReadOnlyObservableCollection<TItem> collection, IReadOnlyCollection<TItem>? items) => OnReset(collection, AsObjectEnumerable(items));
+        public void OnReset(IReadOnlyObservableCollection<TItem> collection, IEnumerable<TItem>? items) => OnReset(collection, AsObjectEnumerable(items));
 
         protected override IEnumerable<object?> GetItems() => Collection.AsEnumerable();
 

@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemObserverCollectionDecoratorListener : ItemObserverCollectionListenerBase<object?>, ICollectionDecoratorListener
+    public class DecoratedCollectionObserver : CollectionObserverBase, ICollectionDecoratorListener
     {
-        public ItemObserverCollectionDecoratorListener() : base(null)
+        [Preserve(Conditional = true)]
+        public DecoratedCollectionObserver()
         {
         }
 
-        public ItemObserverCollectionDecoratorListener(IEqualityComparer<object?>? comparer) : base(comparer)
-        {
-        }
+        protected override IEnumerable<object?>? GetItems() => OwnerOptional?.DecoratedItems();
 
         void ICollectionDecoratorListener.OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
         {

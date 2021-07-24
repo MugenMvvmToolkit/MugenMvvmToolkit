@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Components;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly ref struct DecoratorsConfiguration<T>
+    public readonly ref struct DecoratorsConfiguration
     {
         public readonly IReadOnlyObservableCollection Collection;
         public readonly int Priority;
@@ -20,18 +20,12 @@ namespace MugenMvvm.Collections
             Priority = priority;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DecoratorsConfiguration<TNewType> Cast<TNewType>() => new(Collection, Priority);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DecoratorsConfiguration<T> AddDecorator(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null) => AddDecorator<T>(decorator, priority);
-
-        public DecoratorsConfiguration<TNewType> AddDecorator<TNewType>(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null)
+        public DecoratorsConfiguration AddDecorator(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null)
         {
             if (Collection == null)
-                ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration<T>));
+                ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration));
             Collection.AddComponent(decorator);
-            return new DecoratorsConfiguration<TNewType>(Collection!, priority ?? Priority - 1);
+            return new DecoratorsConfiguration(Collection!, priority ?? Priority - 10);
         }
     }
 }

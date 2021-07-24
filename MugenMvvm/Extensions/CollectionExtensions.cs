@@ -37,83 +37,62 @@ namespace MugenMvvm.Extensions
             return v;
         }
 
-        public static void ApplyChangesTo<T>(this GroupHeaderChangedAction action, IList<T> items, T item, object? args)
+        public static void ApplyChangesTo<T>(this GroupHeaderChangedAction action, IList<T> items, T? item, object? args)
         {
             if (action == GroupHeaderChangedAction.Clear)
                 items.Clear();
             else if (action == GroupHeaderChangedAction.ItemAdded)
-                items.Add(item);
+                items.Add(item!);
             else if (action == GroupHeaderChangedAction.ItemRemoved)
-                items.Remove(item);
-            else if (action == GroupHeaderChangedAction.ItemChanged && item != null)
+                items.Remove(item!);
+            else if (action == GroupHeaderChangedAction.ItemChanged)
                 (items as IReadOnlyObservableCollection)?.RaiseItemChanged(item, args);
         }
 
-        public static DecoratorsConfiguration<T> ConfigureDecorators<T>(this IReadOnlyObservableCollection<T> collection, int priority = 0) => new(collection, priority);
+        public static DecoratorsConfiguration Convert<T, TTo>(this DecoratorsConfiguration configuration, Func<T, TTo?, TTo?> converter, IEqualityComparer<TTo?>? comparer = null,
+            Action<T, TTo>? cleanup = null) where T : notnull where TTo : class => configuration.Convert(converter, cleanup, comparer, out _);
 
-        public static DecoratorsConfiguration<object> ConfigureDecorators(this IReadOnlyObservableCollection collection, int priority = 0) => new(collection, priority);
+        public static DecoratorsConfiguration Convert<T, TTo>(this DecoratorsConfiguration configuration, Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup,
+            IEqualityComparer<TTo?>? comparer, out ItemConverterCollectionDecorator<T, TTo> decorator) where T : notnull where TTo : class
+        {
+            decorator = new ItemConverterCollectionDecorator<T, TTo>(converter, cleanup, comparer, configuration.Priority);
+            return configuration.AddDecorator(decorator);
+        }
 
+        public static DecoratorsConfiguration ConvertImmutable<T, TTo>(this DecoratorsConfiguration configuration, Func<T, TTo> converter) where TTo : class
+            => configuration.ConvertImmutable(converter, out _);
 
-        public static DecoratorsConfiguration<TTo> ConvertImmutable<T, TTo>(this DecoratorsConfiguration<T> configuration, Func<T, TTo> converter) =>
-            configuration.ConvertImmutable(converter, out _);
-
-        public static DecoratorsConfiguration<TTo> ConvertImmutable<T, TTo>(this DecoratorsConfiguration<T> configuration, Func<T, TTo> converter,
-            out ImmutableItemConverterCollectionDecorator<T, TTo> decorator) =>
-            configuration.Cast<object>().ConvertImmutable(converter, out decorator).Cast<TTo>();
-
-        public static DecoratorsConfiguration<object> ConvertImmutable<T, TTo>(this DecoratorsConfiguration<object> configuration, Func<T, TTo> converter) =>
-            configuration.ConvertImmutable(converter, out _);
-
-        public static DecoratorsConfiguration<object> ConvertImmutable<T, TTo>(this DecoratorsConfiguration<object> configuration, Func<T, TTo> converter,
-            out ImmutableItemConverterCollectionDecorator<T, TTo> decorator)
+        public static DecoratorsConfiguration ConvertImmutable<T, TTo>(this DecoratorsConfiguration configuration, Func<T, TTo> converter,
+            out ImmutableItemConverterCollectionDecorator<T, TTo> decorator) where TTo : class
         {
             decorator = new ImmutableItemConverterCollectionDecorator<T, TTo>(converter, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
+        public static DecoratorsConfiguration Filter<T>(this DecoratorsConfiguration configuration, Func<T, bool> filter, bool nullItemResult = false) =>
+            configuration.Filter(filter, nullItemResult, out _);
 
-        public static DecoratorsConfiguration<T> Filter<T>(this DecoratorsConfiguration<T> configuration, Func<T, bool> filter) => configuration.Filter(filter, out _);
-
-        public static DecoratorsConfiguration<T> Filter<T>(this DecoratorsConfiguration<T> configuration, Func<T, bool> filter, out FilterCollectionDecorator<T> decorator) =>
-            configuration.Cast<object>().Filter(filter, out decorator).Cast<T>();
-
-        public static DecoratorsConfiguration<object> Filter<T>(this DecoratorsConfiguration<object> configuration, Func<T, bool> filter) => configuration.Filter(filter, out _);
-
-        public static DecoratorsConfiguration<object> Filter<T>(this DecoratorsConfiguration<object> configuration, Func<T, bool> filter,
-            out FilterCollectionDecorator<T> decorator)
+        public static DecoratorsConfiguration Filter<T>(this DecoratorsConfiguration configuration, Func<T, bool> filter,
+            bool nullItemResult, out FilterCollectionDecorator<T> decorator)
         {
             Should.NotBeNull(filter, nameof(filter));
-            decorator = new FilterCollectionDecorator<T>(filter, configuration.Priority);
+            decorator = new FilterCollectionDecorator<T>(filter, configuration.Priority) {NullItemResult = nullItemResult};
             return configuration.AddDecorator(decorator);
         }
 
-
-        public static DecoratorsConfiguration<T> Limit<T>(this DecoratorsConfiguration<T> configuration, int limit, Func<T, bool>? condition = null) =>
+        public static DecoratorsConfiguration Limit<T>(this DecoratorsConfiguration configuration, int limit, Func<T, bool>? condition = null) =>
             configuration.Limit(limit, condition, out _);
 
-        public static DecoratorsConfiguration<T> Limit<T>(this DecoratorsConfiguration<T> configuration, int limit, Func<T, bool>? condition,
-            out LimitCollectionDecorator<T> decorator) =>
-            configuration.Cast<object>().Limit(limit, condition, out decorator).Cast<T>();
-
-        public static DecoratorsConfiguration<object> Limit<T>(this DecoratorsConfiguration<object> configuration, int limit, Func<T, bool>? condition = null) =>
-            configuration.Limit(limit, condition, out _);
-
-        public static DecoratorsConfiguration<object> Limit<T>(this DecoratorsConfiguration<object> configuration, int limit, Func<T, bool>? condition,
+        public static DecoratorsConfiguration Limit<T>(this DecoratorsConfiguration configuration, int limit, Func<T, bool>? condition,
             out LimitCollectionDecorator<T> decorator)
         {
             decorator = new LimitCollectionDecorator<T>(limit, condition, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
+        public static DecoratorsConfiguration Sort<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer) => configuration.Sort(comparer, out _);
 
-        public static DecoratorsConfiguration<T> Sort<T>(this DecoratorsConfiguration<T> configuration, IComparer<T> comparer) => configuration.Sort(comparer, out _);
-
-        public static DecoratorsConfiguration<T> Sort<T>(this DecoratorsConfiguration<T> configuration, IComparer<T> comparer, out SortingCollectionDecorator decorator) =>
-            configuration.Cast<object>().Sort(comparer, out decorator).Cast<T>();
-
-        public static DecoratorsConfiguration<object> Sort<T>(this DecoratorsConfiguration<object> configuration, IComparer<T> comparer) => configuration.Sort(comparer, out _);
-
-        public static DecoratorsConfiguration<object> Sort<T>(this DecoratorsConfiguration<object> configuration, IComparer<T> comparer,
+        public static DecoratorsConfiguration Sort<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer,
             out SortingCollectionDecorator decorator)
         {
             Should.NotBeNull(comparer, nameof(comparer));
@@ -121,38 +100,21 @@ namespace MugenMvvm.Extensions
             return configuration.AddDecorator(decorator);
         }
 
-
-        public static DecoratorsConfiguration<object> Flatten<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector) where T : class =>
+        public static DecoratorsConfiguration Flatten<T>(this DecoratorsConfiguration configuration, Func<T, FlattenItemInfo> selector) where T : class =>
             configuration.Flatten(selector, out _);
 
-        public static DecoratorsConfiguration<object> Flatten<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector,
-            out FlattenCollectionDecorator<T> decorator) where T : class => configuration.Cast<object>().Flatten(selector, out decorator);
-
-        public static DecoratorsConfiguration<object> Flatten<T>(this DecoratorsConfiguration<object> configuration, Func<T, FlattenItemInfo> selector) where T : class =>
-            configuration.Flatten(selector, out _);
-
-        public static DecoratorsConfiguration<object> Flatten<T>(this DecoratorsConfiguration<object> configuration, Func<T, FlattenItemInfo> selector,
+        public static DecoratorsConfiguration Flatten<T>(this DecoratorsConfiguration configuration, Func<T, FlattenItemInfo> selector,
             out FlattenCollectionDecorator<T> decorator) where T : class
         {
             decorator = new FlattenCollectionDecorator<T>(selector, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
-
-        public static DecoratorsConfiguration<object> GroupHeaderFor<T, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
+        public static DecoratorsConfiguration GroupOn<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup,
             GroupHeaderCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup = null, IEqualityComparer<TGroup>? comparer = null, bool hasStableKeys = true)
-            where TGroup : class => configuration.GroupHeaderFor(getGroup, updateGroup, comparer, hasStableKeys, out _);
+            where TGroup : class => configuration.GroupOn(getGroup, updateGroup, comparer, hasStableKeys, out _);
 
-        public static DecoratorsConfiguration<object> GroupHeaderFor<T, TGroup>(this DecoratorsConfiguration<object> configuration, Func<T, TGroup?> getGroup,
-            GroupHeaderCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup = null, IEqualityComparer<TGroup>? comparer = null, bool hasStableKeys = true)
-            where TGroup : class => configuration.GroupHeaderFor(getGroup, updateGroup, comparer, hasStableKeys, out _);
-
-        public static DecoratorsConfiguration<object> GroupHeaderFor<T, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
-            GroupHeaderCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup, IEqualityComparer<TGroup>? comparer, bool hasStableKeys,
-            out GroupHeaderCollectionDecorator<T, TGroup> decorator) where TGroup : class =>
-            configuration.Cast<object>().GroupHeaderFor(getGroup, updateGroup, comparer, hasStableKeys, out decorator);
-
-        public static DecoratorsConfiguration<object> GroupHeaderFor<T, TGroup>(this DecoratorsConfiguration<object> configuration, Func<T, TGroup?> getGroup,
+        public static DecoratorsConfiguration GroupOn<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup,
             GroupHeaderCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup, IEqualityComparer<TGroup>? comparer, bool hasStableKeys,
             out GroupHeaderCollectionDecorator<T, TGroup> decorator) where TGroup : class
         {
@@ -160,83 +122,200 @@ namespace MugenMvvm.Extensions
             return configuration.AddDecorator(decorator);
         }
 
+        public static DecoratorsConfiguration WithHeaderFooter(this DecoratorsConfiguration configuration, ItemOrIReadOnlyList<object> header,
+            ItemOrIReadOnlyList<object> footer = default) => configuration.WithHeaderFooter(header, footer, out _);
 
-        public static DecoratorsConfiguration<object> WithHeaderOrFooter<T>(this DecoratorsConfiguration<T> configuration, ItemOrIReadOnlyList<object> header,
-            ItemOrIReadOnlyList<object> footer = default) => configuration.WithHeaderOrFooter(header, footer, out _);
-
-        public static DecoratorsConfiguration<object> WithHeaderOrFooter<T>(this DecoratorsConfiguration<T> configuration, ItemOrIReadOnlyList<object> header,
+        public static DecoratorsConfiguration WithHeaderFooter(this DecoratorsConfiguration configuration, ItemOrIReadOnlyList<object> header,
             ItemOrIReadOnlyList<object> footer, out HeaderFooterCollectionDecorator decorator)
         {
             decorator = new HeaderFooterCollectionDecorator(configuration.Priority) {Header = header, Footer = footer};
-            return configuration.AddDecorator<object>(decorator);
+            return configuration.AddDecorator(decorator);
         }
 
-
-        public static DecoratorsConfiguration<T> PinHeaderOrFooter<T>(this DecoratorsConfiguration<T> configuration, Func<T, bool?> isHeaderOrFooter,
+        public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
             IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null) =>
-            configuration.PinHeaderOrFooter(isHeaderOrFooter, headerComparer, footerComparer, out _);
+            configuration.PinHeaderFooter(isHeaderOrFooter, headerComparer, footerComparer, out _);
 
-        public static DecoratorsConfiguration<T> PinHeaderOrFooter<T>(this DecoratorsConfiguration<T> configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer, IComparer<T>? footerComparer, out ItemHeaderFooterCollectionDecorator<T> decorator) =>
-            configuration.Cast<object>().PinHeaderOrFooter(isHeaderOrFooter, headerComparer, footerComparer, out decorator).Cast<T>();
-
-        public static DecoratorsConfiguration<object> PinHeaderOrFooter<T>(this DecoratorsConfiguration<object> configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null) =>
-            configuration.PinHeaderOrFooter(isHeaderOrFooter, headerComparer, footerComparer, out _);
-
-        public static DecoratorsConfiguration<object> PinHeaderOrFooter<T>(this DecoratorsConfiguration<object> configuration, Func<T, bool?> isHeaderOrFooter,
+        public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
             IComparer<T>? headerComparer, IComparer<T>? footerComparer, out ItemHeaderFooterCollectionDecorator<T> decorator)
         {
             decorator = new ItemHeaderFooterCollectionDecorator<T>(isHeaderOrFooter, headerComparer, footerComparer, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
+        public static DecoratorsConfiguration AutoRefreshOnPropertyChanges<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members,
+            object? args = null) where T : class => configuration.AutoRefreshOnPropertyChanges<T>(members, args, out _);
 
-        public static DecoratorsConfiguration<T> AddObserver<T, TState>(this DecoratorsConfiguration<T> configuration, TState state,
-            Func<TState, ItemObserverCollectionListenerBase<T>.ChangedEventInfo, bool> canInvoke,
-            Action<TState, T?> invokeAction, int delay = 0) where T : class
-        {
-            var component = configuration.Collection.GetOrAddComponent<ItemObserverCollectionListener<T>>();
-            component.AddObserver(state, canInvoke, invokeAction, delay);
-            return configuration;
-        }
-
-        public static DecoratorsConfiguration<T> AddObserverDecoratedItems<T, TState>(this DecoratorsConfiguration<T> configuration, TState state,
-            Func<TState, ItemObserverCollectionListenerBase<object?>.ChangedEventInfo, bool> canInvoke,
-            Action<TState, object?> invokeAction, int delay = 0)
-        {
-            var component = configuration.Collection.GetOrAddComponent<ItemObserverCollectionDecoratorListener>();
-            component.AddObserver(state, canInvoke, invokeAction, delay);
-            return configuration;
-        }
-
-
-        public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChanges<T>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members, object? args = null)
-            where T : class => configuration.AutoRefreshOnPropertyChanges<T, T>(members, args);
-
-        public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChanges<T, TType>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members,
-            object? args = null)
+        public static DecoratorsConfiguration AutoRefreshOnPropertyChanges<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members,
+            object? args, out ActionToken removeToken)
             where T : class
-            where TType : class
         {
-            configuration.Collection.GetOrAddComponent<ItemObserverCollectionListener<T?>>()
-                         .AutoRefreshOnPropertyChanges<T, TType>(configuration.Collection, members, args);
+            removeToken = configuration.Collection.GetOrAddComponent<CollectionObserver>().AutoRefreshOnPropertyChanges<T>(members, args);
             return configuration;
         }
 
+        public static DecoratorsConfiguration AutoRefreshOnPropertyChangesDecoratedItems<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members,
+            object? args = null) where T : class => configuration.AutoRefreshOnPropertyChangesDecoratedItems<T>(members, args, out _);
 
-        public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChangesDecoratedItems<T>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members,
-            object? args = null) where T : class => configuration.AutoRefreshOnPropertyChangesDecoratedItems<T, T>(members, args);
-
-        public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChangesDecoratedItems<T, TType>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members,
-            object? args = null)
-            where TType : class
+        public static DecoratorsConfiguration AutoRefreshOnPropertyChangesDecoratedItems<T>(this DecoratorsConfiguration configuration,
+            ItemOrArray<string> members, object? args, out ActionToken removeToken) where T : class
         {
-            configuration.Collection.GetOrAddComponent<ItemObserverCollectionDecoratorListener>()
-                         .AutoRefreshOnPropertyChanges<object, TType>(configuration.Collection, members, args);
+            removeToken = configuration.Collection.GetOrAddComponent<DecoratedCollectionObserver>().AutoRefreshOnPropertyChanges<T>(members, args);
             return configuration;
         }
 
+        public static ActionToken AutoRefreshOnPropertyChanges<TType>(this CollectionObserverBase listener, ItemOrArray<string> members, object? args)
+            where TType : class =>
+            listener.AddItemObserver<TType, (ItemOrArray<string> members, object? args)>((s, info) =>
+            {
+                if (info.IsCollectionEvent)
+                    return false;
+
+                foreach (var member in s.members)
+                {
+                    if (info.IsMemberChanged(member))
+                        return true;
+                }
+
+                return false;
+            }, (s, info) => info.Collection.RaiseItemChanged(info.Item, s.args), (members, args));
+
+        public static IReadOnlyObservableCollection AddCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) => collection.AddCollectionObserver(state, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class =>
+            collection.AddCollectionObserverWeak(target, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddItemObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay)
+            where T : class =>
+            collection.AddItemObserver(predicate, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state,
+            int delay = 0) where T : class =>
+            collection.AddItemObserver(predicate, onChanged, state, delay, out _);
+
+        public static IReadOnlyObservableCollection AddItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay = 0)
+            where T : class
+            where TTarget : class =>
+            collection.AddItemObserverWeak(target, predicate, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken)
+        {
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddCollectionObserver(state, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken) where TTarget : class
+        {
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddCollectionObserverWeak(target, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddItemObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay, out ActionToken removeToken)
+            where T : class
+        {
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddItemObserver(predicate, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state, int delay,
+            out ActionToken removeToken) where T : class
+        {
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddItemObserver(predicate, onChanged, state, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay,
+            out ActionToken removeToken)
+            where T : class
+            where TTarget : class
+        {
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddItemObserverWeak(target, predicate, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) => collection.AddDecoratedCollectionObserver(state, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class =>
+            collection.AddDecoratedCollectionObserverWeak(target, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay)
+            where T : class =>
+            collection.AddDecoratedItemObserver(predicate, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state,
+            int delay = 0) where T : class =>
+            collection.AddDecoratedItemObserver(predicate, onChanged, state, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay = 0)
+            where T : class
+            where TTarget : class =>
+            collection.AddDecoratedItemObserverWeak(target, predicate, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken)
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddCollectionObserver(state, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken) where TTarget : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddCollectionObserverWeak(target, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay, out ActionToken removeToken)
+            where T : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddItemObserver(predicate, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state, int delay,
+            out ActionToken removeToken) where T : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddItemObserver(predicate, onChanged, state, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay,
+            out ActionToken removeToken)
+            where T : class
+            where TTarget : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddItemObserverWeak(target, predicate, onChanged, delay);
+            return collection;
+        }
+
+        public static DecoratorsConfiguration ConfigureDecorators(this IReadOnlyObservableCollection collection, int? priority = null)
+        {
+            if (priority == null)
+            {
+                var array = collection.GetComponents<ICollectionDecorator>();
+                priority = array.Count == 0 ? 0 : GetComponentPriority(array[array.Count - 1]);
+            }
+
+            return new DecoratorsConfiguration(collection, priority.Value);
+        }
 
         [return: NotNullIfNotNull("collection")]
         public static IEnumerable<object?>? DecoratedItems(this IReadOnlyObservableCollection? collection)
@@ -247,27 +326,30 @@ namespace MugenMvvm.Extensions
             return component == null ? collection.AsEnumerable() : component.Decorate(collection);
         }
 
-        public static void RaiseItemChanged(this IReadOnlyObservableCollection collection, object item, object? args)
+        public static void RaiseItemChanged(this IReadOnlyObservableCollection collection, object? item, object? args)
         {
             Should.NotBeNull(collection, nameof(collection));
             collection.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.RaiseItemChanged(collection, item, args);
         }
 
-        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrArray<T> itemOrArray) => Reset(collection, (ItemOrIEnumerable<T>) itemOrArray);
+        [MustUseReturnValue]
+        public static ActionToken TryLock(this IReadOnlyObservableCollection? collection) => TryLock(target: collection);
 
-        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIReadOnlyList<T> itemOrIReadOnly) => Reset(collection, (ItemOrIEnumerable<T>) itemOrIReadOnly);
-
-        public static void Reset<T>(this IObservableCollection<T> collection, ItemOrIEnumerable<T> itemOrIEnumerable)
+        public static void Reset<T>(this IList<T> collection, IEnumerable<T>? value)
         {
             Should.NotBeNull(collection, nameof(collection));
-            if (itemOrIEnumerable.List is IReadOnlyCollection<T> l)
-                collection.Reset(l);
+            if (value == null)
+            {
+                collection.Clear();
+                return;
+            }
+
+            if (collection is IObservableCollection<T> observableCollection)
+                observableCollection.Reset(value);
             else
             {
-                using var _ = collection.BatchUpdate();
                 collection.Clear();
-                foreach (var item in itemOrIEnumerable)
-                    collection.Add(item);
+                collection.AddRange(value);
             }
         }
 
@@ -277,19 +359,19 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(source, nameof(source));
             using var l1 = source.TryLock();
             using var l2 = TryLock(target);
-            if (target is IObservableCollection<T> observableCollection)
-                observableCollection.Reset(source);
-            else
-            {
-                target.Clear();
-                target.AddRange(source);
-            }
-
+            target.Reset(source);
             return source.AddComponent(new CollectionSynchronizer<T>(target));
         }
 
-        [MustUseReturnValue]
-        public static ActionToken TryLock(this IReadOnlyObservableCollection? collection) => TryLock(target: collection);
+        public static ActionToken SynchronizeDecoratedItemsWith(this IList<object?> target, IReadOnlyObservableCollection source)
+        {
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(source, nameof(source));
+            using var l1 = source.TryLock();
+            using var l2 = TryLock(target);
+            target.Reset(source.DecoratedItems());
+            return source.AddComponent(new DecoratedCollectionSynchronizer(target));
+        }
 
         public static void AddRange<T>(this ICollection<T> items, IEnumerable<T> value)
         {
@@ -488,7 +570,7 @@ namespace MugenMvvm.Extensions
             return enumerable.Count();
         }
 
-        internal static void FindAllIndexOf(this IEnumerable<object?> items, object item, ref ItemOrListEditor<int> indexes)
+        internal static void FindAllIndexOf(this IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
         {
             var index = 0;
             foreach (var value in items)
@@ -544,24 +626,6 @@ namespace MugenMvvm.Extensions
                     list.AddRange(items);
             }
         }
-
-        private static void AutoRefreshOnPropertyChanges<T, TType>(this ItemObserverCollectionListenerBase<T?> listener, IReadOnlyObservableCollection collection,
-            ItemOrArray<string> members, object? args = null)
-            where T : class
-            where TType : class =>
-            listener.AddObserver((members, collection, args), (s, info) =>
-            {
-                if (info.Item is not TType)
-                    return false;
-
-                foreach (var member in s.members)
-                {
-                    if (info.IsMemberChanged(member))
-                        return true;
-                }
-
-                return false;
-            }, (s, item) => s.collection.RaiseItemChanged(item!, s.args));
 
 #if SPAN_API
         //https://github.com/dotnet/runtime/pull/295
