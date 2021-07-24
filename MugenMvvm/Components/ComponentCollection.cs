@@ -88,18 +88,49 @@ namespace MugenMvvm.Components
 
         public void Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            var oldItems = Get<object>(metadata);
+            var components = Get<object>(metadata);
+            var changingListeners = _components == null ? default : _components.Get<IComponentCollectionChangingListener>(metadata);
+            var ignoredIndexes = new ItemOrListEditor<int>();
+            for (int i = 0; i < components.Count; i++)
+            {
+                var component = components[i];
+                if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) || !changingListeners.OnRemoving(this, component, metadata))
+                    ignoredIndexes.Add(i);
+            }
+
+            if (ignoredIndexes.Count == components.Count)
+                return;
+
             lock (_items)
             {
-                _items.Clear();
-                _componentTrackers = Array.Empty<ComponentTracker>();
+                if (ignoredIndexes.Count == 0)
+                {
+                    _items.Clear();
+                    _componentTrackers = Array.Empty<ComponentTracker>();
+                }
+                else
+                {
+                    for (int i = 0; i < components.Count; i++)
+                    {
+                        if (ignoredIndexes.Contains(i))
+                            continue;
+
+                        var component = components[i];
+                        if (_items.Remove(component))
+                            UpdateTrackers(component, null, metadata);
+                    }
+                }
             }
 
             var changedListeners = _components == null ? default : _components.Get<IComponentCollectionChangedListener>(metadata);
-            foreach (var oldItem in oldItems)
+            for (int i = 0; i < components.Count; i++)
             {
-                ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
-                changedListeners.OnRemoved(this, oldItem, metadata);
+                if (ignoredIndexes.Contains(i))
+                    continue;
+
+                var component = components[i];
+                ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
+                changedListeners.OnRemoved(this, component, metadata);
             }
         }
 
