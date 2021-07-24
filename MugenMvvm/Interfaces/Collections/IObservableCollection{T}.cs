@@ -5,7 +5,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IList<T>, IDisposable
+    public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IList<T>
     {
         new int Count { get; }
 

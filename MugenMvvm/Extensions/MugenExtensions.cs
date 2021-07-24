@@ -20,6 +20,7 @@ using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -33,6 +34,7 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 using MugenMvvm.Internal;
+using MugenMvvm.Internal.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Threading;
@@ -265,6 +267,13 @@ namespace MugenMvvm.Extensions
             var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
+        }
+
+        public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, ActionToken token) where T : class, IDisposable
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            owner.GetOrAddComponent<DisposeCallbackComponent<T>>().Register(token);
+            return (T) owner;
         }
 
         public static T? TryUnwrap<T>(object target) where T : class

@@ -82,6 +82,9 @@ namespace MugenMvvm.ViewModels
 
         public void RegisterDisposeToken(ActionToken token)
         {
+            if (token.IsEmpty)
+                return;
+
             if (IsDisposed)
             {
                 token.Dispose();
