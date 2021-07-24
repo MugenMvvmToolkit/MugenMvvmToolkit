@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
-    public class ItemHeaderFooterCollectionDecoratorTest : UnitTestBase
+    public class PinHeaderFooterCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private IComparer<object?>? _headerComparer;
         private IComparer<object?>? _footerComparer;
 
-        public ItemHeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public PinHeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _tracker = new DecoratorObservableCollectionTracker<object>();
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     return false;
                 return null;
             });
-            collection.AddComponent(new ItemHeaderFooterCollectionDecorator<string>(isHeaderOrFooter));
+            collection.AddComponent(new PinHeaderFooterCollectionDecorator<string>(isHeaderOrFooter));
 
             var tracker = new DecoratorObservableCollectionTracker<object>();
             var assert = new Action(() =>
@@ -356,7 +356,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _footerComparer = SortingComparer<int>.Ascending(o => o).Build();
             }
 
-            _collection.AddComponent(new ItemHeaderFooterCollectionDecorator<object>(_isHeaderOrFooter, _headerComparer, _footerComparer));
+            _collection.AddComponent(new PinHeaderFooterCollectionDecorator<object>(_isHeaderOrFooter, _headerComparer, _footerComparer));
         }
 
         private void Assert()

@@ -8,11 +8,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ImmutableItemConverterCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority where TTo : class
+    public sealed class ConvertImmutableCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority where TTo : class
     {
         private readonly Func<object?, object?> _converter;
 
-        public ImmutableItemConverterCollectionDecorator(Func<T, TTo> converter, int priority = CollectionComponentPriority.ConverterDecorator)
+        public ConvertImmutableCollectionDecorator(Func<T, TTo> converter, int priority = CollectionComponentPriority.ConverterDecorator)
         {
             Should.NotBeNull(converter, nameof(converter));
             Converter = converter;

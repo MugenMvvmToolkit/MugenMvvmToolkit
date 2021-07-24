@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public DecoratedCollectionSynchronizerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _source = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _source.AddComponent(new ImmutableItemConverterCollectionDecorator<object, string>(o => "Item " + o.GetHashCode()));
+            _source.AddComponent(new ConvertImmutableCollectionDecorator<object, string>(o => "Item " + o.GetHashCode()));
             _target = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
         }
 

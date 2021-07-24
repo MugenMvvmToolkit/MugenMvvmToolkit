@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!))
                 : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
             var collection = CreateCollection<int>();
-            var decorator1 = new SortingCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
+            var decorator1 = new SortCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
             var decorator2 = new FilterCollectionDecorator<int>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
@@ -236,7 +236,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 return collectionItem.Id.CompareTo(item.Id);
             });
             var collection = CreateCollection<TestCollectionItem>();
-            var decorator1 = new SortingCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
+            var decorator1 = new SortCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
             var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i.Id % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
@@ -325,20 +325,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.Changed += () => tracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(tracker);
 
-            var decorator1 = new SortingCollectionDecorator(comparer);
+            var decorator1 = new SortCollectionDecorator(comparer);
             var decorator2 = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
             collection.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
-            collection.AddComponent(new GroupHeaderCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, true, -1));
+            collection.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, true, -1));
             collection.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items)));
-            collection.AddComponent(new ItemHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
+            collection.AddComponent(new PinHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
             {
                 if (t.StableId % 3 == 0)
                     return false;
                 return null;
             }));
-            collection.AddComponent(new ItemHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
+            collection.AddComponent(new PinHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
             {
                 if (t.StableId % 10 == 0)
                     return true;

@@ -10,12 +10,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class SortingCollectionDecorator : CollectionDecoratorBase, IReadOnlyCollection<object?>, IComparer<SortingCollectionDecorator.OrderedItem>
+    public class SortCollectionDecorator : CollectionDecoratorBase, IReadOnlyCollection<object?>, IComparer<SortCollectionDecorator.OrderedItem>
     {
         private ListInternal<OrderedItem> _items;
         private IComparer<object?>? _comparer;
 
-        public SortingCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator) : base(priority)
+        public SortCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator) : base(priority)
         {
             _comparer = comparer;
             _items = new ListInternal<OrderedItem>(8);

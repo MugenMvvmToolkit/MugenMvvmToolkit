@@ -53,9 +53,9 @@ namespace MugenMvvm.Extensions
             Action<T, TTo>? cleanup = null) where T : notnull where TTo : class => configuration.Convert(converter, cleanup, comparer, out _);
 
         public static DecoratorsConfiguration Convert<T, TTo>(this DecoratorsConfiguration configuration, Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup,
-            IEqualityComparer<TTo?>? comparer, out ItemConverterCollectionDecorator<T, TTo> decorator) where T : notnull where TTo : class
+            IEqualityComparer<TTo?>? comparer, out ConvertCollectionDecorator<T, TTo> decorator) where T : notnull where TTo : class
         {
-            decorator = new ItemConverterCollectionDecorator<T, TTo>(converter, cleanup, comparer, configuration.Priority);
+            decorator = new ConvertCollectionDecorator<T, TTo>(converter, cleanup, comparer, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
@@ -63,9 +63,9 @@ namespace MugenMvvm.Extensions
             => configuration.ConvertImmutable(converter, out _);
 
         public static DecoratorsConfiguration ConvertImmutable<T, TTo>(this DecoratorsConfiguration configuration, Func<T, TTo> converter,
-            out ImmutableItemConverterCollectionDecorator<T, TTo> decorator) where TTo : class
+            out ConvertImmutableCollectionDecorator<T, TTo> decorator) where TTo : class
         {
-            decorator = new ImmutableItemConverterCollectionDecorator<T, TTo>(converter, configuration.Priority);
+            decorator = new ConvertImmutableCollectionDecorator<T, TTo>(converter, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
@@ -93,10 +93,10 @@ namespace MugenMvvm.Extensions
         public static DecoratorsConfiguration Sort<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer) => configuration.Sort(comparer, out _);
 
         public static DecoratorsConfiguration Sort<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer,
-            out SortingCollectionDecorator decorator)
+            out SortCollectionDecorator decorator)
         {
             Should.NotBeNull(comparer, nameof(comparer));
-            decorator = new SortingCollectionDecorator(comparer as IComparer<object?> ?? new WrapperObjectComparer<T>(comparer), configuration.Priority);
+            decorator = new SortCollectionDecorator(comparer as IComparer<object?> ?? new WrapperObjectComparer<T>(comparer), configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
@@ -110,15 +110,15 @@ namespace MugenMvvm.Extensions
             return configuration.AddDecorator(decorator);
         }
 
-        public static DecoratorsConfiguration GroupOn<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup,
-            GroupHeaderCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup = null, IEqualityComparer<TGroup>? comparer = null, bool hasStableKeys = true)
-            where TGroup : class => configuration.GroupOn(getGroup, updateGroup, comparer, hasStableKeys, out _);
+        public static DecoratorsConfiguration Group<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup,
+            GroupCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup = null, IEqualityComparer<TGroup>? comparer = null, bool hasStableKeys = true)
+            where TGroup : class => configuration.Group(getGroup, updateGroup, comparer, hasStableKeys, out _);
 
-        public static DecoratorsConfiguration GroupOn<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup,
-            GroupHeaderCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup, IEqualityComparer<TGroup>? comparer, bool hasStableKeys,
-            out GroupHeaderCollectionDecorator<T, TGroup> decorator) where TGroup : class
+        public static DecoratorsConfiguration Group<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup,
+            GroupCollectionDecorator<T, TGroup>.UpdateGroupDelegate? updateGroup, IEqualityComparer<TGroup>? comparer, bool hasStableKeys,
+            out GroupCollectionDecorator<T, TGroup> decorator) where TGroup : class
         {
-            decorator = new GroupHeaderCollectionDecorator<T, TGroup>(getGroup, updateGroup, comparer, hasStableKeys, configuration.Priority);
+            decorator = new GroupCollectionDecorator<T, TGroup>(getGroup, updateGroup, comparer, hasStableKeys, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 
@@ -137,9 +137,9 @@ namespace MugenMvvm.Extensions
             configuration.PinHeaderFooter(isHeaderOrFooter, headerComparer, footerComparer, out _);
 
         public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer, IComparer<T>? footerComparer, out ItemHeaderFooterCollectionDecorator<T> decorator)
+            IComparer<T>? headerComparer, IComparer<T>? footerComparer, out PinHeaderFooterCollectionDecorator<T> decorator)
         {
-            decorator = new ItemHeaderFooterCollectionDecorator<T>(isHeaderOrFooter, headerComparer, footerComparer, configuration.Priority);
+            decorator = new PinHeaderFooterCollectionDecorator<T>(isHeaderOrFooter, headerComparer, footerComparer, configuration.Priority);
             return configuration.AddDecorator(decorator);
         }
 

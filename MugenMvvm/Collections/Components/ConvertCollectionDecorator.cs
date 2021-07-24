@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
@@ -12,20 +11,20 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemConverterCollectionDecorator<T, TTo> : CollectionDecoratorBase
+    public class ConvertCollectionDecorator<T, TTo> : CollectionDecoratorBase
         where T : notnull
-        where TTo : class
+        where TTo : class?
     {
         private readonly Action<T, TTo>? _cleanup;
         private readonly IEqualityComparer<TTo?> _comparer;
-        private IndexMapList<(T from, TTo to)> _items;
-        private Dictionary<T, TTo>? _resetCache;
+        private IndexMapList<(T from, TTo? to)> _items;
+        private Dictionary<T, TTo?>? _resetCache;
 
-        public ItemConverterCollectionDecorator(Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null,
+        public ConvertCollectionDecorator(Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null,
             int priority = CollectionComponentPriority.ConverterDecorator) : base(priority)
         {
             Should.NotBeNull(converter, nameof(converter));
-            _items = IndexMapList<(T, TTo)>.Get();
+            _items = IndexMapList<(T, TTo?)>.Get();
             Converter = converter;
             _cleanup = cleanup;
             _comparer = comparer ?? EqualityComparer<TTo?>.Default;
@@ -74,37 +73,37 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (item is T itemT)
+            if (item is not T itemT)
+                return true;
+
+            var oldIndex = _items.IndexOfKey(index);
+            var oldItem = oldIndex == -1 ? default : _items.Values[oldIndex].to;
+            var newItem = Converter(itemT, oldItem);
+            if (!_comparer.Equals(oldItem, newItem))
             {
-                var oldIndex = _items.IndexOfKey(index);
-                var oldItem = oldIndex == -1 ? default : _items.Values[oldIndex].to;
-                var newItem = Converter(itemT, oldItem);
-                if (!_comparer.Equals(oldItem, newItem))
+                if (oldIndex == -1)
                 {
-                    if (oldIndex == -1)
-                    {
-                        _items.Add(index, (itemT, newItem!));
-                        item = newItem;
-                    }
+                    _items.Add(index, (itemT, newItem!));
+                    item = newItem;
+                }
+                else
+                {
+                    _cleanup?.Invoke(itemT, oldItem!);
+                    if (newItem == null)
+                        _items.RemoveAt(oldIndex);
                     else
                     {
-                        _cleanup?.Invoke(itemT, oldItem!);
-                        if (newItem == null)
-                            _items.RemoveAt(oldIndex);
-                        else
-                        {
-                            _items.SetValue(oldIndex, (itemT, newItem));
-                            item = newItem;
-                        }
+                        _items.SetValue(oldIndex, (itemT, newItem));
+                        item = newItem;
                     }
-
-                    decoratorManager.OnReplaced(collection, this, oldItem, item, index);
-                    return false;
                 }
 
-                if (oldIndex != -1)
-                    item = oldItem;
+                decoratorManager.OnReplaced(collection, this, oldItem, item, index);
+                return false;
             }
+
+            if (oldIndex != -1)
+                item = oldItem;
 
             return true;
         }
@@ -160,7 +159,7 @@ namespace MugenMvvm.Collections.Components
                 Clear();
             else
             {
-                _resetCache ??= new Dictionary<T, TTo>(_items.Size, GetComparer());
+                _resetCache ??= new Dictionary<T, TTo?>(_items.Size, GetComparer());
                 for (var i = 0; i < _items.Size; i++)
                 {
                     var item = _items.Values[i];
@@ -176,7 +175,7 @@ namespace MugenMvvm.Collections.Components
                     {
                         _resetCache.Remove(itemT, out var oldValue);
                         var added = TryAdd(item, index, oldValue, false, true);
-                        if (oldValue != null && !_comparer.Equals(oldValue, (TTo?) added))
+                        if (oldValue != null && !_comparer.Equals(oldValue, added as TTo))
                             _cleanup?.Invoke(itemT, oldValue);
                     }
 
@@ -192,7 +191,7 @@ namespace MugenMvvm.Collections.Components
 
         private static IEqualityComparer<T> GetComparer() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>) InternalEqualityComparer.Reference;
 
-        private bool TryGet(object? item, int index, [NotNullWhen(true)] out TTo? result)
+        private bool TryGet(object? item, int index, out TTo? result)
         {
             if (item is T)
             {
@@ -223,9 +222,6 @@ namespace MugenMvvm.Collections.Components
                 return item;
 
             var value = Converter(itemT, convertItem);
-            if (value == null)
-                return item;
-
             if (addRaw)
                 _items.AddRaw(index, (itemT, value));
             else
@@ -252,7 +248,7 @@ namespace MugenMvvm.Collections.Components
         {
             var value = _items.Values[index];
             _items.RemoveAt(index);
-            _cleanup?.Invoke(value.from, value.to);
+            _cleanup?.Invoke(value.from, value.to!);
             return value.to;
         }
 
@@ -263,7 +259,7 @@ namespace MugenMvvm.Collections.Components
                 for (var i = 0; i < _items.Size; i++)
                 {
                     var item = _items.Values[i];
-                    _cleanup(item.from, item.to);
+                    _cleanup(item.from, item.to!);
                 }
             }
 

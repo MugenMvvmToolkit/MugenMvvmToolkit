@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ItemHeaderFooterCollectionDecorator<T> : CollectionDecoratorBase, IComparer<ItemHeaderFooterCollectionDecorator<T>.ItemInfo>
+    public class PinHeaderFooterCollectionDecorator<T> : CollectionDecoratorBase, IComparer<PinHeaderFooterCollectionDecorator<T>.ItemInfo>
     {
         private readonly Func<T, bool?> _isHeaderOrFooter;
         private readonly IComparer<T>? _headerComparer;
@@ -21,7 +21,7 @@ namespace MugenMvvm.Collections.Components
         private IComparer<T>? _currentComparer;
         private int _footerIndex;
 
-        public ItemHeaderFooterCollectionDecorator(Func<T, bool?> isHeaderOrFooter, IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null,
+        public PinHeaderFooterCollectionDecorator(Func<T, bool?> isHeaderOrFooter, IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null,
             int priority = CollectionComponentPriority.HeaderFooterDecorator) : base(priority)
         {
             Should.NotBeNull(isHeaderOrFooter, nameof(isHeaderOrFooter));

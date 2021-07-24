@@ -11,18 +11,18 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
-    public class ImmutableItemConverterCollectionDecoratorTest : UnitTestBase
+    public class ConvertImmutableCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
-        private ImmutableItemConverterCollectionDecorator<object, object> _decorator;
+        private ConvertImmutableCollectionDecorator<object, object> _decorator;
 
-        public ImmutableItemConverterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public ConvertImmutableCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ImmutableItemConverterCollectionDecorator<object, object>(o => "Item: " + o);
+            _decorator = new ConvertImmutableCollectionDecorator<object, object>(o => "Item: " + o);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -75,13 +75,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void IndexOfShouldBeValid()
         {
             _collection.RemoveComponent(_decorator);
-            _decorator = new ImmutableItemConverterCollectionDecorator<object, object>(o =>
+            _decorator = new ConvertImmutableCollectionDecorator<object, object>(o =>
             {
                 if (o is int)
                     return "Item: " + o;
                 return o;
             });
-            ICollectionDecorator decorator = new ImmutableItemConverterCollectionDecorator<int, string>(o => "Item: " + o);
+            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(o => "Item: " + o);
             _collection.AddComponent(decorator);
             _collection.Add("Test1");
             _collection.Add(1);

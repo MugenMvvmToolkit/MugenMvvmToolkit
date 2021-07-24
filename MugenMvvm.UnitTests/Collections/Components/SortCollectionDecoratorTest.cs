@@ -11,17 +11,17 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
-    public class SortingCollectionDecoratorTest : UnitTestBase, IComparer<object?>
+    public class SortCollectionDecoratorTest : UnitTestBase, IComparer<object?>
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
-        private readonly SortingCollectionDecorator _decorator;
+        private readonly SortCollectionDecorator _decorator;
         private bool? _defaultComparer;
 
-        public SortingCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public SortCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _decorator = new SortingCollectionDecorator();
+            _decorator = new SortCollectionDecorator();
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_decorator);
             _collection.AddComponent(_tracker);

@@ -15,22 +15,22 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
-    public class GroupHeaderCollectionDecoratorTest : UnitTestBase
+    public class GroupCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratorObservableCollectionTracker<object> _tracker;
         private readonly Dictionary<int, object> _headers;
         private Func<object?, object?>? _getHeader;
-        private GroupHeaderCollectionDecorator<object, object> _decorator;
+        private GroupCollectionDecorator<object, object> _decorator;
 
-        public GroupHeaderCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public GroupCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _headers = new Dictionary<int, object>();
             _tracker = new DecoratorObservableCollectionTracker<object>();
             _collection.AddComponent(_tracker);
             _getHeader = o => _headers.GetOrAdd((int) o! % 4, i => _headers.GetOrAdd(i, k => k.ToString()));
-            _decorator = new GroupHeaderCollectionDecorator<object, object>(_getHeader);
+            _decorator = new GroupCollectionDecorator<object, object>(_getHeader);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.Add(targetItem3);
             _collection.Add(targetItem4);
 
-            var decorator = (ICollectionDecorator) _collection.GetComponent<GroupHeaderCollectionDecorator<object, object>>();
+            var decorator = (ICollectionDecorator) _collection.GetComponent<GroupCollectionDecorator<object, object>>();
 
             var i = 0;
             foreach (var o in _collection.DecoratedItems())
@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var changedItems = new List<int>();
             _collection.RemoveComponent(_decorator);
             _getHeader = o => (int) o! % 2 == 0 ? header : null;
-            _decorator = new GroupHeaderCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
+            _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
             {
                 var ints = (List<int>) h;
                 if (action == GroupHeaderChangedAction.ItemAdded)
@@ -358,7 +358,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var header = new List<UnstableKey>();
             var changedItems = new List<UnstableKey>();
             _getHeader = o => ((UnstableKey) o!).Id! % 2 == 0 ? header : null;
-            _decorator = new GroupHeaderCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
+            _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
             {
                 var ints = (List<UnstableKey>) h;
                 if (action == GroupHeaderChangedAction.ItemAdded)
@@ -454,7 +454,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private void Assert()
         {
-            _tracker.ChangedItems.ShouldEqual(Decorate(_collection.GetComponentOptional<GroupHeaderCollectionDecorator<object, object>>() == _decorator ? _getHeader : null));
+            _tracker.ChangedItems.ShouldEqual(Decorate(_collection.GetComponentOptional<GroupCollectionDecorator<object, object>>() == _decorator ? _getHeader : null));
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
 

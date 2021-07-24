@@ -15,14 +15,14 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class GroupHeaderCollectionDecorator<T, TGroup> : CollectionDecoratorBase where TGroup : class
+    public class GroupCollectionDecorator<T, TGroup> : CollectionDecoratorBase where TGroup : class
     {
         private readonly Func<T, TGroup?> _getGroup;
         private readonly UpdateGroupDelegate? _updateGroup;
         private readonly Dictionary<TGroup, GroupInfo> _groups;
         private readonly Dictionary<T, ItemGroupInfo>? _itemToGroup;
 
-        public GroupHeaderCollectionDecorator(Func<T, TGroup?> getGroup, UpdateGroupDelegate? updateGroup = null,
+        public GroupCollectionDecorator(Func<T, TGroup?> getGroup, UpdateGroupDelegate? updateGroup = null,
             IEqualityComparer<TGroup>? comparer = null, bool hasStableKeys = true, int priority = CollectionComponentPriority.GroupHeaderDecorator) : base(priority)
         {
             Should.NotBeNull(getGroup, nameof(getGroup));
