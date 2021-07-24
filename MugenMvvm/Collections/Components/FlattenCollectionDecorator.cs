@@ -122,7 +122,7 @@ namespace MugenMvvm.Collections.Components
             ref int newIndex)
         {
             if (item is T itemT && TryGetCollectionItem(itemT, out var flattenCollectionItem))
-                flattenCollectionItem.Remove(oldIndex);
+                flattenCollectionItem.Indexes.Remove(oldIndex);
             else
                 flattenCollectionItem = null;
 
@@ -132,7 +132,7 @@ namespace MugenMvvm.Collections.Components
             if (flattenCollectionItem == null)
                 return true;
 
-            flattenCollectionItem.Add(originalNewIndex);
+            flattenCollectionItem.Indexes.Add(originalNewIndex);
             if (oldIndex != newIndex)
                 flattenCollectionItem.OnMoved(oldIndex, newIndex);
             return false;
@@ -148,7 +148,7 @@ namespace MugenMvvm.Collections.Components
             else
             {
                 foreach (var collectionItem in _collectionItems)
-                    collectionItem.Value.Clear();
+                    collectionItem.Value.Indexes.Clear();
 
                 var index = 0;
                 var i = 0;
@@ -163,7 +163,7 @@ namespace MugenMvvm.Collections.Components
 #endif
                 foreach (var item in _collectionItems)
                 {
-                    if (item.Value.Count == 0)
+                    if (item.Value.Indexes.Count == 0)
                     {
 #if NET5_0
                         _collectionItems.Remove(item.Key);
@@ -209,8 +209,9 @@ namespace MugenMvvm.Collections.Components
             foreach (var collectionItem in _collectionItems)
             {
                 var item = collectionItem.Value;
-                var items = item.Items;
-                for (var i = 0; i < item.Count; i++)
+                var items = item.Indexes.Items;
+                var count = item.Indexes.Count;
+                for (var i = 0; i < count; i++)
                 {
                     if (items[i] < originalIndex)
                         result += item.Size - 1;
@@ -226,8 +227,9 @@ namespace MugenMvvm.Collections.Components
             foreach (var collectionItem in _collectionItems)
             {
                 var item = collectionItem.Value;
-                var items = item.Items;
-                for (var i = 0; i < item.Count; i++)
+                var items = item.Indexes.Items;
+                var count = item.Indexes.Count;
+                for (var i = 0; i < count; i++)
                 {
                     if (items[i] >= index)
                         items[i] += value;

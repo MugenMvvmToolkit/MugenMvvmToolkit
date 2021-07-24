@@ -18,7 +18,7 @@ namespace MugenMvvm.Collections.Components
     public abstract class CollectionObserverBase : AttachableComponentBase<IReadOnlyObservableCollection>, ISuspendableComponent<IReadOnlyObservableCollection>,
         IDisposableComponent<IReadOnlyObservableCollection>, ISupportChangeNotification, IHasPriority
     {
-        private readonly ListInternal<IObserver?> _observers;
+        private ListInternal<IObserver?> _observers;
         private Dictionary<object, int>? _items;
         private PropertyChangedEventHandler? _handler;
         private volatile int _suspendCount;
@@ -62,7 +62,7 @@ namespace MugenMvvm.Collections.Components
 
         public void ClearObservers()
         {
-            lock (_observers)
+            lock (this)
             {
                 var observers = _observers.Items;
                 for (var i = 0; i < _observers.Count; i++)
@@ -108,7 +108,7 @@ namespace MugenMvvm.Collections.Components
 
             if (!hasDeadRefs)
                 return;
-            lock (_observers)
+            lock (this)
             {
                 for (var i = 0; i < _observers.Count; i++)
                 {
@@ -243,7 +243,7 @@ namespace MugenMvvm.Collections.Components
                     (s, info) => s.Item1(s.Item2, info.Collection), (onChanged, state), delay, false);
             }
 
-            lock (_observers)
+            lock (this)
             {
                 _observers.Add(observer);
             }
@@ -260,7 +260,7 @@ namespace MugenMvvm.Collections.Components
             Should.NotBeNull(onChanged, nameof(onChanged));
             Should.NotBeNull(predicate, nameof(predicate));
             var observer = new Observer<T, TState>(this, predicate, onChanged, state, delay, weak);
-            lock (_observers)
+            lock (this)
             {
                 _observers.Add(observer);
             }
@@ -274,7 +274,7 @@ namespace MugenMvvm.Collections.Components
         private void RemoveObserver(IObserver observer)
         {
             bool removed;
-            lock (_observers)
+            lock (this)
             {
                 removed = _observers.Remove(observer);
             }
@@ -408,7 +408,7 @@ namespace MugenMvvm.Collections.Components
             private readonly int _delay;
             private Timer? _timer;
             private HashSet<ChangedEventInfo<T>>? _pendingItems;
-            private ListInternal<ChangedEventInfo<T>>? _notifications;
+            private ListInternal<ChangedEventInfo<T>> _notifications;
 
             public Observer(CollectionObserverBase observer, Func<TTargetOrState, ChangedEventInfo<T>, bool> predicate,
                 Action<TTargetOrState, ChangedEventInfo<T>> onChanged, TTargetOrState state, int delay, bool weak)
@@ -502,7 +502,8 @@ namespace MugenMvvm.Collections.Components
             {
                 lock (this)
                 {
-                    _notifications ??= new ListInternal<ChangedEventInfo<T>>(_pendingItems!.Count);
+                    if (_notifications.IsEmpty)
+                        _notifications = new ListInternal<ChangedEventInfo<T>>(_pendingItems!.Count);
                     foreach (var item in _pendingItems!)
                         _notifications.Add(item);
                     _pendingItems.Clear();

@@ -76,7 +76,7 @@ namespace MugenMvvm.Tests
         protected static readonly CancellationToken DefaultCancellationToken = new CancellationTokenSource().Token;
 
         private IMetadataContext? _metadata;
-        private ListInternal<ActionToken>? _disposeTokens;
+        private ListInternal<ActionToken> _disposeTokens;
         private Dictionary<Type, PropertyInfo>? _services;
         private IMugenApplication? _application;
         private IBusyManager? _busyManager;
@@ -497,7 +497,8 @@ namespace MugenMvvm.Tests
                     inline = true;
                 else
                 {
-                    _disposeTokens ??= new ListInternal<ActionToken>(2);
+                    if (_disposeTokens.IsEmpty)
+                        _disposeTokens = new ListInternal<ActionToken>(2);
                     _disposeTokens.Add(token);
                 }
             }
@@ -525,11 +526,11 @@ namespace MugenMvvm.Tests
         {
             lock (this)
             {
-                if (_disposeTokens != null)
+                if (!_disposeTokens.IsEmpty)
                 {
                     for (var i = 0; i < _disposeTokens.Count; i++)
                         _disposeTokens.Items[i].Dispose();
-                    _disposeTokens = null;
+                    _disposeTokens = default;
                 }
             }
         }

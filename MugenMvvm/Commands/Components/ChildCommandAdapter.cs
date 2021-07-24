@@ -15,14 +15,16 @@ namespace MugenMvvm.Commands.Components
 {
     public sealed class ChildCommandAdapter : MultiAttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, ICommandExecutorComponent, IHasPriority
     {
-        private readonly CommandListener _commands;
+        private readonly CommandListener _listener;
+        private ListInternal<ICompositeCommand> _commands;
         private bool _suppressExecute;
         private bool _canExecuteEmptyResult;
         private bool _canExecuteIfAnyCanExecute;
 
         public ChildCommandAdapter()
         {
-            _commands = new CommandListener(this);
+            _listener = new CommandListener(this);
+            _commands = new ListInternal<ICompositeCommand>(2);
         }
 
         public Func<ActionToken>? ExecutionHandler { get; set; }
@@ -70,12 +72,12 @@ namespace MugenMvvm.Commands.Components
         public void Add(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
-            lock (_commands)
+            lock (_listener)
             {
                 if (_commands.Contains(command))
                     return;
                 _commands.Add(command);
-                command.AddComponent(_commands);
+                command.AddComponent(_listener);
             }
 
             RaiseCanExecuteChanged();
@@ -84,7 +86,7 @@ namespace MugenMvvm.Commands.Components
         public bool Contains(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
-            lock (_commands)
+            lock (_listener)
             {
                 return _commands.Contains(command);
             }
@@ -93,11 +95,11 @@ namespace MugenMvvm.Commands.Components
         public void Remove(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
-            lock (_commands)
+            lock (_listener)
             {
                 if (!_commands.Remove(command))
                     return;
-                command.RemoveComponent(_commands);
+                command.RemoveComponent(_listener);
             }
 
             RaiseCanExecuteChanged();
@@ -108,7 +110,7 @@ namespace MugenMvvm.Commands.Components
             if (SuppressExecute)
                 return true;
 
-            lock (_commands)
+            lock (_listener)
             {
                 return CanExecuteInternal(parameter, metadata);
             }
@@ -126,7 +128,7 @@ namespace MugenMvvm.Commands.Components
                 while (true)
                 {
                     ValueTask<bool> task;
-                    lock (_commands)
+                    lock (_listener)
                     {
                         if (index > _commands.Count - 1)
                             return false;
@@ -144,7 +146,7 @@ namespace MugenMvvm.Commands.Components
                 return false;
             var tasks = new ItemOrListEditor<ValueTask<bool>>();
             var result = false;
-            lock (_commands)
+            lock (_listener)
             {
                 if (!CanExecuteInternal(parameter, metadata))
                     return false;
@@ -202,11 +204,11 @@ namespace MugenMvvm.Commands.Components
                 owner.RaiseCanExecuteChanged(metadata);
         }
 
-        private sealed class CommandListener : ListInternal<ICompositeCommand>, ICommandEventHandlerComponent
+        private sealed class CommandListener : ICommandEventHandlerComponent
         {
             private readonly ChildCommandAdapter _adapter;
 
-            public CommandListener(ChildCommandAdapter adapter) : base(2)
+            public CommandListener(ChildCommandAdapter adapter)
             {
                 _adapter = adapter;
             }

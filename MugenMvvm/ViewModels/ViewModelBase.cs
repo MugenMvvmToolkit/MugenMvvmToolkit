@@ -22,7 +22,7 @@ namespace MugenMvvm.ViewModels
     {
         private readonly IViewModelManager? _viewModelManager;
         private IBusyManager? _busyManager;
-        private ListInternal<ActionToken>? _disposeTokens;
+        private ListInternal<ActionToken> _disposeTokens;
         private IMetadataContext? _metadata;
         private IMessenger? _messenger;
         private IServiceProvider? _serviceProvider;
@@ -62,7 +62,7 @@ namespace MugenMvvm.ViewModels
         public virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
             ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
 
-        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T)GetViewModel(typeof(T), metadata);
+        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
 
         public void RegisterDisposeToken(IDisposable disposable) => RegisterDisposeToken(ActionToken.FromDisposable(disposable));
 
@@ -95,7 +95,8 @@ namespace MugenMvvm.ViewModels
                     inline = true;
                 else
                 {
-                    _disposeTokens ??= new ListInternal<ActionToken>(2);
+                    if (_disposeTokens.IsEmpty)
+                        _disposeTokens = new ListInternal<ActionToken>(2);
                     _disposeTokens.Add(token);
                 }
             }
@@ -125,11 +126,11 @@ namespace MugenMvvm.ViewModels
             }
 
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing, manager: _viewModelManager);
-            if (_disposeTokens != null)
+            if (!_disposeTokens.IsEmpty)
             {
                 for (var i = 0; i < _disposeTokens.Count; i++)
                     _disposeTokens.Items[i].Dispose();
-                _disposeTokens = null;
+                _disposeTokens = default;
             }
 
             ClearPropertyChangedSubscribers();

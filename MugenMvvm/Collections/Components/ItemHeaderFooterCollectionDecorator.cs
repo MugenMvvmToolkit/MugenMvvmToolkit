@@ -16,8 +16,8 @@ namespace MugenMvvm.Collections.Components
         private readonly Func<T, bool?> _isHeaderOrFooter;
         private readonly IComparer<T>? _headerComparer;
         private readonly IComparer<T>? _footerComparer;
-        private readonly ListInternal<ItemInfo> _headers;
-        private readonly ListInternal<ItemInfo> _footers;
+        private ListInternal<ItemInfo> _headers;
+        private ListInternal<ItemInfo> _footers;
         private IComparer<T>? _currentComparer;
         private int _footerIndex;
 
@@ -160,7 +160,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private static void UpdateIndexes(ListInternal<ItemInfo> items, int index, int value)
+        private static void UpdateIndexes(ref ListInternal<ItemInfo> items, int index, int value)
         {
             var count = items.Count;
             var array = items.Items;
@@ -171,7 +171,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private int Add(ListInternal<ItemInfo> items, T item, int index, IComparer<T>? comparer)
+        private int Add(ref ListInternal<ItemInfo> items, T item, int index, IComparer<T>? comparer)
         {
             _currentComparer = comparer;
             return items.AddOrdered(new ItemInfo(item, index), this);
@@ -181,8 +181,8 @@ namespace MugenMvvm.Collections.Components
         {
             if (!ignoreIndexes)
             {
-                UpdateIndexes(_headers, index, 1);
-                UpdateIndexes(_footers, index, 1);
+                UpdateIndexes(ref _headers, index, 1);
+                UpdateIndexes(ref _footers, index, 1);
             }
 
             if (!hasValue)
@@ -202,11 +202,11 @@ namespace MugenMvvm.Collections.Components
 
             if (isHeaderOrFooter.Value)
             {
-                index = Add(_headers, (T) item!, index, _headerComparer);
+                index = Add(ref _headers, (T) item!, index, _headerComparer);
                 ++_footerIndex;
             }
             else
-                index = Add(_footers, (T) item!, index, _footerComparer) + _footerIndex;
+                index = Add(ref _footers, (T) item!, index, _footerComparer) + _footerIndex;
 
             return true;
         }
@@ -238,8 +238,8 @@ namespace MugenMvvm.Collections.Components
                 index = index + _footerIndex;
             }
 
-            UpdateIndexes(_headers, originalIndex, -1);
-            UpdateIndexes(_footers, originalIndex, -1);
+            UpdateIndexes(ref _headers, originalIndex, -1);
+            UpdateIndexes(ref _footers, originalIndex, -1);
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?>? items)

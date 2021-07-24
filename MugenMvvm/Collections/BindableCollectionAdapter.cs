@@ -32,7 +32,7 @@ namespace MugenMvvm.Collections
         protected Dictionary<(int, object?), object?>? ResetChangedItemsCache;
 
         private readonly List<CollectionChangedEvent> _pendingEvents;
-        private readonly ListInternal<CollectionChangedEvent> _pendingChangedEvents;
+        private ListInternal<CollectionChangedEvent> _pendingChangedEvents;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         private Timer? _timer;

@@ -13,7 +13,7 @@ namespace MugenMvvm.Collections.Components
     {
         protected readonly IList<T> Target;
         private readonly BatchUpdateType _batchUpdateType;
-        private readonly ListInternal<ActionToken> _tokens;
+        private ListInternal<ActionToken> _tokens;
 
         protected CollectionSynchronizerBase(IList<T> target, BatchUpdateType batchUpdateType)
         {
@@ -47,7 +47,7 @@ namespace MugenMvvm.Collections.Components
             if (batchUpdateType != _batchUpdateType || Target is not IObservableCollection<T> observableCollection)
                 return;
 
-            lock (_tokens)
+            lock (this)
             {
                 _tokens.Add(observableCollection.BatchUpdate());
             }
@@ -58,7 +58,7 @@ namespace MugenMvvm.Collections.Components
             if (batchUpdateType != _batchUpdateType || Target is not IObservableCollection<T>)
                 return;
 
-            lock (_tokens)
+            lock (this)
             {
                 if (_tokens.Count != 0)
                 {
@@ -75,7 +75,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (owner is IReadOnlyObservableCollection)
             {
-                lock (_tokens)
+                lock (this)
                 {
                     for (var i = 0; i < _tokens.Count; i++)
                         _tokens.Items[i].Dispose();

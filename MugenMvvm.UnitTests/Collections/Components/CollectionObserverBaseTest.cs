@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
@@ -409,6 +410,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collectionChangedCount = 0;
             GcCollect();
             GcCollect();
+            GcCollect();
 
             foreach (var item in _collection)
                 item.OnPropertyChanged(nameof(_currentItem.Property));
@@ -420,7 +422,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         protected abstract CollectionObserverBase GetObserver();
-
+        
         private void WeakTest(out WeakReference weakReference1, out WeakReference weakReference2)
         {
             var target1 = new object();

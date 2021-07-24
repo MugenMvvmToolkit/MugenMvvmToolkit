@@ -9,6 +9,15 @@ namespace MugenMvvm.Collections
 {
     public static class DiffUtil
     {
+        public const int NoPosition = -1;
+        private const int FlagNotChanged = 1;
+        private const int FlagChanged = FlagNotChanged << 1;
+        private const int FlagMovedChanged = FlagChanged << 1;
+        private const int FlagMovedNotChanged = FlagMovedChanged << 1;
+        private const int FlagMoved = FlagMovedChanged | FlagMovedNotChanged;
+        private const int FlagOffset = 4;
+        private const int FlagMask = (1 << FlagOffset) - 1;
+
         public static ValueTask<DiffResult> CalculateDiffAsync(ICallback cb, bool isAsync, bool detectMoves = true)
         {
             if (isAsync)
@@ -46,7 +55,7 @@ namespace MugenMvvm.Collections
             var rangePool = new ListInternal<Range>(0);
             while (stack.Count != 0)
             {
-                var range = RemoveAt(stack, stack.Count - 1);
+                var range = stack.RemoveAtResult(stack.Count - 1);
                 MidPoint(range, cb, forward, backward, out var snake);
                 if (snake.IsUndefined)
                     rangePool.Add(range);
@@ -56,7 +65,7 @@ namespace MugenMvvm.Collections
                     if (snake.DiagonalSize > 0)
                         diagonals.Add(snake.ToDiagonal());
                     // add new ranges for left and right
-                    var left = rangePool.Count == 0 ? new Range() : RemoveAt(rangePool, rangePool.Count - 1);
+                    var left = rangePool.Count == 0 ? new Range() : rangePool.RemoveAtResult(rangePool.Count - 1);
                     left.OldListStart = range.OldListStart;
                     left.NewListStart = range.NewListStart;
                     left.OldListEnd = snake.StartX;
@@ -76,7 +85,13 @@ namespace MugenMvvm.Collections
 
             // sort snakes
             diagonals.Sort();
-            return new DiffResult(cb, diagonals, forward.Data, backward.Data, detectMoves);
+
+            var oldItemStatuses = forward.GetStateData();
+            var newItemStatuses = backward.GetStateData();
+            AddEdgeDiagonals(ref diagonals, oldSize, newSize);
+            FindMatchingItems(ref diagonals, cb, oldItemStatuses, newItemStatuses, detectMoves);
+
+            return new DiffResult(cb, diagonals, oldItemStatuses, newItemStatuses, oldSize, newSize);
         }
 
         private static void MidPoint(
@@ -236,12 +251,108 @@ namespace MugenMvvm.Collections
             result = Snake.Undefined;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Range RemoveAt(ListInternal<Range> list, int index)
+        private static void AddEdgeDiagonals(ref ListInternal<Diagonal> diagonals, int oldListSize, int newListSize)
         {
-            var foo = list.Items[index];
-            list.RemoveAt(index);
-            return foo;
+            // see if we should add 1 to the 0,0
+            var shouldAdd = diagonals.Count == 0;
+            if (!shouldAdd)
+            {
+                var diagonal = diagonals.Items[0];
+                shouldAdd = diagonal.X != 0 || diagonal.Y != 0;
+            }
+
+            if (shouldAdd)
+                diagonals.Insert(0, new Diagonal(0, 0, 0));
+            // always add one last
+            diagonals.Add(new Diagonal(oldListSize, newListSize, 0));
+        }
+
+        private static void FindMatchingItems(ref ListInternal<Diagonal> diagonals, ICallback callback, int[] oldItemStatuses, int[] newItemStatuses, bool detectMoves)
+        {
+            var count = diagonals.Count;
+            var diagonalsItems = diagonals.Items;
+            for (var index = 0; index < count; index++)
+            {
+                var diagonal = diagonalsItems[index];
+                for (var offset = 0; offset < diagonal.Size; offset++)
+                {
+                    var posX = diagonal.X + offset;
+                    var posY = diagonal.Y + offset;
+                    var theSame = callback.AreContentsTheSame(posX, posY);
+                    var changeFlag = theSame ? FlagNotChanged : FlagChanged;
+                    oldItemStatuses[posX] = (posY << FlagOffset) | changeFlag;
+                    newItemStatuses[posY] = (posX << FlagOffset) | changeFlag;
+                }
+            }
+
+            // now all matches are marked, lets look for moves
+            if (detectMoves)
+            {
+                // traverse each addition / removal from the end of the list, find matching
+                // addition removal from before
+                FindMoveMatches(ref diagonals, callback, oldItemStatuses, newItemStatuses);
+            }
+        }
+
+        private static void FindMoveMatches(ref ListInternal<Diagonal> diagonals, ICallback callback, int[] oldItemStatuses, int[] newItemStatuses)
+        {
+            // for each removal, find matching addition
+            var posX = 0;
+            var count = diagonals.Count;
+            var items = diagonals.Items;
+            for (var index = 0; index < count; index++)
+            {
+                var diagonal = items[index];
+                while (posX < diagonal.X)
+                {
+                    if (oldItemStatuses[posX] == 0)
+                    {
+                        // there is a removal, find matching addition from the rest
+                        FindMatchingAddition(posX, ref diagonals, callback, oldItemStatuses, newItemStatuses);
+                    }
+
+                    posX++;
+                }
+
+                // snap back for the next diagonal
+                posX = diagonal.EndX;
+            }
+        }
+
+        private static void FindMatchingAddition(int posX, ref ListInternal<Diagonal> diagonals, ICallback callback, int[] oldItemStatuses, int[] newItemStatuses)
+        {
+            var posY = 0;
+            var count = diagonals.Count;
+            var items = diagonals.Items;
+            for (var i = 0; i < count; i++)
+            {
+                var diagonal = items[i];
+                while (posY < diagonal.Y)
+                {
+                    // found some additions, evaluate
+                    if (newItemStatuses[posY] == 0)
+                    {
+                        // not evaluated yet
+                        var matching = callback.AreItemsTheSame(posX, posY);
+                        if (matching)
+                        {
+                            // yay found it, set values
+                            var contentsMatching = callback.AreContentsTheSame(posX, posY);
+                            var changeFlag = contentsMatching
+                                ? FlagMovedNotChanged
+                                : FlagMovedChanged;
+                            // once we process one of these, it will mark the other one as ignored.
+                            oldItemStatuses[posX] = (posY << FlagOffset) | changeFlag;
+                            newItemStatuses[posY] = (posX << FlagOffset) | changeFlag;
+                            return;
+                        }
+                    }
+
+                    posY++;
+                }
+
+                posY = diagonal.EndY;
+            }
         }
 
         public interface ICallback
@@ -270,145 +381,26 @@ namespace MugenMvvm.Collections
         public readonly struct DiffResult
         {
             private readonly ICallback _callback;
-            private readonly bool _detectMoves;
             private readonly ListInternal<Diagonal> _diagonals;
             private readonly int[] _newItemStatuses;
             private readonly int _newListSize;
             private readonly int[] _oldItemStatuses;
             private readonly int _oldListSize;
 
-            public const int NoPosition = -1;
-            private const int FlagNotChanged = 1;
-            private const int FlagChanged = FlagNotChanged << 1;
-            private const int FlagMovedChanged = FlagChanged << 1;
-            private const int FlagMovedNotChanged = FlagMovedChanged << 1;
-            private const int FlagMoved = FlagMovedChanged | FlagMovedNotChanged;
-            private const int FlagOffset = 4;
-            private const int FlagMask = (1 << FlagOffset) - 1;
-
-            internal DiffResult(ICallback callback, ListInternal<Diagonal> diagonals, int[] oldItemStatuses, int[] newItemStatuses, bool detectMoves)
+            internal DiffResult(ICallback callback, ListInternal<Diagonal> diagonals, int[] oldItemStatuses, int[] newItemStatuses, int oldListSize, int newListSize)
             {
                 _diagonals = diagonals;
                 _oldItemStatuses = oldItemStatuses;
                 _newItemStatuses = newItemStatuses;
-                Array.Clear(_oldItemStatuses, 0, _oldItemStatuses.Length);
-                Array.Clear(_newItemStatuses, 0, _newItemStatuses.Length);
                 _callback = callback;
-                _oldListSize = callback.GetOldListSize();
-                _newListSize = callback.GetNewListSize();
-                _detectMoves = detectMoves;
-                AddEdgeDiagonals();
-                FindMatchingItems();
+                _oldListSize = oldListSize;
+                _newListSize = newListSize;
             }
 
             public bool IsEmpty
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get => _callback == null;
-            }
-
-            private void AddEdgeDiagonals()
-            {
-                // see if we should add 1 to the 0,0
-                var shouldAdd = _diagonals.Count == 0;
-                if (!shouldAdd)
-                {
-                    var diagonal = _diagonals.Items[0];
-                    shouldAdd = diagonal.X != 0 || diagonal.Y != 0;
-                }
-
-                if (shouldAdd)
-                    _diagonals.Insert(0, new Diagonal(0, 0, 0));
-                // always add one last
-                _diagonals.Add(new Diagonal(_oldListSize, _newListSize, 0));
-            }
-
-            private void FindMatchingItems()
-            {
-                var count = _diagonals.Count;
-                var diagonals = _diagonals.Items;
-                for (var index = 0; index < count; index++)
-                {
-                    var diagonal = diagonals[index];
-                    for (var offset = 0; offset < diagonal.Size; offset++)
-                    {
-                        var posX = diagonal.X + offset;
-                        var posY = diagonal.Y + offset;
-                        var theSame = _callback.AreContentsTheSame(posX, posY);
-                        var changeFlag = theSame ? FlagNotChanged : FlagChanged;
-                        _oldItemStatuses[posX] = (posY << FlagOffset) | changeFlag;
-                        _newItemStatuses[posY] = (posX << FlagOffset) | changeFlag;
-                    }
-                }
-
-                // now all matches are marked, lets look for moves
-                if (_detectMoves)
-                {
-                    // traverse each addition / removal from the end of the list, find matching
-                    // addition removal from before
-                    FindMoveMatches();
-                }
-            }
-
-            private void FindMoveMatches()
-            {
-                // for each removal, find matching addition
-                var posX = 0;
-                var count = _diagonals.Count;
-                var items = _diagonals.Items;
-                for (var index = 0; index < count; index++)
-                {
-                    var diagonal = items[index];
-                    while (posX < diagonal.X)
-                    {
-                        if (_oldItemStatuses[posX] == 0)
-                        {
-                            // there is a removal, find matching addition from the rest
-                            FindMatchingAddition(posX);
-                        }
-
-                        posX++;
-                    }
-
-                    // snap back for the next diagonal
-                    posX = diagonal.EndX;
-                }
-            }
-
-            private void FindMatchingAddition(int posX)
-            {
-                var posY = 0;
-                var count = _diagonals.Count;
-                var items = _diagonals.Items;
-                for (var i = 0; i < count; i++)
-                {
-                    var diagonal = items[i];
-                    while (posY < diagonal.Y)
-                    {
-                        // found some additions, evaluate
-                        if (_newItemStatuses[posY] == 0)
-                        {
-                            // not evaluated yet
-                            var matching = _callback.AreItemsTheSame(posX, posY);
-                            if (matching)
-                            {
-                                // yay found it, set values
-                                var contentsMatching = _callback.AreContentsTheSame(posX, posY);
-                                var changeFlag = contentsMatching
-                                    ? FlagMovedNotChanged
-                                    : FlagMovedChanged;
-                                // once we process one of these, it will mark the other one as ignored.
-                                _oldItemStatuses[posX] = (posY << FlagOffset) | changeFlag;
-                                _newItemStatuses[posY] = (posX << FlagOffset) | changeFlag;
-                                return;
-                            }
-                        }
-
-                        posY++;
-                    }
-
-                    posY = diagonal.EndY;
-                }
             }
 
             public int ConvertOldPositionToNew(int oldListPosition)
@@ -471,7 +463,7 @@ namespace MugenMvvm.Collections
                         {
                             var newPos = status >> FlagOffset;
                             // get postponed addition
-                            var postponedUpdate = GetPostponedUpdate(postponedUpdates, newPos, false);
+                            var postponedUpdate = GetPostponedUpdate(ref postponedUpdates, newPos, false);
                             if (postponedUpdate.IsUndefined)
                             {
                                 // first time we are seeing this, we'll see a matching addition
@@ -509,7 +501,7 @@ namespace MugenMvvm.Collections
                             // see if this is postponed
                             var oldPos = status >> FlagOffset;
                             // get postponed removal
-                            var postponedUpdate = GetPostponedUpdate(postponedUpdates, oldPos, true);
+                            var postponedUpdate = GetPostponedUpdate(ref postponedUpdates, oldPos, true);
                             // empty size returns 0 for indexOf
                             if (postponedUpdate.IsUndefined)
                             {
@@ -559,7 +551,7 @@ namespace MugenMvvm.Collections
                 batchingCallback.DispatchLastEvent();
             }
 
-            private static PostponedUpdate GetPostponedUpdate(ListInternal<PostponedUpdate> postponedUpdates, int posInList, bool removal)
+            private static PostponedUpdate GetPostponedUpdate(ref ListInternal<PostponedUpdate> postponedUpdates, int posInList, bool removal)
             {
                 var postponedUpdate = PostponedUpdate.Undefined;
                 var count = postponedUpdates.Count;
@@ -892,6 +884,12 @@ namespace MugenMvvm.Collections
                 get => Data[index + _mid];
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 set => Data[index + _mid] = value;
+            }
+
+            public int[] GetStateData()
+            {
+                Array.Clear(Data, 0, Data.Length);
+                return Data;
             }
         }
     }

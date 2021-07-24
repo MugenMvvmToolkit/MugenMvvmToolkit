@@ -15,20 +15,23 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    internal abstract class FlattenCollectionItemBase : ListInternal<int>, ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
+    internal abstract class FlattenCollectionItemBase : ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
     {
         internal IEnumerable Collection = null!;
         protected FlattenCollectionDecorator Decorator = null!;
-        private ListInternal<ActionToken>? _tokens;
+        private ListInternal<ActionToken> _tokens;
+        internal ListInternal<int> Indexes;
         private bool _detached;
 
-        protected FlattenCollectionItemBase(IEnumerable collection, FlattenCollectionDecorator decorator) : base(1)
+        protected FlattenCollectionItemBase(IEnumerable collection, FlattenCollectionDecorator decorator)
         {
             Initialize(collection, decorator);
+            Indexes = new ListInternal<int>(1);
         }
 
-        protected FlattenCollectionItemBase() : base(1)
+        protected FlattenCollectionItemBase()
         {
+            Indexes = new ListInternal<int>(1);
         }
 
         public int Size { get; private set; }
@@ -52,7 +55,7 @@ namespace MugenMvvm.Collections
 
         public void FindAllIndexOf(object? item, ref ItemOrListEditor<int> indexes)
         {
-            if (Count == 0)
+            if (Indexes.Count == 0)
                 return;
 
             int index = 0;
@@ -61,8 +64,8 @@ namespace MugenMvvm.Collections
             {
                 if (Equals(item, value))
                 {
-                    for (int i = 0; i < Count; i++)
-                        indexes.Add(Decorator.GetIndex(Items[i]) + index);
+                    for (int i = 0; i < Indexes.Count; i++)
+                        indexes.Add(Decorator.GetIndex(Indexes.Items[i]) + index);
                 }
 
                 ++index;
@@ -90,7 +93,7 @@ namespace MugenMvvm.Collections
             else if (Size == 0)
                 Size = GetItems().CountEx();
 
-            AddOrdered(originalIndex, Comparer<int>.Default);
+            Indexes.AddOrdered(originalIndex, Comparer<int>.Default);
             if (!isRecycled)
             {
                 if (Collection is IReadOnlyObservableCollection owner)
@@ -119,8 +122,8 @@ namespace MugenMvvm.Collections
                     DecoratorManager!.OnRemoved(Decorator.Owner, Decorator, item, index);
             }
 
-            Remove(originalIndex);
-            if (Count == 0)
+            Indexes.Remove(originalIndex);
+            if (Indexes.Count == 0)
             {
                 Detach();
                 return true;
@@ -156,14 +159,14 @@ namespace MugenMvvm.Collections
         public void Detach()
         {
             _detached = true;
-            Clear();
+            Indexes.Clear();
             if (Collection is IReadOnlyObservableCollection owner)
                 owner.Components.Remove(this);
 
             var tokens = _tokens;
-            if (tokens != null)
+            if (!tokens.IsEmpty)
             {
-                _tokens = null;
+                _tokens = default;
                 for (var i = 0; i < tokens.Count; i++)
                     tokens.Items[i].Dispose();
             }
@@ -174,8 +177,8 @@ namespace MugenMvvm.Collections
             if (DecoratorManager == null)
                 return;
 
-            for (var i = 0; i < Count; i++)
-                DecoratorManager.OnChanged(Decorator.Owner, Decorator, item, Decorator.GetIndex(Items[i]) + index, args);
+            for (var i = 0; i < Indexes.Count; i++)
+                DecoratorManager.OnChanged(Decorator.Owner, Decorator, item, Decorator.GetIndex(Indexes.Items[i]) + index, args);
         }
 
         public void OnAdded(IReadOnlyObservableCollection collection, object? item, int index)
@@ -184,8 +187,8 @@ namespace MugenMvvm.Collections
                 return;
 
             ++Size;
-            for (var i = 0; i < Count; i++)
-                DecoratorManager.OnAdded(Decorator.Owner, Decorator, item, Decorator.GetIndex(Items[i]) + index);
+            for (var i = 0; i < Indexes.Count; i++)
+                DecoratorManager.OnAdded(Decorator.Owner, Decorator, item, Decorator.GetIndex(Indexes.Items[i]) + index);
         }
 
         public void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index)
@@ -193,8 +196,8 @@ namespace MugenMvvm.Collections
             if (DecoratorManager == null)
                 return;
 
-            for (var i = 0; i < Count; i++)
-                DecoratorManager.OnReplaced(Decorator.Owner, Decorator, oldItem, newItem, Decorator.GetIndex(Items[i]) + index);
+            for (var i = 0; i < Indexes.Count; i++)
+                DecoratorManager.OnReplaced(Decorator.Owner, Decorator, oldItem, newItem, Decorator.GetIndex(Indexes.Items[i]) + index);
         }
 
         public void OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
@@ -202,9 +205,9 @@ namespace MugenMvvm.Collections
             if (DecoratorManager == null)
                 return;
 
-            for (var i = 0; i < Count; i++)
+            for (var i = 0; i < Indexes.Count; i++)
             {
-                var originalIndex = Decorator.GetIndex(Items[i]);
+                var originalIndex = Decorator.GetIndex(Indexes.Items[i]);
                 DecoratorManager.OnMoved(Decorator.Owner, Decorator, item, originalIndex + oldIndex, originalIndex + newIndex);
             }
         }
@@ -215,8 +218,8 @@ namespace MugenMvvm.Collections
                 return;
 
             --Size;
-            for (var i = 0; i < Count; i++)
-                DecoratorManager.OnRemoved(Decorator.Owner, Decorator, item, Decorator.GetIndex(Items[i]) + index);
+            for (var i = 0; i < Indexes.Count; i++)
+                DecoratorManager.OnRemoved(Decorator.Owner, Decorator, item, Decorator.GetIndex(Indexes.Items[i]) + index);
         }
 
         public void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items)
@@ -257,14 +260,15 @@ namespace MugenMvvm.Collections
                 actionToken.Dispose();
             else
             {
-                _tokens ??= new ListInternal<ActionToken>(2);
+                if (_tokens.IsEmpty)
+                    _tokens = new ListInternal<ActionToken>(2);
                 _tokens.Add(actionToken);
             }
         }
 
         private void RemoveToken()
         {
-            if (_tokens == null || _tokens.Count == 0)
+            if (_tokens.Count == 0)
                 return;
 
             var item = _tokens.Items[_tokens.Count - 1];

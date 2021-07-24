@@ -12,7 +12,7 @@ namespace MugenMvvm.Collections.Components
 {
     public class SortingCollectionDecorator : CollectionDecoratorBase, IReadOnlyCollection<object?>, IComparer<SortingCollectionDecorator.OrderedItem>
     {
-        private readonly ListInternal<OrderedItem> _items;
+        private ListInternal<OrderedItem> _items;
         private IComparer<object?>? _comparer;
 
         public SortingCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator) : base(priority)

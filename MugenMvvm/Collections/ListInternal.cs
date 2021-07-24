@@ -1,23 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Collections
 {
-    internal class ListInternal<T>
+    [StructLayout((LayoutKind.Auto))]
+    internal struct ListInternal<T>
     {
         private const int DefaultCapacity = 4;
 
+        public int Count;
         public T[] Items;
 
         public ListInternal(int capacity)
         {
             Items = capacity == 0 ? Array.Empty<T>() : new T[capacity];
+            Count = 0;
         }
+
+        public bool IsEmpty => Items == null;
 
         public int Capacity
         {
-            get => Items.Length;
+            readonly get => Items.Length;
             set
             {
                 if (value != Items.Length)
@@ -35,14 +41,12 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public int Count { get; private set; }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Add(T item)
         {
             T[] array = Items;
             var size = Count;
-            if ((uint)size < (uint)array.Length)
+            if ((uint) size < (uint) array.Length)
             {
                 Count = size + 1;
                 array[size] = item;
@@ -61,11 +65,11 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int BinarySearch(T item, IComparer<T>? comparer = null)
+        public readonly int BinarySearch(T item, IComparer<T>? comparer = null)
             => BinarySearch(0, Count, item, comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int BinarySearch(int index, int count, T item, IComparer<T>? comparer) => Array.BinarySearch(Items, index, count, item, comparer);
+        public readonly int BinarySearch(int index, int count, T item, IComparer<T>? comparer) => Array.BinarySearch(Items, index, count, item, comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Clear()
@@ -88,14 +92,10 @@ namespace MugenMvvm.Collections
 #endif
         }
 
-        public bool Contains(T item) => Count != 0 && IndexOf(item) != -1;
+        public readonly bool Contains(T item) => Count != 0 && IndexOf(item) != -1;
 
-        public int IndexOf(T item)
-            => Array.IndexOf(Items, item, 0, Count);
-
-        public int IndexOf(T item, int index) => Array.IndexOf(Items, item, index, Count - index);
-
-        public int IndexOf(T item, int index, int count) => Array.IndexOf(Items, item, index, count);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public readonly int IndexOf(T item) => Array.IndexOf(Items, item, 0, Count);
 
         public void Insert(int index, T item)
         {
@@ -131,16 +131,24 @@ namespace MugenMvvm.Collections
                 Items[Count] = default!;
         }
 
-        public void Sort(IComparer<T>? comparer = null)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public T RemoveAtResult(int index)
+        {
+            var foo = Items[index];
+            RemoveAt(index);
+            return foo;
+        }
+
+        public readonly void Sort(IComparer<T>? comparer = null)
             => Sort(0, Count, comparer);
 
-        public void Sort(int index, int count, IComparer<T>? comparer)
+        public readonly void Sort(int index, int count, IComparer<T>? comparer)
         {
             if (count > 1)
                 Array.Sort(Items, index, count, comparer);
         }
 
-        public T[] ToArray()
+        public readonly T[] ToArray()
         {
             if (Count == 0)
                 return Array.Empty<T>();
@@ -155,7 +163,7 @@ namespace MugenMvvm.Collections
             if (Items.Length < min)
             {
                 var newCapacity = Items.Length == 0 ? DefaultCapacity : Items.Length * 2;
-                if ((uint)newCapacity > 2146435071U)
+                if ((uint) newCapacity > 2146435071U)
                     newCapacity = 2146435071;
                 if (newCapacity < min)
                     newCapacity = min;

@@ -39,6 +39,6 @@ namespace MugenMvvm.Collections
 
         private static IEnumerable<object?>? AsObjectEnumerable(IEnumerable<TItem>? items) => items == null ? null : items as IEnumerable<object?> ?? items.Cast<object>();
 
-        private ActionToken BatchIfNeed() => DecoratorManager != null && Count > 1 ? DecoratorManager.BatchUpdate(Decorator.Owner, Decorator) : default;
+        private ActionToken BatchIfNeed() => DecoratorManager != null && Indexes.Count > 1 ? DecoratorManager.BatchUpdate(Decorator.Owner, Decorator) : default;
     }
 }

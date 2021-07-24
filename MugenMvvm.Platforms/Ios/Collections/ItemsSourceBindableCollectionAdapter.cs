@@ -19,7 +19,7 @@ namespace MugenMvvm.Ios.Collections
         private DiffUtil.DiffResult _diffResult;
         private bool _isInitialized;
         private int _pendingReloadCount;
-        private List<(int position, int count)>? _pendingReloads;
+        private ListInternal<(int position, int count)> _pendingReloads;
         private int? _diffUtilAsyncLimit;
         private int? _diffUtilMaxLimit;
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Ios.Collections
         protected override void ClearResetCache()
         {
             base.ClearResetCache();
-            _pendingReloads?.Clear();
+            _pendingReloads.Clear();
             _changedItems = null;
             _diffResult = default;
             _resetItems = null;
@@ -264,11 +264,12 @@ namespace MugenMvvm.Ios.Collections
 
         void DiffUtil.IListUpdateCallback.OnChanged(int position, int finalPosition, int count, bool isMove)
         {
-            if (_diffResult.IsEmpty || position == finalPosition && !isMove)
+            if (_diffResult.IsEmpty)
                 NotifyReload(finalPosition, count);
             else
             {
-                _pendingReloads ??= new List<(int, int)>();
+                if (_pendingReloads.IsEmpty)
+                    _pendingReloads = new ListInternal<(int position, int count)>(2);
                 _pendingReloads.Add((finalPosition, count));
                 _pendingReloadCount += count;
             }
@@ -319,13 +320,13 @@ namespace MugenMvvm.Ios.Collections
                     return;
 
                 var pendingReloads = _adapter._pendingReloads;
-                if (pendingReloads != null && pendingReloads.Count != 0)
+                if (pendingReloads.Count != 0)
                 {
                     _reloadPaths = new NSIndexPath[_adapter._pendingReloadCount];
                     var index = 0;
                     for (var i = 0; i < pendingReloads.Count; i++)
                     {
-                        var pendingReload = pendingReloads[i];
+                        var pendingReload = pendingReloads.Items[i];
                         for (var j = 0; j < pendingReload.count; j++)
                             _reloadPaths[index++] = _adapter.GetIndexPath(pendingReload.position + j);
                     }
