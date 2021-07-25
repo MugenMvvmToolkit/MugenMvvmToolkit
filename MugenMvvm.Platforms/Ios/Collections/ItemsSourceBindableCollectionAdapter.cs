@@ -20,8 +20,8 @@ namespace MugenMvvm.Ios.Collections
         private bool _isInitialized;
         private int _pendingReloadCount;
         private ListInternal<(int position, int count)> _pendingReloads;
-        private int? _diffUtilAsyncLimit;
-        private int? _diffUtilMaxLimit;
+        private int? _diffUtilAsyncThreshold;
+        private int? _diffUtilMaxThreshold;
 
         public ItemsSourceBindableCollectionAdapter(ICollectionViewAdapter collectionViewAdapter,
             IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
@@ -41,17 +41,17 @@ namespace MugenMvvm.Ios.Collections
         public bool DetectMoves { get; set; } = true;
 
         [Preserve]
-        public int DiffUtilAsyncLimit
+        public int DiffUtilAsyncThreshold
         {
-            get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
-            set => _diffUtilAsyncLimit = value;
+            get => _diffUtilAsyncThreshold.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncThreshold);
+            set => _diffUtilAsyncThreshold = value;
         }
 
         [Preserve]
-        public int DiffUtilMaxLimit
+        public int DiffUtilMaxThreshold
         {
-            get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
-            set => _diffUtilMaxLimit = value;
+            get => _diffUtilMaxThreshold.GetValueOrDefault(CollectionMetadata.DiffUtilMaxThreshold);
+            set => _diffUtilMaxThreshold = value;
         }
 
         protected override bool IsAlive => CollectionViewAdapter.IsAlive;
@@ -116,7 +116,7 @@ namespace MugenMvvm.Ios.Collections
         {
             BeginBatchUpdate(version);
             var closure = Closure.GetClosure(this, version);
-            if (items == null || !_isInitialized || Items.Count == 0 || Items.Count > DiffUtilMaxLimit)
+            if (items == null || !_isInitialized || Items.Count == 0 || Items.Count > DiffUtilMaxThreshold)
             {
                 _isInitialized = true;
                 Reload(closure, items, changedItems, batchUpdate, version);
@@ -131,14 +131,14 @@ namespace MugenMvvm.Ios.Collections
                 _resetItems = ResetCache;
             }
 
-            if (Items.Count + _resetItems.Count > DiffUtilMaxLimit)
+            if (Items.Count + _resetItems.Count > DiffUtilMaxThreshold)
             {
                 Reload(closure, _resetItems, changedItems, batchUpdate, version);
                 return;
             }
 
             _changedItems = changedItems;
-            var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
+            var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncThreshold;
             if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
             {
                 MugenExtensions.Reset(ref ResetCache, _resetItems);

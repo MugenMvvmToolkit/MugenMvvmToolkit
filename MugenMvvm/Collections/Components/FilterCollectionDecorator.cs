@@ -71,12 +71,11 @@ namespace MugenMvvm.Collections.Components
             {
                 if (filterIndex < 0)
                 {
-                    index = _list.Add(index, item, filterIndex);
-                    decoratorManager.OnAdded(collection, this, item, index);
+                    decoratorManager.OnAdded(collection, this, item, _list.Add(index, item, filterIndex));
+                    return false;
                 }
-                else
-                    index = filterIndex;
 
+                index = filterIndex;
                 return true;
             }
 

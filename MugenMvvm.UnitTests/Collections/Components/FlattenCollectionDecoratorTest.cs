@@ -1200,11 +1200,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private void SetBatchLimit(int value)
         {
             foreach (var flattenCollectionDecorator in _targetCollection.GetComponents<FlattenCollectionDecorator>())
-                flattenCollectionDecorator.BatchLimit = value;
+                flattenCollectionDecorator.BatchThreshold = value;
             foreach (var flattenCollectionDecorator in _itemCollection1.GetComponents<FlattenCollectionDecorator>())
-                flattenCollectionDecorator.BatchLimit = value;
+                flattenCollectionDecorator.BatchThreshold = value;
             foreach (var flattenCollectionDecorator in _itemCollection2.GetComponents<FlattenCollectionDecorator>())
-                flattenCollectionDecorator.BatchLimit = value;
+                flattenCollectionDecorator.BatchThreshold = value;
         }
 
         private IEnumerable<object?> Decorate()

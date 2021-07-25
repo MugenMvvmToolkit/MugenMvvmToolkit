@@ -41,7 +41,7 @@ namespace MugenMvvm.Collections
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
         private int _suspendCount;
-        private int? _batchLimit;
+        private int? _batchThreshold;
         private int? _batchDelay;
 
         public BindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
@@ -77,10 +77,10 @@ namespace MugenMvvm.Collections
         }
 
         [Preserve]
-        public int BatchLimit
+        public int BatchThreshold
         {
-            get => _batchLimit.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchLimit);
-            set => _batchLimit = value;
+            get => _batchThreshold.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchThreshold);
+            set => _batchThreshold = value;
         }
 
         [Preserve]
@@ -167,7 +167,7 @@ namespace MugenMvvm.Collections
                 return;
             }
 
-            if (events.Count < BatchLimit && firstEvent.Action != CollectionChangedAction.Reset)
+            if (events.Count < BatchThreshold && firstEvent.Action != CollectionChangedAction.Reset)
             {
                 RaiseBatchUpdate(events, version);
                 return;
@@ -392,7 +392,7 @@ namespace MugenMvvm.Collections
                 return false;
             if (_pendingEvents[0].Action == CollectionChangedAction.Reset)
                 return true;
-            return _pendingEvents.Count >= BatchLimit;
+            return _pendingEvents.Count >= BatchThreshold;
         }
 
         private void EndBatchUpdateTimer()

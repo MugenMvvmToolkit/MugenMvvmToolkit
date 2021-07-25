@@ -230,7 +230,7 @@ namespace MugenMvvm.UnitTests.Collections
             var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var adapterCollection = new SuspendableObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
-            collectionAdapter.BatchLimit = 3;
+            collectionAdapter.BatchThreshold = 3;
             var tracker = new ObservableCollectionTracker<object?>();
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;

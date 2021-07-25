@@ -15,8 +15,8 @@ namespace MugenMvvm.Collections
         private Dictionary<(int, object?), object?>? _changedItems;
         private bool _resetBatchUpdate;
         private int _resetVersion;
-        private int? _diffUtilAsyncLimit;
-        private int? _diffUtilMaxLimit;
+        private int? _diffUtilAsyncThreshold;
+        private int? _diffUtilMaxThreshold;
 
         public DiffableBindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
@@ -33,17 +33,17 @@ namespace MugenMvvm.Collections
         public bool NotifyOnReload { get; set; }
 
         [Preserve]
-        public int DiffUtilAsyncLimit
+        public int DiffUtilAsyncThreshold
         {
-            get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
-            set => _diffUtilAsyncLimit = value;
+            get => _diffUtilAsyncThreshold.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncThreshold);
+            set => _diffUtilAsyncThreshold = value;
         }
 
         [Preserve]
-        public int DiffUtilMaxLimit
+        public int DiffUtilMaxThreshold
         {
-            get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
-            set => _diffUtilMaxLimit = value;
+            get => _diffUtilMaxThreshold.GetValueOrDefault(CollectionMetadata.DiffUtilMaxThreshold);
+            set => _diffUtilMaxThreshold = value;
         }
 
         protected virtual void OnClear(bool batchUpdate, int version) => Items.Clear();
@@ -103,7 +103,7 @@ namespace MugenMvvm.Collections
                 return;
             }
 
-            if (Items.Count == 0 || Items.Count > DiffUtilMaxLimit)
+            if (Items.Count == 0 || Items.Count > DiffUtilMaxThreshold)
             {
                 Reload(items, changedItems, batchUpdate, version);
                 ClearResetCache();
@@ -118,7 +118,7 @@ namespace MugenMvvm.Collections
                 _resetItems = ResetCache;
             }
 
-            if (Items.Count + _resetItems.Count > DiffUtilMaxLimit)
+            if (Items.Count + _resetItems.Count > DiffUtilMaxThreshold)
             {
                 Reload(_resetItems, changedItems, batchUpdate, version);
                 ClearResetCache();
@@ -128,7 +128,7 @@ namespace MugenMvvm.Collections
             _resetVersion = version;
             _resetBatchUpdate = batchUpdate;
             _changedItems = changedItems;
-            var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
+            var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncThreshold;
             if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
             {
                 MugenExtensions.Reset(ref ResetCache, _resetItems);

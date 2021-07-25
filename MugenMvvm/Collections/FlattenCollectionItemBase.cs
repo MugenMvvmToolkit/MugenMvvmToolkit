@@ -79,7 +79,7 @@ namespace MugenMvvm.Collections
             if (notify)
             {
                 Size = GetItems().Count();
-                if (Size > Decorator.BatchLimit)
+                if (Size > Decorator.BatchThreshold)
                 {
                     isReset = true;
                     Reset();
@@ -110,7 +110,7 @@ namespace MugenMvvm.Collections
         public bool OnRemoved(int originalIndex, int index, out bool isReset)
         {
             using var _ = MugenExtensions.TryLock(Collection);
-            if (Size > Decorator.BatchLimit)
+            if (Size > Decorator.BatchThreshold)
             {
                 isReset = true;
                 Reset();
@@ -135,7 +135,7 @@ namespace MugenMvvm.Collections
         public void OnMoved(int oldIndex, int newIndex)
         {
             using var _ = MugenExtensions.TryLock(Collection);
-            if (Size > Decorator.BatchLimit)
+            if (Size > Decorator.BatchThreshold)
             {
                 Reset();
                 return;

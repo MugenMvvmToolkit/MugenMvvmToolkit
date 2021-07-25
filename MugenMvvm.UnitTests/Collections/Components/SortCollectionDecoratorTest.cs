@@ -37,13 +37,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
             {
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                _collection.Insert(i, i);
+                _collection.Insert(i, new SortItem(i));
                 Assert();
             }
         }
@@ -57,13 +57,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
             {
-                _collection.Add(Guid.NewGuid().GetHashCode());
+                _collection.Add(new SortItem(Guid.NewGuid().GetHashCode()));
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                _collection.Insert(i, Guid.NewGuid().GetHashCode());
+                _collection.Insert(i, new SortItem(Guid.NewGuid().GetHashCode()));
                 Assert();
             }
         }
@@ -71,24 +71,106 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void ChangeShouldTrackChanges(bool defaultComparer)
+        public void ChangeShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
             _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
             {
-                var item = (TestCollectionItem)x1!;
-                var collectionItem = (TestCollectionItem)x2!;
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
                 if (defaultComparer)
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
             });
 
             for (var i = 0; i < 100; i++)
-                _collection.Add(new TestCollectionItem { Id = i });
+                _collection.Add(new TestCollectionItem {Id = i});
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                var newId = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                ((TestCollectionItem) _collection[i]).Id = newId;
+                _collection.RaiseItemChanged(_collection[i], null);
+                Assert();
+            }
+        }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ChangeShouldTrackChanges2(bool defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+            _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
+            {
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
+                if (defaultComparer)
+                    return item.Id.CompareTo(collectionItem.Id);
+                return collectionItem.Id.CompareTo(item.Id);
+            });
 
             for (var i = 0; i < 100; i++)
+                _collection.Add(new TestCollectionItem {Id = i});
+
+            for (var i = 0; i < _collection.Count; i++)
             {
-                ((TestCollectionItem)_collection[i]).Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                var newId = i % 2;
+                ((TestCollectionItem) _collection[i]).Id = newId;
+                _collection.RaiseItemChanged(_collection[i], null);
+                Assert();
+            }
+        }
+        
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ChangeShouldTrackChanges3(bool defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+            _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
+            {
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
+                if (defaultComparer)
+                    return item.Id.CompareTo(collectionItem.Id);
+                return collectionItem.Id.CompareTo(item.Id);
+            });
+
+            for (var i = 0; i < 100; i++)
+                _collection.Add(new TestCollectionItem {Id = i});
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                var newId = 1;
+                ((TestCollectionItem) _collection[i]).Id = newId;
+                _collection.RaiseItemChanged(_collection[i], null);
+                Assert();
+            }
+        }
+        
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void ChangeShouldTrackChanges4(bool defaultComparer)
+        {
+            DefaultComparer = defaultComparer;
+            _decorator.Comparer = Comparer<object?>.Create((x1, x2) =>
+            {
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
+                if (defaultComparer)
+                    return item.Id.CompareTo(collectionItem.Id);
+                return collectionItem.Id.CompareTo(item.Id);
+            });
+
+            for (var i = 0; i < 100; i++)
+                _collection.Add(new TestCollectionItem {Id = i});
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                var newId = -1;
+                ((TestCollectionItem) _collection[i]).Id = newId;
                 _collection.RaiseItemChanged(_collection[i], null);
                 Assert();
             }
@@ -102,7 +184,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
             _collection.Clear();
@@ -117,7 +199,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
             for (var i = 0; i < 10; i++)
@@ -141,7 +223,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
             for (var i = 0; i < 10; i++)
@@ -165,12 +247,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
             for (var i = 0; i < 20; i++)
             {
-                _collection.Remove(i);
+                _collection.Remove(_collection[0]);
                 Assert();
             }
 
@@ -189,7 +271,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(Guid.NewGuid().GetHashCode());
+                _collection.Add(new SortItem(Guid.NewGuid().GetHashCode()));
             Assert();
 
             for (var i = 0; i < 100; i++)
@@ -206,7 +288,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ReorderShouldTrackChanges1(bool? defaultComparer)
         {
             DefaultComparer = defaultComparer;
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5, 6, 6 });
+            _collection.Reset(new[] {new SortItem(1), new SortItem(2), new SortItem(3), new SortItem(3), new SortItem(4), new SortItem(5), new SortItem(6), new SortItem(7)});
 
             _decorator.Reorder();
             Assert();
@@ -228,12 +310,18 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
             for (var i = 0; i < 10; i++)
             {
-                _collection[i] = i + Guid.NewGuid().GetHashCode();
+                _collection[i] = new SortItem(i + Guid.NewGuid().GetHashCode());
+                Assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                _collection[i + 10] = new SortItem(i + 10);
                 Assert();
             }
         }
@@ -246,7 +334,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
             for (var i = 0; i < 10; i++)
@@ -265,10 +353,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
             for (var i = 0; i < 100; i++)
-                _collection.Add(i);
+                _collection.Add(new SortItem(i));
             Assert();
 
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _collection.Reset(new object[] {new SortItem(1), new SortItem(2), new SortItem(3), new SortItem(4), new SortItem(5)});
             Assert();
         }
 
@@ -280,22 +368,22 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
 
-            _collection.Add(1);
+            _collection.Add(new SortItem(1));
             Assert();
 
-            _collection.Insert(1, 2);
+            _collection.Insert(1, new SortItem(2));
             Assert();
 
-            _collection.Remove(2);
+            _collection.Remove(_collection[1]);
             Assert();
 
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            _collection.Reset(new object[] {new SortItem(1), new SortItem(2), new SortItem(3), new SortItem(4), new SortItem(5)});
             Assert();
 
-            _collection[0] = 200;
+            _collection[0] = new SortItem(200);
             Assert();
 
             _collection.Move(1, 2);
@@ -318,22 +406,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             DefaultComparer = defaultComparer;
 
-            _collection.Add(Guid.NewGuid().GetHashCode());
+            _collection.Add(new SortItem(Guid.NewGuid().GetHashCode()));
             Assert();
 
-            _collection.Insert(1, 2);
+            _collection.Insert(1, new SortItem(2));
             Assert();
 
-            _collection.Remove(2);
+            _collection.Remove(_collection[1]);
             Assert();
 
             _collection.RemoveAt(0);
             Assert();
 
-            _collection.Reset(new object[] { Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5 });
+            _collection.Reset(new[]
+            {
+                new SortItem(Guid.NewGuid().GetHashCode()), new SortItem(Guid.NewGuid().GetHashCode()), new SortItem(Guid.NewGuid().GetHashCode()), new SortItem(4), new SortItem(5)
+            });
             Assert();
 
-            _collection[0] = 200;
+            _collection[0] = new SortItem(200);
             Assert();
 
             _collection.Move(1, 2);
@@ -370,11 +461,30 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         int IComparer<object?>.Compare(object? x1, object? x2)
         {
-            var x = (int)x1!;
-            var y = (int)x2!;
+            var x = (SortItem) x1!;
+            var y = (SortItem) x2!;
             if (DefaultComparer.GetValueOrDefault())
-                return Comparer<int>.Default.Compare(x, y);
-            return y.CompareTo(x);
+                return ThenBy(Comparer<int>.Default.Compare(x.Value, y.Value), x1, x2);
+            return ThenBy(y.Value.CompareTo(x.Value), x1, x2);
+        }
+
+        private int ThenBy(int result, object? x1, object? x2)
+        {
+            if (result != 0)
+                return result;
+            return _collection.IndexOf(x1).CompareTo(_collection.IndexOf(x2));
+        }
+
+        private sealed class SortItem
+        {
+            public readonly int Value;
+
+            public SortItem(int value)
+            {
+                Value = value;
+            }
+
+            public override string ToString() => Value.ToString();
         }
     }
 }

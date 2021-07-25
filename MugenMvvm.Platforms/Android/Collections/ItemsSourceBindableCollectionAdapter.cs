@@ -18,8 +18,8 @@ namespace MugenMvvm.Android.Collections
         private int _diffSupportedCount;
         private int _diffVersion;
         private bool _isAlive;
-        private int? _diffUtilAsyncLimit;
-        private int? _diffUtilMaxLimit;
+        private int? _diffUtilAsyncThreshold;
+        private int? _diffUtilMaxThreshold;
 
         public ItemsSourceBindableCollectionAdapter(IDiffableEqualityComparer? diffableComparer, IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source, threadDispatcher)
@@ -36,17 +36,17 @@ namespace MugenMvvm.Android.Collections
         public bool DetectMoves { get; set; } = true;
 
         [Preserve]
-        public int DiffUtilAsyncLimit
+        public int DiffUtilAsyncThreshold
         {
-            get => _diffUtilAsyncLimit.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncLimit);
-            set => _diffUtilAsyncLimit = value;
+            get => _diffUtilAsyncThreshold.GetValueOrDefault(CollectionMetadata.DiffUtilAsyncThreshold);
+            set => _diffUtilAsyncThreshold = value;
         }
 
         [Preserve]
-        public int DiffUtilMaxLimit
+        public int DiffUtilMaxThreshold
         {
-            get => _diffUtilMaxLimit.GetValueOrDefault(CollectionMetadata.DiffUtilMaxLimit);
-            set => _diffUtilMaxLimit = value;
+            get => _diffUtilMaxThreshold.GetValueOrDefault(CollectionMetadata.DiffUtilMaxThreshold);
+            set => _diffUtilMaxThreshold = value;
         }
 
         protected override bool IsAlive => _isAlive;
@@ -106,7 +106,7 @@ namespace MugenMvvm.Android.Collections
 
         protected override async void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
         {
-            if (items != null && Items.Count != 0 && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxLimit)
+            if (items != null && Items.Count != 0 && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxThreshold)
             {
                 if (items is IReadOnlyList<object?> list)
                     _resetItems = list;
@@ -116,10 +116,10 @@ namespace MugenMvvm.Android.Collections
                     _resetItems = ResetCache;
                 }
 
-                if (Items.Count + _resetItems.Count <= DiffUtilMaxLimit)
+                if (Items.Count + _resetItems.Count <= DiffUtilMaxThreshold)
                 {
                     _changedItems = changedItems;
-                    var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncLimit;
+                    var isAsync = Items.Count + _resetItems.Count > DiffUtilAsyncThreshold;
                     if (!batchUpdate && isAsync && !ReferenceEquals(_resetItems, ResetCache))
                     {
                         MugenExtensions.Reset(ref ResetCache, _resetItems);

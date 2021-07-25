@@ -17,16 +17,16 @@ namespace MugenMvvm.Collections.Components
 {
     public abstract class FlattenCollectionDecorator : CollectionDecoratorBase
     {
-        private int? _batchLimit;
+        private int? _batchThreshold;
 
         internal FlattenCollectionDecorator(int priority) : base(priority)
         {
         }
 
-        public int BatchLimit
+        public int BatchThreshold
         {
-            get => _batchLimit.GetValueOrDefault(CollectionMetadata.FlattenCollectionDecoratorBatchLimit);
-            set => _batchLimit = value;
+            get => _batchThreshold.GetValueOrDefault(CollectionMetadata.FlattenCollectionDecoratorBatchThreshold);
+            set => _batchThreshold = value;
         }
 
         internal abstract int GetIndex(int originalIndex);

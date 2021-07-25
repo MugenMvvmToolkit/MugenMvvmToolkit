@@ -54,17 +54,12 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            var comparer = Comparer;
-            if (comparer == null)
+            if (Comparer == null)
                 return true;
 
-            var oldIndex = GetIndexByOriginalIndex(comparer, item, index);
-            if (oldIndex == -1)
-                return false;
-
+            var oldIndex = GetIndexByOriginalIndex(item, index);
             _items.RemoveAt(oldIndex);
-            var newIndex = GetInsertIndex(item);
-            _items.Insert(newIndex, new OrderedItem(index, item));
+            var newIndex = _items.AddOrdered(new OrderedItem(index, item), this);
             if (oldIndex == newIndex)
                 index = oldIndex;
             else
@@ -82,40 +77,33 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             UpdateIndexes(index, 1);
-            var newIndex = GetInsertIndex(item);
-            _items.Insert(newIndex, new OrderedItem(index, item));
-            index = newIndex;
+            index = _items.AddOrdered(new OrderedItem(index, item), this);
             return true;
         }
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var comparer = Comparer;
-            if (comparer == null)
+            if (Comparer == null)
                 return true;
 
-            var oldIndex = GetIndexByOriginalIndex(comparer, oldItem, index);
+            var oldIndex = GetIndexByOriginalIndex(oldItem, index);
             if (oldIndex == -1)
                 return false;
 
             _items.RemoveAt(oldIndex);
             decoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
-
-            var newIndex = GetInsertIndex(newItem);
-            _items.Insert(newIndex, new OrderedItem(index, newItem));
-            decoratorManager.OnAdded(collection, this, newItem, newIndex);
+            decoratorManager.OnAdded(collection, this, newItem, _items.AddOrdered(new OrderedItem(index, newItem), this));
             return false;
         }
 
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
             ref int newIndex)
         {
-            var comparer = Comparer;
-            if (comparer == null)
+            if (Comparer == null)
                 return true;
 
-            var index = GetIndexByOriginalIndex(comparer, item, oldIndex);
+            var index = GetIndexByOriginalIndex(item, oldIndex);
             UpdateIndexes(oldIndex + 1, -1);
             UpdateIndexes(newIndex, 1);
 
@@ -127,11 +115,10 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            var comparer = Comparer;
-            if (comparer == null)
+            if (Comparer == null)
                 return true;
 
-            var indexToRemove = GetIndexByOriginalIndex(comparer, item, index);
+            var indexToRemove = GetIndexByOriginalIndex(item, index);
             UpdateIndexes(index, -1);
             if (indexToRemove == -1)
                 return false;
@@ -193,54 +180,19 @@ namespace MugenMvvm.Collections.Components
             _items.Sort(this);
         }
 
-        private int GetInsertIndex(object? item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private int GetIndexByOriginalIndex(object? item, int index)
         {
-            var num = _items.BinarySearch(new OrderedItem(-1, item), this);
-            if (num >= 0)
-                return num;
-            return ~num;
+            var binarySearchIndex = _items.BinarySearch(new OrderedItem(index, item), this);
+            if (binarySearchIndex >= 0)
+                return binarySearchIndex;
+            return GetIndexByOriginalIndexFallback(index);
         }
 
-        private int GetIndexByOriginalIndex(IComparer<object?> comparer, object? item, int index)
+        private int GetIndexByOriginalIndexFallback(int index)
         {
             var count = _items.Count;
             var items = _items.Items;
-            var startIndex = _items.BinarySearch(new OrderedItem(-1, item), this);
-            if (startIndex >= 0)
-            {
-                var value = items[startIndex];
-                if (value.OriginalIndex == index)
-                    return startIndex;
-
-                var leftIndex = startIndex - 1;
-                var rightIndex = startIndex + 1;
-                do
-                {
-                    if (rightIndex < count)
-                    {
-                        value = items[rightIndex];
-                        if (comparer.Compare(item, value.Item) != 0)
-                            rightIndex = int.MaxValue;
-                        else if (value.OriginalIndex == index)
-                            return rightIndex;
-                        else
-                            ++rightIndex;
-                    }
-
-                    if (leftIndex >= 0)
-                    {
-                        value = items[leftIndex];
-                        if (comparer.Compare(item, value.Item) != 0)
-                            leftIndex = int.MinValue;
-                        else if (value.OriginalIndex == index)
-                            return leftIndex;
-                        else
-                            --leftIndex;
-                    }
-                } while (rightIndex < count || leftIndex >= 0);
-            }
-
-            //fallback
             for (var i = 0; i < count; i++)
             {
                 if (items[i].OriginalIndex == index)
@@ -254,10 +206,26 @@ namespace MugenMvvm.Collections.Components
         {
             var count = _items.Count;
             var items = _items.Items;
-            for (var i = 0; i < count; i++)
+            if (index == 0)
             {
-                if (items[i].OriginalIndex >= index)
+                for (var i = 0; i < count; i++)
                     items[i].OriginalIndex += value;
+            }
+            else
+            {
+                var countToUpdate = count - index;
+                if (countToUpdate == 0)
+                    return;
+
+                for (var i = 0; i < count; i++)
+                {
+                    if (items[i].OriginalIndex >= index)
+                    {
+                        items[i].OriginalIndex += value;
+                        if (--countToUpdate == 0)
+                            break;
+                    }
+                }
             }
         }
 
@@ -265,7 +233,10 @@ namespace MugenMvvm.Collections.Components
         {
             if (Comparer == null)
                 return 0;
-            return Comparer.Compare(x.Item, y.Item);
+            var result = Comparer.Compare(x.Item, y.Item);
+            if (result == 0)
+                return x.OriginalIndex.CompareTo(y.OriginalIndex);
+            return result;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
