@@ -14,7 +14,7 @@ namespace MugenMvvm.Collections.Components
 
         public void OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
         {
-            if (Target is IReadOnlyObservableCollection observableCollection)
+            if (GetTarget(collection) is IReadOnlyObservableCollection observableCollection)
                 observableCollection.RaiseItemChanged(item, args);
         }
     }

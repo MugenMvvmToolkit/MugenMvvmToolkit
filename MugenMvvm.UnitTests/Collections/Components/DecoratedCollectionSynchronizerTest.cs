@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Collections;
+﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -10,6 +11,7 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
+    [Collection(SharedContext)]
     public class DecoratedCollectionSynchronizerTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _source;
@@ -20,6 +22,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _source = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _source.AddComponent(new ConvertImmutableCollectionDecorator<object, string>(o => "Item " + o.GetHashCode()));
             _target = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
@@ -97,6 +100,27 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 token.Dispose();
             }
+        }
+
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldBeWeak()
+        {
+            var weakReference = WeakTest(_source);
+            GcCollect();
+            GcCollect();
+            GcCollect();
+            _source.Add(NewId());
+            weakReference.IsAlive.ShouldBeFalse();
+        }
+
+        private WeakReference WeakTest(SynchronizedObservableCollection<object> target)
+        {
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            collection.SynchronizeWith(target);
+
+            target.Add(NewId());
+            collection.DecoratedItems().ShouldEqual(target);
+            return new WeakReference(collection);
         }
 
         private void Assert(bool hasListener)

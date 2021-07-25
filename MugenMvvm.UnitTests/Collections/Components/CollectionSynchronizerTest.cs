@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Collections;
+﻿using System;
+using MugenMvvm.Collections;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Tests.Collections;
@@ -8,6 +10,7 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
+    [Collection(SharedContext)]
     public class CollectionSynchronizerTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _source;
@@ -17,6 +20,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _source = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _target = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Fact]
@@ -93,6 +97,27 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 token.Dispose();
             }
+        }
+        
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldBeWeak()
+        {
+            var weakReference = WeakTest(_source);
+            GcCollect();
+            GcCollect();
+            GcCollect();
+            _source.Add(NewId());
+            weakReference.IsAlive.ShouldBeFalse();
+        }
+
+        private WeakReference WeakTest(SynchronizedObservableCollection<object> target)
+        {
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            collection.SynchronizeWith(target);
+
+            target.Add(NewId());
+            collection.ShouldEqual(target);
+            return new WeakReference(collection);
         }
 
         private void Assert(bool hasListener)
