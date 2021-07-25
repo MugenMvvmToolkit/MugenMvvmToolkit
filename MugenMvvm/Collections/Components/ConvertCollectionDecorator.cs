@@ -182,6 +182,12 @@ namespace MugenMvvm.Collections.Components
                     ++index;
                 }
 
+                if (_cleanup != null)
+                {
+                    foreach (var oldValue in _resetCache)
+                        _cleanup.Invoke(oldValue.Key, oldValue.Value!);
+                }
+
                 _resetCache.Clear();
                 items = Decorate(decoratorManager, collection, items);
             }

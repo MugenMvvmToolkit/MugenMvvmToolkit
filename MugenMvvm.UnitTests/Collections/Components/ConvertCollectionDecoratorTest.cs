@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
@@ -212,6 +213,277 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Reset(new object[] {1, 2, 3, 4, 5});
             Assert();
+        }
+
+        [Fact]
+        public void ChangeShouldCleanupReuseItems()
+        {
+            var ignoreItems = new HashSet<string>();
+            var values = new Dictionary<string, object>();
+            var newValues = new Dictionary<string, object>();
+            var item1 = NewId();
+            var item2 = NewId();
+            var item3 = NewId();
+            ignoreItems.Add(item3);
+
+            var cleanupItems = new List<string>();
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+
+            IEnumerable<object?> GetItems()
+            {
+                foreach (var o in collection)
+                {
+                    if (o is string s && !ignoreItems.Contains(s))
+                    {
+                        if (newValues.TryGetValue(s, out var v))
+                            yield return v;
+                        else
+                            yield return values[s];
+                    }
+                    else
+                        yield return o;
+                }
+            }
+
+            Action assert = () =>
+            {
+                collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
+                collectionTracker.ChangedItems.ShouldEqual(GetItems());
+            };
+            collectionTracker.Changed += assert;
+            collection.AddComponent(collectionTracker);
+
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            {
+                if (ignoreItems.Contains(s))
+                    return s;
+
+                if (values.TryGetValue(s, out var item))
+                    reuseItem.ShouldEqual(item);
+                else
+                {
+                    if (s != reuseItem)
+                        reuseItem.ShouldBeNull();
+                    item = new object();
+                    values[s] = item;
+                }
+
+                if (newValues.TryGetValue(s, out var v))
+                    return v;
+
+                return item;
+            }, (s, o) =>
+            {
+                if (s != o)
+                    values[s].ShouldEqual(o);
+                cleanupItems.Add(s);
+            }));
+            collection.Add(item1);
+            collection.Add(1);
+            collection.Add(item2);
+            collection.Add(2);
+            collection.Add(item3);
+
+            collection.RaiseItemChanged(1, null);
+            collectionTracker.ItemChangedCount.ShouldEqual(1);
+            cleanupItems.ShouldBeEmpty();
+            assert();
+
+            collection.RaiseItemChanged(2, null);
+            collectionTracker.ItemChangedCount.ShouldEqual(2);
+            cleanupItems.ShouldBeEmpty();
+            assert();
+
+            collection.RaiseItemChanged(item2, null);
+            collectionTracker.ItemChangedCount.ShouldEqual(3);
+            cleanupItems.ShouldBeEmpty();
+            assert();
+
+            collectionTracker.ItemChangedCount = 0;
+            newValues[item1] = new object();
+            collection.RaiseItemChanged(item1, null);
+            collectionTracker.ItemChangedCount.ShouldEqual(0);
+            cleanupItems.Count.ShouldEqual(1);
+            cleanupItems.ShouldContain(item1);
+            assert();
+
+            cleanupItems.Clear();
+            collectionTracker.ItemChangedCount = 0;
+            ignoreItems.Remove(item3);
+            collection.RaiseItemChanged(item3, null);
+            collectionTracker.ItemChangedCount.ShouldEqual(0);
+            cleanupItems.Count.ShouldEqual(1);
+            cleanupItems.ShouldContain(item3);
+            assert();
+        }
+
+        [Fact]
+        public void ReplaceShouldCleanupItems()
+        {
+            var dictionary = new Dictionary<string, object>();
+            var item1 = NewId();
+            var item2 = NewId();
+            var item3 = NewId();
+            var cleanupItems = new List<string>();
+
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
+            collection.AddComponent(collectionTracker);
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            {
+                if (dictionary.TryGetValue(s, out var item))
+                    reuseItem.ShouldEqual(item);
+                else
+                {
+                    reuseItem.ShouldBeNull();
+                    item = new object();
+                    dictionary[s] = item;
+                }
+
+                return item;
+            }, (s, o) =>
+            {
+                dictionary[s].ShouldEqual(o);
+                cleanupItems.Add(s);
+            }));
+            collection.Add(item1);
+            collection.Add(item2);
+
+            collection[0] = item3;
+            cleanupItems.Count.ShouldEqual(1);
+            cleanupItems.ShouldContain(item1);
+        }
+
+        [Fact]
+        public void RemoveShouldCleanupItems()
+        {
+            var dictionary = new Dictionary<string, object>();
+            var item1 = NewId();
+            var item2 = NewId();
+            var item3 = NewId();
+            var cleanupItems = new List<string>();
+
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
+            collection.AddComponent(collectionTracker);
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            {
+                if (dictionary.TryGetValue(s, out var item))
+                    reuseItem.ShouldEqual(item);
+                else
+                {
+                    reuseItem.ShouldBeNull();
+                    item = new object();
+                    dictionary[s] = item;
+                }
+
+                return item;
+            }, (s, o) =>
+            {
+                dictionary[s].ShouldEqual(o);
+                cleanupItems.Add(s);
+            }));
+            collection.Add(item1);
+            collection.Add(item2);
+            collection.Add(item3);
+
+            collection.Remove(item3);
+            cleanupItems.Count.ShouldEqual(1);
+            cleanupItems.ShouldContain(item3);
+
+            collection.RemoveAt(1);
+            cleanupItems.Count.ShouldEqual(2);
+            cleanupItems.ShouldContain(item3);
+            cleanupItems.ShouldContain(item2);
+
+            collection.RemoveAt(0);
+            cleanupItems.Count.ShouldEqual(3);
+            cleanupItems.ShouldContain(item3);
+            cleanupItems.ShouldContain(item2);
+            cleanupItems.ShouldContain(item1);
+        }
+
+        [Fact]
+        public void ResetShouldReuseCleanupItems()
+        {
+            var dictionary = new Dictionary<string, object>();
+            var item1 = NewId();
+            var item2 = NewId();
+            var item3 = NewId();
+            var cleanupItems = new List<string>();
+
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
+            collection.AddComponent(collectionTracker);
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            {
+                if (dictionary.TryGetValue(s, out var item))
+                    reuseItem.ShouldEqual(item);
+                else
+                {
+                    reuseItem.ShouldBeNull();
+                    item = new object();
+                    dictionary[s] = item;
+                }
+
+                return item;
+            }, (s, o) =>
+            {
+                dictionary[s].ShouldEqual(o);
+                cleanupItems.Add(s);
+            }));
+            collection.Add(item1);
+            collection.Add(item2);
+            collection.Add(item3);
+
+            collection.Reset(new[] {item1, item2});
+            cleanupItems.Count.ShouldEqual(1);
+            cleanupItems.ShouldContain(item3);
+        }
+
+        [Fact]
+        public void DetachShouldCleanupItems()
+        {
+            var dictionary = new Dictionary<string, object>();
+            var item1 = NewId();
+            var item2 = NewId();
+            var item3 = NewId();
+            var cleanupItems = new List<string>();
+
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
+            collection.AddComponent(collectionTracker);
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            {
+                if (dictionary.TryGetValue(s, out var item))
+                    reuseItem.ShouldEqual(item);
+                else
+                {
+                    reuseItem.ShouldBeNull();
+                    item = new object();
+                    dictionary[s] = item;
+                }
+
+                return item;
+            }, (s, o) =>
+            {
+                dictionary[s].ShouldEqual(o);
+                cleanupItems.Add(s);
+            }));
+            collection.Add(item1);
+            collection.Add(item2);
+            collection.Add(item3);
+
+            collection.RemoveComponents<ConvertCollectionDecorator<string, object>>();
+            cleanupItems.Count.ShouldEqual(3);
+            cleanupItems.ShouldContain(item3);
+            cleanupItems.ShouldContain(item2);
+            cleanupItems.ShouldContain(item1);
         }
 
         [Fact]
