@@ -25,16 +25,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _collection = new SynchronizedObservableCollection<TestNotifyPropertyChangedModel>(ComponentCollectionManager);
             _listener = GetObserver();
-            _listener.AddCollectionObserver(this, (s, c) =>
+            _listener.AddObserver(this, (s, c) =>
             {
                 s.ShouldEqual(this);
                 c.ShouldEqual(_collection);
                 ++_collectionChangedCount;
             });
-            _listener.AddItemObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), item =>
+            _listener.AddObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), item =>
             {
-                item.Member.ShouldEqual(nameof(_currentItem.Property));
-                _currentItem.ShouldEqual(item.Item);
+                item.Count.ShouldEqual(1);
+                item[0].Member.ShouldEqual(nameof(_currentItem.Property));
+                _currentItem.ShouldEqual(item[0].Item);
                 ++_itemChangedCount;
             });
             _collection.Components.Add(_listener);
@@ -195,16 +196,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             const int delay = 10;
             var changedItems = new List<object>();
             _listener.ClearObservers();
-            _listener.AddCollectionObserver(this, (s, c) =>
+            _listener.AddObserver(this, (s, c) =>
             {
                 s.ShouldEqual(this);
                 c.ShouldEqual(_collection);
                 ++_collectionChangedCount;
             }, delay);
-            _listener.AddItemObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), item =>
+            _listener.AddObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), items =>
             {
-                item.Member.ShouldEqual(nameof(_currentItem.Property));
-                changedItems.Add(item.Item!);
+                changedItems.ShouldBeEmpty();
+                foreach (var eventInfo in items)
+                {
+                    eventInfo.Member.ShouldEqual(nameof(_currentItem.Property));
+                    changedItems.Add(eventInfo.Item!);
+                }
             }, delay);
             WaitCompletion(delay, () => _collectionChangedCount == 1);
             _collectionChangedCount = 0;
@@ -263,8 +268,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var invokeCount = 0;
             var delayInvokeCount = 0;
             _listener.ClearObservers();
-            _listener.AddItemObserver<object>(_ => true, _ => ++invokeCount);
-            _listener.AddItemObserver<object>(_ => true, _ => ++delayInvokeCount, delay);
+            _listener.AddObserver<object>(_ => true, _ => ++invokeCount);
+            _listener.AddObserver<object>(_ => true, _ => ++delayInvokeCount, delay);
             invokeCount = 0;
             delayInvokeCount = 0;
 
@@ -349,10 +354,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.Add(item1);
             item1.HasSubscribers.ShouldBeFalse();
 
-            observer.AddCollectionObserver(this, (_, _) => { });
+            observer.AddObserver(this, (_, _) => { });
             item1.HasSubscribers.ShouldBeFalse();
 
-            observer.AddItemObserver<object>(_ => true, _ => { });
+            observer.AddObserver<object>(_ => true, _ => { });
             item1.HasSubscribers.ShouldBeTrue();
         }
 
@@ -422,7 +427,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         protected abstract CollectionObserverBase GetObserver();
-        
+
         private void WeakTest(out WeakReference weakReference1, out WeakReference weakReference2)
         {
             var target1 = new object();
@@ -434,14 +439,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             var count = 10;
             _listener.ClearObservers();
-            _listener.AddCollectionObserverWeak(target1, (s, c) =>
+            _listener.AddObserverWeak(target1, (s, c) =>
             {
                 s.ShouldNotBeNull();
                 s.ShouldEqual(ref1.Target);
                 c.ShouldEqual(_collection);
                 ++_collectionChangedCount;
             });
-            _listener.AddItemObserverWeak<object, object>(target2, (s, info) =>
+            _listener.AddObserverWeak<object, object>(target2, (s, info) =>
             {
                 s.ShouldNotBeNull();
                 s.ShouldEqual(ref2.Target);
@@ -450,8 +455,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 s.ShouldNotBeNull();
                 s.ShouldEqual(ref2.Target);
-                item.Member.ShouldEqual(nameof(_currentItem.Property));
-                item.Item.ShouldEqual(_currentItem);
+                item[0].Member.ShouldEqual(nameof(_currentItem.Property));
+                item[0].Item.ShouldEqual(_currentItem);
                 ++_itemChangedCount;
             });
 

@@ -352,8 +352,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             if (!defaultComparer)
             {
-                _headerComparer = SortingComparer<int>.Descending(o => o).Build();
-                _footerComparer = SortingComparer<int>.Ascending(o => o).Build();
+                _headerComparer = SortingComparer<int>.Descending(o => o).Build().AsObjectComparer();
+                _footerComparer = SortingComparer<int>.Ascending(o => o).Build().AsObjectComparer();
             }
 
             _collection.AddComponent(new PinHeaderFooterCollectionDecorator<object>(_isHeaderOrFooter, _headerComparer, _footerComparer));

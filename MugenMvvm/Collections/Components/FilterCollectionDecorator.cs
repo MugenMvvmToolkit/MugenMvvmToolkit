@@ -94,7 +94,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var binarySearchIndex = _list.BinarySearch(index);
-            _list.UpdateIndexes(index, 1, binarySearchIndex);
+            _list.UpdateIndexesBinary(binarySearchIndex, 1);
             if (!FilterInternal(item))
                 return false;
 
@@ -156,7 +156,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var removeIndex = _list.BinarySearch(index);
-            _list.UpdateIndexes(index, -1, removeIndex);
+            _list.UpdateIndexesBinary(removeIndex, -1);
             if (removeIndex < 0)
                 return false;
 

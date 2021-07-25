@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemCollection1 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
             _itemCollection1.AddComponent(new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0});
             _itemCollection2 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            _itemCollection2.AddComponent(new SortCollectionDecorator(SortingComparer<int>.Descending(i => i).Build()));
+            _itemCollection2.AddComponent(new SortCollectionDecorator(SortingComparer<int>.Descending(i => i).Build().AsObjectComparer()));
 
             _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable>(o => new FlattenItemInfo(o is string ? null : o, o != _itemCollection2)));

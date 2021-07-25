@@ -20,20 +20,34 @@ namespace MugenMvvm.Collections
 
         public static IndexMapList<T> Get() => new(true);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly void UpdateIndexes(int index, int value)
         {
-            if (Size != 0)
-                UpdateIndexes(index, value, BinarySearch(index));
+            if (Size == 0 || index > Keys[Size - 1])
+                return;
+
+            if (index == Keys[Size - 1])
+            {
+                Keys[Size - 1] += value;
+                return;
+            }
+
+            if (index == 0 || index < Keys[0])
+            {
+                for (var i = 0; i < Size; i++)
+                    Keys[i] += value;
+                return;
+            }
+
+            UpdateIndexesBinary(BinarySearch(index), value);
         }
 
-        public readonly void UpdateIndexes(int index, int value, int binarySearchResult)
+        public readonly void UpdateIndexesBinary(int binarySearchIndex, int value)
         {
             if (Size == 0)
                 return;
-            if (binarySearchResult < 0)
-                binarySearchResult = ~binarySearchResult;
-            for (var i = binarySearchResult; i < Size; i++)
+            if (binarySearchIndex < 0)
+                binarySearchIndex = ~binarySearchIndex;
+            for (var i = binarySearchIndex; i < Size; i++)
                 Keys[i] += value;
         }
 

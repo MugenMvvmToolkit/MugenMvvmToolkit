@@ -22,6 +22,8 @@ namespace MugenMvvm.Internal
 
         public static Builder Compare(Func<T, T, int> compare) => new(SortingInfo.Create(compare));
 
+        public IComparer<object?> AsObjectComparer() => (IComparer<object?>) this;
+
         public int Compare(T? x, T? y)
         {
             foreach (var item in _sortInfo)
@@ -69,7 +71,7 @@ namespace MugenMvvm.Internal
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public Comparer Build() => new(_sortInfo.ToItemOrArray());
+            public SortingComparer<T> Build() => new Comparer(_sortInfo.ToItemOrArray());
         }
 
         [StructLayout(LayoutKind.Auto)]

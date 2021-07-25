@@ -11,11 +11,13 @@ namespace MugenMvvm.Collections
     {
         public readonly IReadOnlyObservableCollection Collection;
         public readonly int Priority;
+        public readonly int Step;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public DecoratorsConfiguration(IReadOnlyObservableCollection collection, int priority)
+        public DecoratorsConfiguration(IReadOnlyObservableCollection collection, int priority, int step)
         {
             Should.NotBeNull(collection, nameof(collection));
+            Step = step;
             Collection = collection;
             Priority = priority;
         }
@@ -25,7 +27,7 @@ namespace MugenMvvm.Collections
             if (Collection == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration));
             Collection.AddComponent(decorator);
-            return new DecoratorsConfiguration(Collection!, priority ?? Priority - 10);
+            return new DecoratorsConfiguration(Collection!, priority ?? Priority - Step, Step);
         }
     }
 }

@@ -259,7 +259,7 @@ namespace MugenMvvm.Collections.Components
         private bool Add(ICollectionDecoratorManagerComponent decoratorManager, object? item, int index)
         {
             var binarySearchIndex = _items.BinarySearch(index);
-            _items.UpdateIndexes(index, 1, binarySearchIndex);
+            _items.UpdateIndexesBinary(binarySearchIndex, 1);
             var newIndex = _items.Add(index, item, binarySearchIndex);
             var limit = Limit!.Value;
             if (limit == 0 || newIndex >= limit)
@@ -284,7 +284,7 @@ namespace MugenMvvm.Collections.Components
         private bool Remove(ICollectionDecoratorManagerComponent decoratorManager, object? item, int index)
         {
             var indexToRemove = _items.BinarySearch(index);
-            _items.UpdateIndexes(index, -1, indexToRemove);
+            _items.UpdateIndexesBinary(indexToRemove, -1);
             _items.RemoveAt(indexToRemove);
             var limit = Limit!.Value;
             if (limit == 0 || indexToRemove >= limit)

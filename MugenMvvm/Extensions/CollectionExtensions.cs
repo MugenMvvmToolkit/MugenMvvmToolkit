@@ -166,7 +166,7 @@ namespace MugenMvvm.Extensions
 
         public static ActionToken AutoRefreshOnPropertyChanges<TType>(this CollectionObserverBase listener, ItemOrArray<string> members, object? args)
             where TType : class =>
-            listener.AddItemObserver<TType, (ItemOrArray<string> members, object? args)>((s, info) =>
+            listener.AddObserver<TType, (ItemOrArray<string> members, object? args)>((s, info) =>
             {
                 if (info.IsCollectionEvent)
                     return false;
@@ -178,135 +178,177 @@ namespace MugenMvvm.Extensions
                 }
 
                 return false;
-            }, (s, info) => info.Collection.RaiseItemChanged(info.Item, s.args), (members, args));
+            }, (s, info) => info[0].Collection.RaiseItemChanged(info[0].Item, s.args), (members, args));
 
-        public static IReadOnlyObservableCollection AddCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
-            Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) => collection.AddCollectionObserver(state, onChanged, delay, out _);
-
-        public static IReadOnlyObservableCollection AddCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class =>
-            collection.AddCollectionObserverWeak(target, onChanged, delay, out _);
-
-        public static IReadOnlyObservableCollection AddItemObserver<T>(this IReadOnlyObservableCollection collection,
-            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay)
+        public static IReadOnlyObservableCollection<T> AddObserver<T>(this IReadOnlyObservableCollection<T> collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay)
             where T : class =>
-            collection.AddItemObserver(predicate, onChanged, delay, out _);
+            collection.AddObserver(predicate, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
-            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state,
-            int delay = 0) where T : class =>
-            collection.AddItemObserver(predicate, onChanged, state, delay, out _);
+        public static IReadOnlyObservableCollection<T> AddObserver<T, TState>(this IReadOnlyObservableCollection<T> collection, TState state,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay = 0)
+            where T : class =>
+            collection.AddObserver(state, predicate, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay = 0)
+        public static IReadOnlyObservableCollection<T> AddObserverWeak<T, TTarget>(this IReadOnlyObservableCollection<T> collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay = 0)
             where T : class
             where TTarget : class =>
-            collection.AddItemObserverWeak(target, predicate, onChanged, delay, out _);
+            collection.AddObserverWeak(target, predicate, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
-            Action<TState, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken)
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddCollectionObserver(state, onChanged, delay);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection AddCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken) where TTarget : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddCollectionObserverWeak(target, onChanged, delay);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection AddItemObserver<T>(this IReadOnlyObservableCollection collection,
-            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay, out ActionToken removeToken)
+        public static IReadOnlyObservableCollection<T> AddObserver<T>(this IReadOnlyObservableCollection<T> collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay, out ActionToken removeToken)
             where T : class
         {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddItemObserver(predicate, onChanged, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
-            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state, int delay,
+        public static IReadOnlyObservableCollection<T> AddObserver<T, TState>(this IReadOnlyObservableCollection<T> collection, TState state,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay,
             out ActionToken removeToken) where T : class
         {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddItemObserver(predicate, onChanged, state, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, state, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay,
+        public static IReadOnlyObservableCollection<T> AddObserverWeak<T, TTarget>(this IReadOnlyObservableCollection<T> collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay,
             out ActionToken removeToken)
             where T : class
             where TTarget : class
         {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddItemObserverWeak(target, predicate, onChanged, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserverWeak(target, predicate, onChanged, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddDecoratedCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
-            Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) => collection.AddDecoratedCollectionObserver(state, onChanged, delay, out _);
+        public static IReadOnlyObservableCollection AddObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) => collection.AddObserver(state, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddDecoratedCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+        public static IReadOnlyObservableCollection AddObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
             Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class =>
-            collection.AddDecoratedCollectionObserverWeak(target, onChanged, delay, out _);
+            collection.AddObserverWeak(target, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T>(this IReadOnlyObservableCollection collection,
-            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay)
+        public static IReadOnlyObservableCollection AddObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay)
             where T : class =>
-            collection.AddDecoratedItemObserver(predicate, onChanged, delay, out _);
+            collection.AddObserver(predicate, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
-            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state,
+        public static IReadOnlyObservableCollection AddObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, TState state,
             int delay = 0) where T : class =>
-            collection.AddDecoratedItemObserver(predicate, onChanged, state, delay, out _);
+            collection.AddObserver(predicate, onChanged, state, delay, out _);
 
-        public static IReadOnlyObservableCollection AddDecoratedItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay = 0)
+        public static IReadOnlyObservableCollection AddObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay = 0)
             where T : class
             where TTarget : class =>
-            collection.AddDecoratedItemObserverWeak(target, predicate, onChanged, delay, out _);
+            collection.AddObserverWeak(target, predicate, onChanged, delay, out _);
 
-        public static IReadOnlyObservableCollection AddDecoratedCollectionObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+        public static IReadOnlyObservableCollection AddObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
             Action<TState, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken)
         {
-            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddCollectionObserver(state, onChanged, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(state, onChanged, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddDecoratedCollectionObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+        public static IReadOnlyObservableCollection AddObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
             Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken) where TTarget : class
         {
-            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddCollectionObserverWeak(target, onChanged, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserverWeak(target, onChanged, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T>(this IReadOnlyObservableCollection collection,
-            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay, out ActionToken removeToken)
+        public static IReadOnlyObservableCollection AddObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay, out ActionToken removeToken)
             where T : class
         {
-            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddItemObserver(predicate, onChanged, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddDecoratedItemObserver<T, TState>(this IReadOnlyObservableCollection collection,
-            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, CollectionObserverBase.ChangedEventInfo<T>> onChanged, TState state, int delay,
+        public static IReadOnlyObservableCollection AddObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, TState state, int delay,
             out ActionToken removeToken) where T : class
         {
-            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddItemObserver(predicate, onChanged, state, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, state, delay);
             return collection;
         }
 
-        public static IReadOnlyObservableCollection AddDecoratedItemObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, CollectionObserverBase.ChangedEventInfo<T>> onChanged, int delay,
+        public static IReadOnlyObservableCollection AddObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay,
             out ActionToken removeToken)
             where T : class
             where TTarget : class
         {
-            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddItemObserverWeak(target, predicate, onChanged, delay);
+            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserverWeak(target, predicate, onChanged, delay);
             return collection;
         }
 
-        public static DecoratorsConfiguration ConfigureDecorators(this IReadOnlyObservableCollection collection, int? priority = null)
+        public static IReadOnlyObservableCollection AddDecoratedObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) => collection.AddDecoratedObserver(state, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class =>
+            collection.AddDecoratedObserverWeak(target, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay)
+            where T : class =>
+            collection.AddDecoratedObserver(predicate, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, TState state,
+            int delay = 0) where T : class =>
+            collection.AddDecoratedObserver(predicate, onChanged, state, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay = 0)
+            where T : class
+            where TTarget : class =>
+            collection.AddDecoratedObserverWeak(target, predicate, onChanged, delay, out _);
+
+        public static IReadOnlyObservableCollection AddDecoratedObserver<TState>(this IReadOnlyObservableCollection collection, TState state,
+            Action<TState, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken)
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddObserver(state, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedObserverWeak<TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay, out ActionToken removeToken) where TTarget : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddObserverWeak(target, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedObserver<T>(this IReadOnlyObservableCollection collection,
+            Func<CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay, out ActionToken removeToken)
+            where T : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddObserver(predicate, onChanged, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedObserver<T, TState>(this IReadOnlyObservableCollection collection,
+            Func<TState, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, TState state, int delay,
+            out ActionToken removeToken) where T : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddObserver(predicate, onChanged, state, delay);
+            return collection;
+        }
+
+        public static IReadOnlyObservableCollection AddDecoratedObserverWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
+            Func<TTarget, CollectionObserverBase.ChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionObserverBase.ChangedEventInfo<T>>> onChanged, int delay,
+            out ActionToken removeToken)
+            where T : class
+            where TTarget : class
+        {
+            removeToken = collection.GetOrAddComponent<DecoratedCollectionObserver>().AddObserverWeak(target, predicate, onChanged, delay);
+            return collection;
+        }
+
+        public static DecoratorsConfiguration ConfigureDecorators(this IReadOnlyObservableCollection collection, int? priority = null, int step = 10)
         {
             if (priority == null)
             {
@@ -314,7 +356,7 @@ namespace MugenMvvm.Extensions
                 priority = array.Count == 0 ? 0 : GetComponentPriority(array[array.Count - 1]);
             }
 
-            return new DecoratorsConfiguration(collection, priority.Value);
+            return new DecoratorsConfiguration(collection, priority.Value, step);
         }
 
         [return: NotNullIfNotNull("collection")]

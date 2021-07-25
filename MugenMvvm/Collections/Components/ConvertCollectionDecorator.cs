@@ -77,53 +77,36 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var oldIndex = _items.IndexOfKey(index);
-            var oldItem = oldIndex == -1 ? default : _items.Values[oldIndex].to;
+            var oldItem = _items.Values[oldIndex].to;
             var newItem = Converter(itemT, oldItem);
             if (!_comparer.Equals(oldItem, newItem))
             {
-                if (oldIndex == -1)
-                {
-                    _items.Add(index, (itemT, newItem!));
-                    item = newItem;
-                }
-                else
-                {
-                    _cleanup?.Invoke(itemT, oldItem!);
-                    if (newItem == null)
-                        _items.RemoveAt(oldIndex);
-                    else
-                    {
-                        _items.SetValue(oldIndex, (itemT, newItem));
-                        item = newItem;
-                    }
-                }
-
-                decoratorManager.OnReplaced(collection, this, oldItem, item, index);
+                _cleanup?.Invoke(itemT, oldItem!);
+                _items.SetValue(oldIndex, (itemT, newItem));
+                decoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
                 return false;
             }
 
-            if (oldIndex != -1)
-                item = oldItem;
-
+            item = oldItem;
             return true;
         }
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            item = TryAdd(item, index, default, true, false);
+            item = TryAdd(item, index, null, true, false);
             return true;
         }
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var oldIndex = _items.IndexOfKey(index);
+            var oldIndex = oldItem is T ? _items.IndexOfKey(index) : -1;
             if (oldIndex == -1)
-                newItem = TryAdd(newItem, index, default, false, false);
+                newItem = TryAdd(newItem, index, null, false, false);
             else
             {
                 oldItem = RemoveRaw(oldIndex);
-                newItem = TryAdd(newItem, index, default, false, false);
+                newItem = TryAdd(newItem, index, null, false, false);
             }
 
             return true;
@@ -201,15 +184,11 @@ namespace MugenMvvm.Collections.Components
         {
             if (item is T)
             {
-                var key = _items.IndexOfKey(index);
-                if (key != -1)
-                {
-                    result = _items.Values[key].to;
-                    return true;
-                }
+                result = _items.Values[_items.IndexOfKey(index)].to;
+                return true;
             }
 
-            result = default;
+            result = null;
             return false;
         }
 
@@ -219,7 +198,7 @@ namespace MugenMvvm.Collections.Components
             if (updateIndexes)
             {
                 binarySearchIndex = _items.BinarySearch(index);
-                _items.UpdateIndexes(index, 1, binarySearchIndex);
+                _items.UpdateIndexesBinary(binarySearchIndex, 1);
             }
             else
                 binarySearchIndex = -1;
@@ -244,7 +223,7 @@ namespace MugenMvvm.Collections.Components
         private object? TryRemove(object? item, int index)
         {
             var indexToRemove = _items.BinarySearch(index);
-            _items.UpdateIndexes(index, -1, indexToRemove);
+            _items.UpdateIndexesBinary(indexToRemove, -1);
             if (indexToRemove < 0)
                 return item;
             return RemoveRaw(indexToRemove);

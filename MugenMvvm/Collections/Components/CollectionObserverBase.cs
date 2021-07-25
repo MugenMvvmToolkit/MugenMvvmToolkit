@@ -34,30 +34,30 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; init; }
 
-        public ActionToken AddCollectionObserver<TState>(TState state, Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) =>
-            AddCollectionObserverInternal(onChanged, state, delay, false);
+        public ActionToken AddObserver<TState>(TState state, Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) =>
+            AddObserverInternal(onChanged, state, delay, false);
 
-        public ActionToken AddCollectionObserverWeak<TTarget>(TTarget target, Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class
+        public ActionToken AddObserverWeak<TTarget>(TTarget target, Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
-            return AddCollectionObserverInternal(onChanged, target, delay, true);
+            return AddObserverInternal(onChanged, target, delay, true);
         }
 
-        public ActionToken AddItemObserver<T>(Func<ChangedEventInfo<T>, bool> predicate, Action<ChangedEventInfo<T>> onChanged, int delay = 0)
-            where T : class => AddItemObserverInternal<T, (Func<ChangedEventInfo<T>, bool>, Action<ChangedEventInfo<T>>)>((s, info) => s.Item1(info), (s, info) => s.Item2(info),
+        public ActionToken AddObserver<T>(Func<ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<ChangedEventInfo<T>>> onChanged, int delay = 0)
+            where T : class => AddObserverInternal<T, (Func<ChangedEventInfo<T>, bool>, Action<ItemOrArray<ChangedEventInfo<T>>>)>((s, info) => s.Item1(info), (s, info) => s.Item2(info),
             (predicate, onChanged), delay, false);
 
-        public ActionToken AddItemObserver<T, TState>(Func<TState, ChangedEventInfo<T>, bool> predicate, Action<TState, ChangedEventInfo<T>> onChanged, TState state,
+        public ActionToken AddObserver<T, TState>(Func<TState, ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<ChangedEventInfo<T>>> onChanged, TState state,
             int delay = 0) where T : class =>
-            AddItemObserverInternal(predicate, onChanged, state, delay, false);
+            AddObserverInternal(predicate, onChanged, state, delay, false);
 
-        public ActionToken AddItemObserverWeak<T, TTarget>(TTarget target, Func<TTarget, ChangedEventInfo<T>, bool> predicate,
-            Action<TTarget, ChangedEventInfo<T>> onChanged, int delay = 0)
+        public ActionToken AddObserverWeak<T, TTarget>(TTarget target, Func<TTarget, ChangedEventInfo<T>, bool> predicate,
+            Action<TTarget, ItemOrArray<ChangedEventInfo<T>>> onChanged, int delay = 0)
             where T : class
             where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
-            return AddItemObserverInternal(predicate, onChanged, target, delay, true);
+            return AddObserverInternal(predicate, onChanged, target, delay, true);
         }
 
         public void ClearObservers()
@@ -231,7 +231,7 @@ namespace MugenMvvm.Collections.Components
             OnCollectionChanged();
         }
 
-        private ActionToken AddCollectionObserverInternal<TState>(Action<TState, IReadOnlyObservableCollection> onChanged, TState state, int delay, bool weak)
+        private ActionToken AddObserverInternal<TState>(Action<TState, IReadOnlyObservableCollection> onChanged, TState state, int delay, bool weak)
         {
             Should.NotBeNull(onChanged, nameof(onChanged));
             IObserver observer;
@@ -240,7 +240,7 @@ namespace MugenMvvm.Collections.Components
             else
             {
                 observer = new Observer<object, (Action<TState, IReadOnlyObservableCollection>, TState)>(this, (_, info) => info.IsCollectionEvent,
-                    (s, info) => s.Item1(s.Item2, info.Collection), (onChanged, state), delay, false);
+                    (s, info) => s.Item1(s.Item2, info[0].Collection), (onChanged, state), delay, false);
             }
 
             lock (this)
@@ -253,7 +253,7 @@ namespace MugenMvvm.Collections.Components
             return ActionToken.FromDelegate((l, item) => ((CollectionObserverBase) l!).RemoveObserver((IObserver) item!), this, observer);
         }
 
-        private ActionToken AddItemObserverInternal<T, TState>(Func<TState, ChangedEventInfo<T>, bool> predicate, Action<TState, ChangedEventInfo<T>> onChanged, TState state,
+        private ActionToken AddObserverInternal<T, TState>(Func<TState, ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<ChangedEventInfo<T>>> onChanged, TState state,
             int delay, bool weak)
             where T : class
         {
@@ -403,15 +403,14 @@ namespace MugenMvvm.Collections.Components
             private readonly CollectionObserverBase _observer;
             private readonly IWeakReference? _targetRef;
             private readonly TTargetOrState? _state;
-            private readonly Action<TTargetOrState, ChangedEventInfo<T>> _onChanged;
+            private readonly Action<TTargetOrState, ItemOrArray<ChangedEventInfo<T>>> _onChanged;
             private readonly Func<TTargetOrState, ChangedEventInfo<T>, bool> _predicate;
             private readonly int _delay;
             private Timer? _timer;
             private HashSet<ChangedEventInfo<T>>? _pendingItems;
-            private ListInternal<ChangedEventInfo<T>> _notifications;
 
             public Observer(CollectionObserverBase observer, Func<TTargetOrState, ChangedEventInfo<T>, bool> predicate,
-                Action<TTargetOrState, ChangedEventInfo<T>> onChanged, TTargetOrState state, int delay, bool weak)
+                Action<TTargetOrState, ItemOrArray<ChangedEventInfo<T>>> onChanged, TTargetOrState state, int delay, bool weak)
             {
                 _observer = observer;
                 if (weak)
@@ -423,7 +422,7 @@ namespace MugenMvvm.Collections.Components
                 _predicate = predicate;
                 _delay = delay;
                 if (delay != 0)
-                    _timer = WeakTimer.Get(this, o => o.Raise());
+                    _timer = WeakTimer.Get(this, o => o.TimerCallback());
             }
 
             public void Dispose()
@@ -450,7 +449,7 @@ namespace MugenMvvm.Collections.Components
                 if (!CanInvoke(eventInfo, out var r))
                     return r;
 
-                if (_delay == 0 || force)
+                if (_delay == 0)
                     return OnChanged(eventInfo);
 
                 lock (this)
@@ -459,7 +458,14 @@ namespace MugenMvvm.Collections.Components
                     _pendingItems.Add(eventInfo);
                 }
 
-                _timer?.Change(_delay, Timeout.Infinite);
+                if (force)
+                {
+                    _timer?.Change(Timeout.Infinite, Timeout.Infinite);
+                    TimerCallback();
+                }
+                else
+                    _timer?.Change(_delay, Timeout.Infinite);
+
                 return true;
             }
 
@@ -482,7 +488,7 @@ namespace MugenMvvm.Collections.Components
                 return _predicate(target, eventInfo);
             }
 
-            private bool OnChanged(ChangedEventInfo<T> eventInfo)
+            private bool OnChanged(ItemOrArray<ChangedEventInfo<T>> eventInfo)
             {
                 if (_targetRef == null)
                 {
@@ -498,20 +504,20 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            private void Raise()
+            private void TimerCallback()
             {
+                ItemOrArray<ChangedEventInfo<T>> notifications;
                 lock (this)
                 {
-                    if (_notifications.IsEmpty)
-                        _notifications = new ListInternal<ChangedEventInfo<T>>(_pendingItems!.Count);
+                    notifications = ItemOrArray.Get<ChangedEventInfo<T>>(_pendingItems!.Count);
+                    int index = 0;
                     foreach (var item in _pendingItems!)
-                        _notifications.Add(item);
+                        notifications.SetAt(index++, item);
                     _pendingItems.Clear();
                 }
 
-                for (int i = 0; i < _notifications.Count; i++)
-                    OnChanged(_notifications.Items[i]);
-                _notifications.Clear();
+                if (notifications.Count != 0)
+                    OnChanged(notifications);
             }
         }
     }

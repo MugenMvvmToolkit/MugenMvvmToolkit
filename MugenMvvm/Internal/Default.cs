@@ -19,7 +19,7 @@ namespace MugenMvvm.Internal
         internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new(nameof(ViewModelBase.BusyToken));
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new(NotifyCollectionChangedAction.Reset);
 
-        private static readonly int[] EmptySize = { 0 };
+        private static readonly int[] EmptySize = {0};
         private static readonly Dictionary<Type, Array> EmptyArrayCache = new(InternalEqualityComparer.Type);
         private static int _counter;
 
@@ -95,7 +95,7 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public IEnumerator<T> GetEnumerator() => this;
+            public IEnumerator<T> GetEnumerator() => new SingleItemEnumerableImpl<T>(Current);
 
             public bool MoveNext()
             {

@@ -269,6 +269,12 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
+        public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, IDisposable token) where T : class, IDisposable
+        {
+            Should.NotBeNull(token, nameof(token));
+            return owner.RegisterDisposeToken(ActionToken.FromDisposable(token));
+        }
+
         public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, ActionToken token) where T : class, IDisposable
         {
             Should.NotBeNull(owner, nameof(owner));
@@ -372,8 +378,8 @@ namespace MugenMvvm.Extensions
             return metadata.WithValue(CommandMetadata.ForceExecute, true);
         }
 
-        internal static void AsChangedDelegate<T>(this Action<T, IReadOnlyObservableCollection> action, T target, CollectionObserverBase.ChangedEventInfo<object> eventInfo) =>
-            action(target, eventInfo.Collection);
+        internal static void AsChangedDelegate<T>(this Action<T, IReadOnlyObservableCollection> action, T target,
+            ItemOrArray<CollectionObserverBase.ChangedEventInfo<object>> eventInfo) => action(target, eventInfo[0].Collection);
 
         private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
         {
