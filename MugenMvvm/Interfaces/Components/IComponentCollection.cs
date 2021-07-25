@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Collections;
+﻿using System;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -9,6 +10,8 @@ namespace MugenMvvm.Interfaces.Components
         object Owner { get; }
 
         int Count { get; }
+
+        object? TryAdd<T>(T state, Func<IComponentCollection, T, IReadOnlyMetadataContext?, object?> tryGetComponent, IReadOnlyMetadataContext? metadata = null);
 
         bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null);
 

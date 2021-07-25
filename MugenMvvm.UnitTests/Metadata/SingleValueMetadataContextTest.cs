@@ -6,6 +6,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTests.Metadata
 {
+    [Collection(SharedContext)]
     public class SingleValueMetadataContextTest : ReadOnlyMetadataContextTestBase
     {
         [Theory]

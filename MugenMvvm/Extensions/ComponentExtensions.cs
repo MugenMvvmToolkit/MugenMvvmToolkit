@@ -55,7 +55,7 @@ namespace MugenMvvm.Extensions
             if (owner is IHasCache hasCache)
                 hasCache.Invalidate(state, metadata);
             else
-                owner.GetComponents<IHasCacheComponent<T>>(metadata).Invalidate((T)owner, state, metadata);
+                owner.GetComponents<IHasCacheComponent<T>>(metadata).Invalidate((T) owner, state, metadata);
         }
 
         public static bool IsSuspended<T>(this IComponentOwner<T> owner, IReadOnlyMetadataContext? metadata = null)
@@ -64,7 +64,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             if (owner is ISuspendable suspendable)
                 return suspendable.IsSuspended;
-            return owner.GetComponents<ISuspendableComponent<T>>(metadata).IsSuspended((T)owner, metadata);
+            return owner.GetComponents<ISuspendableComponent<T>>(metadata).IsSuspended((T) owner, metadata);
         }
 
         public static ActionToken TrySuspend<T>(this IComponentOwner<T> owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
@@ -73,7 +73,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             if (owner is ISuspendable suspendable)
                 return suspendable.Suspend(state, metadata);
-            return owner.GetComponents<ISuspendableComponent<T>>(metadata).TrySuspend((T)owner, state, metadata);
+            return owner.GetComponents<ISuspendableComponent<T>>(metadata).TrySuspend((T) owner, state, metadata);
         }
 
         public static ActionToken AddComponent<T>(this IComponentOwner<T> owner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
@@ -89,7 +89,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(component, nameof(component));
             if (owner.Components.TryAdd(component, metadata))
-                return ActionToken.FromDelegate((o, comp) => ((IComponentOwner)o!).Components.Remove(comp!), owner, component);
+                return ActionToken.FromDelegate((o, comp) => ((IComponentOwner) o!).Components.Remove(comp!), owner, component);
             return default;
         }
 
@@ -132,33 +132,31 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(getComponent, nameof(getComponent));
-            lock (owner)
+            var component = owner.Components.TryAdd((state, getComponent), (c, s, m) =>
             {
-                var component = owner.GetComponentOptional<TComponent>();
-                if (component == null)
-                {
-                    component = getComponent(state, metadata);
-                    owner.Components.Add(component);
-                }
-
-                return component;
-            }
+                var components = c.Get<TComponent>(m);
+                if (components.Count == 0)
+                    return s.getComponent(s.state, m);
+                return components[0];
+            }, metadata);
+            if (component == null)
+                ExceptionManager.ThrowCannotAddComponent(owner.Components, typeof(TComponent));
+            return (TComponent) component;
         }
 
-        public static TComponent GetOrAddComponent<TComponent>(this IComponentOwner owner) where TComponent : class, IComponent, new()
+        public static TComponent GetOrAddComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent, new()
         {
             Should.NotBeNull(owner, nameof(owner));
-            lock (owner)
+            var component = owner.Components.TryAdd<object?>(null, (c, _, m) =>
             {
-                var component = owner.GetComponentOptional<TComponent>();
-                if (component == null)
-                {
-                    component = new TComponent();
-                    owner.Components.Add(component);
-                }
-
-                return component;
-            }
+                var components = c.Get<TComponent>(m);
+                if (components.Count == 0)
+                    return new TComponent();
+                return components[0];
+            }, metadata);
+            if (component == null)
+                ExceptionManager.ThrowCannotAddComponent(owner.Components, typeof(TComponent));
+            return (TComponent) component;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

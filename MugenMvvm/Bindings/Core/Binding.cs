@@ -460,6 +460,17 @@ namespace MugenMvvm.Bindings.Core
 
         int IComparer<object>.Compare(object? x, object? y) => MugenExtensions.GetComponentPriority(y!).CompareTo(MugenExtensions.GetComponentPriority(x!));
 
+        object? IComponentCollection.TryAdd<T>(T state, Func<IComponentCollection, T, IReadOnlyMetadataContext?, object?> tryGetComponent, IReadOnlyMetadataContext? metadata)
+        {
+            var component = tryGetComponent(this, state, metadata);
+            if (component == null)
+                return null;
+
+            if (Components.TryAdd(component, metadata))
+                return component;
+            return null;
+        }
+
         bool IComponentCollection.TryAdd(object component, IReadOnlyMetadataContext? metadata)
         {
             if (!OnComponentAdding(component, metadata))
@@ -475,8 +486,8 @@ namespace MugenMvvm.Bindings.Core
             else
             {
                 _components = MugenExtensions.GetComponentPriority(_components) >= MugenExtensions.GetComponentPriority(component)
-                    ? new[] { _components, component }
-                    : new[] { component, _components };
+                    ? new[] {_components, component}
+                    : new[] {component, _components};
             }
 
             OnComponentAdded(component, metadata);
@@ -499,25 +510,42 @@ namespace MugenMvvm.Bindings.Core
         void IComponentCollection.Clear(IReadOnlyMetadataContext? metadata)
         {
             var components = _components;
-            _components = null;
-            var isValid = !CheckFlag(DisposedFlag);
-            if (components is object[] array)
+            if (CheckFlag(DisposedFlag))
             {
-                for (var i = 0; i < array.Length; i++)
-                    OnComponentRemoved(components, i + 1, array[i], isValid, metadata);
+                _components = null;
+                if (components is object[] array)
+                {
+                    for (var i = 0; i < array.Length; i++)
+                        OnComponentRemoved(components, i + 1, array[i], false, metadata);
+                }
+                else if (components != null)
+                    OnComponentRemoved(null, 0, components, false, metadata);
             }
             else
             {
-                var component = components;
-                if (component != null)
-                    OnComponentRemoved(null, 0, component, isValid, metadata);
+                if (components is object[] array)
+                {
+                    foreach (var o in array)
+                        Components.Remove(o, metadata);
+                }
+                else if (components != null)
+                    Components.Remove(components, metadata);
             }
         }
 
         ItemOrArray<T> IComponentCollection.Get<T>(IReadOnlyMetadataContext? metadata)
         {
-            Should.MethodBeSupported(typeof(T) == typeof(object), nameof(IComponentCollection.Get));
-            return ItemOrArray.FromRawValue<T>(_components);
+            if (typeof(T) == typeof(object))
+                return ItemOrArray.FromRawValue<T>(_components);
+
+            var components = new ItemOrListEditor<T>();
+            foreach (var item in ItemOrArray.FromRawValue<object>(_components))
+            {
+                if (item is T component)
+                    components.Add(component);
+            }
+
+            return components.ToItemOrArray();
         }
 
         void IHasCache.Invalidate(object? component, IReadOnlyMetadataContext? metadata)

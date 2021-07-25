@@ -28,6 +28,126 @@ namespace MugenMvvm.UnitTests.Components
         }
 
         [Theory]
+        [InlineData(1, true)]
+        [InlineData(10, true)]
+        [InlineData(1, false)]
+        [InlineData(10, false)]
+        public void AddDelegateShouldAddOrderedComponent(int count, bool nullResult)
+        {
+            var components = new List<TestComponentCollectionProviderComponent>();
+            for (var i = 0; i < count; i++)
+            {
+                _componentCollection.TryAdd(this, (collection, s, m) =>
+                {
+                    collection.ShouldEqual(_componentCollection);
+                    s.ShouldEqual(this);
+                    m.ShouldEqual(Metadata);
+                    if (nullResult)
+                        return null;
+                    var component = new TestComponentCollectionProviderComponent {Priority = i};
+                    components.Insert(0, component);
+                    return component;
+                }, Metadata).ShouldEqual(nullResult ? null : components[0]);
+            }
+
+            _componentCollection.Owner.ShouldEqual(this);
+            _componentCollection.Count.ShouldEqual(nullResult ? 0 : components.Count);
+            _componentCollection.Get<TestComponentCollectionProviderComponent>().ShouldEqual(components);
+        }
+
+        [Fact]
+        public void AddDelegateShouldCallOnAttachingOnAttachedMethods()
+        {
+            var attachingCount = 0;
+            var attachedCount = 0;
+            var canAttach = false;
+
+            var component = new TestAttachableComponent<ComponentCollectionTest>
+            {
+                OnAttachingHandler = (test, context) =>
+                {
+                    attachingCount++;
+                    test.ShouldEqual(this);
+                    return canAttach;
+                },
+                OnAttachedHandler = (test, context) =>
+                {
+                    attachedCount++;
+                    test.ShouldEqual(this);
+                    context.ShouldEqual(Metadata);
+                }
+            };
+
+            _componentCollection.TryAdd(this, (_, _, _) => component, Metadata).ShouldBeNull();
+            attachingCount.ShouldEqual(1);
+            attachedCount.ShouldEqual(0);
+            _componentCollection.Count.ShouldEqual(0);
+
+            canAttach = true;
+            _componentCollection.TryAdd(this, (_, _, _) => component, Metadata).ShouldEqual(component);
+            attachingCount.ShouldEqual(2);
+            attachedCount.ShouldEqual(1);
+            _componentCollection.Get<object>().Single().ShouldEqual(component);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void AddDelegateShouldNotifyListeners(int count)
+        {
+            var addingCount = 0;
+            var addedCount = 0;
+            var canAdd = false;
+            object? expectedItem = null;
+
+            var changingListener = new TestComponentCollectionChangingListener
+            {
+                OnAdding = (collection, o, arg3) =>
+                {
+                    addingCount++;
+                    expectedItem.ShouldEqual(o);
+                    arg3.ShouldEqual(Metadata);
+                    return canAdd;
+                }
+            };
+            _componentCollection.AddComponent(changingListener);
+            var changedListener = new TestComponentCollectionChangedListener
+            {
+                OnAdded = (collection, o, arg3) =>
+                {
+                    addedCount++;
+                    expectedItem.ShouldEqual(o);
+                    arg3.ShouldEqual(Metadata);
+                }
+            };
+            _componentCollection.AddComponent(changedListener);
+
+            for (var i = 0; i < count; i++)
+            {
+                expectedItem = new object();
+                _componentCollection.TryAdd(this, (_, _, _) => expectedItem, Metadata).ShouldBeNull();
+            }
+
+            addingCount.ShouldEqual(count);
+            addedCount.ShouldEqual(0);
+            _componentCollection.Count.ShouldEqual(0);
+            _componentCollection.Get<object>().Count.ShouldEqual(0);
+
+            canAdd = true;
+            addingCount = 0;
+            for (var i = 0; i < count; i++)
+            {
+                expectedItem = new object();
+                _componentCollection.TryAdd(this, (_, _, _) => expectedItem, Metadata).ShouldEqual(expectedItem);
+            }
+
+            addingCount.ShouldEqual(count);
+            addedCount.ShouldEqual(count);
+            _componentCollection.Count.ShouldEqual(count);
+            _componentCollection.Get<object>().Count.ShouldEqual(count);
+        }
+
+        [Theory]
         [InlineData(1)]
         [InlineData(10)]
         public void AddShouldAddOrderedComponent(int count)

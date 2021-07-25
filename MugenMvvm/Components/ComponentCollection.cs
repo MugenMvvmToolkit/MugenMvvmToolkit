@@ -37,28 +37,42 @@ namespace MugenMvvm.Components
 
         IComponentCollection IComponentOwner.Components => _components ?? _componentCollectionManager.EnsureInitialized(ref _components, this);
 
+        public object? TryAdd<T>(T state, Func<IComponentCollection, T, IReadOnlyMetadataContext?, object?> tryGetComponent, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(tryGetComponent, nameof(tryGetComponent));
+            bool? added;
+            object? component;
+            lock (_items)
+            {
+                component = tryGetComponent(this, state, metadata);
+                if (component == null)
+                    return null;
+                added = TryAddInternal(component, metadata);
+            }
+
+            if (added.GetValueOrDefault())
+            {
+                RaiseAdded(component, metadata);
+                return component;
+            }
+
+            if (added == null)
+                return component;
+            return null;
+        }
+
         public bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
+            bool? added;
             lock (_items)
             {
-                if (_items.Contains(component))
-                    return true;
+                added = TryAddInternal(component, metadata);
             }
 
-            if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) ||
-                _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
-                return false;
-
-            lock (_items)
-            {
-                MugenExtensions.AddOrdered(_items, component, this);
-                UpdateTrackers(component, null, metadata);
-            }
-
-            ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
-            _components?.Get<IComponentCollectionChangedListener>(metadata).OnAdded(this, component, metadata);
-            return true;
+            if (added.GetValueOrDefault())
+                RaiseAdded(component, metadata);
+            return added.GetValueOrDefault(true);
         }
 
         public bool Remove(object component, IReadOnlyMetadataContext? metadata = null)
@@ -68,16 +82,12 @@ namespace MugenMvvm.Components
             {
                 if (!_items.Contains(component))
                     return false;
-            }
 
-            if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) ||
-                _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata))
-                return false;
-
-            lock (_items)
-            {
-                if (!_items.Remove(component))
+                if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) ||
+                    _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata))
                     return false;
+
+                _items.Remove(component);
                 UpdateTrackers(component, null, metadata);
             }
 
@@ -89,20 +99,23 @@ namespace MugenMvvm.Components
         public void Clear(IReadOnlyMetadataContext? metadata = null)
         {
             var components = Get<object>(metadata);
-            var changingListeners = _components == null ? default : _components.Get<IComponentCollectionChangingListener>(metadata);
-            var ignoredIndexes = new ItemOrListEditor<int>();
-            for (int i = 0; i < components.Count; i++)
-            {
-                var component = components[i];
-                if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) || !changingListeners.OnRemoving(this, component, metadata))
-                    ignoredIndexes.Add(i);
-            }
-
-            if (ignoredIndexes.Count == components.Count)
+            if (components.Count == 0)
                 return;
 
+            var changingListeners = _components == null ? default : _components.Get<IComponentCollectionChangingListener>(metadata);
+            var ignoredIndexes = new ItemOrListEditor<int>();
             lock (_items)
             {
+                for (var i = 0; i < components.Count; i++)
+                {
+                    var component = components[i];
+                    if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) || !changingListeners.OnRemoving(this, component, metadata))
+                        ignoredIndexes.Add(i);
+                }
+
+                if (ignoredIndexes.Count == components.Count)
+                    return;
+
                 if (ignoredIndexes.Count == 0)
                 {
                     _items.Clear();
@@ -110,7 +123,7 @@ namespace MugenMvvm.Components
                 }
                 else
                 {
-                    for (int i = 0; i < components.Count; i++)
+                    for (var i = 0; i < components.Count; i++)
                     {
                         if (ignoredIndexes.Contains(i))
                             continue;
@@ -123,7 +136,7 @@ namespace MugenMvvm.Components
             }
 
             var changedListeners = _components == null ? default : _components.Get<IComponentCollectionChangedListener>(metadata);
-            for (int i = 0; i < components.Count; i++)
+            for (var i = 0; i < components.Count; i++)
             {
                 if (ignoredIndexes.Contains(i))
                     continue;
@@ -161,6 +174,26 @@ namespace MugenMvvm.Components
 
             _components?.Get<IHasCacheComponent<IComponentCollection>>(metadata).Invalidate(this, component, metadata);
             (Owner as IHasComponentChangedHandler)?.OnComponentChanged(this, component, metadata);
+        }
+
+        private bool? TryAddInternal(object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (_items.Contains(component))
+                return null;
+
+            if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) ||
+                _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
+                return false;
+
+            MugenExtensions.AddOrdered(_items, component, this);
+            UpdateTrackers(component, null, metadata);
+            return true;
+        }
+
+        private void RaiseAdded(object component, IReadOnlyMetadataContext? metadata)
+        {
+            ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
+            _components?.Get<IComponentCollectionChangedListener>(metadata).OnAdded(this, component, metadata);
         }
 
         private ItemOrArray<TComponent> AddNewTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class

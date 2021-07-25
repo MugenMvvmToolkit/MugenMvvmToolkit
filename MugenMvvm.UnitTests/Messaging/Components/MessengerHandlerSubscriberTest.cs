@@ -34,6 +34,9 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             Messenger.TrySubscribe(weakRef);
 
             var handlers = _messengerHandlerComponent.TryGetMessengerHandlers(Messenger, typeof(string), null)!;
+            if (handlers.Count == 0)
+                return;
+
             weakRef.Release();
             handlers[0].Handle(new MessageContext(this, "")).ShouldEqual(MessengerResult.Invalid);
             invokedCount.ShouldEqual(0);
