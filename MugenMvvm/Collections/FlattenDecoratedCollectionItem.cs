@@ -6,9 +6,9 @@ using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Collections
 {
-    internal sealed class DecoratorFlattenCollectionItem : FlattenCollectionItemBase, ICollectionDecoratorListener, ICollectionBatchUpdateListener
+    internal sealed class FlattenDecoratedCollectionItem : FlattenCollectionItemBase, ICollectionDecoratorListener, ICollectionBatchUpdateListener
     {
-        public DecoratorFlattenCollectionItem(IEnumerable collection, FlattenCollectionDecorator decorator) : base(collection, decorator)
+        public FlattenDecoratedCollectionItem(IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak) : base(collection, decorator, isWeak)
         {
         }
 

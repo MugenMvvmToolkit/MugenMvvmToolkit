@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.Collections
 {
@@ -13,31 +14,32 @@ namespace MugenMvvm.Collections
     public readonly struct FlattenItemInfo
     {
         internal readonly IEnumerable? Items;
-        internal readonly bool DecoratorListener;
+        internal readonly bool DecoratedItemsSource;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public FlattenItemInfo(IEnumerable? items, bool decoratorListener = true)
+        public FlattenItemInfo(IEnumerable? items, bool decoratedItemsSource = true)
         {
             Items = items;
-            DecoratorListener = decoratorListener;
+            DecoratedItemsSource = decoratedItemsSource;
         }
 
         [MemberNotNullWhen(false, nameof(Items))]
         internal bool IsEmpty => Items == null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<object?> GetItems() => DecoratorListener ? Items!.DecoratedItems() : Items!.AsEnumerable();
+        internal IEnumerable<object?> GetItems() => DecoratedItemsSource ? Items!.DecoratedItems() : Items!.AsEnumerable();
 
         internal FlattenCollectionItemBase GetCollectionItem(FlattenCollectionDecorator decorator)
         {
-            if (DecoratorListener)
-                return new DecoratorFlattenCollectionItem(Items!, decorator);
+            var isWeak = Items is IReadOnlyObservableCollection;
+            if (DecoratedItemsSource)
+                return new FlattenDecoratedCollectionItem(Items!, decorator, isWeak);
 
             var itemType = MugenExtensions.GetCollectionItemType(Items!);
             if (!itemType.IsValueType)
-                return new SourceFlattenCollectionItem<object?>().Initialize(Items!, decorator);
+                return new FlattenCollectionItem<object?>().Initialize(Items!, decorator, isWeak);
 
-            return ((FlattenCollectionItemBase) Activator.CreateInstance(typeof(SourceFlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator);
+            return ((FlattenCollectionItemBase) Activator.CreateInstance(typeof(FlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator, isWeak);
         }
     }
 }

@@ -17,11 +17,14 @@ namespace MugenMvvm.Collections.Components
 {
     public abstract class FlattenCollectionDecorator : CollectionDecoratorBase
     {
+        private IWeakReference? _weakReference;
         private int? _batchThreshold;
 
         internal FlattenCollectionDecorator(int priority) : base(priority)
         {
         }
+
+        internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
 
         public int BatchThreshold
         {
@@ -65,7 +68,7 @@ namespace MugenMvvm.Collections.Components
             object? item, ref ItemOrListEditor<int> indexes)
         {
             foreach (var collectionItem in _collectionItems)
-                collectionItem.Value.FindAllIndexOf(item, ref indexes);
+                collectionItem.Value.FindAllIndexOf(this, item, ref indexes);
             return true;
         }
 
@@ -88,14 +91,14 @@ namespace MugenMvvm.Collections.Components
         }
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnAdded(collection, item, ref index, true, true, out _);
+            OnAdded(decoratorManager, collection, item, ref index, true, true, out _);
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
             using var t = decoratorManager.BatchUpdate(collection, this);
             var addIndex = index;
-            var removed = OnRemoved(oldItem, ref index, out var isRemoveReset);
+            var removed = OnRemoved(decoratorManager, oldItem, ref index, out var isRemoveReset);
             if (removed)
             {
                 if (newItem is T newItemT && !_getNestedCollection(newItemT).IsEmpty)
@@ -105,7 +108,7 @@ namespace MugenMvvm.Collections.Components
                 }
             }
 
-            var added = OnAdded(collection, newItem, ref addIndex, !isRemoveReset, true, out var isAddReset);
+            var added = OnAdded(decoratorManager, collection, newItem, ref addIndex, !isRemoveReset, true, out var isAddReset);
             if (added && removed)
                 return true;
             if (isAddReset || isRemoveReset)
@@ -134,12 +137,12 @@ namespace MugenMvvm.Collections.Components
 
             flattenCollectionItem.Indexes.Add(originalNewIndex);
             if (oldIndex != newIndex)
-                flattenCollectionItem.OnMoved(oldIndex, newIndex);
+                flattenCollectionItem.OnMoved(this, decoratorManager, oldIndex, newIndex);
             return false;
         }
 
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnRemoved(item, ref index, out _);
+            OnRemoved(decoratorManager, item, ref index, out _);
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
@@ -154,7 +157,7 @@ namespace MugenMvvm.Collections.Components
                 var i = 0;
                 foreach (var item in items)
                 {
-                    OnAdded(collection, item, ref i, false, false, out _);
+                    OnAdded(decoratorManager, collection, item, ref i, false, false, out _);
                     i = ++index;
                 }
 
@@ -248,7 +251,7 @@ namespace MugenMvvm.Collections.Components
             _collectionItems.Clear();
         }
 
-        private bool OnAdded(object source, object? item, ref int index, bool notify, bool updateIndex, out bool isReset)
+        private bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, object source, object? item, ref int index, bool notify, bool updateIndex, out bool isReset)
         {
             var originalIndex = index;
             if (updateIndex)
@@ -274,11 +277,11 @@ namespace MugenMvvm.Collections.Components
                 isRecycled = false;
             }
 
-            flattenCollectionItem.OnAdded(source, originalIndex, index, notify, isRecycled, out isReset);
+            flattenCollectionItem.OnAdded(this, decoratorManager, source, originalIndex, index, notify, isRecycled, out isReset);
             return false;
         }
 
-        private bool OnRemoved(object? item, ref int index, out bool isReset)
+        private bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, object? item, ref int index, out bool isReset)
         {
             var originalIndex = index;
             index = UpdateIndexes(index, -1);
@@ -288,7 +291,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            if (flattenCollectionItem.OnRemoved(originalIndex - 1, index, out isReset))
+            if (flattenCollectionItem.OnRemoved(this, decoratorManager, originalIndex - 1, index, out isReset))
                 _collectionItems.Remove(itemT);
             return false;
         }

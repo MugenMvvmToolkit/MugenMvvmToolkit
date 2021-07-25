@@ -27,6 +27,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         public FlattenCollectionDecoratorTest()
         {
+            RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
             _itemCollection1 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
             _itemCollection1.AddComponent(new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0});
             _itemCollection2 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
@@ -117,11 +118,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.Changed += assert;
             collection.AddComponent(tracker);
 
-            for (int i = 0; i < 20; i++)
+            for (var i = 0; i < 20; i++)
                 collection.Add(new UnstableCollection());
 
-            int itemChangedCount = 0;
-            for (int i = 0; i < collection.Count; i++)
+            var itemChangedCount = 0;
+            for (var i = 0; i < collection.Count; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -129,7 +130,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     collection[i].Items = items;
                     collection.RaiseItemChanged(collection[i], null);
                     assert();
-                    for (int j = 0; j < i; j++)
+                    for (var j = 0; j < i; j++)
                     {
                         items.Add(j);
                         assert();
@@ -145,7 +146,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 assert();
             }
 
-            for (int i = 0; i < collection.Count; i++)
+            for (var i = 0; i < collection.Count; i++)
             {
                 collection.RaiseItemChanged(collection[i], null);
                 if (collection[i].Items == null)
@@ -153,7 +154,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 tracker.ItemChangedCount.ShouldEqual(itemChangedCount);
             }
 
-            for (int i = 0; i < collection.Count; i++)
+            for (var i = 0; i < collection.Count; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -161,7 +162,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     collection[i].Items = items;
                     collection.RaiseItemChanged(collection[i], null);
                     assert();
-                    for (int j = 0; j < i; j++)
+                    for (var j = 0; j < i; j++)
                     {
                         items.Add(j + 1000);
                         assert();
@@ -177,7 +178,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 assert();
             }
 
-            for (int i = 0; i < collection.Count; i++)
+            for (var i = 0; i < collection.Count; i++)
             {
                 if (i % 2 == 0)
                 {
@@ -689,6 +690,18 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
+        [Fact(Skip = ReleaseTest)]
+        public void ShouldBeWeak()
+        {
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var weakReference = WeakTest(collection);
+            GcCollect();
+            GcCollect();
+            GcCollect();
+            collection.Add(NewId());
+            weakReference.IsAlive.ShouldBeFalse();
+        }
+
         [Fact]
         public void ShouldHandleBatchUpdateFromChildDecorator()
         {
@@ -1191,6 +1204,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
+        private WeakReference WeakTest(SynchronizedObservableCollection<object> target)
+        {
+            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            collection.AddComponent(new FlattenCollectionDecorator<SynchronizedObservableCollection<object>>(objects => new FlattenItemInfo(objects)));
+            collection.Add(target);
+
+            target.Add(NewId());
+            collection.DecoratedItems().ShouldEqual(target);
+            return new WeakReference(collection);
+        }
+
         private void Assert()
         {
             _targetCollection.DecoratedItems().ShouldEqual(_tracker.ChangedItems);
@@ -1226,7 +1250,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        private IEnumerable<object?> Decorate(SynchronizedObservableCollection<UnstableCollection> collection)
+        private static IEnumerable<object?> Decorate(SynchronizedObservableCollection<UnstableCollection> collection)
         {
             foreach (var item in collection)
             {

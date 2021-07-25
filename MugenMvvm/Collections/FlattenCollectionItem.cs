@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    internal sealed class SourceFlattenCollectionItem<TItem> : FlattenCollectionItemBase, ICollectionChangedListener<TItem>
+    internal sealed class FlattenCollectionItem<TItem> : FlattenCollectionItemBase, ICollectionChangedListener<TItem>
     {
         public void OnAdded(IReadOnlyObservableCollection<TItem> collection, TItem item, int index)
         {
@@ -39,6 +39,11 @@ namespace MugenMvvm.Collections
 
         private static IEnumerable<object?>? AsObjectEnumerable(IEnumerable<TItem>? items) => items == null ? null : items as IEnumerable<object?> ?? items.Cast<object>();
 
-        private ActionToken BatchIfNeed() => DecoratorManager != null && Indexes.Count > 1 ? DecoratorManager.BatchUpdate(Decorator.Owner, Decorator) : default;
+        private ActionToken BatchIfNeed()
+        {
+            if (TryGetDecoratorManager(out var decoratorManager, out var decorator) && Indexes.Count > 1)
+                return decoratorManager.BatchUpdate(decorator.Owner, decorator);
+            return default;
+        }
     }
 }
