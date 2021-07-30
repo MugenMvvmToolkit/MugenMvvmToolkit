@@ -235,7 +235,8 @@ namespace MugenMvvm.Extensions
             return command.ExecuteAsync(parameter, cancellationToken, GetForceExecuteMetadata(metadata));
         }
 
-        public static void SynchronizeExecution(this ICompositeCommand command, ICompositeCommand value) => DelegateCommandExecutor.SynchronizeExecution(command, value);
+        public static void SynchronizeExecutionWith(this ICompositeCommand command, ICompositeCommand target, bool bidirectional = true) =>
+            DelegateCommandExecutor.Synchronize(command, target, bidirectional);
 
         public static void AddChildCommand(this ICompositeCommand owner, ICompositeCommand command)
         {

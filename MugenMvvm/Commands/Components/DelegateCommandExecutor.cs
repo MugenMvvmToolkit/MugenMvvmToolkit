@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -20,13 +21,11 @@ namespace MugenMvvm.Commands.Components
         private static readonly AllowMultipleExecutionDelegateCommandExecutor AllowMultipleExecutionExecutor = new();
 
         private volatile int _executeCount;
-        private volatile ICompositeCommand? _lastExecutingCommand;
+        private volatile ICompositeCommand? _executingCommand;
 
         private DelegateCommandExecutor()
         {
         }
-
-        public bool IsExecuting => _executeCount != 0; //todo fix
 
         public bool AllowMultipleExecution => false;
 
@@ -48,19 +47,65 @@ namespace MugenMvvm.Commands.Components
             return component;
         }
 
-        public static void SynchronizeExecution(ICompositeCommand command, ICompositeCommand value)
+        public static void Synchronize(ICompositeCommand command, ICompositeCommand target, bool bidirectional)
         {
             Should.NotBeNull(command, nameof(command));
-            Should.NotBeNull(value, nameof(value));
+            Should.NotBeNull(target, nameof(target));
+            Synchronize(command, target);
+            if (!bidirectional)
+                AddRemoveForceExecuteCommands(target.Metadata, command, false);
+        }
+
+        public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) =>
+            (_executeCount == 0 || IsForceExecute(command, metadata)) && CanExecuteInternal(command, parameter, metadata);
+
+        public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => _executeCount != 0;
+
+        public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            try
+            {
+                if (Interlocked.Increment(ref _executeCount) == 1)
+                    RaiseCanExecuteChanged(metadata);
+                else if (!IsForceExecute(command, metadata))
+                    return false;
+
+                Interlocked.Exchange(ref _executingCommand, command);
+                return await ExecuteInternalAsync(command, parameter, true, cancellationToken, metadata).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (Interlocked.Decrement(ref _executeCount) == 0)
+                {
+                    if (_executeCount == 0)
+                        Interlocked.Exchange(ref _executingCommand, null); //possible race condition, not critical for this case.
+                    RaiseCanExecuteChanged(metadata);
+                }
+            }
+        }
+
+        protected override void OnDetached(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
+        {
+            foreach (var command in Owners)
+            {
+                if (command.HasMetadata)
+                    AddRemoveForceExecuteCommands(command.Metadata, owner, true);
+            }
+
+            base.OnDetached(owner, metadata);
+        }
+
+        private static void Synchronize(ICompositeCommand command, ICompositeCommand target)
+        {
             var executor1 = command.GetComponentOptional<IDelegateCommandExecutor>();
-            var executor2 = value.GetComponentOptional<IDelegateCommandExecutor>();
+            var executor2 = target.GetComponentOptional<IDelegateCommandExecutor>();
             if (ReferenceEquals(executor1, executor2) && executor1 != null && !executor1.AllowMultipleExecution)
                 return;
 
             if (executor1 != null && !executor1.AllowMultipleExecution)
             {
-                value.RemoveComponents<IDelegateCommandExecutor>();
-                value.AddComponent(executor1);
+                target.RemoveComponents<IDelegateCommandExecutor>();
+                target.AddComponent(executor1);
                 return;
             }
 
@@ -73,35 +118,29 @@ namespace MugenMvvm.Commands.Components
 
             var executor = new DelegateCommandExecutor();
             command.RemoveComponents<IDelegateCommandExecutor>();
-            value.RemoveComponents<IDelegateCommandExecutor>();
+            target.RemoveComponents<IDelegateCommandExecutor>();
             command.AddComponent(executor);
-            value.AddComponent(executor);
+            target.AddComponent(executor);
         }
 
-        public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) =>
-            (_executeCount == 0 || IsForceExecute(command, metadata)) && CanExecuteInternal(command, parameter, metadata);
-
-        public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        private static void AddRemoveForceExecuteCommands(IMetadataContext metadata, ICompositeCommand command, bool remove)
         {
-            try
-            {
-                if (Interlocked.Increment(ref _executeCount) == 1)
-                    RaiseCanExecuteChanged(metadata);
-                else if (!IsForceExecute(command, metadata))
-                    return false;
+            if (remove && !metadata.Contains(InternalMetadata.AllowForceExecuteCommands))
+                return;
 
-                Interlocked.Exchange(ref _lastExecutingCommand, command);
-                return await ExecuteInternalAsync(command, parameter, true, cancellationToken, metadata).ConfigureAwait(false);
-            }
-            finally
+            metadata.AddOrUpdate(InternalMetadata.AllowForceExecuteCommands, command, (command, remove), (_, _, currentValue, s) =>
             {
-                if (Interlocked.Decrement(ref _executeCount) == 0)
+                var editor = ItemOrListEditor<object>.FromRawValue(currentValue);
+                if (s.remove)
+                    editor.Remove(s.command);
+                else
                 {
-                    if (_executeCount == 0)
-                        Interlocked.Exchange(ref _lastExecutingCommand, null); //possible race condition, not critical for this case.
-                    RaiseCanExecuteChanged(metadata);
+                    editor.DefaultCapacity = 2;
+                    editor.Add(s.command);
                 }
-            }
+
+                return editor.GetRawValueInternal();
+            });
         }
 
         private static Task<bool> ExecuteInternalAsync(ICompositeCommand command, object? parameter, bool force, CancellationToken cancellationToken,
@@ -129,11 +168,11 @@ namespace MugenMvvm.Commands.Components
 
         private bool IsForceExecute(ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
-            if (command.HasMetadata && command.Metadata.TryGet(CommandMetadata.CanForceExecute, out var func))
+            if (command.HasMetadata && command.Metadata.TryGet(InternalMetadata.AllowForceExecuteCommands, out var commands))
             {
-                var b = func(_lastExecutingCommand, metadata);
-                if (b.HasValue)
-                    return b.Value;
+                var executingCommand = _executingCommand;
+                if (executingCommand != null && ItemOrIReadOnlyList.FromRawValue<ICompositeCommand>(commands).Contains(executingCommand))
+                    return true;
             }
 
             return metadata != null && metadata.TryGet(CommandMetadata.ForceExecute, out var value) && value;
@@ -239,6 +278,8 @@ namespace MugenMvvm.Commands.Components
             public int Priority => CommandComponentPriority.Executor;
 
             public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => CanExecuteInternal(command, parameter, metadata);
+
+            public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => false;
 
             public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
                 ExecuteInternalAsync(command, parameter, false, cancellationToken, metadata);

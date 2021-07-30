@@ -441,11 +441,11 @@ namespace MugenMvvm.Collections
             oldLock.Dispose();
             newLock.Dispose();
 
-            if (_threadDispatcher.DefaultIfNull().CanExecuteInline(ExecutionMode))
+            if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
                 OnCollectionChanged(version, oldValue, newValue);
             else
             {
-                _threadDispatcher.DefaultIfNull().Execute(ExecutionMode, state =>
+                ThreadDispatcher.Execute(ExecutionMode, state =>
                 {
                     var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>)state!;
                     s.Item1.OnCollectionChanged(s.Item2, s.Item3, s.Item4);

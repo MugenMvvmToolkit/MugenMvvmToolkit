@@ -7,9 +7,9 @@ namespace MugenMvvm.Tests.Commands
 {
     public class TestCommandConditionComponent : ICommandConditionComponent
     {
-        public Func<ICompositeCommand, object?, bool>? CanExecute { get; set; }
+        public Func<ICompositeCommand, object?, IReadOnlyMetadataContext?, bool>? CanExecute { get; set; }
 
         bool ICommandConditionComponent.CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) =>
-            CanExecute?.Invoke(command, parameter) ?? true;
+            CanExecute?.Invoke(command, parameter, metadata) ?? true;
     }
 }

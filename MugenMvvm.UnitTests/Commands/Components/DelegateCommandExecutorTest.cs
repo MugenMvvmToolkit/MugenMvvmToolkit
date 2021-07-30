@@ -346,11 +346,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, false)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        public async Task SynchronizeExecutionShouldSynchronizeExecutionBetweenCommands(bool allowMultipleExecution1, bool allowMultipleExecution2)
+        [InlineData(true, true, true)]
+        [InlineData(true, true, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, false, false)]
+        [InlineData(false, true, true)]
+        [InlineData(false, true, false)]
+        public async Task SynchronizeExecutionShouldSynchronizeExecutionBetweenCommands(bool allowMultipleExecution1, bool allowMultipleExecution2, bool bidirectional)
         {
             var executed = 0;
             var tcs = new TaskCompletionSource<bool>();
@@ -371,19 +375,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
             DelegateCommandExecutor.Add<object>(Command, execute1, null, allowMultipleExecution1);
             DelegateCommandExecutor.Add<object>(command2, execute2, null, allowMultipleExecution2);
 
-            DelegateCommandExecutor.SynchronizeExecution(Command, command2);
+            DelegateCommandExecutor.Synchronize(Command, command2, bidirectional);
             var task = Command.ExecuteAsync(null, DefaultCancellationToken, Metadata);
             executed.ShouldEqual(1);
             command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(1);
+            executed.ShouldEqual(bidirectional ? 1 : 2);
 
             tcs.SetResult(default);
             (await task).ShouldEqual(default);
             task.IsCompleted.ShouldBeTrue();
 
-            executed.ShouldEqual(1);
+            executed.ShouldEqual(bidirectional ? 1 : 2);
             command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(2);
+            executed.ShouldEqual(bidirectional ? 2 : 3);
         }
     }
 }

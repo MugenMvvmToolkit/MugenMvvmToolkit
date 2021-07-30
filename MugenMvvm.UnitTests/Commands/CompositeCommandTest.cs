@@ -54,22 +54,53 @@ namespace MugenMvvm.UnitTests.Commands
             {
                 Command.AddComponent(new TestCommandConditionComponent
                 {
-                    CanExecute = (c, item) =>
+                    CanExecute = (c, item, m) =>
                     {
                         c.ShouldEqual(Command);
                         item.ShouldEqual(Command);
+                        m.ShouldEqual(Metadata);
                         ++count;
                         return canExecute;
                     }
                 });
             }
 
-            Command.CanExecute(Command).ShouldBeFalse();
+            Command.CanExecute(Command, Metadata).ShouldBeFalse();
             count.ShouldEqual(1);
             count = 0;
             canExecute = true;
-            Command.CanExecute(Command).ShouldBeTrue();
+            Command.CanExecute(Command, Metadata).ShouldBeTrue();
             count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void IsExecutingShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            var isExecuting = false;
+            Command.CanExecute(Command).ShouldBeTrue();
+            for (var i = 0; i < componentCount; i++)
+            {
+                Command.AddComponent(new TestCommandExecutorComponent
+                {
+                    IsExecuting = (c, m) =>
+                    {
+                        c.ShouldEqual(Command);
+                        m.ShouldEqual(Metadata);
+                        ++count;
+                        return isExecuting;
+                    }
+                });
+            }
+
+            Command.IsExecuting(Metadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+            count = 0;
+            isExecuting = true;
+            Command.IsExecuting(Metadata).ShouldBeTrue();
+            count.ShouldEqual(1);
         }
 
         [Theory]
@@ -82,7 +113,7 @@ namespace MugenMvvm.UnitTests.Commands
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -123,7 +154,7 @@ namespace MugenMvvm.UnitTests.Commands
             Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -164,7 +195,7 @@ namespace MugenMvvm.UnitTests.Commands
             Action<IReadOnlyMetadataContext?> execute = m => { };
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -205,7 +236,7 @@ namespace MugenMvvm.UnitTests.Commands
             Action<object, IReadOnlyMetadataContext?> execute = (t, m) => { };
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 

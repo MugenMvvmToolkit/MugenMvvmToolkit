@@ -67,6 +67,8 @@ namespace MugenMvvm.Commands.Components
 
         public bool ExecuteSequentially { get; set; }
 
+        public bool CheckIsExecuting { get; set; }
+
         public int Priority { get; init; } = CommandComponentPriority.ChildCommandAdapter;
 
         public void Add(ICompositeCommand command)
@@ -114,6 +116,24 @@ namespace MugenMvvm.Commands.Components
             {
                 return CanExecuteInternal(parameter, metadata);
             }
+        }
+
+        public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        {
+            if (CheckIsExecuting)
+            {
+                lock (_listener)
+                {
+                    var items = _commands.Items;
+                    for (var i = 0; i < _commands.Count; i++)
+                    {
+                        if (items[i].IsExecuting(metadata))
+                            return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)

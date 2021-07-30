@@ -14,12 +14,16 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<bool>? _isInitialized;
         private static IMetadataContextKey<string>? _createdId;
         private static IMetadataContextKey<object?>? _view;
+        private static IMetadataContextKey<object?>? _allowForceExecuteCommands;
         private static IMetadataContextKey<Dictionary<string, IViewModelPresenterMediator>>? _mediators;
         private static IMetadataContextKey<List<NavigationCallback?>>? _showingCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closingCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
         private static IMetadataContextKey<PropertyChangedCommandObserver>? _commandNotifier;
+
+        public static IMetadataContextKey<object?> AllowForceExecuteCommands =>
+            _allowForceExecuteCommands ??= GetBuilder(_allowForceExecuteCommands, nameof(AllowForceExecuteCommands)).Build();
 
         public static IMetadataContextKey<PropertyChangedCommandObserver> CommandNotifier
             => _commandNotifier ??= GetBuilder(_commandNotifier, nameof(CommandNotifier)).Build();

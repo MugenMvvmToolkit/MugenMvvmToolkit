@@ -12,12 +12,12 @@ namespace MugenMvvm.Collections
         private bool _hasItem;
         private T? _item;
         private IList<T>? _list;
-        private readonly int _capacity;
+        private int _defaultCapacity;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(int capacity)
         {
-            _capacity = capacity;
+            _defaultCapacity = capacity;
             _list = null;
             _item = default!;
             _hasItem = false;
@@ -26,7 +26,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(ItemOrIEnumerable<T> itemOrList, bool isRawList)
         {
-            _capacity = 0;
+            _defaultCapacity = 0;
             if (itemOrList.List != null)
             {
                 _item = default;
@@ -47,7 +47,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(IList<T>? iList)
         {
-            _capacity = 0;
+            _defaultCapacity = 0;
             _list = iList;
             _item = default!;
             _hasItem = false;
@@ -61,7 +61,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrListEditor(T? item, IList<T>? list, bool hasItem)
         {
-            _capacity = 0;
+            _defaultCapacity = 0;
             _item = item!;
             _list = list;
             _hasItem = hasItem;
@@ -82,6 +82,13 @@ namespace MugenMvvm.Collections
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => Count == 0;
+        }
+
+        public int DefaultCapacity
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            readonly get => _defaultCapacity == 0 ? 4 : _defaultCapacity;
+            set => _defaultCapacity = value;
         }
 
         public T this[int index]
@@ -105,12 +112,6 @@ namespace MugenMvvm.Collections
                 else
                     _item = value;
             }
-        }
-
-        private readonly int DefaultCapacity
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _capacity == 0 ? 4 : _capacity;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

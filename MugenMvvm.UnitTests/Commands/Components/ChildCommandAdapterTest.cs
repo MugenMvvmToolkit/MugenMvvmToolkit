@@ -2,6 +2,7 @@
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Tests.Commands;
 using Should;
 using Xunit;
 
@@ -234,6 +235,54 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             _adapter.SuppressExecute = false;
             Command.CanExecute(null, Metadata).ShouldBeFalse();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void IsExecutingShouldBeHandledByCommands(bool check)
+        {
+            _adapter.CheckIsExecuting = check;
+            var isExecuting1 = false;
+            var isExecuting2 = false;
+
+            void Assert()
+            {
+                if (check)
+                    Command.IsExecuting(Metadata).ShouldEqual(isExecuting1 || isExecuting2);
+                else
+                    Command.IsExecuting(Metadata).ShouldBeFalse();
+            }
+
+            var cmd1 = new CompositeCommand(null, ComponentCollectionManager);
+            cmd1.AddComponent(new TestCommandExecutorComponent
+            {
+                IsExecuting = (_, m) =>
+                {
+                    m.ShouldEqual(Metadata);
+                    return isExecuting1;
+                }
+            });
+            var cmd2 = new CompositeCommand(null, ComponentCollectionManager);
+            cmd2.AddComponent(new TestCommandExecutorComponent
+            {
+                IsExecuting = (_, m) =>
+                {
+                    m.ShouldEqual(Metadata);
+                    return isExecuting2;
+                }
+            });
+
+            Command.AddChildCommand(cmd1);
+            Command.AddChildCommand(cmd2);
+            Assert();
+
+            isExecuting1 = true;
+            Assert();
+
+            isExecuting1 = true;
+            isExecuting2 = true;
+            Assert();
         }
     }
 }
