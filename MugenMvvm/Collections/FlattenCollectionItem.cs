@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -9,6 +10,11 @@ namespace MugenMvvm.Collections
 {
     internal sealed class FlattenCollectionItem<TItem> : FlattenCollectionItemBase, ICollectionChangedListener<TItem>
     {
+        [Preserve(Conditional = true)]
+        public FlattenCollectionItem()
+        {
+        }
+
         public void OnAdded(IReadOnlyObservableCollection<TItem> collection, TItem item, int index)
         {
             using var _ = BatchIfNeed();

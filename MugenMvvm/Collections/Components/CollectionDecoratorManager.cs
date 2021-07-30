@@ -82,7 +82,7 @@ namespace MugenMvvm.Collections.Components
                 FindAllIndexOf(collection, decorator, items, item, ref indexes);
                 if (indexes.Count != 0)
                 {
-                    OnChanged(collection, decorators, i, item, indexes, args);
+                    OnChanged(collection, decorators, i + 1, item, indexes, args);
                     return;
                 }
             }

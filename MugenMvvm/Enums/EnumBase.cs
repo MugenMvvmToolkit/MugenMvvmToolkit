@@ -19,9 +19,12 @@ namespace MugenMvvm.Enums
             where TValue : IComparable<TValue>, IEquatable<TValue>
         {
             Should.BeOfType<IEnum>(enumType, nameof(enumType));
-            if (TypeToValueResolver.TryGetValue(enumType, out var del) && del is Func<TValue, IEnum?, IEnum?> provider)
-                return provider(value, defaultValue);
-            return defaultValue;
+            lock (TypeToEnums)
+            {
+                if (TypeToValueResolver.TryGetValue(enumType, out var del) && del is Func<TValue, IEnum?, IEnum?> provider)
+                    return provider(value, defaultValue);
+                return defaultValue;
+            }
         }
 
         [return: NotNullIfNotNull("defaultValue")]
@@ -34,9 +37,12 @@ namespace MugenMvvm.Enums
         public static IEnum? TryGetByName(Type enumType, string? value, IEnum? defaultValue = null, bool ignoreCase = false)
         {
             Should.BeOfType<IEnum>(enumType, nameof(enumType));
-            if (TypeToNameResolver.TryGetValue(enumType, out var resolver))
-                return resolver(value, defaultValue, ignoreCase);
-            return defaultValue;
+            lock (TypeToEnums)
+            {
+                if (TypeToNameResolver.TryGetValue(enumType, out var resolver))
+                    return resolver(value, defaultValue, ignoreCase);
+                return defaultValue;
+            }
         }
 
         [return: NotNullIfNotNull("defaultValue")]
@@ -46,9 +52,12 @@ namespace MugenMvvm.Enums
         public static IEnum[] GetAll(Type enumType)
         {
             Should.BeOfType<IEnum>(enumType, nameof(enumType));
-            if (TypeToEnums.TryGetValue(enumType, out var provider))
-                return provider();
-            return Array.Empty<IEnum>();
+            lock (TypeToEnums)
+            {
+                if (TypeToEnums.TryGetValue(enumType, out var provider))
+                    return provider();
+                return Array.Empty<IEnum>();
+            }
         }
 
         public static TEnum[] GetAll<TEnum>() where TEnum : class, IEnum
@@ -68,9 +77,12 @@ namespace MugenMvvm.Enums
             EnumProvider<TEnum>.Provider = provider;
             EnumProvider<TEnum>.NameResolver = nameResolver;
             EnumProvider<TEnum, TValue>.ValueResolver = valueResolver;
-            TypeToEnums[typeof(TEnum)] = provider;
-            TypeToNameResolver[typeof(TEnum)] = nameResolver.TryGetByName;
-            TypeToValueResolver[typeof(TEnum)] = new Func<TValue, IEnum?, IEnum?>(valueResolver.TryGetByValue);
+            lock (TypeToEnums)
+            {
+                TypeToEnums[typeof(TEnum)] = provider;
+                TypeToNameResolver[typeof(TEnum)] = nameResolver.TryGetByName;
+                TypeToValueResolver[typeof(TEnum)] = new Func<TValue, IEnum?, IEnum?>(valueResolver.TryGetByValue);
+            }
         }
 
         private static IEnum? TryGetByName<TEnum>(this Func<string?, TEnum?, bool, TEnum?> resolver, string? name, IEnum? defaultValue, bool ignoreCase) where TEnum : class, IEnum

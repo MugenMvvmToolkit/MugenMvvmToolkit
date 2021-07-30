@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class ConvertImmutableCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority where TTo : class
+    public sealed class ConvertImmutableCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority where TTo : class?
     {
         private readonly Func<object?, object?> _converter;
 

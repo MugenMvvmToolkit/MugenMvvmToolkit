@@ -469,7 +469,7 @@ namespace MugenMvvm.Tests
         protected virtual ICommandManager GetCommandManager()
         {
             var commandManager = new CommandManager(ComponentCollectionManager);
-            commandManager.AddComponent(new CommandProvider(ThreadDispatcher, ComponentCollectionManager) {Priority = ComponentPriority.Min});
+            commandManager.AddComponent(new CommandProvider(ComponentCollectionManager) {Priority = ComponentPriority.Min});
             return commandManager;
         }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Commands.Components;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Models.Internal;
@@ -17,7 +16,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
     {
         public PropertyChangedCommandObserverTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            Command.AddComponent(new CommandEventHandler(ThreadDispatcher, ThreadExecutionMode.Current));
+            Command.AddComponent(new CommandEventHandler());
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
@@ -65,10 +64,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<object?, object?, bool> canNotify = (s, o) =>
             {
                 s.ShouldEqual(propertyChangedModel);
-                ((PropertyChangedEventArgs)o!).PropertyName.ShouldEqual(propertyName);
+                ((PropertyChangedEventArgs) o!).PropertyName.ShouldEqual(propertyName);
                 return canNotifyValue;
             };
-            var commandNotifier = new PropertyChangedCommandObserver { CanNotify = canNotify };
+            var commandNotifier = new PropertyChangedCommandObserver {CanNotify = canNotify};
             Command.AddComponent(commandNotifier);
             commandNotifier.Add(propertyChangedModel);
 

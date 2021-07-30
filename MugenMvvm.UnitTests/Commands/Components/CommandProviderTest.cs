@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
         public CommandProviderTest()
         {
-            _component = new CommandProvider(ThreadDispatcher, ComponentCollectionManager);
+            _component = new CommandProvider(ComponentCollectionManager);
             CommandManager.AddComponent(_component);
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldCacheCommandEventHandler(bool cache)
         {
             _component.CacheCommandNotifier = cache;
-            var metadataOwner = new TestMetadataOwnerPropertyChanged { Metadata = new MetadataContext() };
+            var metadataOwner = new TestMetadataOwnerPropertyChanged {Metadata = new MetadataContext()};
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var request = DelegateCommandRequest.Get(execute, canExecute, null, null, default, null);
@@ -102,9 +102,9 @@ namespace MugenMvvm.UnitTests.Commands.Components
                     m.ShouldEqual(Metadata);
                     return canExecuteValue;
                 }
-                : (Func<IReadOnlyMetadataContext?, bool>?)null;
+                : (Func<IReadOnlyMetadataContext?, bool>?) null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 

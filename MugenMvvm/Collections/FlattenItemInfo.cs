@@ -14,25 +14,25 @@ namespace MugenMvvm.Collections
     public readonly struct FlattenItemInfo
     {
         internal readonly IEnumerable? Items;
-        internal readonly bool DecoratedItemsSource;
+        internal readonly bool DecoratedItems;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public FlattenItemInfo(IEnumerable? items, bool decoratedItemsSource = true)
+        public FlattenItemInfo(IEnumerable? items, bool decoratedItems = true)
         {
             Items = items;
-            DecoratedItemsSource = decoratedItemsSource;
+            DecoratedItems = decoratedItems;
         }
 
         [MemberNotNullWhen(false, nameof(Items))]
         internal bool IsEmpty => Items == null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<object?> GetItems() => DecoratedItemsSource ? Items!.DecoratedItems() : Items!.AsEnumerable();
+        internal IEnumerable<object?> GetItems() => DecoratedItems ? Items!.DecoratedItems() : Items!.AsEnumerable();
 
         internal FlattenCollectionItemBase GetCollectionItem(FlattenCollectionDecorator decorator)
         {
             var isWeak = Items is IReadOnlyObservableCollection;
-            if (DecoratedItemsSource)
+            if (DecoratedItems)
                 return new FlattenDecoratedCollectionItem(Items!, decorator, isWeak);
 
             var itemType = MugenExtensions.GetCollectionItemType(Items!);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Windows.Input;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
@@ -10,12 +11,14 @@ using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Members;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
@@ -102,7 +105,7 @@ namespace MugenMvvm.Bindings.Core.Components
                 return false;
 
             _targetRef = target.ToWeakReference();
-            _canExecuteHandler ??= this.ToWeakReference().EventHandlerWeakCanExecuteHandler;
+            _canExecuteHandler ??= new CanExecuteClosure(this).CanExecuteHandler;
             return true;
         }
 
@@ -133,7 +136,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding)owner).Target.GetLastMember(metadata);
+            var targetMember = ((IBinding) owner).Target.GetLastMember(metadata);
             if (targetMember.Member is not IObservableMemberInfo eventInfo || eventInfo.MemberType != MemberType.Event)
                 return false;
 
@@ -145,7 +148,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding)owner;
+            var binding = (IBinding) owner;
             binding.UpdateTarget();
             if (!BindingMugenExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
                 binding.Components.TryAdd(OneTimeBindingMode.NonDisposeInstance);
@@ -209,6 +212,47 @@ namespace MugenMvvm.Bindings.Core.Components
 
             public void OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
             {
+            }
+        }
+
+        private sealed class CanExecuteClosure : IThreadDispatcherHandler
+        {
+            private const int ExecutingState = 1;
+            private const int EmptyState = 0;
+
+            private int _state;
+            private readonly IWeakReference _weakReference;
+
+            public CanExecuteClosure(BindingEventHandler eventHandler)
+            {
+                _weakReference = eventHandler.ToWeakReference();
+            }
+
+            public void CanExecuteHandler(object? sender, EventArgs? args)
+            {
+                var target = (BindingEventHandler?) _weakReference.Target;
+                if (target == null)
+                {
+                    if (sender is ICommand cmd)
+                        cmd.CanExecuteChanged -= CanExecuteHandler;
+                }
+                else if (Interlocked.CompareExchange(ref _state, ExecutingState, EmptyState) == EmptyState)
+                {
+                    var threadDispatcher = MugenService.ThreadDispatcher;
+                    if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main))
+                    {
+                        Interlocked.CompareExchange(ref _state, EmptyState, ExecutingState);
+                        target.OnCanExecuteChanged();
+                    }
+                    else
+                        threadDispatcher.Execute(ThreadExecutionMode.Main, this, null);
+                }
+            }
+
+            public void Execute(object? state)
+            {
+                Interlocked.CompareExchange(ref _state, EmptyState, ExecutingState);
+                ((BindingEventHandler?) _weakReference.Target)?.OnCanExecuteChanged();
             }
         }
     }

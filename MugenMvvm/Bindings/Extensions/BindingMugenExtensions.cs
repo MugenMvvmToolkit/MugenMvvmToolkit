@@ -5,12 +5,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Windows.Input;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Compiling;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
-using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Converting;
@@ -775,18 +773,6 @@ namespace MugenMvvm.Bindings.Extensions
                 unsubscriber = observable.TryObserve(value, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)
                 unsubscriber = ActionToken.NoDo;
-        }
-
-        internal static void EventHandlerWeakCanExecuteHandler(this IWeakReference weakReference, object? sender, EventArgs? args)
-        {
-            var handler = (BindingEventHandler?) weakReference.Target;
-            if (handler == null)
-            {
-                if (sender is ICommand cmd)
-                    cmd.CanExecuteChanged -= weakReference.EventHandlerWeakCanExecuteHandler;
-            }
-            else
-                handler.OnCanExecuteChanged();
         }
 
         internal static bool IsAllConstants(this ItemOrIReadOnlyList<IExpressionNode> expressions)

@@ -124,7 +124,7 @@ namespace MugenMvvm.Commands.Components
                 if (!CanExecute(command, parameter, metadata))
                     return false;
 
-                int index = 0;
+                var index = 0;
                 while (true)
                 {
                     ValueTask<bool> task;

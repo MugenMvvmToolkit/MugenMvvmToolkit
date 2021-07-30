@@ -304,7 +304,6 @@ namespace MugenMvvm.Metadata
                 foreach (var keyValuePair in _dictionary)
                     contextValues.Add(keyValuePair);
                 components.GetValues(this, MetadataOperationType.Get, ref contextValues);
-
                 return contextValues.ToItemOrList();
             }
         }

@@ -1,7 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using Should;
 using Xunit;
@@ -15,7 +14,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public ChildCommandAdapterTest()
         {
             _adapter = new ChildCommandAdapter();
-            Command.AddComponent(new CommandEventHandler(ThreadDispatcher, ThreadExecutionMode.Current));
+            Command.AddComponent(new CommandEventHandler());
             Command.AddComponent(_adapter);
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Compiling;
@@ -13,7 +14,7 @@ namespace MugenMvvm.Bindings.Core
     {
         private readonly ICompiledExpression? _compiledExpression;
         private readonly object? _value;
-
+        
         public BindingParameterExpression(object? value, ICompiledExpression? compiledExpression)
         {
             if (value is IBindingMemberExpressionNode[])
@@ -25,6 +26,7 @@ namespace MugenMvvm.Bindings.Core
         [MemberNotNullWhen(false, nameof(_value), nameof(_compiledExpression))]
         public bool IsEmpty => _value == null && _compiledExpression == null;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingParameterValue ToBindingParameter(object target, object? source, IReadOnlyMetadataContext? metadata) =>
             new(BindingMugenExtensions.ToBindingSource(_value, target, source, metadata), _compiledExpression);
 

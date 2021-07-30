@@ -715,20 +715,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             currentItem = item2;
             currentIndex = 1;
             collection.RaiseItemChanged(item2, args);
-            decorator1Count.ShouldEqual(2);
+            decorator1Count.ShouldEqual(1);
             decorator2Count.ShouldEqual(2);
 
             currentItem = item3;
             currentIndex = 2;
             collection.RaiseItemChanged(item3, args);
-            decorator1Count.ShouldEqual(2);
-            decorator2Count.ShouldEqual(3);
+            decorator1Count.ShouldEqual(1);
+            decorator2Count.ShouldEqual(2);
 
             currentItem = NewId();
             currentIndex = -1;
             collection.RaiseItemChanged(currentItem, args);
-            decorator1Count.ShouldEqual(2);
-            decorator2Count.ShouldEqual(3);
+            decorator1Count.ShouldEqual(1);
+            decorator2Count.ShouldEqual(2);
         }
 
         protected IObservableCollection<T> CreateCollection<T>(params T[] items)

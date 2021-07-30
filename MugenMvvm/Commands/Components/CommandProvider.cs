@@ -3,14 +3,12 @@ using System.ComponentModel;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
@@ -18,22 +16,16 @@ namespace MugenMvvm.Commands.Components
     public sealed class CommandProvider : ICommandProviderComponent, IHasPriority
     {
         private readonly IComponentCollectionManager? _componentCollectionManager;
-        private readonly IThreadDispatcher? _threadDispatcher;
 
         [Preserve(Conditional = true)]
-        public CommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionManager? componentCollectionManager = null,
-            int priority = CommandComponentPriority.CommandProvider)
+        public CommandProvider(IComponentCollectionManager? componentCollectionManager = null, int priority = CommandComponentPriority.CommandProvider)
         {
             _componentCollectionManager = componentCollectionManager;
-            _threadDispatcher = threadDispatcher;
-            EventThreadMode = ThreadExecutionMode.Main;
             CacheCommandNotifier = true;
             Priority = priority;
         }
 
         public bool AllowMultipleExecution { get; set; }
-
-        public ThreadExecutionMode EventThreadMode { get; set; }
 
         public bool CacheCommandNotifier { get; set; }
 
@@ -42,7 +34,7 @@ namespace MugenMvvm.Commands.Components
         public ICompositeCommand TryGetCommand<TParameter>(ICommandManager commandManager, object? owner, object request, IReadOnlyMetadataContext? metadata)
         {
             var command = new CompositeCommand(null, _componentCollectionManager);
-            command.AddComponent(new CommandEventHandler(_threadDispatcher, EventThreadMode));
+            command.AddComponent(new CommandEventHandler());
 
             if (request is Delegate execute)
                 DelegateCommandExecutor.Add<TParameter>(command, execute, null, AllowMultipleExecution);
@@ -50,17 +42,17 @@ namespace MugenMvvm.Commands.Components
             {
                 DelegateCommandExecutor.Add<TParameter>(command, commandRequest.Execute, commandRequest.CanExecute,
                     commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution));
-                var notifier = GetCommandCommandNotifier(owner, commandRequest, metadata);
-                if (notifier != null)
-                    command.AddComponent(notifier, metadata);
+                var observer = GetCommandObserver(owner, commandRequest, metadata);
+                if (observer != null)
+                    command.AddComponent(observer, metadata);
             }
 
             return command;
         }
 
-        private static PropertyChangedCommandObserver? GetCommandCommandNotifierInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        private static PropertyChangedCommandObserver? GetCommandObserverInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
-            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver { CanNotify = commandRequest.CanNotify };
+            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver {CanNotify = commandRequest.CanNotify};
             var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIEnumerable.FromItem(owner) : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
             {
@@ -71,16 +63,16 @@ namespace MugenMvvm.Commands.Components
             return commandNotifier;
         }
 
-        private PropertyChangedCommandObserver? GetCommandCommandNotifier(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
+        private PropertyChangedCommandObserver? GetCommandObserver(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
             if (CacheCommandNotifier && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 &&
                 owner is IMetadataOwner<IMetadataContext> m and INotifyPropertyChanged)
             {
                 return m.Metadata.GetOrAdd(InternalMetadata.CommandNotifier, (owner, commandRequest, metadata),
-                    (_, _, s) => GetCommandCommandNotifierInternal(s.owner, s.commandRequest, s.metadata)!);
+                    (_, _, s) => GetCommandObserverInternal(s.owner, s.commandRequest, s.metadata)!);
             }
 
-            return GetCommandCommandNotifierInternal(owner, commandRequest, metadata);
+            return GetCommandObserverInternal(owner, commandRequest, metadata);
         }
     }
 }

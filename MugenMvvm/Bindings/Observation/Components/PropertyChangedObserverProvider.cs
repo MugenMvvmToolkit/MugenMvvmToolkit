@@ -70,10 +70,10 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         private MemberObserver TryGetMemberObserver(string member, Type type)
         {
-            if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
-                return new MemberObserver(_memberObserverHandler, member);
             if (typeof(IValueHolder<MemberListenerCollection>).IsAssignableFrom(type))
                 return new MemberObserver(MemberObserverHolderHandler, member);
+            if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
+                return new MemberObserver(_memberObserverHandler, member);
             return default;
         }
 

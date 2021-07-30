@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Compiling;
@@ -14,6 +15,7 @@ namespace MugenMvvm.Bindings.Core
         public readonly ICompiledExpression? Expression;
         public readonly object? Parameter;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingParameterValue(object? parameter, ICompiledExpression? expression)
         {
             Parameter = parameter;
