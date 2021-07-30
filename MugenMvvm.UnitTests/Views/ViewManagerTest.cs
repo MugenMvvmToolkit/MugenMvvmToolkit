@@ -5,6 +5,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 using MugenMvvm.Tests.Internal;
 using MugenMvvm.Tests.ViewModels;
 using MugenMvvm.Tests.Views;
@@ -40,8 +41,8 @@ namespace MugenMvvm.UnitTests.Views
                         meta.ShouldEqual(Metadata);
                         token.ShouldEqual(DefaultCancellationToken);
                         if (isLast)
-                            return new ValueTask<bool>(result);
-                        return null;
+                            return Task.FromResult(result);
+                        return Default.FalseTask;
                     },
                     Priority = -i
                 };

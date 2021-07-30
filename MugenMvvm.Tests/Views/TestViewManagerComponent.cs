@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Tests.Views
 {
@@ -12,7 +13,7 @@ namespace MugenMvvm.Tests.Views
     {
         public Func<IViewManager, IViewMapping, object, IReadOnlyMetadataContext?, CancellationToken, ValueTask<IView?>>? TryInitializeAsync { get; set; }
 
-        public Func<IViewManager, IView, object?, IReadOnlyMetadataContext?, CancellationToken, ValueTask<bool>?>? TryCleanupAsync { get; set; }
+        public Func<IViewManager, IView, object?, IReadOnlyMetadataContext?, CancellationToken, Task<bool>>? TryCleanupAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -20,8 +21,8 @@ namespace MugenMvvm.Tests.Views
             IReadOnlyMetadataContext? metadata) =>
             TryInitializeAsync?.Invoke(viewManager, mapping, request!, metadata, cancellationToken) ?? default;
 
-        ValueTask<bool> IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
+        Task<bool> IViewManagerComponent.TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata) =>
-            TryCleanupAsync?.Invoke(viewManager, view, state, metadata, cancellationToken) ?? default;
+            TryCleanupAsync?.Invoke(viewManager, view, state, metadata, cancellationToken) ?? Default.FalseTask;
     }
 }

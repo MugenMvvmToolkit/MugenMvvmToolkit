@@ -13,6 +13,16 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsCompletedSuccessfully(this Task task)
+        {
+#if NET461
+            return task.IsCompleted && !task.IsFaulted && !task.IsCanceled;
+#else
+            return task.IsCompletedSuccessfully;
+#endif
+        }
+
         public static T GetResult<T>(this ValueTask<T> task)
         {
             if (task.IsCompletedSuccessfully)
@@ -38,7 +48,7 @@ namespace MugenMvvm.Extensions
         public static T LogException<T>(this T task, UnhandledExceptionType exceptionType) where T : Task
         {
             Should.NotBeNull(task, nameof(task));
-            task.ContinueWith((t, s) => MugenService.Application.OnUnhandledException(t.Exception!, (UnhandledExceptionType)s!), exceptionType,
+            task.ContinueWith((t, s) => MugenService.Application.OnUnhandledException(t.Exception!, (UnhandledExceptionType) s!), exceptionType,
                 TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }
@@ -98,7 +108,7 @@ namespace MugenMvvm.Extensions
             if (millisecondsDelay == 0 && message is IHasDelayBusyMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
             var token = busyManager.BeginBusy(millisecondsDelay > 0 ? new DelayBusyRequest(message, millisecondsDelay) : message, metadata);
-            task.ContinueWith((t, o) => ((IDisposable)o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
+            task.ContinueWith((t, o) => ((IDisposable) o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }
 
@@ -175,7 +185,7 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -76,14 +76,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ValueTask<bool> TryCleanupAsync(this ItemOrArray<IViewManagerComponent> components, IViewManager viewManager, IView view, object? state,
+        public static Task<bool> TryCleanupAsync(this ItemOrArray<IViewManagerComponent> components, IViewManager viewManager, IView view, object? state,
             CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
             return components.InvokeAllAsync((viewManager, view, state), cancellationToken, metadata,
-                (component, s, c, m) => component.TryCleanupAsync(s.viewManager, s.view, s.state, c, m));
+                (component, s, c, m) => component.TryCleanupAsync(s.viewManager, s.view, s.state, c, m).AsValueTask()).AsTask();
         }
 
         public static bool TryGetItemsSource(this ItemOrArray<IViewCollectionManagerComponent> components, IViewManager viewManager, object view,

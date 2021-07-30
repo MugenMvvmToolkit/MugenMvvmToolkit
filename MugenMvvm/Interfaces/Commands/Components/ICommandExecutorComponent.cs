@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface ICommandExecutorComponent : IComponent<ICompositeCommand>
     {
-        ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
     }
 }

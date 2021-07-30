@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.ViewModels;
 
@@ -12,6 +13,9 @@ namespace MugenMvvm.Internal
 {
     public static class Default
     {
+        public static readonly Task<bool> TrueTask = Task.FromResult(true);
+        public static readonly Task<bool> FalseTask = Task.FromResult(false);
+
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new(nameof(IList.Count));
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new(InternalConstant.IndexerName);

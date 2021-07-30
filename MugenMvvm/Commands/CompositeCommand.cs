@@ -87,7 +87,7 @@ namespace MugenMvvm.Commands
             IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        public static ICompositeCommand CreateFromTask(object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> execute,
+        public static ICompositeCommand CreateFromTask(object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
             Func<IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIEnumerable<object> notifiers = default,
             bool? allowMultipleExecution = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null,
@@ -101,7 +101,7 @@ namespace MugenMvvm.Commands
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        public static ICompositeCommand CreateFromTask<T>(object? owner, Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> execute,
+        public static ICompositeCommand CreateFromTask<T>(object? owner, Func<T, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
             Func<T, IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIEnumerable<object> notifiers = default, bool? allowMultipleExecution = null, ThreadExecutionMode? eventThreadMode = null,
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
@@ -111,7 +111,7 @@ namespace MugenMvvm.Commands
         public void Execute(object? parameter = null) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 #pragma warning restore 4014
 
-        public ValueTask<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+        public Task<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<ICommandExecutorComponent>().TryExecuteAsync(this, parameter, cancellationToken, metadata);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

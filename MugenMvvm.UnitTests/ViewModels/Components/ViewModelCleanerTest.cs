@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTests.ViewModels.Components
                     ++cleanupCount;
                     v.ShouldEqual(view);
                     arg4.ShouldEqual(Metadata);
-                    return new ValueTask<bool>(true);
+                    return Default.TrueTask;
                 }
             });
 

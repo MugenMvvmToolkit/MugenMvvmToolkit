@@ -295,7 +295,7 @@ namespace MugenMvvm.UnitTests.Commands
                         c.ShouldEqual(DefaultCancellationToken);
                         m.ShouldEqual(Metadata);
                         ++invokeCount;
-                        return tc.Task.AsValueTask();
+                        return tc.Task;
                     },
                     Priority = -i
                 });

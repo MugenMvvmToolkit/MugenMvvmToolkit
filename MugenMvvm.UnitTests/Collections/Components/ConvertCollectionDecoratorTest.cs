@@ -263,7 +263,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     reuseItem.ShouldEqual(item);
                 else
                 {
-                    if (s != reuseItem)
+                    if (!ReferenceEquals(s, reuseItem))
                         reuseItem.ShouldBeNull();
                     item = new object();
                     values[s] = item;
@@ -275,7 +275,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 return item;
             }, (s, o) =>
             {
-                if (s != o)
+                if (!ReferenceEquals(s, o))
                     values[s].ShouldEqual(o);
                 cleanupItems.Add(s);
             }));

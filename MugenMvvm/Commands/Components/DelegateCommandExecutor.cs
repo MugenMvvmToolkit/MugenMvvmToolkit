@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
@@ -11,6 +10,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
@@ -26,7 +26,7 @@ namespace MugenMvvm.Commands.Components
         {
         }
 
-        public bool IsExecuting => _executeCount != 0;
+        public bool IsExecuting => _executeCount != 0; //todo fix
 
         public bool AllowMultipleExecution => false;
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Commands.Components
         public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) =>
             (_executeCount == 0 || IsForceExecute(command, metadata)) && CanExecuteInternal(command, parameter, metadata);
 
-        public async ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -104,18 +104,18 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        private static ValueTask<bool> ExecuteInternalAsync(ICompositeCommand command, object? parameter, bool force, CancellationToken cancellationToken,
+        private static Task<bool> ExecuteInternalAsync(ICompositeCommand command, object? parameter, bool force, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             if (cancellationToken.IsCancellationRequested)
-                return default;
+                return Default.FalseTask;
 
             var executor = command.GetComponentOptional<IDelegateExecutor>();
             if (executor == null || !command.CanExecute(parameter, force ? MugenExtensions.GetForceExecuteMetadata(metadata) : metadata))
             {
                 if (!force)
                     command.RaiseCanExecuteChanged(metadata);
-                return default;
+                return Default.FalseTask;
             }
 
             return executor.ExecuteAsync(command, parameter, cancellationToken, metadata);
@@ -149,7 +149,7 @@ namespace MugenMvvm.Commands.Components
         {
             bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata);
 
-            public ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+            public Task<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
         }
 
         internal interface IDelegateCommandExecutor : ICommandExecutorComponent, ICommandConditionComponent, IHasPriority
@@ -169,7 +169,7 @@ namespace MugenMvvm.Commands.Components
 
             public virtual bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => _execute != null;
 
-            public virtual async ValueTask<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public virtual async Task<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 var executeAction = _execute;
                 if (executeAction == null || cancellationToken.IsCancellationRequested)
@@ -187,24 +187,18 @@ namespace MugenMvvm.Commands.Components
                     return true;
                 }
 
-                if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
-                {
-                    await executeTask(cancellationToken, metadata).ConfigureAwait(false);
-                    return true;
-                }
-
-                if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task> executeTaskParameter)
-                {
-                    await executeTaskParameter((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
-                    return true;
-                }
-
-                if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> executeTaskBool)
+                if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> executeTaskBool)
                     return await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
 
-                return await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>>) executeAction)
-                             .Invoke((T) parameter!, cancellationToken, metadata)
-                             .ConfigureAwait(false);
+                if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> executeTaskBoolArg)
+                    return await executeTaskBoolArg((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
+
+                if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
+                    await executeTask(cancellationToken, metadata).ConfigureAwait(false);
+                else
+                    await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, Task>) executeAction).Invoke((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
+
+                return true;
             }
 
             public virtual void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _execute = null;
@@ -246,7 +240,7 @@ namespace MugenMvvm.Commands.Components
 
             public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata) => CanExecuteInternal(command, parameter, metadata);
 
-            public ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
                 ExecuteInternalAsync(command, parameter, false, cancellationToken, metadata);
         }
     }

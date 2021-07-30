@@ -116,7 +116,7 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        public async ValueTask<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             using var t = ExecutionHandler?.Invoke();
             if (ExecuteSequentially)
@@ -127,7 +127,7 @@ namespace MugenMvvm.Commands.Components
                 var index = 0;
                 while (true)
                 {
-                    ValueTask<bool> task;
+                    Task<bool> task;
                     lock (_listener)
                     {
                         if (index > _commands.Count - 1)
@@ -144,7 +144,7 @@ namespace MugenMvvm.Commands.Components
 
             if (SuppressExecute)
                 return false;
-            var tasks = new ItemOrListEditor<ValueTask<bool>>();
+            var tasks = new ItemOrListEditor<Task<bool>>();
             var result = false;
             lock (_listener)
             {
@@ -155,7 +155,7 @@ namespace MugenMvvm.Commands.Components
                 for (var i = 0; i < _commands.Count; i++)
                 {
                     var task = items[i].ExecuteAsync(parameter, cancellationToken, metadata);
-                    if (!task.IsCompletedSuccessfully)
+                    if (!task.IsCompletedSuccessfully())
                         tasks.Add(task);
                     else if (task.Result)
                         result = true;

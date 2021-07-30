@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
@@ -53,14 +54,14 @@ namespace MugenMvvm.Views.Components
             return new ValueTask<IView?>(InitializeView(viewManager, mapping, viewModel, view, metadata));
         }
 
-        public ValueTask<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (!view.Target.AttachedValues(metadata, _attachedValueManager).TryGet(InternalConstant.ViewsValueKey, out var v) ||
                 !ItemOrIReadOnlyList.FromRawValue<IView>(v).Contains(view))
-                return default;
+                return Default.FalseTask;
 
             Cleanup(viewManager, view, state, metadata);
-            return new ValueTask<bool>(true);
+            return Default.TrueTask;
         }
 
         public ItemOrIReadOnlyList<IView> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)

@@ -36,7 +36,7 @@ namespace MugenMvvm.Views
         public ValueTask<IView?> TryInitializeAsync(IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null) => GetComponents<IViewManagerComponent>(metadata).TryInitializeAsync(this, mapping, request, cancellationToken, metadata);
 
-        public ValueTask<bool> TryCleanupAsync(IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
+        public Task<bool> TryCleanupAsync(IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IViewManagerComponent>(metadata).TryCleanupAsync(this, view, state, cancellationToken, metadata);
     }
 }

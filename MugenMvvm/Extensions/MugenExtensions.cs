@@ -188,7 +188,7 @@ namespace MugenMvvm.Extensions
             commandManager.DefaultIfNull(owner).GetCommand<object>(owner,
                 DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, eventThreadMode, notifiers, canNotify), metadata);
 
-        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> execute,
+        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
             Func<IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIEnumerable<object> notifiers = default,
             bool? allowMultipleExecution = null, ThreadExecutionMode? eventThreadMode = null,
@@ -206,7 +206,7 @@ namespace MugenMvvm.Extensions
                 metadata);
 
         public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, object? owner,
-            Func<T, CancellationToken, IReadOnlyMetadataContext?, ValueTask<bool>> execute,
+            Func<T, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
             Func<T, IReadOnlyMetadataContext?, bool>? canExecute = null, ItemOrIEnumerable<object> notifiers = default, bool? allowMultipleExecution = null,
             ThreadExecutionMode? eventThreadMode = null,
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null) =>
@@ -228,7 +228,7 @@ namespace MugenMvvm.Extensions
             return command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
         }
 
-        public static ValueTask<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
+        public static Task<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(command, nameof(command));

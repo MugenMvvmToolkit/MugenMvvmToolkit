@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 p.ShouldEqual(parameter);
                 m.ShouldEqual(Metadata);
                 ++cmd1Count;
-                return new ValueTask<bool>(result);
+                return Task.FromResult(result);
             });
             var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
             {
@@ -148,7 +148,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 c.ShouldEqual(DefaultCancellationToken);
                 m.ShouldEqual(Metadata);
                 ++cmd2Count;
-                return new ValueTask<bool>(true);
+                return Task.FromResult(true);
             });
 
             Command.AddChildCommand(cmd1);

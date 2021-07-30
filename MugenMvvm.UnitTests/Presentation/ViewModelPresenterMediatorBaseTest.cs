@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
@@ -184,7 +185,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 {
                     ++clearCount;
                     v.ShouldEqual(_view);
-                    return new ValueTask<bool>(true);
+                    return Default.TrueTask;
                 }
             });
 
@@ -489,7 +490,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 {
                     ++clearCount;
                     v.ShouldEqual(_view);
-                    return new ValueTask<bool>(true);
+                    return Default.TrueTask;
                 }
             });
 
@@ -725,7 +726,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 {
                     ++cleanupViewCount;
                     v.ShouldEqual(_view);
-                    return new ValueTask<bool>(true);
+                    return Default.TrueTask;
                 }
             });
 

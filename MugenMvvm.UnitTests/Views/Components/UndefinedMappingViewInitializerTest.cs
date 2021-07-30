@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Views.Components
                     r.ShouldEqual(_viewModel);
                     meta.ShouldEqual(Metadata);
                     token.ShouldEqual(DefaultCancellationToken);
-                    return new ValueTask<bool>(result);
+                    return Task.FromResult(result);
                 }
             });
 
