@@ -1,51 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
+
 #pragma warning disable 8714
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
-    public class GroupCollectionDecorator<T, TGroup> : CollectionDecoratorBase where TGroup : class
+    public class GroupCollectionDecorator<TKey, T> : CollectionDecoratorBase where TKey : class
     {
-        private readonly Func<T, TGroup?> _getGroup;
+        private readonly Func<T, TKey?> _getGroup;
         private readonly UpdateGroupDelegate? _updateGroup;
-        private readonly Dictionary<TGroup, GroupInfo> _groups;
-        private readonly Dictionary<T, ItemGroupInfo>? _itemToGroup;
+        private readonly Dictionary<TKey, GroupInfo> _groups;
+#if !NET5_0
+        private List<TKey>? _oldGroups;
+#endif
 
-        public GroupCollectionDecorator(Func<T, TGroup?> getGroup, UpdateGroupDelegate? updateGroup = null,
-            IEqualityComparer<TGroup>? comparer = null, bool hasStableKeys = true, int priority = CollectionComponentPriority.GroupHeaderDecorator) : base(priority)
+        public GroupCollectionDecorator(Func<T, TKey?> getGroup, UpdateGroupDelegate? updateGroup = null,
+            IEqualityComparer<TKey>? comparer = null, int priority = CollectionComponentPriority.GroupHeaderDecorator) : base(priority)
         {
             Should.NotBeNull(getGroup, nameof(getGroup));
             _getGroup = getGroup;
             _updateGroup = updateGroup;
-            _groups = new Dictionary<TGroup, GroupInfo>(comparer ?? EqualityComparer<TGroup>.Default);
-            if (!hasStableKeys)
-            {
-                _itemToGroup = typeof(T).IsValueType
-                    ? new Dictionary<T, ItemGroupInfo>()
-                    : new Dictionary<T, ItemGroupInfo>((IEqualityComparer<T>) InternalEqualityComparer.Reference);
-            }
-
+            _groups = new Dictionary<TKey, GroupInfo>(comparer ?? EqualityComparer<TKey>.Default);
             Priority = priority;
         }
 
         public override bool HasAdditionalItems => _groups.Count != 0;
-
-        private bool HasUpdateHandler
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => _itemToGroup != null || _updateGroup != null;
-        }
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -76,27 +63,27 @@ namespace MugenMvvm.Collections.Components
         {
             if (item is T t)
             {
-                if (HasUpdateHandler)
+                var newGroup = _getGroup(t);
+                if (newGroup == null || !_groups.TryGetValue(newGroup, out var oldGroupInfo) || !oldGroupInfo.Contains(t))
                 {
-                    var newGroup = _getGroup(t);
-                    var updated = false;
-                    if (_itemToGroup != null)
+                    TKey? oldGroup = null;
+                    foreach (var group in _groups)
                     {
-                        _itemToGroup.TryGetValue(t, out var info);
-                        if (!_groups.Comparer.Equals(info.Group, newGroup!))
+                        if (group.Value.Contains(t) && !_groups.Comparer.Equals(newGroup!, group.Key!))
                         {
-                            RemoveGroupIfNeed(decoratorManager, collection, info.Group, t);
-                            AddGroupIfNeed(decoratorManager, collection, newGroup, t);
-                            updated = true;
+                            oldGroup = group.Key;
+                            break;
                         }
                     }
 
-                    if (!updated)
+                    if (!_groups.Comparer.Equals(newGroup!, oldGroup!))
                     {
-                        if (newGroup != null)
-                            UpdateGroup(newGroup, GroupHeaderChangedAction.ItemChanged, t, args);
+                        RemoveGroupIfNeed(decoratorManager, collection, oldGroup, t);
+                        AddGroupIfNeed(decoratorManager, collection, newGroup, t);
                     }
                 }
+                else
+                    _updateGroup?.Invoke(newGroup, oldGroupInfo, CollectionGroupChangedAction.ItemChanged, t, args);
             }
 
             index += _groups.Count;
@@ -106,10 +93,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             if (item is T t)
-            {
-                var group = _getGroup(t);
-                AddGroupIfNeed(decoratorManager, collection, group, t);
-            }
+                AddGroupIfNeed(decoratorManager, collection, _getGroup(t), t);
 
             index += _groups.Count;
             return true;
@@ -118,17 +102,22 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var oldItemGroup = GetGroup(oldItem);
-            var newItemGroup = GetGroup(newItem);
+            var oldItemGroup = GetGroup(oldItem, out var oldGroupInfo);
+            var newItemGroup = GetGroup(newItem, out _);
             if (!_groups.Comparer.Equals(oldItemGroup!, newItemGroup!))
             {
                 RemoveGroupIfNeed(decoratorManager, collection, oldItemGroup, oldItemGroup == null ? default! : (T) oldItem!);
                 AddGroupIfNeed(decoratorManager, collection, newItemGroup, newItemGroup == null ? default! : (T) newItem!);
             }
-            else if (oldItemGroup != null && HasUpdateHandler)
+            else if (oldGroupInfo != null)
             {
-                UpdateGroup(oldItemGroup, GroupHeaderChangedAction.ItemRemoved, (T) oldItem!, null);
-                UpdateGroup(oldItemGroup, GroupHeaderChangedAction.ItemAdded, (T) newItem!, null);
+                var oldItemT = (T) oldItem!;
+                oldGroupInfo.Remove(oldItemT);
+                _updateGroup?.Invoke(oldItemGroup!, oldGroupInfo, CollectionGroupChangedAction.ItemRemoved, oldItemT, null);
+
+                var newItemT = (T) newItem!;
+                oldGroupInfo.Add(newItemT);
+                _updateGroup?.Invoke(oldItemGroup!, oldGroupInfo, CollectionGroupChangedAction.ItemAdded, newItemT, null);
             }
 
             index += _groups.Count;
@@ -146,10 +135,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             if (item is T t)
-            {
-                var group = _getGroup(t);
-                RemoveGroupIfNeed(decoratorManager, collection, group, t);
-            }
+                RemoveGroupIfNeed(decoratorManager, collection, _getGroup(t), t);
 
             index += _groups.Count;
             return true;
@@ -157,14 +143,74 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
-            Clear();
-            if (items != null)
+            if (items == null)
+                Clear();
+            else
             {
+                foreach (var group in _groups)
+                {
+                    group.Value.Index = -1;
+                    group.Value.Clear();
+                }
+
+                var index = 0;
                 foreach (var item in items)
                 {
-                    if (item is T t)
-                        AddGroupIfNeed(decoratorManager, collection, _getGroup(t), t, false);
+                    if (item is not T t)
+                        continue;
+
+                    var group = _getGroup(t);
+                    if (group == null)
+                        continue;
+
+                    if (_groups.TryGetValue(group, out var value))
+                    {
+                        if (value.Index == -1)
+                            value.Index = index++;
+                    }
+                    else
+                    {
+                        value = new GroupInfo(index++);
+                        _groups[group] = value;
+                    }
+
+                    value.Add(t);
                 }
+
+#if NET5_0
+                foreach (var group in _groups)
+                {
+                    if (group.Value.Index != -1)
+                    {
+                        _updateGroup?.Invoke(group.Key, group.Value, CollectionGroupChangedAction.Reset, default, null);
+                        continue;
+                    }
+
+                    _updateGroup?.Invoke(group.Key, group.Value, CollectionGroupChangedAction.GroupRemoved, default, null);
+                    _groups.Remove(group.Key);
+                }
+#else
+                _oldGroups?.Clear();
+                foreach (var group in _groups)
+                {
+                    if (group.Value.Index != -1)
+                    {
+                        _updateGroup?.Invoke(group.Key, group.Value, CollectionGroupChangedAction.Reset, default, null);
+                        continue;
+                    }
+
+                    _updateGroup?.Invoke(group.Key, group.Value, CollectionGroupChangedAction.GroupRemoved, default, null);
+                    _oldGroups ??= new List<TKey>();
+                    _oldGroups.Add(group.Key);
+                }
+
+                if (_oldGroups != null)
+                {
+                    for (var i = 0; i < _oldGroups.Count; i++)
+                        _groups.Remove(_oldGroups[i]);
+                    _oldGroups.Clear();
+                }
+#endif
 
                 items = Decorate(items);
             }
@@ -172,45 +218,55 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private TGroup? GetGroup(object? item) => item is T t ? _getGroup(t) : null;
+        private TKey? GetGroup(object? item, out GroupInfo? groupInfo)
+        {
+            if (item is T itemT)
+            {
+                var group = _getGroup(itemT);
+                if (group != null && _groups.TryGetValue(group, out groupInfo))
+                    return group;
+            }
+
+            groupInfo = null;
+            return null;
+        }
 
         private void Clear()
         {
-            if (HasUpdateHandler)
+            if (_updateGroup != null)
             {
                 foreach (var group in _groups)
-                    UpdateGroup(group.Key, GroupHeaderChangedAction.Clear, default!, null);
+                    _updateGroup(group.Key, group.Value, CollectionGroupChangedAction.GroupRemoved, default, null);
             }
 
             _groups.Clear();
         }
 
-        private void AddGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TGroup? group, T item, bool notify = true)
+        private void AddGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TKey? group, T item)
         {
             if (group == null)
                 return;
 
-            if (!_groups.TryGetValue(group, out var info))
+            if (!_groups.TryGetValue(group, out var groupInfo))
             {
-                info = new GroupInfo(_groups.Count);
-                _groups[group] = info;
-                if (notify)
-                    decoratorManager.OnAdded(collection, this, group, info.Index);
+                groupInfo = new GroupInfo(_groups.Count);
+                _groups[group] = groupInfo;
+                decoratorManager.OnAdded(collection, this, group, groupInfo.Index);
             }
 
-            ++info.UsageCount;
-            UpdateGroup(group, GroupHeaderChangedAction.ItemAdded, item, null);
+            groupInfo.Add(item);
+            _updateGroup?.Invoke(group, groupInfo, CollectionGroupChangedAction.ItemAdded, item, null);
         }
 
-        private void RemoveGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TGroup? group, T item)
+        private void RemoveGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TKey? group, T item)
         {
-            if (group == null)
+            if (group == null || !_groups.TryGetValue(group, out var groupInfo))
                 return;
 
-            var groupInfo = _groups[group];
-            if (--groupInfo.UsageCount != 0)
+            if (groupInfo.Count != 1)
             {
-                UpdateGroup(group, GroupHeaderChangedAction.ItemRemoved, item, null);
+                if (groupInfo.Remove(item))
+                    _updateGroup?.Invoke(group, groupInfo, CollectionGroupChangedAction.ItemRemoved, item, null);
                 return;
             }
 
@@ -222,33 +278,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             decoratorManager.OnRemoved(collection, this, group, groupInfo.Index);
-            UpdateGroup(group, GroupHeaderChangedAction.Clear, item, null);
-        }
-
-        private void UpdateGroup(TGroup group, GroupHeaderChangedAction action, T item, object? args)
-        {
-            if (_itemToGroup != null)
-            {
-                if (action == GroupHeaderChangedAction.ItemAdded)
-                {
-                    _itemToGroup.TryGetValue(item, out var v);
-                    _itemToGroup[item] = new ItemGroupInfo(group, v.UsageCount + 1);
-                }
-                else if (action == GroupHeaderChangedAction.ItemRemoved)
-                {
-                    if (_itemToGroup.TryGetValue(item, out var v))
-                    {
-                        if (v.UsageCount == 1)
-                            _itemToGroup.Remove(item);
-                        else
-                            _itemToGroup[item] = new ItemGroupInfo(group, v.UsageCount - 1);
-                    }
-                }
-                else if (action == GroupHeaderChangedAction.Clear)
-                    _itemToGroup.Clear();
-            }
-
-            _updateGroup?.Invoke(group, action, item, args);
+            _updateGroup?.Invoke(group, groupInfo, CollectionGroupChangedAction.GroupRemoved, item, null);
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?> items)
@@ -259,24 +289,10 @@ namespace MugenMvvm.Collections.Components
                 yield return item;
         }
 
-        public delegate void UpdateGroupDelegate(TGroup group, GroupHeaderChangedAction action, T? item, object? args);
+        public delegate void UpdateGroupDelegate(TKey group, IReadOnlyList<T> groupItems, CollectionGroupChangedAction action, T? item, object? args);
 
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct ItemGroupInfo
+        private sealed class GroupInfo : List<T>
         {
-            public readonly TGroup Group;
-            public readonly int UsageCount;
-
-            public ItemGroupInfo(TGroup group, int usageCount)
-            {
-                Group = group;
-                UsageCount = usageCount;
-            }
-        }
-
-        private sealed class GroupInfo
-        {
-            public int UsageCount;
             public int Index;
 
             public GroupInfo(int index)

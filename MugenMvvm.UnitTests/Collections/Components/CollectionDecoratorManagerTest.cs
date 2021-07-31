@@ -330,7 +330,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
             collection.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
-            collection.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, true, -1));
+            collection.AddComponent(new GroupCollectionDecorator<object, TestCollectionItem>(o => o!.StableId % 2, null, null, -1));
             collection.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items)));
             collection.AddComponent(new PinHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
             {

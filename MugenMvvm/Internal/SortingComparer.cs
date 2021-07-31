@@ -119,7 +119,20 @@ namespace MugenMvvm.Internal
             {
             }
 
-            int IComparer<object?>.Compare(object? x, object? y) => Compare((T) x!, (T) y!);
+            int IComparer<object?>.Compare(object? x, object? y)
+            {
+                if (x is T xT)
+                {
+                    if (y is T yT)
+                        return Compare(xT, yT);
+                    return -1;
+                }
+
+                if (y is T)
+                    return 1;
+
+                return 0;
+            }
         }
     }
 }

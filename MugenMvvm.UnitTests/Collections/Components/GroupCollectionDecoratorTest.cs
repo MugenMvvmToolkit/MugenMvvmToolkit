@@ -270,20 +270,31 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var changedItems = new List<int>();
             _collection.RemoveComponent(_decorator);
             _getHeader = o => (int) o! % 2 == 0 ? header : null;
-            _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
+            _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, groupItems, action, item, args) =>
             {
                 var ints = (List<int>) h;
-                if (action == GroupHeaderChangedAction.ItemAdded)
-                    ints.Add((int) item!);
-                else if (action == GroupHeaderChangedAction.ItemRemoved)
-                    ints.Remove((int) item!);
-                else if (action == GroupHeaderChangedAction.ItemChanged)
+                switch (action)
                 {
-                    args.ShouldEqual(eventArgs);
-                    changedItems.Add((int) item!);
+                    case CollectionGroupChangedAction.ItemAdded:
+                        ints.Add((int) item!);
+                        break;
+                    case CollectionGroupChangedAction.ItemRemoved:
+                        ints.Remove((int) item!);
+                        break;
+                    case CollectionGroupChangedAction.ItemChanged:
+                        args.ShouldEqual(eventArgs);
+                        changedItems.Add((int) item!);
+                        break;
+                    case CollectionGroupChangedAction.Reset:
+                        ints.Reset(groupItems.Cast<int>());
+                        break;
+                    case CollectionGroupChangedAction.GroupRemoved:
+                        ints.Clear();
+                        break;
                 }
-                else if (action == GroupHeaderChangedAction.Clear)
-                    ints.Clear();
+
+                if (action != CollectionGroupChangedAction.GroupRemoved)
+                    groupItems.Cast<int>().OrderBy(i => i).ShouldEqual(ints.OrderBy(i => i));
             });
             _collection.AddComponent(_decorator);
 
@@ -358,21 +369,32 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var header = new List<UnstableKey>();
             var changedItems = new List<UnstableKey>();
             _getHeader = o => ((UnstableKey) o!).Id! % 2 == 0 ? header : null;
-            _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, action, item, args) =>
+            _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, groupItems, action, item, args) =>
             {
-                var ints = (List<UnstableKey>) h;
-                if (action == GroupHeaderChangedAction.ItemAdded)
-                    ints.Add((UnstableKey) item!);
-                else if (action == GroupHeaderChangedAction.ItemRemoved)
-                    ints.Remove((UnstableKey) item!);
-                else if (action == GroupHeaderChangedAction.ItemChanged)
+                var list = (List<UnstableKey>) h;
+                switch (action)
                 {
-                    args.ShouldEqual(eventArgs);
-                    changedItems.Add((UnstableKey) item!);
+                    case CollectionGroupChangedAction.ItemAdded:
+                        list.Add((UnstableKey) item!);
+                        break;
+                    case CollectionGroupChangedAction.ItemRemoved:
+                        list.Remove((UnstableKey) item!);
+                        break;
+                    case CollectionGroupChangedAction.ItemChanged:
+                        args.ShouldEqual(eventArgs);
+                        changedItems.Add((UnstableKey) item!);
+                        break;
+                    case CollectionGroupChangedAction.GroupRemoved:
+                        list.Clear();
+                        break;
+                    case CollectionGroupChangedAction.Reset:
+                        list.Reset(groupItems.Cast<UnstableKey>());
+                        break;
                 }
-                else if (action == GroupHeaderChangedAction.Clear)
-                    ints.Clear();
-            }, null, false);
+
+                if (action != CollectionGroupChangedAction.GroupRemoved)
+                    groupItems.Cast<UnstableKey>().OrderBy(key => key.Id).ShouldEqual(list.OrderBy(key => key.Id));
+            });
             _collection.AddComponent(_decorator);
 
             var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<UnstableKey>().OrderBy(i => i.Id).ThenBy(key => key.GetHashCode());
@@ -385,7 +407,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 Assert();
 
                 _collection.RaiseItemChanged(unstableKey, eventArgs);
-                changedItems.OrderBy(i => i.Id).ShouldEqual(expectedItems);
+                changedItems.OrderBy(i => i.Id).ThenBy(key => key.GetHashCode()).ShouldEqual(expectedItems);
             }
 
             foreach (UnstableKey key in _collection)

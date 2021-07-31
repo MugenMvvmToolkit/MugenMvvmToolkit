@@ -224,18 +224,20 @@ namespace MugenMvvm.Collections.Components
             else if (isHeaderOrFooter.Value)
             {
                 index = headerIndex ?? _headers.IndexOf(new ItemInfo((T) item!, index));
-                if (index < 0)
-                    ExceptionManager.ThrowNotValidArgument(nameof(item));
-                _headers.RemoveAt(index);
-                --_footerIndex;
+                if (index >= 0)
+                {
+                    _headers.RemoveAt(index);
+                    --_footerIndex;
+                }
             }
             else
             {
                 index = footerIndex ?? _footers.IndexOf(new ItemInfo((T) item!, index));
-                if (index < 0)
-                    ExceptionManager.ThrowNotValidArgument(nameof(item));
-                _footers.RemoveAt(index);
-                index = index + _footerIndex;
+                if (index >= 0)
+                {
+                    _footers.RemoveAt(index);
+                    index += _footerIndex;
+                }
             }
 
             UpdateIndexes(ref _headers, originalIndex, -1);
@@ -313,6 +315,7 @@ namespace MugenMvvm.Collections.Components
                 OriginalIndex = originalIndex;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool Equals(ItemInfo other) => EqualityComparer<T>.Default.Equals(Item, other.Item) && OriginalIndex == other.OriginalIndex;
         }
     }
