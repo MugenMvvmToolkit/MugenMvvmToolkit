@@ -118,6 +118,9 @@ namespace MugenMvvm.Presentation
         {
             lock (_locker)
             {
+                if (!IsShowing && !IsShown)
+                    return null;
+
                 if (!CanClose(view, cancellationToken, metadata))
                     return null;
 

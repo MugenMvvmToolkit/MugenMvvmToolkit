@@ -40,7 +40,7 @@ namespace MugenMvvm.Validation
         {
             Should.NotBeNull(validator, nameof(validator));
             Builder.AddAsyncValidator(MemberName, Accessor, (validator, error, condition),
-                (t, v, s, c, m) => s.validator(t, v, c, m).ContinueWith((task, o) => task.Result ? null : new ValidationError(o).Error, s.error.ErrorRaw, c,
+                (t, v, s, c, m) => s.validator(t, v, c, m).ContinueWith((task, o) => task.Result ? null : new ValidationError(o!).Error, s.error.ErrorRaw, c,
                     TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current), condition == null ? null : (t, s, m) => s.condition!(t, m), dependencyMembers);
             return this;
         }

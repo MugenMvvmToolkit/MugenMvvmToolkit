@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Foundation;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
@@ -112,7 +113,7 @@ namespace MugenMvvm.Ios.Collections
                 NotifyReload(index, 1);
         }
 
-        protected override async void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
+        protected override async void OnReset(IEnumerable<object?>? items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
         {
             BeginBatchUpdate(version);
             var closure = Closure.GetClosure(this, version);

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -26,6 +27,7 @@ namespace MugenMvvm.Components
             get => _owner;
         }
 
+        [MemberNotNullWhen(true, nameof(OwnerOptional))]
         protected bool IsAttached => _owner != null;
 
         public virtual bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata)

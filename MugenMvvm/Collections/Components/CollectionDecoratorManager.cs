@@ -146,7 +146,7 @@ namespace MugenMvvm.Collections.Components
             using var token = BatchUpdate();
             for (var i = startIndex; i < decorators.Count; i++)
             {
-                if (!decorators[i].OnReplaced(collection, ref oldItem, ref newItem, ref index))
+                if (!decorators[i].OnReplaced(collection, ref oldItem, ref newItem, ref index) || ReferenceEquals(oldItem, newItem))
                     return;
             }
 

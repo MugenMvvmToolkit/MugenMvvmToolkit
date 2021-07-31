@@ -13,6 +13,11 @@ namespace MugenMvvm.Enums
         // ReSharper disable once StaticMemberInGenericType
         private static long _allFlags;
 
+        static FlagsEnumBase()
+        {
+            RuntimeHelpers.RunClassConstructor(typeof(TEnum).TypeHandle);
+        }
+
         protected FlagsEnumBase()
         {
         }
@@ -62,7 +67,7 @@ namespace MugenMvvm.Enums
             if (typeof(TValue) == typeof(long))
                 return Cast<long>(value);
             if (typeof(TValue) == typeof(ulong))
-                return (long)Cast<ulong>(value);
+                return (long) Cast<ulong>(value);
             return Convert.ToInt64(value);
         }
 

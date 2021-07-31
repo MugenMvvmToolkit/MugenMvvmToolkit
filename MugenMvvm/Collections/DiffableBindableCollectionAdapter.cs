@@ -73,7 +73,7 @@ namespace MugenMvvm.Collections
                 OnRemoved(Items[position + i], position + i, _resetBatchUpdate, _resetVersion);
         }
 
-        protected virtual void Reload(IEnumerable<object?> items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
+        protected virtual void Reload(IEnumerable<object?> items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
         {
             if (NotifyOnReload)
             {
@@ -94,7 +94,7 @@ namespace MugenMvvm.Collections
 
         protected virtual ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
 
-        protected sealed override async void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
+        protected sealed override async void OnReset(IEnumerable<object?>? items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
         {
             using var _ = SuspendItems();
             if (items == null)

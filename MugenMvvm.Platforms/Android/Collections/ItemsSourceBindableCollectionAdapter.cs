@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
@@ -104,7 +105,7 @@ namespace MugenMvvm.Android.Collections
             }
         }
 
-        protected override async void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
+        protected override async void OnReset(IEnumerable<object?>? items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
         {
             if (items != null && Items.Count != 0 && _diffSupportedCount > 0 && Items.Count <= DiffUtilMaxThreshold)
             {

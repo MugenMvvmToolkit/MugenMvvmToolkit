@@ -148,7 +148,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnRemoved(object? item, int index, bool batchUpdate, int version) => Items.RemoveAt(index);
 
-        protected virtual void OnReset(IEnumerable<object?>? items, Dictionary<(int, object?), object?>? changedItems, bool batchUpdate, int version)
+        protected virtual void OnReset(IEnumerable<object?>? items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
         {
             Items.Clear();
             if (items != null)
@@ -206,7 +206,7 @@ namespace MugenMvvm.Collections
             if (e.Action == CollectionChangedAction.Reset)
             {
                 pendingEvents.Clear();
-                var resetItems = ((IEnumerable<object?>?)e.NewItem)?.ToArray();
+                var resetItems = ((IEnumerable<object?>?) e.NewItem)?.ToArray();
                 if (resetItems == null || resetItems.Length == 0)
                     pendingEvents.Add(CollectionChangedEvent.Reset(null));
                 else
@@ -447,7 +447,7 @@ namespace MugenMvvm.Collections
             {
                 ThreadDispatcher.Execute(ExecutionMode, state =>
                 {
-                    var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>)state!;
+                    var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>) state!;
                     s.Item1.OnCollectionChanged(s.Item2, s.Item3, s.Item4);
                 }, Tuple.Create(this, version, oldValue, newValue));
             }
@@ -474,10 +474,10 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     if (e.OldItems!.Count == 1)
                         return false;
-                    items = GetCollectionItems((IEnumerable)sender);
+                    items = GetCollectionItems((IEnumerable) sender);
                     return true;
                 case NotifyCollectionChangedAction.Reset:
-                    items = GetCollectionItems((IEnumerable)sender);
+                    items = GetCollectionItems((IEnumerable) sender);
                     return items.CountEx() != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
@@ -487,7 +487,7 @@ namespace MugenMvvm.Collections
 
         void IThreadDispatcherHandler.Execute(object? state)
         {
-            var version = (int)state!;
+            var version = (int) state!;
             if (Version != version)
                 return;
 
@@ -512,16 +512,6 @@ namespace MugenMvvm.Collections
         public interface IHasItemChangedSupport
         {
             void OnChanged(object? item, int index, object? args);
-        }
-
-        protected enum CollectionChangedAction : short
-        {
-            Add = 1,
-            Move = 2,
-            Remove = 3,
-            Replace = 4,
-            Reset = 5,
-            Changed = 6
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -550,7 +540,7 @@ namespace MugenMvvm.Collections
             public IEnumerable<object?>? ResetItems
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => (IEnumerable<object?>?)NewItem;
+                get => (IEnumerable<object?>?) NewItem;
             }
 
             public object? ChangedArgs
@@ -576,7 +566,7 @@ namespace MugenMvvm.Collections
                         adapter.OnReplaced(OldItem, NewItem, OldIndex, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Reset:
-                        adapter.OnReset((IEnumerable<object?>?)NewItem, (CollectionChangedEvent[]?)OldItem, batchUpdate, version);
+                        adapter.OnReset((IEnumerable<object?>?) NewItem, (CollectionChangedEvent[]?) OldItem, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Changed:
                         adapter.OnChanged(OldItem, OldIndex, NewItem, batchUpdate, version);
@@ -614,7 +604,7 @@ namespace MugenMvvm.Collections
                     case CollectionChangedAction.Reset:
                         source.Clear();
                         if (NewItem != null)
-                            source.AddRange((IEnumerable<object?>)NewItem!);
+                            source.AddRange((IEnumerable<object?>) NewItem!);
                         break;
                 }
             }
@@ -698,7 +688,7 @@ namespace MugenMvvm.Collections
 
                 var adapter = GetAdapter(sender);
                 if (adapter == null || !adapter.IsAlive)
-                    ((INotifyCollectionChanged)sender).CollectionChanged -= OnCollectionChanged;
+                    ((INotifyCollectionChanged) sender).CollectionChanged -= OnCollectionChanged;
                 else
                     adapter.OnCollectionChanged(sender, args, _version);
             }
@@ -732,7 +722,7 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected BindableCollectionAdapter? GetAdapter(object? owner)
             {
-                var adapter = (BindableCollectionAdapter?)Reference.Target;
+                var adapter = (BindableCollectionAdapter?) Reference.Target;
                 if (adapter != null && adapter.IsAlive)
                     return adapter;
 
