@@ -52,10 +52,23 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(false)]
         public void CanExecuteShouldBeHandledByCommands(bool canExecuteIfAnyCanExecute)
         {
-            _adapter.CanExecuteIfAnyCanExecute = canExecuteIfAnyCanExecute;
             var parameter = this;
             var canExecute1 = false;
             var canExecute2 = false;
+
+            if (canExecuteIfAnyCanExecute)
+            {
+                _adapter.CanExecuteHandler = (list, o, arg3) =>
+                {
+                    foreach (var command in list)
+                    {
+                        if (command.CanExecute(o, arg3))
+                            return true;
+                    }
+
+                    return false;
+                };
+            }
 
             void Assert()
             {
@@ -237,21 +250,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Command.CanExecute(null, Metadata).ShouldBeFalse();
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void IsExecutingShouldBeHandledByCommands(bool check)
+        [Fact]
+        public void IsExecutingShouldBeHandledByCommands()
         {
-            _adapter.CheckIsExecuting = check;
             var isExecuting1 = false;
             var isExecuting2 = false;
 
             void Assert()
             {
-                if (check)
-                    Command.IsExecuting(Metadata).ShouldEqual(isExecuting1 || isExecuting2);
-                else
-                    Command.IsExecuting(Metadata).ShouldBeFalse();
+                Command.IsExecuting(Metadata).ShouldEqual(isExecuting1 || isExecuting2);
             }
 
             var cmd1 = new CompositeCommand(null, ComponentCollectionManager);
