@@ -27,9 +27,9 @@ namespace MugenMvvm.Android.Bindings
 
         public int Priority { get; init; } = ParsingComponentPriority.TokenParser;
 
-        protected override void OnAttached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttaching(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnAttached(owner, metadata);
+            base.OnAttaching(owner, metadata);
             _componentTracker.Attach(owner, metadata);
         }
 

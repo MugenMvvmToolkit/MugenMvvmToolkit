@@ -23,7 +23,8 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public class BindingEventHandler : ITargetValueSetterComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsComponent, IHasPriority
+    public class BindingEventHandler : ITargetValueSetterComponent, IAttachableComponent, IDetachableComponent, IHasAttachConditionComponent, IEventListener,
+        IHasEventArgsComponent, IHasPriority
     {
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
@@ -134,7 +135,7 @@ namespace MugenMvvm.Bindings.Core.Components
             _currentValue = null;
         }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        bool IHasAttachConditionComponent.CanAttach(object owner, IReadOnlyMetadataContext? metadata)
         {
             var targetMember = ((IBinding) owner).Target.GetLastMember(metadata);
             if (targetMember.Member is not IObservableMemberInfo eventInfo || eventInfo.MemberType != MemberType.Event)
@@ -146,6 +147,10 @@ namespace MugenMvvm.Bindings.Core.Components
             return true;
         }
 
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             var binding = (IBinding) owner;
@@ -154,7 +159,9 @@ namespace MugenMvvm.Bindings.Core.Components
                 binding.Components.TryAdd(OneTimeBindingMode.NonDisposeInstance);
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {

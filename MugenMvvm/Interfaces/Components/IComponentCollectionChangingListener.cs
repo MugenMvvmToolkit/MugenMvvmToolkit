@@ -4,8 +4,8 @@ namespace MugenMvvm.Interfaces.Components
 {
     public interface IComponentCollectionChangingListener : IComponent<IComponentCollection>
     {
-        bool OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
+        void OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
 
-        bool OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
+        void OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }
 }

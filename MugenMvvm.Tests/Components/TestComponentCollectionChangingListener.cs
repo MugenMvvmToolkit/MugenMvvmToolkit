@@ -7,16 +7,16 @@ namespace MugenMvvm.Tests.Components
 {
     public class TestComponentCollectionChangingListener : IComponentCollectionChangingListener, IHasPriority
     {
-        public Func<IComponentCollection, object, IReadOnlyMetadataContext?, bool>? OnAdding { get; set; }
+        public Action<IComponentCollection, object, IReadOnlyMetadataContext?>? OnAdding { get; set; }
 
-        public Func<IComponentCollection, object, IReadOnlyMetadataContext?, bool>? OnRemoving { get; set; }
+        public Action<IComponentCollection, object, IReadOnlyMetadataContext?>? OnRemoving { get; set; }
 
         public int Priority { get; set; }
 
-        bool IComponentCollectionChangingListener.OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            OnAdding?.Invoke(collection, component, metadata) ?? true;
+        void IComponentCollectionChangingListener.OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            OnAdding?.Invoke(collection, component, metadata);
 
-        bool IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
-            OnRemoving?.Invoke(collection, component, metadata) ?? true;
+        void IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>
+            OnRemoving?.Invoke(collection, component, metadata);
     }
 }

@@ -21,11 +21,13 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public int Priority { get; init; } = BindingComponentPriority.Mode;
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var binding = (IBinding)owner;
+            var binding = (IBinding) owner;
             binding.UpdateSource();
             if (!BindingMugenExtensions.IsAllMembersAvailable(binding.Source))
                 binding.AddComponent(OneTimeHandlerComponent.Instance, metadata);

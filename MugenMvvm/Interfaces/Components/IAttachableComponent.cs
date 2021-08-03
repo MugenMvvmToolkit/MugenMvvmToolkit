@@ -2,13 +2,9 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IAttachableComponent
+    public interface IAttachableComponent : IComponent
     {
-#if NET461
-        bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata);
-#else
-        bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
-#endif
+        void OnAttaching(object owner, IReadOnlyMetadataContext? metadata);
 
         void OnAttached(object owner, IReadOnlyMetadataContext? metadata);
     }

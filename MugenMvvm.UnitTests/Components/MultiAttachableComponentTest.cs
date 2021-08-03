@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void OnAttachedShouldAttachOwners(int size)
+        public void OnAttachingShouldAttachOwners(int size)
         {
             var owners = new object[size];
             for (var i = 0; i < size; i++)
@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Components
 
             object? currentOwner = null;
             var methodCallCount = 0;
-            _component.OnAttachedHandler = (test, context) =>
+            _component.OnAttachingHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(currentOwner);
@@ -39,32 +39,26 @@ namespace MugenMvvm.UnitTests.Components
             for (var i = 0; i < owners.Length; i++)
             {
                 currentOwner = owners[i];
-                attachable.OnAttached(currentOwner, Metadata);
+                attachable.OnAttaching(currentOwner, Metadata);
                 _component.Owners.ShouldEqual(owners.Take(i + 1).ToArray());
                 methodCallCount.ShouldEqual(i + 1);
             }
         }
 
         [Fact]
-        public void OnAttachingShouldCallInternalMethod()
+        public void OnAttachedShouldCallInternalMethod()
         {
             var methodCallCount = 0;
-            var canAttach = false;
-            _component.OnAttachingHandler = (test, context) =>
+            _component.OnAttachedHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
                 context.ShouldEqual(Metadata);
-                return canAttach;
             };
 
             IAttachableComponent attachable = _component;
-            attachable.OnAttaching(this, Metadata).ShouldEqual(canAttach);
+            attachable.OnAttached(this, Metadata);
             methodCallCount.ShouldEqual(1);
-
-            canAttach = true;
-            attachable.OnAttaching(this, Metadata).ShouldEqual(canAttach);
-            methodCallCount.ShouldEqual(2);
         }
 
         [Theory]
@@ -87,7 +81,7 @@ namespace MugenMvvm.UnitTests.Components
             IAttachableComponent attachable = _component;
             IDetachableComponent detachable = _component;
             for (var i = 0; i < owners.Length; i++)
-                attachable.OnAttached(owners[i], Metadata);
+                attachable.OnAttaching(owners[i], Metadata);
 
             _component.Owners.ShouldEqual(owners);
             methodCallCount.ShouldEqual(0);
@@ -107,23 +101,18 @@ namespace MugenMvvm.UnitTests.Components
         public void OnDetachingShouldCallInternalMethod()
         {
             var methodCallCount = 0;
-            var canDetach = false;
 
             IDetachableComponent attachable = _component;
-            attachable.OnDetaching(this, Metadata).ShouldBeTrue();
-
             _component.OnDetachingHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
                 context.ShouldEqual(Metadata);
-                return canDetach;
             };
-            attachable.OnDetaching(this, Metadata).ShouldEqual(canDetach);
+            attachable.OnDetaching(this, Metadata);
             methodCallCount.ShouldEqual(1);
 
-            canDetach = true;
-            attachable.OnDetaching(this, Metadata).ShouldEqual(canDetach);
+            attachable.OnDetaching(this, Metadata);
             methodCallCount.ShouldEqual(2);
         }
     }

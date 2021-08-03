@@ -3,14 +3,13 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
 
 // ReSharper disable InconsistentlySynchronizedField
 
 namespace MugenMvvm.Internal.Components
 {
-    internal sealed class DisposeCallbackComponent<T> : IAttachableComponent, IDetachableComponent, IDisposableComponent<T> where T : class
+    internal sealed class DisposeCallbackComponent<T> : IAttachableComponent, IHasDetachConditionComponent, IDisposableComponent<T> where T : class
     {
         private int _state;
         private ListInternal<ActionToken> _disposeTokens;
@@ -50,17 +49,13 @@ namespace MugenMvvm.Internal.Components
                 token.Dispose();
         }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
-
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (Interlocked.Increment(ref _state) != 1)
                 ExceptionManager.ThrowObjectInitialized(this);
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => false;
-
-        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
         }
 
@@ -82,5 +77,7 @@ namespace MugenMvvm.Internal.Components
                 _disposeTokens = default;
             }
         }
+
+        bool IHasDetachConditionComponent.CanDetach(object owner, IReadOnlyMetadataContext? metadata) => false;
     }
 }

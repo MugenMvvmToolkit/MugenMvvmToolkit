@@ -48,7 +48,7 @@ namespace MugenMvvm.Extensions.Components
             return components is TComponent;
         }
 
-        public static bool OnComponentAdding(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool CanAdd(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
@@ -56,14 +56,31 @@ namespace MugenMvvm.Extensions.Components
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
+                    if (c[i] is IConditionComponentCollectionComponent condition && !condition.CanAdd(collection, component, metadata))
                         return false;
                 }
             }
-            else if (components is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
+            else if (components is IConditionComponentCollectionComponent condition && !condition.CanAdd(collection, component, metadata))
                 return false;
 
             return true;
+        }
+
+        public static void OnComponentAdding(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    var comp = c[i];
+                    if (comp != component)
+                        (comp as IComponentCollectionChangingListener)?.OnAdding(collection, component, metadata);
+                }
+            }
+            else if (components != component)
+                (components as IComponentCollectionChangingListener)?.OnAdding(collection, component, metadata);
         }
 
         public static void OnComponentAdded(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
@@ -83,7 +100,7 @@ namespace MugenMvvm.Extensions.Components
                 (components as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
         }
 
-        public static bool OnComponentRemoving(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool CanRemove(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
@@ -91,41 +108,71 @@ namespace MugenMvvm.Extensions.Components
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is IComponentCollectionChangingListener listener && listener != component && !listener.OnRemoving(collection, component, metadata))
+                    if (c[i] is IConditionComponentCollectionComponent condition && condition != component && !condition.CanRemove(collection, component, metadata))
                         return false;
                 }
             }
-            else if (components is IComponentCollectionChangingListener listener && listener != component && !listener.OnRemoving(collection, component, metadata))
+            else if (components is IConditionComponentCollectionComponent condition && condition != component && !condition.CanRemove(collection, component, metadata))
                 return false;
 
             return true;
         }
 
-        public static void OnComponentRemoved(object? components, int startIndex, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void OnComponentRemoving(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
             if (components is object[] c)
             {
-                for (var i = startIndex; i < c.Length; i++)
-                    (c[i] as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
+                for (var i = 0; i < c.Length; i++)
+                {
+                    var comp = c[i];
+                    if (comp != component)
+                        (comp as IComponentCollectionChangingListener)?.OnRemoving(collection, component, metadata);
+                }
             }
-            else if (startIndex == 0)
+            else if (components != component)
+                (components as IComponentCollectionChangingListener)?.OnRemoving(collection, component, metadata);
+        }
+
+        public static void OnComponentRemoved(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    var comp = c[i];
+                    if (comp != component)
+                        (comp as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
+                }
+            }
+            else if (components != component)
                 (components as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
         }
 
-        public static bool OnAdding(this ItemOrArray<IComponentCollectionChangingListener> listeners, IComponentCollection collection, object component,
+        public static bool CanAdd(this ItemOrArray<IConditionComponentCollectionComponent> components, IComponentCollection collection, object component,
+            IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            foreach (var c in components)
+            {
+                if (!c.CanAdd(collection, component, metadata))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static void OnAdding(this ItemOrArray<IComponentCollectionChangingListener> listeners, IComponentCollection collection, object component,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
             foreach (var c in listeners)
-            {
-                if (!c.OnAdding(collection, component, metadata))
-                    return false;
-            }
-
-            return true;
+                c.OnAdding(collection, component, metadata);
         }
 
         public static void OnAdded(this ItemOrArray<IComponentCollectionChangedListener> listeners, IComponentCollection collection, object component,
@@ -137,18 +184,27 @@ namespace MugenMvvm.Extensions.Components
                 c.OnAdded(collection, component, metadata);
         }
 
-        public static bool OnRemoving(this ItemOrArray<IComponentCollectionChangingListener> listeners, IComponentCollection collection, object component,
+        public static bool CanRemove(this ItemOrArray<IConditionComponentCollectionComponent> components, IComponentCollection collection, object component,
+            IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            foreach (var c in components)
+            {
+                if (!c.CanRemove(collection, component, metadata))
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static void OnRemoving(this ItemOrArray<IComponentCollectionChangingListener> listeners, IComponentCollection collection, object component,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
             foreach (var c in listeners)
-            {
-                if (!c.OnRemoving(collection, component, metadata))
-                    return false;
-            }
-
-            return true;
+                c.OnRemoving(collection, component, metadata);
         }
 
         public static void OnRemoved(this ItemOrArray<IComponentCollectionChangedListener> listeners, IComponentCollection collection, object component,
@@ -226,43 +282,55 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            if (component is IAttachableComponent attachable)
-                attachable.OnAttached(collection.Owner, metadata);
-
             (collection.Owner as IHasComponentAddedHandler)?.OnComponentAdded(collection, component, metadata);
+            (component as IAttachableComponent)?.OnAttached(collection.Owner, metadata);
         }
 
         public static void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            if (component is IDetachableComponent detachable)
-                detachable.OnDetached(collection.Owner, metadata);
-
             (collection.Owner as IHasComponentRemovedHandler)?.OnComponentRemoved(collection, component, metadata);
+            (component as IDetachableComponent)?.OnDetached(collection.Owner, metadata);
         }
 
-        public static bool OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            if (collection.Owner is IHasComponentAddingHandler callback && !callback.OnComponentAdding(collection, component, metadata))
+            (collection.Owner as IHasComponentAddingHandler)?.OnComponentAdding(collection, component, metadata);
+            (component as IAttachableComponent)?.OnAttaching(collection.Owner, metadata);
+        }
+
+        public static void OnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            (collection.Owner as IHasComponentRemovingHandler)?.OnComponentRemoving(collection, component, metadata);
+            (component as IDetachableComponent)?.OnDetaching(collection.Owner, metadata);
+        }
+
+        public static bool CanAdd(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (collection.Owner is IHasComponentAddConditionHandler callback && !callback.CanAddComponent(collection, component, metadata))
                 return false;
 
-            if (component is IAttachableComponent attachable)
-                return attachable.OnAttaching(collection.Owner, metadata);
+            if (component is IHasAttachConditionComponent attachable)
+                return attachable.CanAttach(collection.Owner, metadata);
             return true;
         }
 
-        public static bool OnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool CanRemove(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            if (collection.Owner is IHasComponentRemovingHandler callback && !callback.OnComponentRemoving(collection, component, metadata))
+            if (collection.Owner is IHasComponentRemoveConditionHandler callback && !callback.CanRemoveComponent(collection, component, metadata))
                 return false;
 
-            if (component is IDetachableComponent detachable)
-                return detachable.OnDetaching(collection.Owner, metadata);
+            if (component is IHasDetachConditionComponent detachable)
+                return detachable.CanDetach(collection.Owner, metadata);
             return true;
         }
     }

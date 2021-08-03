@@ -12,31 +12,11 @@ namespace MugenMvvm.Components
 
         protected ItemOrArray<T> Owners
         {
-            // ReSharper disable once InconsistentlySynchronizedField
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => ItemOrArray.FromRawValue<T>(_owners);
         }
 
-        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => true;
-
-        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata) => true;
-
-        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (owner is T o)
-                return OnAttaching(o, metadata);
-            return true;
-        }
-
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        public virtual void OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is not T o)
                 return;
@@ -46,17 +26,22 @@ namespace MugenMvvm.Components
                 MugenExtensions.AddRaw(ref _owners, o);
             }
 
-            OnAttached(o, metadata);
+            OnAttaching(o, metadata);
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        public virtual void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
-                return OnDetaching(o, metadata);
-            return true;
+                OnAttached(o, metadata);
         }
 
-        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        public virtual void OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is T o)
+                OnDetaching(o, metadata);
+        }
+
+        public virtual void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is not T o)
                 return;
@@ -66,6 +51,22 @@ namespace MugenMvvm.Components
             {
                 MugenExtensions.RemoveRaw(ref _owners, o);
             }
+        }
+
+        protected virtual void OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected virtual void OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
+        {
         }
     }
 }

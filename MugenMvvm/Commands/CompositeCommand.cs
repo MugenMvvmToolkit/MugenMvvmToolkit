@@ -19,7 +19,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands
 {
-    public class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasComponentAddedHandler, IHasComponentAddingHandler, IHasDisposeCondition
+    public class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasComponentAddedHandler, IHasComponentAddConditionHandler, IHasDisposeCondition
     {
         private const int DefaultState = 0;
         private const int NoDisposeState = 1;
@@ -148,6 +148,6 @@ namespace MugenMvvm.Commands
                 RaiseCanExecuteChanged();
         }
 
-        bool IHasComponentAddingHandler.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
+        bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
     }
 }

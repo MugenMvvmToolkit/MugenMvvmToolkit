@@ -39,7 +39,7 @@ namespace MugenMvvm.Collections
                 return default;
             if (value is T[] list)
                 return FromList(list);
-            return new ItemOrArray<T>((T)value, null, 1);
+            return new ItemOrArray<T>((T) value, null, 1);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -49,7 +49,7 @@ namespace MugenMvvm.Collections
                 return default;
             if (value is T[] t)
                 return new ItemOrArray<T>(default, t, t.Length);
-            return new ItemOrArray<T>((T)value, null, 1);
+            return new ItemOrArray<T>((T) value, null, 1);
         }
     }
 }

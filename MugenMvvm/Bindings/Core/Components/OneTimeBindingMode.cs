@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class OneTimeBindingMode : IAttachableComponent, IBindingSourceObserverListener, IHasPriority
+    public sealed class OneTimeBindingMode : IHasAttachConditionComponent, IBindingSourceObserverListener, IHasPriority
     {
         public static readonly OneTimeBindingMode Instance = new(true);
         public static readonly OneTimeBindingMode NonDisposeInstance = new(false);
@@ -38,12 +38,6 @@ namespace MugenMvvm.Bindings.Core.Components
             return true;
         }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => !Invoke((IBinding)owner, false);
-
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-        }
-
         void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding, true);
 
         void IBindingSourceObserverListener.OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding, true);
@@ -51,5 +45,7 @@ namespace MugenMvvm.Bindings.Core.Components
         void IBindingSourceObserverListener.OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
         {
         }
+
+        bool IHasAttachConditionComponent.CanAttach(object owner, IReadOnlyMetadataContext? metadata) => !Invoke((IBinding) owner, false);
     }
 }

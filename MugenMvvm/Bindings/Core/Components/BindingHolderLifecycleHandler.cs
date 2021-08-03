@@ -38,9 +38,9 @@ namespace MugenMvvm.Bindings.Core.Components
                 _components.TryUnregister(bindingManager, binding.Target.Target, binding, metadata);
         }
 
-        protected override void OnAttached(IBindingManager owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttaching(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnAttached(owner, metadata);
+            base.OnAttaching(owner, metadata);
             _componentTracker.Attach(owner, metadata);
         }
 

@@ -83,33 +83,40 @@ namespace MugenMvvm.Components
                 if (!_items.Contains(component))
                     return false;
 
-                if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) ||
-                    _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata))
+                if (!ComponentComponentExtensions.CanRemove(this, component, metadata) ||
+                    _components != null && !_components.Get<IConditionComponentCollectionComponent>(metadata).CanRemove(this, component, metadata))
                     return false;
 
+                ComponentComponentExtensions.OnComponentRemoving(this, component, metadata);
+                _components?.Get<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata);
                 _items.Remove(component);
                 UpdateTrackers(component, null, metadata);
             }
 
             ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
-            _components?.Get<IComponentCollectionChangedListener>().OnRemoved(this, component, metadata);
+            _components?.Get<IComponentCollectionChangedListener>(metadata).OnRemoved(this, component, metadata);
             return true;
         }
 
         public void Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            var components = Get<object>(metadata);
-            if (components.Count == 0)
+            if (Count == 0)
                 return;
 
+            var conditionComponents = _components == null ? default : _components.Get<IConditionComponentCollectionComponent>(metadata);
             var changingListeners = _components == null ? default : _components.Get<IComponentCollectionChangingListener>(metadata);
             var ignoredIndexes = new ItemOrListEditor<int>();
+            ItemOrArray<object> components;
             lock (_items)
             {
+                components = Get<object>(metadata);
+                if (components.Count == 0)
+                    return;
+
                 for (var i = 0; i < components.Count; i++)
                 {
                     var component = components[i];
-                    if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) || !changingListeners.OnRemoving(this, component, metadata))
+                    if (!ComponentComponentExtensions.CanRemove(this, component, metadata) || !conditionComponents.CanRemove(this, component, metadata))
                         ignoredIndexes.Add(i);
                 }
 
@@ -118,6 +125,13 @@ namespace MugenMvvm.Components
 
                 if (ignoredIndexes.Count == 0)
                 {
+                    for (var i = 0; i < _items.Count; i++)
+                    {
+                        var component = _items[i];
+                        ComponentComponentExtensions.OnComponentRemoving(this, component, metadata);
+                        changingListeners.OnRemoving(this, component, metadata);
+                    }
+
                     _items.Clear();
                     _componentTrackers = Array.Empty<ComponentTracker>();
                 }
@@ -129,8 +143,13 @@ namespace MugenMvvm.Components
                             continue;
 
                         var component = components[i];
-                        if (_items.Remove(component))
-                            UpdateTrackers(component, null, metadata);
+                        if (!_items.Contains(component))
+                            continue;
+
+                        ComponentComponentExtensions.OnComponentRemoving(this, component, metadata);
+                        changingListeners.OnRemoving(this, component, metadata);
+                        _items.Remove(component);
+                        UpdateTrackers(component, null, metadata);
                     }
                 }
             }
@@ -181,10 +200,12 @@ namespace MugenMvvm.Components
             if (_items.Contains(component))
                 return null;
 
-            if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) ||
-                _components != null && !_components.Get<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
+            if (!ComponentComponentExtensions.CanAdd(this, component, metadata) ||
+                _components != null && !_components.Get<IConditionComponentCollectionComponent>(metadata).CanAdd(this, component, metadata))
                 return false;
 
+            ComponentComponentExtensions.OnComponentAdding(this, component, metadata);
+            _components?.Get<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata);
             MugenExtensions.AddOrdered(_items, component, this);
             UpdateTrackers(component, null, metadata);
             return true;

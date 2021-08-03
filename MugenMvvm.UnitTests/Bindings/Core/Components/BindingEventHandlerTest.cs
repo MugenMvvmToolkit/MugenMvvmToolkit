@@ -84,11 +84,11 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return new MemberPathLastMember(target, member);
                 }
             };
-            IAttachableComponent component = BindingEventHandler.Get(default, false, true);
-            component.OnAttaching(Binding, Metadata).ShouldBeFalse();
+            IHasAttachConditionComponent component = BindingEventHandler.Get(default, false, true);
+            component.CanAttach(Binding, Metadata).ShouldBeFalse();
 
             member = new TestEventInfo();
-            component.OnAttaching(Binding, Metadata).ShouldBeFalse();
+            component.CanAttach(Binding, Metadata).ShouldBeFalse();
 
             IEventListener? eventListener = null;
             member = new TestEventInfo
@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                     return ActionToken.FromDelegate((o, o1) => eventListener = null);
                 }
             };
-            component.OnAttaching(Binding, Metadata).ShouldBeTrue();
+            component.CanAttach(Binding, Metadata).ShouldBeTrue();
             eventListener.ShouldNotBeNull();
         }
 
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 RemoveCanExecuteChanged = handler => { canExecuteHandler = null; }
             };
 
-            ((IAttachableComponent) component).OnAttaching(Binding, Metadata).ShouldBeTrue();
+            ((IHasAttachConditionComponent) component).CanAttach(Binding, Metadata).ShouldBeTrue();
             component.TrySetTargetValue(Binding, new MemberPathLastMember(this, new TestAccessorMemberInfo()), value, Metadata).ShouldBeTrue();
             listener.ShouldNotBeNull();
             canExecuteHandler.ShouldNotBeNull();
@@ -202,7 +202,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            ((IAttachableComponent) component).OnAttaching(Binding, Metadata).ShouldBeTrue();
+            ((IHasAttachConditionComponent) component).CanAttach(Binding, Metadata).ShouldBeTrue();
             component.TrySetTargetValue(Binding, default, value, Metadata);
             eventListener!.TryHandle(sender, message, Metadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
@@ -268,7 +268,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
             }
 
             var component = BindingEventHandler.Get(default, false, true);
-            ((IAttachableComponent) component).OnAttaching(Binding, Metadata).ShouldBeTrue();
+            ((IHasAttachConditionComponent) component).CanAttach(Binding, Metadata).ShouldBeTrue();
 
             component.TrySetTargetValue(Binding, default, new TestValueExpression(), Metadata);
             eventListener!.TryHandle(sender, message, Metadata).ShouldBeTrue();
@@ -311,7 +311,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
                 }
             };
 
-            ((IAttachableComponent) component).OnAttaching(Binding, Metadata).ShouldBeTrue();
+            ((IHasAttachConditionComponent) component).CanAttach(Binding, Metadata).ShouldBeTrue();
             component.TrySetTargetValue(Binding, default, value, Metadata);
             eventListener!.TryHandle(sender, message, Metadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);

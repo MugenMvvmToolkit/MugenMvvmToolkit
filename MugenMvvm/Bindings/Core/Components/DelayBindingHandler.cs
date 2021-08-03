@@ -50,15 +50,19 @@ namespace MugenMvvm.Bindings.Core.Components
             return BindingMetadata.DoNothing;
         }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _binding = (IBinding)owner;
+            _binding = (IBinding) owner;
             _timer = WeakTimer.Get(this, handler => MugenService.ThreadDispatcher.Execute(ExecutionMode, handler, null));
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {

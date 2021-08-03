@@ -64,6 +64,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void AddDelegateShouldCallOnAttachingOnAttachedMethods()
         {
+            var canAttachCount = 0;
             var attachingCount = 0;
             var attachedCount = 0;
             var canAttach = false;
@@ -75,24 +76,33 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     attachingCount++;
                     test.ShouldEqual(binding);
-                    return canAttach;
+                    context.ShouldEqual(Metadata);
                 },
                 OnAttachedHandler = (test, context) =>
                 {
                     attachedCount++;
                     test.ShouldEqual(binding);
                     context.ShouldEqual(Metadata);
+                },
+                CanAttach = (test, context) =>
+                {
+                    canAttachCount++;
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(Metadata);
+                    return canAttach;
                 }
             };
 
             binding.TryAdd(this, (_, _, _) => component, Metadata).ShouldBeNull();
-            attachingCount.ShouldEqual(1);
+            canAttachCount.ShouldEqual(1);
+            attachingCount.ShouldEqual(0);
             attachedCount.ShouldEqual(0);
             binding.Count.ShouldEqual(0);
 
             canAttach = true;
             binding.TryAdd(this, (_, _, _) => component, Metadata).ShouldEqual(component);
-            attachingCount.ShouldEqual(2);
+            canAttachCount.ShouldEqual(2);
+            attachingCount.ShouldEqual(1);
             attachedCount.ShouldEqual(1);
             binding.Get<object>().Single().ShouldEqual(component);
         }
@@ -102,36 +112,51 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void AddDelegateShouldNotifyListeners(int count)
         {
+            const int defaultCount = 3;
+            var canAddCount = 0;
             var addingCount = 0;
             var addedCount = 0;
             var canAdd = false;
             object? expectedItem = null;
             IComponentCollection binding = GetBinding();
 
-            var changedListener = new TestComponentCollectionChangedListener
+            binding.AddComponent(new TestConditionComponentCollectionComponent
             {
-                OnAdded = (collection, o, arg3) =>
+                CanAdd = (collection, o, arg3) =>
                 {
-                    addedCount++;
-                    expectedItem.ShouldEqual(o);
-                    arg3.ShouldEqual(Metadata);
-                }
-            };
-            binding.AddComponent(changedListener);
-
-            var changingListener = new TestComponentCollectionChangingListener
-            {
-                OnAdding = (collection, o, arg3) =>
-                {
-                    addingCount++;
+                    if (expectedItem == null)
+                        return true;
+                    canAddCount++;
+                    collection.ShouldEqual(binding);
                     expectedItem.ShouldEqual(o);
                     arg3.ShouldEqual(Metadata);
                     return canAdd;
                 }
-            };
-            expectedItem = changingListener;
-            binding.AddComponent(changingListener, Metadata);
-            addedCount = 0;
+            });
+            binding.AddComponent(new TestComponentCollectionChangedListener
+            {
+                OnAdded = (collection, o, arg3) =>
+                {
+                    if (expectedItem == null)
+                        return;
+                    addedCount++;
+                    collection.ShouldEqual(binding);
+                    expectedItem.ShouldEqual(o);
+                    arg3.ShouldEqual(Metadata);
+                }
+            });
+            binding.AddComponent(new TestComponentCollectionChangingListener
+            {
+                OnAdding = (collection, o, arg3) =>
+                {
+                    if (expectedItem == null)
+                        return;
+                    addingCount++;
+                    collection.ShouldEqual(binding);
+                    expectedItem.ShouldEqual(o);
+                    arg3.ShouldEqual(Metadata);
+                }
+            }, Metadata);
 
             for (var i = 0; i < count; i++)
             {
@@ -139,23 +164,25 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 binding.TryAdd(this, (_, _, _) => expectedItem, Metadata).ShouldBeNull();
             }
 
-            addingCount.ShouldEqual(count);
+            canAddCount.ShouldEqual(count);
+            addingCount.ShouldEqual(0);
             addedCount.ShouldEqual(0);
-            binding.Count.ShouldEqual(2);
-            binding.Get<object>().Count.ShouldEqual(2);
+            binding.Count.ShouldEqual(defaultCount);
+            binding.Get<object>().Count.ShouldEqual(defaultCount);
 
             canAdd = true;
-            addingCount = 0;
+            canAddCount = 0;
             for (var i = 0; i < count; i++)
             {
                 expectedItem = new object();
                 binding.TryAdd(this, (_, _, _) => expectedItem, Metadata).ShouldEqual(expectedItem);
             }
 
+            canAddCount.ShouldEqual(count);
             addingCount.ShouldEqual(count);
             addedCount.ShouldEqual(count);
-            binding.Count.ShouldEqual(count + 2);
-            binding.Get<object>().Count.ShouldEqual(count + 2);
+            binding.Count.ShouldEqual(count + defaultCount);
+            binding.Get<object>().Count.ShouldEqual(count + defaultCount);
         }
 
         [Theory]
@@ -181,6 +208,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void AddShouldCallOnAttachingOnAttachedMethods()
         {
+            var canAttachCount = 0;
             var attachingCount = 0;
             var attachedCount = 0;
             var canAttach = false;
@@ -192,24 +220,33 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     attachingCount++;
                     test.ShouldEqual(binding);
-                    return canAttach;
+                    context.ShouldEqual(Metadata);
                 },
                 OnAttachedHandler = (test, context) =>
                 {
                     attachedCount++;
                     test.ShouldEqual(binding);
                     context.ShouldEqual(Metadata);
+                },
+                CanAttach = (test, context) =>
+                {
+                    canAttachCount++;
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(Metadata);
+                    return canAttach;
                 }
             };
 
             componentCollection.TryAdd(component, Metadata).ShouldBeFalse();
-            attachingCount.ShouldEqual(1);
+            canAttachCount.ShouldEqual(1);
+            attachingCount.ShouldEqual(0);
             attachedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(0);
 
             canAttach = true;
             componentCollection.TryAdd(component, Metadata).ShouldBeTrue();
-            attachingCount.ShouldEqual(2);
+            canAttachCount.ShouldEqual(2);
+            attachingCount.ShouldEqual(1);
             attachedCount.ShouldEqual(1);
             binding.GetComponents<object>().Single().ShouldEqual(component);
         }
@@ -219,7 +256,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void AddShouldNotifyListeners(int count)
         {
-            const int defaultCount = 2;
+            const int defaultCount = 3;
+            var canAddCount = 0;
             var addingCount = 0;
             var addedCount = 0;
             var canAdd = true;
@@ -230,7 +268,22 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 OnAdding = (collection, o, arg3) =>
                 {
+                    if (expectedItem == null)
+                        return;
                     addingCount++;
+                    collection.ShouldEqual(binding);
+                    expectedItem.ShouldEqual(o);
+                    arg3.ShouldEqual(Metadata);
+                }
+            });
+            componentCollection.AddComponent(new TestConditionComponentCollectionComponent
+            {
+                CanAdd = (collection, o, arg3) =>
+                {
+                    if (expectedItem == null)
+                        return true;
+                    canAddCount++;
+                    collection.ShouldEqual(binding);
                     expectedItem.ShouldEqual(o);
                     arg3.ShouldEqual(Metadata);
                     return canAdd;
@@ -241,7 +294,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             {
                 OnAdded = (collection, o, arg3) =>
                 {
+                    if (expectedItem == null)
+                        return;
                     addedCount++;
+                    collection.ShouldEqual(binding);
                     expectedItem.ShouldEqual(o);
                     arg3.ShouldEqual(Metadata);
                 }
@@ -250,6 +306,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             componentCollection.AddComponent(changedListener, Metadata);
             addedCount.ShouldEqual(0);
             addingCount.ShouldEqual(1);
+            canAddCount.ShouldEqual(1);
+            canAddCount = 0;
             addingCount = 0;
             canAdd = false;
 
@@ -259,19 +317,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 componentCollection.TryAdd(expectedItem, Metadata).ShouldBeFalse();
             }
 
-            addingCount.ShouldEqual(count);
+            canAddCount.ShouldEqual(count);
+            addingCount.ShouldEqual(0);
             addedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(defaultCount);
             binding.GetComponents<object>().Count.ShouldEqual(defaultCount);
 
             canAdd = true;
-            addingCount = 0;
+            canAddCount = 0;
             for (var i = 0; i < count; i++)
             {
                 expectedItem = new object();
                 componentCollection.TryAdd(expectedItem, Metadata).ShouldBeTrue();
             }
 
+            canAddCount.ShouldEqual(count);
             addingCount.ShouldEqual(count);
             addedCount.ShouldEqual(count);
             componentCollection.Count.ShouldEqual(count + defaultCount);
@@ -471,6 +531,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void ClearShouldCallOnDetachedMethods()
         {
+            var canDetachCount = 0;
             var detachingCount = 0;
             var detachedCount = 0;
             bool canDetach = false;
@@ -482,25 +543,33 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     test.ShouldEqual(binding);
                     context.ShouldEqual(Metadata);
                     ++detachingCount;
-                    return canDetach;
                 },
                 OnDetachedHandler = (test, context) =>
                 {
                     test.ShouldEqual(binding);
                     context.ShouldEqual(Metadata);
                     detachedCount++;
+                },
+                CanDetach = (test, context) =>
+                {
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(Metadata);
+                    ++canDetachCount;
+                    return canDetach;
                 }
             };
             binding.TryAdd(component, Metadata).ShouldBeTrue();
 
             binding.Clear(Metadata);
-            detachingCount.ShouldEqual(1);
+            canDetachCount.ShouldEqual(1);
+            detachingCount.ShouldEqual(0);
             detachedCount.ShouldEqual(0);
             binding.Get<object>().Single().ShouldEqual(component);
 
             canDetach = true;
             binding.Clear(Metadata);
-            detachingCount.ShouldEqual(2);
+            canDetachCount.ShouldEqual(2);
+            detachingCount.ShouldEqual(1);
             detachedCount.ShouldEqual(1);
         }
 
@@ -532,18 +601,32 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         {
             const int limit = 5;
             var items = new HashSet<object>();
+            var canRemoveCount = 0;
             var removingCount = 0;
             var removedCount = 0;
             IComponentCollection binding = GetBinding();
 
+            binding.AddComponent(new TestConditionComponentCollectionComponent
+            {
+                CanRemove = (collection, o, arg3) =>
+                {
+                    collection.ShouldEqual(binding);
+                    arg3.ShouldEqual(Metadata);
+                    return ++canRemoveCount < limit + 1;
+                },
+                Priority = int.MinValue + 10
+            });
             binding.AddComponent(new TestComponentCollectionChangingListener
             {
                 OnRemoving = (collection, o, arg3) =>
                 {
+                    if (o.GetType() != typeof(object))
+                        return;
                     collection.ShouldEqual(binding);
                     arg3.ShouldEqual(Metadata);
-                    return ++removingCount < limit + 1;
-                }
+                    removingCount++;
+                },
+                Priority = int.MinValue + 9
             });
             binding.AddComponent(new TestComponentCollectionChangedListener
             {
@@ -556,9 +639,10 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     items.Remove(o).ShouldBeTrue();
                     arg3.ShouldEqual(Metadata);
                     removedCount++;
-                }
+                },
+                Priority = int.MinValue + 8
             }, Metadata);
-            removingCount = 0;
+            canRemoveCount = 0;
 
             for (var i = 0; i < count; i++)
             {
@@ -568,14 +652,16 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             }
 
             binding.Clear(Metadata);
-            removingCount.ShouldEqual(count);
+            canRemoveCount.ShouldEqual(count);
             if (limit > count)
             {
+                removingCount.ShouldEqual(count);
                 removedCount.ShouldEqual(count);
                 items.Count.ShouldEqual(0);
             }
             else
             {
+                removingCount.ShouldEqual(limit);
                 removedCount.ShouldEqual(limit);
                 items.Count.ShouldEqual(count - limit);
                 binding.Get<object>().OrderBy(o => o.GetHashCode()).ShouldEqual(items.OrderBy(o => o.GetHashCode()));
@@ -689,6 +775,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         public void InitializeShouldInitializeComponents(int count, bool canAddAll)
         {
             var binding = GetBinding();
+            var attachingCount = 0;
             var attachedCount = 0;
             var components = new IComponent<IBinding>[count];
             var addedComponents = new List<IComponent<IBinding>>();
@@ -701,13 +788,19 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     {
                         b.ShouldEqual(binding);
                         ctx.ShouldEqual(Metadata);
-                        return canAddAll || canAdd;
+                        attachingCount++;
                     },
                     OnAttachedHandler = (b, ctx) =>
                     {
                         ++attachedCount;
                         b.ShouldEqual(binding);
                         ctx.ShouldEqual(Metadata);
+                    },
+                    CanAttach = (b, ctx) =>
+                    {
+                        b.ShouldEqual(binding);
+                        ctx.ShouldEqual(Metadata);
+                        return canAddAll || canAdd;
                     }
                 };
                 components[i] = component;
@@ -717,6 +810,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             binding.Initialize(components, Metadata);
             binding.GetComponents<object>().ShouldEqual(addedComponents);
+            attachingCount.ShouldEqual(addedComponents.Count);
             attachedCount.ShouldEqual(addedComponents.Count);
 
             ShouldThrow<InvalidOperationException>(() => binding.Initialize(components, Metadata));
@@ -765,6 +859,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [Fact]
         public void RemoveShouldCallOnDetachingOnDetachedMethods()
         {
+            var canDetachCount = 0;
             var detachingCount = 0;
             var detachedCount = 0;
             var canDetach = false;
@@ -776,26 +871,35 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 {
                     detachingCount++;
                     test.ShouldEqual(binding);
-                    return canDetach;
+                    context.ShouldEqual(Metadata);
                 },
                 OnDetachedHandler = (test, context) =>
                 {
                     detachedCount++;
                     test.ShouldEqual(binding);
                     context.ShouldEqual(Metadata);
+                },
+                CanDetach = (test, context) =>
+                {
+                    canDetachCount++;
+                    test.ShouldEqual(binding);
+                    context.ShouldEqual(Metadata);
+                    return canDetach;
                 }
             };
             componentCollection.TryAdd(component, Metadata);
 
             componentCollection.Remove(component, Metadata).ShouldBeFalse();
-            detachingCount.ShouldEqual(1);
+            canDetachCount.ShouldEqual(1);
+            detachingCount.ShouldEqual(0);
             detachedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(1);
             binding.GetComponents<object>().Single().ShouldEqual(component);
 
             canDetach = true;
             componentCollection.Remove(component, Metadata).ShouldBeTrue();
-            detachingCount.ShouldEqual(2);
+            canDetachCount.ShouldEqual(2);
+            detachingCount.ShouldEqual(1);
             detachedCount.ShouldEqual(1);
             binding.GetComponents<object>().Count.ShouldEqual(0);
         }
@@ -805,26 +909,39 @@ namespace MugenMvvm.UnitTests.Bindings.Core
         [InlineData(10)]
         public void RemoveShouldNotifyListeners(int count)
         {
-            const int defaultCount = 2;
+            const int defaultCount = 3;
+            var canRemoveCount = 0;
             var removingCount = 0;
             var removedCount = 0;
             var canRemove = false;
             object? expectedItem = null;
             var binding = GetBinding();
             var componentCollection = (IComponentCollection) binding;
-            var changingListener = new TestComponentCollectionChangingListener
+
+            componentCollection.AddComponent(new TestConditionComponentCollectionComponent()
+            {
+                Priority = -1,
+                CanRemove = (collection, o, arg3) =>
+                {
+                    canRemoveCount++;
+                    collection.ShouldEqual(binding);
+                    expectedItem.ShouldEqual(o);
+                    arg3.ShouldEqual(Metadata);
+                    return canRemove;
+                }
+            });
+            componentCollection.AddComponent(new TestComponentCollectionChangingListener
             {
                 Priority = -1,
                 OnRemoving = (collection, o, arg3) =>
                 {
                     removingCount++;
+                    collection.ShouldEqual(binding);
                     expectedItem.ShouldEqual(o);
                     arg3.ShouldEqual(Metadata);
-                    return canRemove;
                 }
-            };
-            componentCollection.AddComponent(changingListener);
-            var changedListener = new TestComponentCollectionChangedListener
+            });
+            componentCollection.AddComponent(new TestComponentCollectionChangedListener
             {
                 Priority = -1,
                 OnRemoved = (collection, o, arg3) =>
@@ -833,8 +950,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     expectedItem.ShouldEqual(o);
                     arg3.ShouldEqual(Metadata);
                 }
-            };
-            componentCollection.AddComponent(changedListener);
+            });
 
             for (var i = 0; i < count; i++)
                 componentCollection.TryAdd(new object(), Metadata);
@@ -846,19 +962,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 componentCollection.Remove(expectedItem, Metadata).ShouldBeFalse();
             }
 
-            removingCount.ShouldEqual(count);
+            canRemoveCount.ShouldEqual(count);
+            removingCount.ShouldEqual(0);
             removedCount.ShouldEqual(0);
             componentCollection.Count.ShouldEqual(count + defaultCount);
             binding.GetComponents<object>().Count.ShouldEqual(count + defaultCount);
 
             canRemove = true;
-            removingCount = 0;
+            canRemoveCount = 0;
             foreach (var o in objects)
             {
                 expectedItem = o;
                 componentCollection.Remove(expectedItem, Metadata).ShouldBeTrue();
             }
 
+            canRemoveCount.ShouldEqual(count);
             removingCount.ShouldEqual(count);
             removedCount.ShouldEqual(count);
             componentCollection.Count.ShouldEqual(defaultCount);

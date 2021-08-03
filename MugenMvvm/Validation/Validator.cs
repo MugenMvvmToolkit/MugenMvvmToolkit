@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasComponentAddingHandler, IHasDisposeCondition
+    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasComponentAddConditionHandler, IHasDisposeCondition
     {
         private const int DefaultState = 0;
         private const int NoDisposeState = 1;
@@ -79,6 +79,6 @@ namespace MugenMvvm.Validation
         private new ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class => IsDisposed ? default : base.GetComponents<TComponent>(metadata);
 
-        bool IHasComponentAddingHandler.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
+        bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
     }
 }

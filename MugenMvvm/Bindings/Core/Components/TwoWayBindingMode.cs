@@ -19,9 +19,11 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public int Priority { get; init; } = BindingComponentPriority.Mode;
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => ((IBinding)owner).UpdateTarget();
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => ((IBinding) owner).UpdateTarget();
 
         void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 

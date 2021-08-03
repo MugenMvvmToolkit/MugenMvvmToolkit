@@ -91,7 +91,9 @@ namespace MugenMvvm.Messaging.Components
             return dictionary;
         }
 
-        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -119,7 +121,9 @@ namespace MugenMvvm.Messaging.Components
                 InvalidateCache();
         }
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => true;
+        void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
@@ -146,7 +150,7 @@ namespace MugenMvvm.Messaging.Components
 
             public void Execute(object? state)
             {
-                var messageContext = (IMessageContext)state!;
+                var messageContext = (IMessageContext) state!;
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)
