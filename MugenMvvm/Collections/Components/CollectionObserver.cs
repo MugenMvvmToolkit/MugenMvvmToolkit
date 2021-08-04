@@ -15,15 +15,15 @@ namespace MugenMvvm.Collections.Components
 
         protected override IEnumerable<object?>? GetItems() => OwnerOptional?.AsEnumerable();
 
-        void ICollectionChangedListener<object?>.OnAdded(IReadOnlyObservableCollection<object?> collection, object? item, int index) => OnAdded(item);
+        void ICollectionChangedListener<object?>.OnAdded(IReadOnlyObservableCollection<object?> collection, object? item, int index) => OnAdded(collection, item);
 
         void ICollectionChangedListener<object?>.OnReplaced(IReadOnlyObservableCollection<object?> collection, object? oldItem, object? newItem, int index) =>
-            OnReplaced(oldItem, newItem);
+            OnReplaced(collection, oldItem, newItem);
 
-        void ICollectionChangedListener<object?>.OnMoved(IReadOnlyObservableCollection<object?> collection, object? item, int oldIndex, int newIndex) => OnMoved(item);
+        void ICollectionChangedListener<object?>.OnMoved(IReadOnlyObservableCollection<object?> collection, object? item, int oldIndex, int newIndex) => OnMoved(collection, item);
 
-        void ICollectionChangedListener<object?>.OnRemoved(IReadOnlyObservableCollection<object?> collection, object? item, int index) => OnRemoved(item);
+        void ICollectionChangedListener<object?>.OnRemoved(IReadOnlyObservableCollection<object?> collection, object? item, int index) => OnRemoved(collection, item);
 
-        void ICollectionChangedListener<object?>.OnReset(IReadOnlyObservableCollection<object?> collection, IEnumerable<object?>? items) => OnReset(null, items);
+        void ICollectionChangedListener<object?>.OnReset(IReadOnlyObservableCollection<object?> collection, IEnumerable<object?>? items) => OnReset(collection, null, items);
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -189,7 +188,7 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
-            using var _ = Owner.TryLock();
+            using var _ = Owner.Lock();
             _condition = condition;
             _limit = limit;
             _items.Clear();

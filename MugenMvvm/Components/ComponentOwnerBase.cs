@@ -16,6 +16,9 @@ namespace MugenMvvm.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
+        internal ComponentOwnerBase(IComponentCollectionManager? componentCollectionManager, IComponentOwner<T>? owner) =>
+            _componentCollectionManager = componentCollectionManager ?? (owner as ComponentOwnerBase<T>)?._componentCollectionManager;
+
         public bool HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection Components => _components ?? ComponentCollectionManager.EnsureInitialized(ref _components, this);

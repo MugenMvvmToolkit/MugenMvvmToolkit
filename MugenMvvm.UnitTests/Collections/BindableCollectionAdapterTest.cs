@@ -5,6 +5,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -55,7 +56,7 @@ namespace MugenMvvm.UnitTests.Collections
             tracker.ChangedItems.ShouldEqual(observableCollection);
             collectionAdapter.ShouldEqual(observableCollection);
 
-            observableCollection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new object[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.ShouldEqual(observableCollection);
             collectionAdapter.ShouldEqual(observableCollection);
 
@@ -73,8 +74,9 @@ namespace MugenMvvm.UnitTests.Collections
 
             collectionAdapter.Collection = null;
             collectionAdapter.ShouldBeEmpty();
-            observableCollection.Components.Count.ShouldEqual(1);
+            observableCollection.Components.Count.ShouldEqual(2);
             observableCollection.GetComponent<ICollectionDecoratorManagerComponent>().ShouldNotBeNull();
+            observableCollection.GetComponent<ICollectionBatchUpdateManagerComponent>().ShouldNotBeNull();
         }
 
         [Fact]
@@ -104,7 +106,7 @@ namespace MugenMvvm.UnitTests.Collections
             collectionAdapter.ShouldEqual(observableCollection);
 
             observableCollection.Clear();
-            observableCollection.AddRange(new object[] { 1, 2, 3, 4, 5 });
+            observableCollection.AddRange(new object[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.ShouldEqual(observableCollection);
             collectionAdapter.ShouldEqual(observableCollection);
 
@@ -142,7 +144,7 @@ namespace MugenMvvm.UnitTests.Collections
             observableCollection.Insert(1, 2);
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
-            observableCollection.Reset(new object?[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);
@@ -164,13 +166,13 @@ namespace MugenMvvm.UnitTests.Collections
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
 
-            using (observableCollection.BatchUpdate())
+            using (observableCollection.BatchUpdate(BatchUpdateType.Source))
             {
                 observableCollection.Add(1);
                 observableCollection.Insert(1, 2);
                 observableCollection.Remove(2);
                 observableCollection.RemoveAt(0);
-                observableCollection.Reset(new object?[] { 1, 2, 3, 4, 5 });
+                observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
                 observableCollection[0] = 200;
                 observableCollection.Move(1, 2);
                 tracker.ChangedItems.Count.ShouldEqual(0);
@@ -191,7 +193,7 @@ namespace MugenMvvm.UnitTests.Collections
             adapterCollection.CollectionChanged += tracker.OnCollectionChanged;
             collectionAdapter.Collection = observableCollection;
 
-            using (observableCollection.BatchUpdate())
+            using (observableCollection.BatchUpdate(BatchUpdateType.Source))
             {
                 observableCollection.Add(1);
                 observableCollection.Insert(1, 2);
@@ -291,7 +293,7 @@ namespace MugenMvvm.UnitTests.Collections
             observableCollection.Insert(1, 2);
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
-            observableCollection.Reset(new object?[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new object?[] {1, 2, 3, 4, 5});
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);
@@ -333,7 +335,7 @@ namespace MugenMvvm.UnitTests.Collections
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
             observableCollection.Clear();
-            observableCollection.AddRange(new object?[] { 1, 2, 3, 4, 5 });
+            observableCollection.AddRange(new object?[] {1, 2, 3, 4, 5});
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);
@@ -351,12 +353,12 @@ namespace MugenMvvm.UnitTests.Collections
         protected override IThreadDispatcher GetThreadDispatcher()
         {
             var threadDispatcher = new ThreadDispatcher(ComponentCollectionManager);
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent { CanExecuteInline = (_, _, _) => true });
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent {CanExecuteInline = (_, _, _) => true});
             return threadDispatcher;
         }
 
         protected virtual BindableCollectionAdapter GetCollection(IThreadDispatcher threadDispatcher, IList<object?>? source = null) =>
-            new(source, threadDispatcher) { BatchDelay = 0 };
+            new(source, threadDispatcher) {BatchDelay = 0};
 
         private class SuspendableObservableCollection<T> : ObservableCollection<T>, ISuspendable
         {
@@ -364,10 +366,10 @@ namespace MugenMvvm.UnitTests.Collections
 
             public bool IsSuspended => _suspendCount != 0;
 
-            public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+            public ActionToken Suspend(IReadOnlyMetadataContext? metadata = null)
             {
                 ++_suspendCount;
-                return ActionToken.FromDelegate((o, o1) => ((SuspendableObservableCollection<T>)o!).EndSuspend(), this);
+                return ActionToken.FromDelegate((o, _) => ((SuspendableObservableCollection<T>) o!).EndSuspend(), this);
             }
 
             protected override void OnPropertyChanged(PropertyChangedEventArgs e)

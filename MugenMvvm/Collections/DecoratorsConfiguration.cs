@@ -27,7 +27,10 @@ namespace MugenMvvm.Collections
             if (Collection == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration));
             Collection.AddComponent(decorator);
-            return new DecoratorsConfiguration(Collection!, priority ?? Priority - Step, Step);
+            return UpdatePriority(priority);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public DecoratorsConfiguration UpdatePriority(int? priority = null) => new(Collection!, priority ?? Priority - Step, Step);
     }
 }

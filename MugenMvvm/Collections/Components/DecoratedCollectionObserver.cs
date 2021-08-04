@@ -6,27 +6,65 @@ using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class DecoratedCollectionObserver : CollectionObserverBase, ICollectionDecoratorListener
+    public class DecoratedCollectionObserver : CollectionObserverBase, IListenerCollectionDecorator
     {
         [Preserve(Conditional = true)]
         public DecoratedCollectionObserver()
         {
         }
 
-        protected override IEnumerable<object?>? GetItems() => OwnerOptional?.DecoratedItems();
+        bool ICollectionDecorator.HasAdditionalItems => false;
 
-        void ICollectionDecoratorListener.OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
+        protected override IEnumerable<object?>? GetItems()
         {
+            var collection = OwnerOptional;
+            var decoratorManager = collection?.GetComponentOptional<ICollectionDecoratorManagerComponent>();
+            if (decoratorManager == null)
+                return null;
+            return GetItemsInternal(collection!, decoratorManager);
         }
 
-        void ICollectionDecoratorListener.OnAdded(IReadOnlyObservableCollection collection, object? item, int index) => OnAdded(item);
+        private IEnumerable<object?>? GetItemsInternal(IReadOnlyObservableCollection collection, ICollectionDecoratorManagerComponent collectionDecorator)
+        {
+            using var l = collection.Lock();
+            foreach (var o in collectionDecorator.Decorate(collection, this))
+                yield return o;
+        }
 
-        void ICollectionDecoratorListener.OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index) => OnReplaced(oldItem, newItem);
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes) => false;
 
-        void ICollectionDecoratorListener.OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex) => OnMoved(item);
+        IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items) => items;
 
-        void ICollectionDecoratorListener.OnRemoved(IReadOnlyObservableCollection collection, object? item, int index) => OnRemoved(item);
+        bool ICollectionDecorator.OnChanged(IReadOnlyObservableCollection collection, ref object? item, ref int index, ref object? args) => true;
 
-        void ICollectionDecoratorListener.OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items) => OnReset(null, items);
+        bool ICollectionDecorator.OnAdded(IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            OnAdded(collection, item);
+            return true;
+        }
+
+        bool ICollectionDecorator.OnReplaced(IReadOnlyObservableCollection collection, ref object? oldItem, ref object? newItem, ref int index)
+        {
+            OnReplaced(collection, oldItem, newItem);
+            return true;
+        }
+
+        bool ICollectionDecorator.OnMoved(IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex, ref int newIndex)
+        {
+            OnMoved(collection, item);
+            return true;
+        }
+
+        bool ICollectionDecorator.OnRemoved(IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            OnRemoved(collection, item);
+            return true;
+        }
+
+        bool ICollectionDecorator.OnReset(IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
+        {
+            OnReset(collection, null, items);
+            return true;
+        }
     }
 }

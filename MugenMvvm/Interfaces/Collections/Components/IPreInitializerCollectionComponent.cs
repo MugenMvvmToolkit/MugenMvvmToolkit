@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionItemPreInitializerComponent<in T> : IComponent<IReadOnlyObservableCollection>
+    public interface IPreInitializerCollectionComponent<in T> : IComponent<IReadOnlyObservableCollection>
     {
         void Initialize(IReadOnlyObservableCollection<T> collection, T item);
     }

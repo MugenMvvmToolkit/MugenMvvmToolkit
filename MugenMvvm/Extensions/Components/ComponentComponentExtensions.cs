@@ -282,8 +282,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            (collection.Owner as IHasComponentAddedHandler)?.OnComponentAdded(collection, component, metadata);
             (component as IAttachableComponent)?.OnAttached(collection.Owner, metadata);
+            (collection.Owner as IHasComponentAddedHandler)?.OnComponentAdded(collection, component, metadata);
         }
 
         public static void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
@@ -298,8 +298,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
-            (collection.Owner as IHasComponentAddingHandler)?.OnComponentAdding(collection, component, metadata);
             (component as IAttachableComponent)?.OnAttaching(collection.Owner, metadata);
+            (collection.Owner as IHasComponentAddingHandler)?.OnComponentAdding(collection, component, metadata);
         }
 
         public static void OnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)

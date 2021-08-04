@@ -20,6 +20,6 @@ namespace MugenMvvm.Tests.Busy
         {
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) => default;
+        public ActionToken Suspend(IReadOnlyMetadataContext? metadata = null) => default;
     }
 }

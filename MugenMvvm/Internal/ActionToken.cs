@@ -35,7 +35,7 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ActionToken FromDisposable(IDisposable? disposable) => disposable == null ? default : FromDelegate((o, _) => ((IDisposable)o!).Dispose(), disposable);
+        public static ActionToken FromDisposable(IDisposable? disposable) => disposable == null ? default : FromDelegate((o, _) => ((IDisposable) o!).Dispose(), disposable);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ActionToken FromHandler(IHandler handler, object? state1 = null, object? state2 = null) => new(handler, state1, state2);
@@ -45,10 +45,10 @@ namespace MugenMvvm.Internal
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ActionToken FromDelegate<T>(T state, Action<T> handler) where T : class? =>
-            new(new Action<object?, object?>((a, s) => ((Action<T>)a!).Invoke((T)s!)), handler, state);
+            new(new Action<object?, object?>((a, s) => ((Action<T>) a!).Invoke((T) s!)), handler, state);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ActionToken FromDelegate(Action handler) => new(new Action<object?, object?>((a, _) => ((Action)a!).Invoke()), handler, null);
+        public static ActionToken FromDelegate(Action handler) => new(new Action<object?, object?>((a, _) => ((Action) a!).Invoke()), handler, null);
 
         public static ActionToken FromTokens(ItemOrIEnumerable<ActionToken> tokens)
         {
@@ -79,7 +79,7 @@ namespace MugenMvvm.Internal
             if (handler is IHandler h)
                 h.Invoke(_state1, _state2);
             else
-                ((Action<object?, object?>)handler).Invoke(_state1, _state2);
+                ((Action<object?, object?>) handler).Invoke(_state1, _state2);
             _state1 = null;
             _state2 = null;
         }

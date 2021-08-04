@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class SortCollectionDecoratorTest : UnitTestBase, IComparer<object?>
     {
         private readonly SynchronizedObservableCollection<object> _collection;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private readonly SortCollectionDecorator _decorator;
         private bool? _defaultComparer;
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _decorator = new SortCollectionDecorator();
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_decorator);
             _collection.AddComponent(_tracker);
             _tracker.Changed += Assert;

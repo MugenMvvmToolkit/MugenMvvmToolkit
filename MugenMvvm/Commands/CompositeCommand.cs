@@ -133,8 +133,8 @@ namespace MugenMvvm.Commands
             }
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<ISuspendableComponent<ICompositeCommand>>().TrySuspend(this, state, metadata);
+        public ActionToken Suspend(IReadOnlyMetadataContext? metadata = null) =>
+            GetComponents<ISuspendableComponent<ICompositeCommand>>().TrySuspend(this, metadata);
 
         private new ItemOrArray<TComponent> GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class =>

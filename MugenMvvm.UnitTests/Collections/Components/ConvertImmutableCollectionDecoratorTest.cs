@@ -14,13 +14,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class ConvertImmutableCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private ConvertImmutableCollectionDecorator<object, object> _decorator;
 
         public ConvertImmutableCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _decorator = new ConvertImmutableCollectionDecorator<object, object>(o => "Item: " + o);
             _collection.AddComponent(_decorator);

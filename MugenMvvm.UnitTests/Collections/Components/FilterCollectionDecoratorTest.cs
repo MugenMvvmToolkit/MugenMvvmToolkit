@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class FilterCollectionDecoratorTest : UnitTestBase
     {
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly Func<TestCollectionItem, bool> _filter2;
         private Func<int, bool> _filter1;
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.AddComponent(new FilterCollectionDecorator<int> { Filter = _filter1 });
             _collection.AddComponent(new FilterCollectionDecorator<TestCollectionItem> { Filter = _filter2 });
 
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _tracker.Changed += Assert;
         }

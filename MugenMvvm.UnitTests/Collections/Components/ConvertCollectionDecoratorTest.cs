@@ -15,13 +15,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class ConvertCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private ConvertCollectionDecorator<object, object> _decorator;
 
         public ConvertCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _decorator = new ConvertCollectionDecorator<object, object>((o, c) => "Item: " + o);
             _collection.AddComponent(_decorator);
@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             var cleanupItems = new List<string>();
             var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            var collectionTracker = new DecoratedCollectionChangeTracker<object>();
 
             IEnumerable<object?> GetItems()
             {
@@ -328,7 +328,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var cleanupItems = new List<string>();
 
             var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
             collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
@@ -366,7 +366,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var cleanupItems = new List<string>();
 
             var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
             collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
@@ -416,7 +416,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var cleanupItems = new List<string>();
 
             var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
             collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
@@ -455,7 +455,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var cleanupItems = new List<string>();
 
             var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var collectionTracker = new DecoratorObservableCollectionTracker<object>();
+            var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
             collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>

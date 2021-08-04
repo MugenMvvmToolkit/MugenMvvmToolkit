@@ -65,6 +65,6 @@ namespace MugenMvvm.Presentation.Components
         }
 
         private ActionToken SuspendNavigation(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata) =>
-            navigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>(metadata).TrySuspend(navigationDispatcher, Owner, metadata);
+            navigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>(metadata).TrySuspend(navigationDispatcher, metadata);
     }
 }

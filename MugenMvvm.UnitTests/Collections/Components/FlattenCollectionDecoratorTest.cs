@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private readonly SynchronizedObservableCollection<int> _itemCollection1;
         private readonly SynchronizedObservableCollection<int> _itemCollection2;
         private readonly SynchronizedObservableCollection<object> _targetCollection;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public FlattenCollectionDecoratorTest()
         {
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable>(o => new FlattenItemInfo(o is string ? null : o, o != _itemCollection2)));
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _targetCollection.AddComponent(_tracker);
             _targetCollection.Add(_itemCollection1);
             _targetCollection.Add(_itemCollection2);
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             var collection = new SynchronizedObservableCollection<UnstableCollection>(ComponentCollectionManager);
             collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(c => new FlattenItemInfo(c.Items)));
-            var tracker = new DecoratorObservableCollectionTracker<object>();
+            var tracker = new DecoratedCollectionChangeTracker<object>();
             var assert = new Action(() =>
             {
                 collection.DecoratedItems().ShouldEqual(tracker.ChangedItems);
@@ -450,7 +450,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var root = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             root.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(o => new FlattenItemInfo(o)));
 
-            var tracker = new DecoratorObservableCollectionTracker<object>();
+            var tracker = new DecoratedCollectionChangeTracker<object>();
             tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.DecoratedItems());
             root.AddComponent(tracker);
 
@@ -713,7 +713,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 OnEndBatchUpdate = (_, t) => endCount += t == BatchUpdateType.Decorators ? 1 : 0
             });
 
-            var t = _itemCollection1.GetComponent<ICollectionDecoratorManagerComponent>().BatchUpdate(_itemCollection1);
+            var t = _itemCollection1.BatchUpdate(BatchUpdateType.Decorators);
             beginCount.ShouldEqual(1);
             endCount.ShouldEqual(0);
             Assert();
@@ -735,7 +735,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 OnEndBatchUpdate = (_, t) => endCount += t == BatchUpdateType.Decorators ? 1 : 0
             });
 
-            var t = _itemCollection1.BatchUpdate();
+            var t = _itemCollection1.BatchUpdate(BatchUpdateType.Source);
             beginCount.ShouldEqual(1);
             endCount.ShouldEqual(0);
             Assert();

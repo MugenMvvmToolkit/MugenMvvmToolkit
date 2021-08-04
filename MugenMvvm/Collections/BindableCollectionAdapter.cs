@@ -665,7 +665,7 @@ namespace MugenMvvm.Collections
                 new(CollectionChangedAction.Reset, changedEvents, items, -1, -1);
         }
 
-        protected class WeakListener : ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
+        protected class WeakListener : ICollectionBatchUpdateListener, IDecoratedCollectionChangedListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
         {
             internal readonly IWeakReference Reference;
             private readonly int _version;

@@ -10,7 +10,6 @@ using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
-
 #if AVALONIA
 using Avalonia.Controls;
 using MugenMvvm.Avalonia.Bindings;
@@ -55,10 +54,10 @@ namespace MugenMvvm.Windows.Collections
             return itemSource;
         }
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken Suspend(IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
-            return ActionToken.FromDelegate((o, _) => ((ObservableCollectionAdapter)o!).EndSuspendNotifications(), this);
+            return ActionToken.FromDelegate((o, _) => ((ObservableCollectionAdapter) o!).EndSuspendNotifications(), this);
         }
 
         protected override void OnCollectionChanged(NotifyCollectionChangedEventArgs e)

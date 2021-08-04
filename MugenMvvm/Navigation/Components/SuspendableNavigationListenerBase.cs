@@ -43,7 +43,7 @@ namespace MugenMvvm.Navigation.Components
 
             if (begin)
                 OnBeginSuspend();
-            return ActionToken.FromDelegate((o, _) => ((SuspendableNavigationListenerBase)o!).EndSuspend(), this);
+            return ActionToken.FromDelegate((o, _) => ((SuspendableNavigationListenerBase) o!).EndSuspend(), this);
         }
 
         protected abstract void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception);
@@ -118,7 +118,7 @@ namespace MugenMvvm.Navigation.Components
         void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
             AddEvent((navigationDispatcher, navigationContext, null, null));
 
-        ActionToken ISuspendableComponent<INavigationDispatcher>.TrySuspend(INavigationDispatcher owner, object? state, IReadOnlyMetadataContext? metadata) => Suspend();
+        ActionToken ISuspendableComponent<INavigationDispatcher>.TrySuspend(INavigationDispatcher owner, IReadOnlyMetadataContext? metadata) => Suspend();
 
         bool ISuspendableComponent<INavigationDispatcher>.IsSuspended(INavigationDispatcher owner, IReadOnlyMetadataContext? metadata) => IsSuspended;
     }

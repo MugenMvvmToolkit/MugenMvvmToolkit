@@ -11,6 +11,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.Tests.Bindings.Core;
 using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.Tests.Bindings.Observation;

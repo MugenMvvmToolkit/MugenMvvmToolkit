@@ -14,14 +14,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly HeaderFooterCollectionDecorator _decorator;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public HeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _decorator = new HeaderFooterCollectionDecorator();
             _collection.AddComponent(_decorator);
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _tracker.Changed += Assert;
         }

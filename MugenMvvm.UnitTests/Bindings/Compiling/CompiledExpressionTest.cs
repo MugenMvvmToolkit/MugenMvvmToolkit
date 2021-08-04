@@ -9,8 +9,8 @@ using MugenMvvm.Bindings.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Metadata;
+using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.Tests.Internal;
-using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using Should;
 using Xunit;
 

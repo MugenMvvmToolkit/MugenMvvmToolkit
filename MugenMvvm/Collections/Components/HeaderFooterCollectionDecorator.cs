@@ -144,8 +144,8 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
-            using var _ = Owner.TryLock();
-            using var __ = DecoratorManager.BatchUpdate(Owner, this);
+            using var _ = Owner.Lock();
+            using var __ = BatchUpdate();
             SetValue(value, isFooter);
             var offset = isFooter ? _footerIndex : 0;
             if (value.IsEmpty)

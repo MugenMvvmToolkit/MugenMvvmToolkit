@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -17,7 +16,7 @@ namespace MugenMvvm.Components
     {
         private int _flag;
         private Listener _listener;
-        private List<Listener>? _listeners;
+        private ListInternal<Listener> _listeners;
 
         public int Priority { get; init; } = ComponentPriority.PreInitializer;
 
@@ -25,12 +24,12 @@ namespace MugenMvvm.Components
             where T : class
             where TState : class
         {
-            var l = new Listener(listener, state, o => o is T || o is IComponentCollectionDecorator<T>, (b, del, s, collection, metadata) =>
+            var l = new Listener(listener, state, o => o is T or IComponentCollectionDecorator<T>, (b, del, s, collection, metadata) =>
             {
                 var action = (Action<ItemOrArray<T>, TState, IReadOnlyMetadataContext?>)del;
                 action.Invoke(b ? collection.Get<T>() : default, (TState)s!, metadata);
             });
-            if (_listeners != null)
+            if (!_listeners.IsEmpty)
             {
                 _listeners.Add(l);
                 return;
@@ -40,7 +39,9 @@ namespace MugenMvvm.Components
                 _listener = l;
             else
             {
-                _listeners = new List<Listener>(2) { _listener, l };
+                _listeners = new ListInternal<Listener>(2);
+                _listeners.Add(_listener);
+                _listeners.Add(l);
                 _listener = default;
             }
         }
@@ -57,10 +58,11 @@ namespace MugenMvvm.Components
             if (Interlocked.CompareExchange(ref _flag, int.MaxValue, 0) != 0)
                 return;
             collection.Components.Add(this, metadata);
-            if (_listeners != null)
+            if (!_listeners.IsEmpty)
             {
+                var items = _listeners.Items;
                 for (var i = 0; i < _listeners.Count; i++)
-                    _listeners[i].Update(collection, metadata);
+                    items[i].Update(collection, metadata);
             }
             else if (!_listener.IsEmpty)
                 _listener.Update(collection, metadata);
@@ -78,10 +80,11 @@ namespace MugenMvvm.Components
             if (Interlocked.CompareExchange(ref _flag, 0, int.MaxValue) != int.MaxValue)
                 return;
             collection.Components.Remove(this, metadata);
-            if (_listeners != null)
+            if (!_listeners.IsEmpty)
             {
+                var items = _listeners.Items;
                 for (var i = 0; i < _listeners.Count; i++)
-                    _listeners[i].Clear(collection, metadata);
+                    items[i].Clear(collection, metadata);
             }
             else if (!_listener.IsEmpty)
                 _listener.Clear(collection, metadata);
@@ -89,10 +92,11 @@ namespace MugenMvvm.Components
 
         public void OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (_listeners != null)
+            if (!_listeners.IsEmpty)
             {
+                var items = _listeners.Items;
                 for (var i = 0; i < _listeners.Count; i++)
-                    _listeners[i].OnComponentChanged(component, collection, metadata);
+                    items[i].OnComponentChanged(component, collection, metadata);
             }
             else if (!_listener.IsEmpty)
                 _listener.OnComponentChanged(component, collection, metadata);

@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class PinHeaderFooterCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private readonly Func<object?, bool?> _isHeaderOrFooter;
         private IComparer<object?>? _headerComparer;
         private IComparer<object?>? _footerComparer;
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public PinHeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _isHeaderOrFooter = o =>
             {
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             });
             collection.AddComponent(new PinHeaderFooterCollectionDecorator<string>(isHeaderOrFooter));
 
-            var tracker = new DecoratorObservableCollectionTracker<object>();
+            var tracker = new DecoratedCollectionChangeTracker<object>();
             var assert = new Action(() =>
             {
                 collection.DecoratedItems().ShouldEqual(tracker.ChangedItems);

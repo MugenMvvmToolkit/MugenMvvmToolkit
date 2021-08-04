@@ -38,7 +38,7 @@ namespace MugenMvvm.Collections.Components
     }
 
     public class FlattenCollectionDecorator<T> : FlattenCollectionDecorator, ILockerChangedListener<IReadOnlyObservableCollection>,
-        ICollectionItemPreInitializerComponent<object>
+        IPreInitializerCollectionComponent<object>
         where T : class
     {
         private readonly Func<T, FlattenItemInfo> _getNestedCollection;
@@ -57,8 +57,8 @@ namespace MugenMvvm.Collections.Components
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnDetached(owner, metadata);
             Clear();
+            base.OnDetached(owner, metadata);
         }
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
@@ -96,7 +96,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            using var t = decoratorManager.BatchUpdate(collection, this);
+            using var t = BatchUpdate();
             var addIndex = index;
             var removed = OnRemoved(decoratorManager, oldItem, ref index, out var isRemoveReset);
             if (removed)
@@ -251,7 +251,8 @@ namespace MugenMvvm.Collections.Components
             _collectionItems.Clear();
         }
 
-        private bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, object source, object? item, ref int index, bool notify, bool updateIndex, out bool isReset)
+        private bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, object? item, ref int index, bool notify,
+            bool updateIndex, out bool isReset)
         {
             var originalIndex = index;
             if (updateIndex)
@@ -304,26 +305,23 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        void ICollectionItemPreInitializerComponent<object>.Initialize(IReadOnlyObservableCollection<object> collection, object item)
+        void IPreInitializerCollectionComponent<object>.Initialize(IReadOnlyObservableCollection<object> collection, object item)
         {
             if (item is not T itemT)
                 return;
 
             var flattenItemInfo = _getNestedCollection(itemT);
-            if (flattenItemInfo.IsEmpty)
+            if (flattenItemInfo.IsEmpty || flattenItemInfo.Items is not ISynchronizable synchronizable)
                 return;
 
-            using var _ = MugenExtensions.TryLock(flattenItemInfo.Items);
-            if (collection is ISynchronizable owner && flattenItemInfo.Items is ISynchronizable coll)
-            {
-                owner.UpdateLocker(coll.Locker);
-                coll.UpdateLocker(owner.Locker);
-            }
+            using var _ = collection.Lock();
+            using var __ = MugenExtensions.TryLock(flattenItemInfo.Items);
+            collection.UpdateLocker(synchronizable.Locker);
+            synchronizable.UpdateLocker(collection.Locker);
         }
 
         void ILockerChangedListener<IReadOnlyObservableCollection>.OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
         {
-            using var _ = owner.TryLock();
             foreach (var item in _collectionItems)
                 item.Value.UpdateLocker(locker);
         }

@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Models.Components
     {
         bool IsSuspended(T owner, IReadOnlyMetadataContext? metadata);
 
-        ActionToken TrySuspend(T owner, object? state, IReadOnlyMetadataContext? metadata);
+        ActionToken TrySuspend(T owner, IReadOnlyMetadataContext? metadata);
     }
 }

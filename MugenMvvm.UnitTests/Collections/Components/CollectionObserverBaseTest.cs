@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTests.Models.Internal;
 using Should;
@@ -15,227 +15,204 @@ namespace MugenMvvm.UnitTests.Collections.Components
     [Collection(SharedContext)]
     public abstract class CollectionObserverBaseTest : UnitTestBase
     {
+        private readonly CollectionObserverBase _observer;
         private readonly SynchronizedObservableCollection<TestNotifyPropertyChangedModel> _collection;
-        private readonly CollectionObserverBase _listener;
-        private TestNotifyPropertyChangedModel? _currentItem;
-        private int _collectionChangedCount;
-        private int _itemChangedCount;
 
         protected CollectionObserverBaseTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<TestNotifyPropertyChangedModel>(ComponentCollectionManager);
-            _listener = GetObserver();
-            _listener.AddObserver(this, (s, c) =>
-            {
-                s.ShouldEqual(this);
-                c.ShouldEqual(_collection);
-                ++_collectionChangedCount;
-            });
-            _listener.AddObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), item =>
-            {
-                item.Count.ShouldEqual(1);
-                item[0].Member.ShouldEqual(nameof(_currentItem.Property));
-                _currentItem.ShouldEqual(item[0].Item);
-                ++_itemChangedCount;
-            });
-            _collection.Components.Add(_listener);
-            _itemChangedCount = 0;
-            _collectionChangedCount = 0;
+            _observer = GetObserver();
+            _collection.AddComponent(_observer);
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
         [Theory]
         [InlineData(10)]
         [InlineData(100)]
-        public void AddClearShouldTrackChanges(int count)
+        public void AddShouldTrackChanges(int count)
         {
-            for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel());
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Add);
+                ++invokeCount;
+            }, 0, false);
 
             for (var i = 0; i < count; i++)
             {
-                _currentItem = _collection[i];
-                _currentItem.OnPropertyChanged(nameof(_currentItem.Property));
-                _itemChangedCount.ShouldEqual(i + 1);
+                currentItem = new TestNotifyPropertyChangedModel();
+                _collection.Add(currentItem);
+                invokeCount.ShouldEqual(i + 1);
             }
 
-            _collectionChangedCount = 0;
-            _itemChangedCount = 0;
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeFalse();
+        }
 
-            var items = _collection.ToArray();
+        [Theory]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        [InlineData(100, true)]
+        [InlineData(100, false)]
+        public void AddShouldTrackItemChanges(int count, bool postAdd)
+        {
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+
+            void AddObserver()
+            {
+                _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
+                {
+                    var eventInfo = infos.Single();
+                    eventInfo.Collection.ShouldEqual(_collection);
+                    currentItem.ShouldEqual(eventInfo.Item);
+                    eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
+                    eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
+                    ++invokeCount;
+                }, 0, true);
+            }
+
+            if (!postAdd)
+                AddObserver();
+            for (var i = 0; i < count; i++)
+            {
+                currentItem = new TestNotifyPropertyChangedModel();
+                _collection.Add(currentItem);
+            }
+
+            if (postAdd)
+                AddObserver();
+
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeTrue();
+            invokeCount.ShouldEqual(0);
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                currentItem = _collection[i];
+                currentItem.OnPropertyChanged(nameof(currentItem.Property));
+                invokeCount.ShouldEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(10)]
+        [InlineData(100)]
+        public void ClearShouldTrackChanges(int count)
+        {
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
+
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Item.ShouldBeNull();
+                eventInfo.Parameter.ShouldBeNull();
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
+                ++invokeCount;
+            }, 0, false);
+
             _collection.Clear();
-            _collectionChangedCount.ShouldEqual(1);
-            _itemChangedCount.ShouldEqual(0);
-
-            foreach (var item in items)
-            {
-                _currentItem = item;
-                item.OnPropertyChanged(nameof(item.PropertyChanged));
-            }
-
-            _collectionChangedCount.ShouldEqual(1);
-            _itemChangedCount.ShouldEqual(0);
+            invokeCount.ShouldEqual(1);
         }
 
         [Theory]
         [InlineData(10)]
         [InlineData(100)]
-        public void AddDetachShouldTrackChanges(int count)
+        public void ClearShouldTrackItemChanges(int count)
         {
-            for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel());
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
 
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
+                eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
+                ++invokeCount;
+            }, 0, true);
             for (var i = 0; i < count; i++)
             {
-                _currentItem = _collection[i];
-                _currentItem.OnPropertyChanged(nameof(_currentItem.Property));
-                _itemChangedCount.ShouldEqual(i + 1);
+                currentItem = new TestNotifyPropertyChangedModel();
+                _collection.Add(currentItem);
             }
 
-            _collectionChangedCount = 0;
-            _itemChangedCount = 0;
 
-            var items = _collection.ToArray();
-            _collection.Components.Remove(_listener);
-            _collectionChangedCount.ShouldEqual(0);
-            _itemChangedCount.ShouldEqual(0);
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeTrue();
 
-            foreach (var item in items)
+            var oldItems = _collection.ToArray();
+            _collection.Clear();
+
+            foreach (var t in oldItems)
             {
-                _currentItem = item;
-                item.OnPropertyChanged(nameof(item.PropertyChanged));
+                t.HasSubscribers.ShouldBeFalse();
+                t.OnPropertyChanged(nameof(currentItem.Property));
+                invokeCount.ShouldEqual(0);
             }
-
-            _collectionChangedCount.ShouldEqual(0);
-            _itemChangedCount.ShouldEqual(0);
-        }
-
-        [Theory]
-        [InlineData(10)]
-        [InlineData(100)]
-        public void AddRemoveShouldTrackChanges(int count)
-        {
-            for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel());
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
-
-            for (var i = 0; i < count; i++)
-            {
-                _currentItem = _collection[i];
-                _currentItem.OnPropertyChanged(nameof(_currentItem.Property));
-                _itemChangedCount.ShouldEqual(i + 1);
-            }
-
-            _collectionChangedCount = 0;
-            _itemChangedCount = 0;
-
-            var items = _collection.ToArray();
-            for (var i = 0; i < count; i++)
-                _collection.RemoveAt(0);
-
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
-
-            foreach (var item in items)
-            {
-                _currentItem = item;
-                item.OnPropertyChanged(nameof(item.PropertyChanged));
-            }
-
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
         }
 
         [Fact]
-        public void AttachShouldTrackChanges()
+        public void DelayShouldTrackChanged()
         {
-            _collection.Components.Remove(_listener);
-            var item1 = new TestNotifyPropertyChangedModel();
-            var item2 = new TestNotifyPropertyChangedModel();
+            const int count = 100;
+            const int delay = 20;
 
-            _collection.Add(item1);
-            _collection.Add(item2);
-            _collectionChangedCount.ShouldEqual(0);
-            _itemChangedCount.ShouldEqual(0);
+            var invokeCount = 0;
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                infos.Count.ShouldEqual(count);
+                infos.Select(info => info.Item).ShouldContain(_collection);
+                infos.All(info => info.Action == CollectionChangedAction.Add).ShouldBeTrue();
+                ++invokeCount;
+            }, delay, false);
 
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
+            for (var i = 0; i < count; i++)
+            {
+                var currentItem = new TestNotifyPropertyChangedModel();
+                _collection.Add(currentItem);
+                invokeCount.ShouldEqual(0);
+            }
 
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
-
-            _collection.Components.Add(_listener);
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(1);
-
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(1);
-            _collectionChangedCount.ShouldEqual(1);
-
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(2);
-            _collectionChangedCount.ShouldEqual(1);
+            WaitCompletion(delay, () => invokeCount > 0);
+            invokeCount.ShouldEqual(1);
         }
 
-        [Theory]
-        [InlineData(10)]
-        [InlineData(100)]
-        public void DelayShouldTrackAllEvents(int count)
+        [Fact]
+        public void DelayShouldTrackItemChanged()
         {
-            const int delay = 10;
-            var changedItems = new List<object>();
-            _listener.ClearObservers();
-            _listener.AddObserver(this, (s, c) =>
+            const int count = 100;
+            const int delay = 20;
+
+            var invokeCount = 0;
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
             {
-                s.ShouldEqual(this);
-                c.ShouldEqual(_collection);
-                ++_collectionChangedCount;
-            }, delay);
-            _listener.AddObserver<object>(info => info.IsMemberChanged(nameof(_currentItem.Property)), items =>
-            {
-                changedItems.ShouldBeEmpty();
-                foreach (var eventInfo in items)
-                {
-                    eventInfo.Member.ShouldEqual(nameof(_currentItem.Property));
-                    changedItems.Add(eventInfo.Item!);
-                }
-            }, delay);
-            WaitCompletion(delay, () => _collectionChangedCount == 1);
-            _collectionChangedCount = 0;
-            changedItems.Count.ShouldEqual(0);
+                infos.Count.ShouldEqual(count);
+                infos.Select(info => info.Item).ShouldContain(_collection);
+                infos.All(info => info.Action == CollectionChangedAction.Changed).ShouldBeTrue();
+                infos.All(info => info.Member == nameof(TestNotifyPropertyChangedModel.Property)).ShouldBeTrue();
+                ++invokeCount;
+            }, delay, true);
 
             for (var i = 0; i < count; i++)
                 _collection.Add(new TestNotifyPropertyChangedModel());
-            _collectionChangedCount.ShouldEqual(0);
-            changedItems.Count.ShouldEqual(0);
 
-            WaitCompletion(delay, () => _collectionChangedCount == 1);
-            _collectionChangedCount.ShouldEqual(1);
-            changedItems.Count.ShouldEqual(0);
-
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < 2; i++)
             {
-                _collection[i].OnPropertyChanged(nameof(_currentItem.Property));
-                changedItems.Count.ShouldEqual(0);
+                foreach (var model in _collection)
+                    model.OnPropertyChanged(nameof(TestNotifyPropertyChangedModel.Property));
             }
 
-            WaitCompletion(delay, () => changedItems.Count == count);
-            _collectionChangedCount.ShouldEqual(1);
-            changedItems.Count.ShouldEqual(count);
-            foreach (var item in _collection)
-                changedItems.Remove(item);
-            changedItems.Count.ShouldEqual(0);
+            WaitCompletion(delay, () => invokeCount > 0);
+            invokeCount.ShouldEqual(1);
         }
 
         [Theory]
@@ -243,240 +220,328 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(100)]
         public void MoveShouldTrackChanges(int count)
         {
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
             for (var i = 0; i < count; i++)
                 _collection.Add(new TestNotifyPropertyChangedModel());
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
 
-            _collectionChangedCount = 0;
-            _itemChangedCount = 0;
-
-            for (var i = 0; i < count; i++)
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
-                _collection.Move(0, 1);
-                _collectionChangedCount.ShouldEqual(i + 1);
-                _itemChangedCount.ShouldEqual(0);
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Move);
+                ++invokeCount;
+            }, 0, false);
+
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeFalse();
+
+            for (var i = 0; i < count - 2; i++)
+            {
+                currentItem = _collection[0];
+                _collection.Move(0, i + 1);
+                invokeCount.ShouldEqual(i + 1);
             }
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void RaiseChangedShouldNotify(bool force)
+        [InlineData(10)]
+        [InlineData(100)]
+        public void RemoveShouldTrackChanges(int count)
         {
-            const int delay = 10;
             var invokeCount = 0;
-            var delayInvokeCount = 0;
-            _listener.ClearObservers();
-            _listener.AddObserver<object>(_ => true, _ => ++invokeCount);
-            _listener.AddObserver<object>(_ => true, _ => ++delayInvokeCount, delay);
-            invokeCount = 0;
-            delayInvokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
 
-            _listener.RaiseChanged(force);
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Remove);
+                ++invokeCount;
+            }, 0, false);
+
+            for (var i = 0; i < count; i++)
+            {
+                currentItem = _collection[0];
+                _collection.RemoveAt(0);
+                invokeCount.ShouldEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(10)]
+        [InlineData(100)]
+        public void RemoveShouldTrackItemChanges(int count)
+        {
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
+                eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
+                ++invokeCount;
+            }, 0, true);
+            for (var i = 0; i < count; i++)
+            {
+                currentItem = new TestNotifyPropertyChangedModel();
+                _collection.Add(currentItem);
+            }
+
+
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeTrue();
+
+            var oldItems = _collection.ToArray();
+            for (var i = 0; i < count; i++)
+                _collection.RemoveAt(0);
+
+            foreach (var t in oldItems)
+            {
+                t.HasSubscribers.ShouldBeFalse();
+                t.OnPropertyChanged(nameof(currentItem.Property));
+                invokeCount.ShouldEqual(0);
+            }
+        }
+
+        [Theory]
+        [InlineData(10)]
+        [InlineData(100)]
+        public void ReplaceShouldTrackChanges(int count)
+        {
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+            TestNotifyPropertyChangedModel? oldItem = null;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
+
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                oldItem.ShouldEqual(eventInfo.OldItem);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Replace);
+                ++invokeCount;
+            }, 0, false);
+
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeFalse();
+
+            for (var i = 0; i < count; i++)
+            {
+                oldItem = _collection[i];
+                currentItem = new TestNotifyPropertyChangedModel();
+                _collection[i] = currentItem;
+                invokeCount.ShouldEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(10)]
+        [InlineData(100)]
+        public void ReplaceShouldTrackItemChanges(int count)
+        {
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
+
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
+                eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
+                ++invokeCount;
+            }, 0, true);
+
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeTrue();
+
+            for (var i = 0; i < count; i++)
+            {
+                var oldItem = _collection[i];
+                currentItem = new TestNotifyPropertyChangedModel();
+                _collection[i] = currentItem;
+                oldItem.HasSubscribers.ShouldBeFalse();
+                currentItem.HasSubscribers.ShouldBeTrue();
+                currentItem.OnPropertyChanged(nameof(TestNotifyPropertyChangedModel.Property));
+                invokeCount.ShouldEqual(i + 1);
+            }
+        }
+
+        [Theory]
+        [InlineData(10)]
+        [InlineData(100)]
+        public void ResetShouldTrackChanges(int count)
+        {
+            var resetItems = new List<TestNotifyPropertyChangedModel> { new() };
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
+
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Item.ShouldBeNull();
+                eventInfo.Parameter.ShouldEqual(resetItems);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
+                ++invokeCount;
+            }, 0, false);
+
+            resetItems.AddRange(_collection.Take(2));
+            _collection.Reset(resetItems);
             invokeCount.ShouldEqual(1);
-            delayInvokeCount.ShouldEqual(force ? 1 : 0);
         }
 
-        [Fact]
-        public void ReplaceShouldTrackChanges()
+        [Theory]
+        [InlineData(10)]
+        [InlineData(100)]
+        public void ResetShouldTrackItemChanges(int count)
         {
-            var item1 = new TestNotifyPropertyChangedModel();
-            var item2 = new TestNotifyPropertyChangedModel();
+            var resetItems = new List<TestNotifyPropertyChangedModel> { new() };
+            var invokeCount = 0;
+            TestNotifyPropertyChangedModel? currentItem = null;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
 
-            _collection.Add(item1);
-            _collectionChangedCount.ShouldEqual(1);
-            _itemChangedCount.ShouldEqual(0);
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                currentItem.ShouldEqual(eventInfo.Item);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
+                eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
+                ++invokeCount;
+            }, 0, true);
 
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(1);
-            _collectionChangedCount.ShouldEqual(1);
+            foreach (var model in _collection)
+                model.HasSubscribers.ShouldBeTrue();
 
-            _collection[0] = item2;
-            _itemChangedCount.ShouldEqual(1);
-            _collectionChangedCount.ShouldEqual(2);
+            var oldItems = _collection.ToList();
+            _collection.Clear();
 
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(1);
-            _collectionChangedCount.ShouldEqual(2);
+            resetItems.AddRange(_collection.Take(2));
+            _collection.Reset(resetItems);
 
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(2);
-            _collectionChangedCount.ShouldEqual(2);
-        }
+            var currentInvokeCount = 0;
+            foreach (var t in oldItems)
+            {
+                if (_collection.Contains(t))
+                {
+                    currentItem = t;
+                    t.HasSubscribers.ShouldBeTrue();
+                    t.OnPropertyChanged(nameof(currentItem.Property));
+                    ++currentInvokeCount;
+                    invokeCount.ShouldEqual(currentInvokeCount);
+                }
+                else
+                {
+                    t.HasSubscribers.ShouldBeFalse();
+                    t.OnPropertyChanged(nameof(currentItem.Property));
+                    invokeCount.ShouldEqual(0);
+                }
+            }
 
-        [Fact]
-        public void ResetShouldTrackChanges()
-        {
-            var item1 = new TestNotifyPropertyChangedModel();
-            var item2 = new TestNotifyPropertyChangedModel();
-
-            _collection.Add(item1);
-            _collection.Add(item2);
-            _collectionChangedCount.ShouldEqual(2);
-            _itemChangedCount.ShouldEqual(0);
-
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(1);
-            _collectionChangedCount.ShouldEqual(2);
-
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(2);
-            _collectionChangedCount.ShouldEqual(2);
-
-            _collection.Reset(new[] {item2});
-            _itemChangedCount.ShouldEqual(2);
-            _collectionChangedCount.ShouldEqual(3);
-
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(2);
-            _collectionChangedCount.ShouldEqual(3);
-
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(3);
-            _collectionChangedCount.ShouldEqual(3);
-        }
-
-        [Fact]
-        public void ShouldSubscribeOnPropertyChangeHasObservers()
-        {
-            _collection.RemoveComponent(_listener);
-            var observer = GetObserver();
-            _collection.AddComponent(observer);
-
-            var item1 = new TestNotifyPropertyChangedModel();
-            _collection.Add(item1);
-            item1.HasSubscribers.ShouldBeFalse();
-
-            observer.AddObserver(this, (_, _) => { });
-            item1.HasSubscribers.ShouldBeFalse();
-
-            observer.AddObserver<object>(_ => true, _ => { });
-            item1.HasSubscribers.ShouldBeTrue();
+            foreach (var t in _collection)
+            {
+                currentItem = t;
+                t.HasSubscribers.ShouldBeTrue();
+                t.OnPropertyChanged(nameof(currentItem.Property));
+                ++currentInvokeCount;
+                invokeCount.ShouldEqual(currentInvokeCount);
+            }
         }
 
         [Fact]
         public void ShouldSuspendTrackChanges()
         {
-            using var t = _collection.TrySuspend();
-            var item1 = new TestNotifyPropertyChangedModel();
-            var item2 = new TestNotifyPropertyChangedModel();
+            const int count = 100;
+            var invokeCount = 0;
 
-            _collection.Add(item1);
-            _collection.Add(item2);
-            _collectionChangedCount.ShouldEqual(0);
-            _itemChangedCount.ShouldEqual(0);
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Item.ShouldBeNull();
+                ((IEnumerable<object>)eventInfo.Parameter!).ShouldEqual(_collection);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
+                ++invokeCount;
+            }, 0, false);
 
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
+            var token = _collection.TrySuspend();
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
+            invokeCount.ShouldEqual(0);
+            token.Dispose();
+            invokeCount.ShouldEqual(1);
+        }
 
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
+        [Fact]
+        public void ShouldSuspendTrackItemChanges()
+        {
+            const int count = 100;
+            var invokeCount = 0;
+            for (var i = 0; i < count; i++)
+                _collection.Add(new TestNotifyPropertyChangedModel());
 
-            _collection.Reset(new[] {item2});
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
+            _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberOrCollectionChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
+            {
+                var eventInfo = infos.Single();
+                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Item.ShouldBeNull();
+                ((IEnumerable<object>)eventInfo.Parameter!).ShouldEqual(_collection);
+                eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
+                ++invokeCount;
+            }, 0, true);
 
-            _currentItem = item1;
-            item1.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
+            var token = _collection.TrySuspend();
+            foreach (var model in _collection)
+                model.OnPropertyChanged(nameof(model.Property));
 
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
-
-            t.Dispose();
-            _collectionChangedCount.ShouldEqual(1);
-            _itemChangedCount.ShouldEqual(0);
-
-            _currentItem = item2;
-            item2.OnPropertyChanged(nameof(item1.Property));
-            _itemChangedCount.ShouldEqual(1);
-            _collectionChangedCount.ShouldEqual(1);
+            invokeCount.ShouldEqual(0);
+            token.Dispose();
+            invokeCount.ShouldEqual(1);
         }
 
         [Fact(Skip = ReleaseTest)]
         public void WeakObserverShouldBeValid()
         {
-            WeakTest(out var ref1, out var ref2);
-            _itemChangedCount = 0;
-            _collectionChangedCount = 0;
+            var weakReference = WeakTest();
             GcCollect();
             GcCollect();
             GcCollect();
 
             foreach (var item in _collection)
-                item.OnPropertyChanged(nameof(_currentItem.Property));
+                item.OnPropertyChanged(nameof(item.Property));
             _collection.Add(new TestNotifyPropertyChangedModel());
-            _itemChangedCount.ShouldEqual(0);
-            _collectionChangedCount.ShouldEqual(0);
-            ref1.IsAlive.ShouldBeFalse();
-            ref2.IsAlive.ShouldBeFalse();
+            weakReference.IsAlive.ShouldBeFalse();
         }
 
         protected abstract CollectionObserverBase GetObserver();
 
-        private void WeakTest(out WeakReference weakReference1, out WeakReference weakReference2)
+        private WeakReference WeakTest()
         {
-            var target1 = new object();
-            var target2 = new object();
-            weakReference1 = new WeakReference(target1);
-            weakReference2 = new WeakReference(target2);
-            var ref1 = weakReference1;
-            var ref2 = weakReference2;
+            var target = new object();
+            var weakReference = new WeakReference(target);
+            var invokeCount = 0;
+            _observer.AddObserverWeak<object, object>(target, (_, _) => true, (_, _) => ++invokeCount, 0, true);
+            _collection.Add(new TestNotifyPropertyChangedModel());
+            invokeCount.ShouldEqual(1);
 
-            var count = 10;
-            _listener.ClearObservers();
-            _listener.AddObserverWeak(target1, (s, c) =>
-            {
-                s.ShouldNotBeNull();
-                s.ShouldEqual(ref1.Target);
-                c.ShouldEqual(_collection);
-                ++_collectionChangedCount;
-            });
-            _listener.AddObserverWeak<object, object>(target2, (s, info) =>
-            {
-                s.ShouldNotBeNull();
-                s.ShouldEqual(ref2.Target);
-                return info.IsMemberChanged(nameof(_currentItem.Property));
-            }, (s, item) =>
-            {
-                s.ShouldNotBeNull();
-                s.ShouldEqual(ref2.Target);
-                item[0].Member.ShouldEqual(nameof(_currentItem.Property));
-                item[0].Item.ShouldEqual(_currentItem);
-                ++_itemChangedCount;
-            });
-
-            _collectionChangedCount = 0;
-            _itemChangedCount.ShouldEqual(0);
-
-            for (var i = 0; i < count; i++)
-                _collection.Add(new TestNotifyPropertyChangedModel());
-
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(0);
-
-            for (var i = 0; i < count; i++)
-            {
-                _currentItem = _collection[i];
-                _currentItem.OnPropertyChanged(nameof(_currentItem.Property));
-            }
-
-            _collectionChangedCount.ShouldEqual(count);
-            _itemChangedCount.ShouldEqual(count);
+            _collection[0].OnPropertyChanged(nameof(TestNotifyPropertyChangedModel.Property));
+            invokeCount.ShouldEqual(2);
+            return weakReference;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.Components.GetComponentOptional<CollectionDecoratorManagerInitializer>().ShouldNotBeNull();
             collection.GetComponentOptional<CollectionDecoratorManager<int>>().ShouldBeNull();
 
-            collection.AddComponent(new TestCollectionDecoratorListener<object>());
+            collection.AddComponent(new TestDecoratedCollectionChangedListener<object>());
             collection.Components.GetComponentOptional<CollectionDecoratorManagerInitializer>().ShouldBeNull();
             collection.GetComponentOptional<CollectionDecoratorManager<int>>().ShouldNotBeNull();
         }

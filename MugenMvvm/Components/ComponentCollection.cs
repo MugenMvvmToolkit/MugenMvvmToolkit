@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasComponentAddedHandler, IHasComponentRemovedHandler,
+    public sealed class ComponentCollection : IComponentCollection, IHasComponentAddedHandler, IHasComponentRemovedHandler, IComparer<object>,
         IComparer<IComponentCollectionDecoratorBase>
     {
         private readonly IComponentCollectionManager? _componentCollectionManager;
@@ -40,45 +43,41 @@ namespace MugenMvvm.Components
         public object? TryAdd<T>(T state, Func<IComponentCollection, T, IReadOnlyMetadataContext?, object?> tryGetComponent, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(tryGetComponent, nameof(tryGetComponent));
-            bool? added;
-            object? component;
-            lock (_items)
+            using (Lock())
             {
-                component = tryGetComponent(this, state, metadata);
+                var component = tryGetComponent(this, state, metadata);
                 if (component == null)
                     return null;
-                added = TryAddInternal(component, metadata);
-            }
+                var added = TryAddInternal(component, metadata);
 
-            if (added.GetValueOrDefault())
-            {
-                RaiseAdded(component, metadata);
-                return component;
-            }
+                if (added.GetValueOrDefault())
+                {
+                    RaiseAdded(component, metadata);
+                    return component;
+                }
 
-            if (added == null)
-                return component;
-            return null;
+                if (added == null)
+                    return component;
+                return null;
+            }
         }
 
         public bool TryAdd(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            bool? added;
-            lock (_items)
+            using (Lock())
             {
-                added = TryAddInternal(component, metadata);
+                var added = TryAddInternal(component, metadata);
+                if (added.GetValueOrDefault())
+                    RaiseAdded(component, metadata);
+                return added.GetValueOrDefault(true);
             }
-
-            if (added.GetValueOrDefault())
-                RaiseAdded(component, metadata);
-            return added.GetValueOrDefault(true);
         }
 
         public bool Remove(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            lock (_items)
+            using (Lock())
             {
                 if (!_items.Contains(component))
                     return false;
@@ -91,11 +90,11 @@ namespace MugenMvvm.Components
                 _components?.Get<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata);
                 _items.Remove(component);
                 UpdateTrackers(component, null, metadata);
-            }
 
-            ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
-            _components?.Get<IComponentCollectionChangedListener>(metadata).OnRemoved(this, component, metadata);
-            return true;
+                ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
+                _components?.Get<IComponentCollectionChangedListener>(metadata).OnRemoved(this, component, metadata);
+                return true;
+            }
         }
 
         public void Clear(IReadOnlyMetadataContext? metadata = null)
@@ -103,13 +102,13 @@ namespace MugenMvvm.Components
             if (Count == 0)
                 return;
 
-            var conditionComponents = _components == null ? default : _components.Get<IConditionComponentCollectionComponent>(metadata);
-            var changingListeners = _components == null ? default : _components.Get<IComponentCollectionChangingListener>(metadata);
-            var ignoredIndexes = new ItemOrListEditor<int>();
-            ItemOrArray<object> components;
-            lock (_items)
+            using (Lock())
             {
-                components = Get<object>(metadata);
+                var conditionComponents = _components == null ? default : _components.Get<IConditionComponentCollectionComponent>(metadata);
+                var changingListeners = _components == null ? default : _components.Get<IComponentCollectionChangingListener>(metadata);
+                var ignoredIndexes = new ItemOrListEditor<int>();
+
+                var components = Get<object>(metadata);
                 if (components.Count == 0)
                     return;
 
@@ -152,17 +151,17 @@ namespace MugenMvvm.Components
                         UpdateTrackers(component, null, metadata);
                     }
                 }
-            }
 
-            var changedListeners = _components == null ? default : _components.Get<IComponentCollectionChangedListener>(metadata);
-            for (var i = 0; i < components.Count; i++)
-            {
-                if (ignoredIndexes.Contains(i))
-                    continue;
+                var changedListeners = _components == null ? default : _components.Get<IComponentCollectionChangedListener>(metadata);
+                for (var i = 0; i < components.Count; i++)
+                {
+                    if (ignoredIndexes.Contains(i))
+                        continue;
 
-                var component = components[i];
-                ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
-                changedListeners.OnRemoved(this, component, metadata);
+                    var component = components[i];
+                    ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
+                    changedListeners.OnRemoved(this, component, metadata);
+                }
             }
         }
 
@@ -182,17 +181,17 @@ namespace MugenMvvm.Components
             if (component == null)
                 return;
 
-            lock (_items)
+            using (Lock())
             {
                 if (!_items.Contains(component))
                     return;
 
                 _items.Sort(this);
                 UpdateTrackers(component, null, metadata);
-            }
 
-            _components?.Get<IHasCacheComponent<IComponentCollection>>(metadata).Invalidate(this, component, metadata);
-            (Owner as IHasComponentChangedHandler)?.OnComponentChanged(this, component, metadata);
+                _components?.Get<IHasCacheComponent<IComponentCollection>>(metadata).Invalidate(this, component, metadata);
+                (Owner as IHasComponentChangedHandler)?.OnComponentChanged(this, component, metadata);
+            }
         }
 
         private bool? TryAddInternal(object component, IReadOnlyMetadataContext? metadata)
@@ -219,7 +218,7 @@ namespace MugenMvvm.Components
 
         private ItemOrArray<TComponent> AddNewTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
         {
-            lock (_items)
+            using (Lock())
             {
                 var tracker = GetComponentTracker<TComponent>(metadata);
                 var componentTrackers = _componentTrackers;
@@ -291,13 +290,7 @@ namespace MugenMvvm.Components
         {
             var result = MugenExtensions.GetComponentPriority(x!).CompareTo(MugenExtensions.GetComponentPriority(y!));
             if (result == 0)
-            {
-                lock (_items)
-                {
-                    return _items.IndexOf(y!).CompareTo(_items.IndexOf(x!));
-                }
-            }
-
+                return _items.IndexOf(y!).CompareTo(_items.IndexOf(x!));
             return result;
         }
 
@@ -307,7 +300,7 @@ namespace MugenMvvm.Components
         {
             if (component is IComponentCollectionDecoratorBase decorator)
             {
-                lock (_items)
+                using (Lock())
                 {
                     MugenExtensions.AddOrdered(ref _decorators, decorator, this);
                     UpdateTrackers(null, decorator, metadata);
@@ -319,11 +312,30 @@ namespace MugenMvvm.Components
         {
             if (component is IComponentCollectionDecoratorBase decorator)
             {
-                lock (_items)
+                using (Lock())
                 {
                     MugenExtensions.Remove(ref _decorators, decorator);
                     UpdateTrackers(null, decorator, metadata);
                 }
+            }
+        }
+
+        private ActionToken Lock()
+        {
+            if (Owner is ISynchronizable synchronizable)
+                return synchronizable.Lock();
+
+            var lockTaken = false;
+            try
+            {
+                Monitor.Enter(_items, ref lockTaken);
+                return ActionToken.FromDelegate((o, _) => Monitor.Exit(o!), _items);
+            }
+            catch
+            {
+                if (lockTaken)
+                    Monitor.Exit(_items);
+                throw;
             }
         }
 

@@ -270,17 +270,17 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static ActionToken TrySuspend<T>(this ItemOrArray<ISuspendableComponent<T>> components, T owner, object? state, IReadOnlyMetadataContext? metadata)
+        public static ActionToken TrySuspend<T>(this ItemOrArray<ISuspendableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata)
             where T : class
         {
             if (components.Count == 0)
                 return default;
             if (components.Count == 1)
-                return components[0].TrySuspend(owner, state, metadata);
+                return components[0].TrySuspend(owner, metadata);
 
             var tokens = new ActionToken[components.Count];
             for (var i = 0; i < tokens.Length; i++)
-                tokens[i] = components[i].TrySuspend(owner, state, metadata);
+                tokens[i] = components[i].TrySuspend(owner, metadata);
             return ActionToken.FromTokens(tokens);
         }
     }

@@ -62,7 +62,7 @@ namespace MugenMvvm.Busy.Components
                             token.Owner.BeginBusy(token, 0, null);
                         else
                         {
-                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>)state!;
+                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>) state!;
                             tuple.Item1.Owner.BeginBusy(tuple.Item1, 0, tuple.Item2);
                         }
                     }, metadata == null ? busyToken : Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
@@ -200,7 +200,7 @@ namespace MugenMvvm.Busy.Components
 
                             if (IsSuspended)
                                 callback.OnSuspendChanged(true);
-                            return ActionToken.FromDelegate((token, cal) => ((BusyToken)token!).RemoveCallback((IBusyTokenCallback)cal!), this, callback);
+                            return ActionToken.FromDelegate((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
                         }
                     }
                 }
@@ -234,10 +234,10 @@ namespace MugenMvvm.Busy.Components
                 Owner.OnBusyInfoChanged();
             }
 
-            public ActionToken Suspend(object? state, IReadOnlyMetadataContext? metadata)
+            public ActionToken Suspend(IReadOnlyMetadataContext? metadata)
             {
                 SetSuspended(true);
-                return ActionToken.FromDelegate((t, _) => ((BusyToken)t!).SetSuspended(false), this);
+                return ActionToken.FromDelegate((t, _) => ((BusyToken) t!).SetSuspended(false), this);
             }
 
             private void RemoveCallback(IBusyTokenCallback callback)

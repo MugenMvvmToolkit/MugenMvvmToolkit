@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Internal;
@@ -34,30 +33,23 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; init; }
 
-        public ActionToken AddObserver<TState>(TState state, Action<TState, IReadOnlyObservableCollection> onChanged, int delay = 0) =>
-            AddObserverInternal(onChanged, state, delay, false);
+        public ActionToken AddObserver<T>(Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay,
+            bool listenItemChanges)
+            where T : class => AddObserverInternal<T, (Func<CollectionChangedEventInfo<T>, bool>, Action<ItemOrArray<CollectionChangedEventInfo<T>>>)>((s, info) => s.Item1(info),
+            (s, info) => s.Item2(info),
+            (predicate, onChanged), delay, false, listenItemChanges);
 
-        public ActionToken AddObserverWeak<TTarget>(TTarget target, Action<TTarget, IReadOnlyObservableCollection> onChanged, int delay = 0) where TTarget : class
-        {
-            Should.NotBeNull(target, nameof(target));
-            return AddObserverInternal(onChanged, target, delay, true);
-        }
+        public ActionToken AddObserver<T, TState>(Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
+            TState state, int delay, bool listenItemChanges) where T : class =>
+            AddObserverInternal(predicate, onChanged, state, delay, false, listenItemChanges);
 
-        public ActionToken AddObserver<T>(Func<ChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<ChangedEventInfo<T>>> onChanged, int delay = 0)
-            where T : class => AddObserverInternal<T, (Func<ChangedEventInfo<T>, bool>, Action<ItemOrArray<ChangedEventInfo<T>>>)>((s, info) => s.Item1(info), (s, info) => s.Item2(info),
-            (predicate, onChanged), delay, false);
-
-        public ActionToken AddObserver<T, TState>(Func<TState, ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<ChangedEventInfo<T>>> onChanged, TState state,
-            int delay = 0) where T : class =>
-            AddObserverInternal(predicate, onChanged, state, delay, false);
-
-        public ActionToken AddObserverWeak<T, TTarget>(TTarget target, Func<TTarget, ChangedEventInfo<T>, bool> predicate,
-            Action<TTarget, ItemOrArray<ChangedEventInfo<T>>> onChanged, int delay = 0)
+        public ActionToken AddObserverWeak<T, TTarget>(TTarget target, Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate,
+            Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay, bool listenItemChanges)
             where T : class
             where TTarget : class
         {
             Should.NotBeNull(target, nameof(target));
-            return AddObserverInternal(predicate, onChanged, target, delay, true);
+            return AddObserverInternal(predicate, onChanged, target, delay, true, listenItemChanges);
         }
 
         public void ClearObservers()
@@ -71,13 +63,19 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public void RaiseChanged(bool force = false, IReadOnlyMetadataContext? metadata = null) => OnChanged(null, null, force);
+        public void RaiseChanged(bool force = false, IReadOnlyMetadataContext? metadata = null)
+        {
+            var owner = OwnerOptional;
+            if (owner != null)
+                OnChanged(owner, CollectionChangedAction.Reset, null, GetItems(), force);
+        }
 
         protected abstract IEnumerable<object?>? GetItems();
 
-        protected virtual void OnCollectionChanged() => OnChanged(null, null);
+        protected virtual void OnCollectionChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter) =>
+            OnChanged(collection, action, item, parameter);
 
-        protected virtual void OnChanged(object? item, string? member, bool force = false)
+        protected virtual void OnChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter, bool force = false)
         {
             if (_suspendCount != 0)
             {
@@ -99,7 +97,7 @@ namespace MugenMvvm.Collections.Components
                     continue;
                 }
 
-                if (!observer.OnChanged(item, member, force))
+                if (!observer.OnChanged(collection, action, item, parameter, force))
                 {
                     hasDeadRefs = true;
                     items[i] = null;
@@ -121,6 +119,22 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
+        protected virtual bool IsObservable(object item)
+        {
+            // ReSharper disable InconsistentlySynchronizedField
+            var items = _observers.Items;
+            var count = Math.Min(_observers.Count, items.Length);
+            // ReSharper restore InconsistentlySynchronizedField
+            for (var i = 0; i < count; i++)
+            {
+                var observer = items[i];
+                if (observer != null && observer.IsSupported(item))
+                    return true;
+            }
+
+            return false;
+        }
+
         protected virtual bool TrySubscribe(object item)
         {
             if (item is INotifyPropertyChanged propertyChanged)
@@ -132,50 +146,47 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        protected virtual void Unsubscribe(object item) => ((INotifyPropertyChanged) item).PropertyChanged -= _handler;
+        protected virtual void Unsubscribe(object item) => ((INotifyPropertyChanged)item).PropertyChanged -= _handler;
 
         protected override void OnAttached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttached(owner, metadata);
-            Subscribe(false);
-            OnCollectionChanged();
+            Resubscribe(owner);
+            OnCollectionChanged(owner, CollectionChangedAction.Reset, null, GetItems());
         }
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
-            using (owner.TryLock())
-            {
-                Clear();
-            }
+            Clear();
         }
 
-        protected void OnAdded(object? item)
+        protected void OnAdded(IReadOnlyObservableCollection collection, object? item)
         {
             SubscribeIfNeed(item);
-            OnCollectionChanged();
+            OnCollectionChanged(collection, CollectionChangedAction.Add, item, null);
         }
 
-        protected void OnReplaced(object? oldItem, object? newItem)
+        protected void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem)
         {
             UnsubscribeIfNeed(oldItem);
             SubscribeIfNeed(newItem);
-            OnCollectionChanged();
+            OnCollectionChanged(collection, CollectionChangedAction.Replace, newItem, oldItem);
         }
 
-        protected void OnMoved(object? item) => OnCollectionChanged();
+        protected void OnMoved(IReadOnlyObservableCollection collection, object? item) => OnCollectionChanged(collection, CollectionChangedAction.Move, item, null);
 
-        protected void OnRemoved(object? item)
+        protected void OnRemoved(IReadOnlyObservableCollection collection, object? item)
         {
             UnsubscribeIfNeed(item);
-            OnCollectionChanged();
+            OnCollectionChanged(collection, CollectionChangedAction.Remove, item, null);
         }
 
-        protected void OnReset(IEnumerable<object?>? oldItems, IEnumerable<object?>? items)
+        protected void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? oldItems, IEnumerable<object?>? items)
         {
             if (_items == null)
             {
-                OnCollectionChanged();
+                OnCollectionChanged(collection, CollectionChangedAction.Reset, null, items);
                 return;
             }
 
@@ -184,91 +195,34 @@ namespace MugenMvvm.Collections.Components
                 foreach (var item in _items)
                     Unsubscribe(item.Key);
                 _items.Clear();
-                OnCollectionChanged();
+                OnCollectionChanged(collection, CollectionChangedAction.Reset, null, null);
                 return;
             }
 
-            if (oldItems == null)
-            {
-#if NET5_0
-                foreach (var item in _items)
-                    _items[item.Key] = 0;
-#else
-                _oldItems ??= new List<object?>(_items.Count);
-                _oldItems.Clear();
-                foreach (var item in _items)
-                {
-                    for (var i = 0; i < item.Value; i++)
-                        _oldItems.Add(item.Key);
-                }
-
-                oldItems = _oldItems;
-#endif
-            }
-
-            foreach (var item in items)
-                SubscribeIfNeed(item);
-
-            if (oldItems == null)
-            {
-                foreach (var item in _items)
-                {
-                    if (item.Value == 0)
-                    {
-                        _items.Remove(item.Key);
-                        Unsubscribe(item.Key);
-                    }
-                }
-            }
-            else
-            {
-                foreach (var item in oldItems)
-                    UnsubscribeIfNeed(item);
-            }
-#if !NET5_0
-            _oldItems?.Clear();
-#endif
-            OnCollectionChanged();
+            Resubscribe(oldItems, items);
+            OnCollectionChanged(collection, CollectionChangedAction.Reset, null, items);
         }
 
-        private ActionToken AddObserverInternal<TState>(Action<TState, IReadOnlyObservableCollection> onChanged, TState state, int delay, bool weak)
+        protected ActionToken AddObserver(IObserver observer)
         {
-            Should.NotBeNull(onChanged, nameof(onChanged));
-            IObserver observer;
-            if (weak)
-                observer = new Observer<object, TState>(this, (_, info) => info.IsCollectionEvent, onChanged.AsChangedDelegate, state, delay, weak);
-            else
-            {
-                observer = new Observer<object, (Action<TState, IReadOnlyObservableCollection>, TState)>(this, (_, info) => info.IsCollectionEvent,
-                    (s, info) => s.Item1(s.Item2, info[0].Collection), (onChanged, state), delay, false);
-            }
-
             lock (this)
             {
                 _observers.Add(observer);
             }
 
-            if (IsAttached)
-                observer.OnChanged(null, null, false);
-            return ActionToken.FromDelegate((l, item) => ((CollectionObserverBase) l!).RemoveObserver((IObserver) item!), this, observer);
+            return ActionToken.FromDelegate((l, item) => ((CollectionObserverBase)l!).RemoveObserver((IObserver)item!), this, observer);
         }
 
-        private ActionToken AddObserverInternal<T, TState>(Func<TState, ChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<ChangedEventInfo<T>>> onChanged, TState state,
-            int delay, bool weak)
+        private ActionToken AddObserverInternal<T, TState>(Func<TState, CollectionChangedEventInfo<T>, bool> predicate,
+            Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, TState state, int delay, bool weak, bool listenItemChanges)
             where T : class
         {
             Should.NotBeNull(onChanged, nameof(onChanged));
             Should.NotBeNull(predicate, nameof(predicate));
-            var observer = new Observer<T, TState>(this, predicate, onChanged, state, delay, weak);
-            lock (this)
-            {
-                _observers.Add(observer);
-            }
-
-            Subscribe(true);
-            if (IsAttached)
-                observer.OnChanged(null, null, false);
-            return ActionToken.FromDelegate((l, item) => ((CollectionObserverBase) l!).RemoveObserver((IObserver) item!), this, observer);
+            var token = AddObserver(new Observer<T, TState>(predicate, onChanged, state, delay, weak, listenItemChanges));
+            if (listenItemChanges)
+                Resubscribe(OwnerOptional);
+            return token;
         }
 
         private void RemoveObserver(IObserver observer)
@@ -283,13 +237,79 @@ namespace MugenMvvm.Collections.Components
                 observer.Dispose();
         }
 
-        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args) => OnChanged(sender, args.PropertyName ?? "");
+        private void Resubscribe(IReadOnlyObservableCollection? collection)
+        {
+            if (collection == null)
+                return;
+            using (collection.Lock())
+            {
+                var items = GetItems();
+                if (items != null)
+                    Resubscribe(null, items);
+            }
+        }
+
+        private void Resubscribe(IEnumerable<object?>? oldItems, IEnumerable<object?> items)
+        {
+            var hasSubs = _items != null;
+            if (hasSubs && oldItems == null)
+            {
+#if NET5_0
+                foreach (var item in _items!)
+                    _items[item.Key] = 0;
+#else
+                _oldItems ??= new List<object?>(_items!.Count);
+                _oldItems.Clear();
+                foreach (var item in _items!)
+                {
+                    for (var i = 0; i < item.Value; i++)
+                        _oldItems.Add(item.Key);
+                }
+
+                oldItems = _oldItems;
+#endif
+            }
+
+            foreach (var item in items)
+                SubscribeIfNeed(item);
+
+            if (hasSubs)
+            {
+                if (oldItems == null)
+                {
+                    foreach (var item in _items!)
+                    {
+                        if (item.Value == 0)
+                        {
+                            _items.Remove(item.Key);
+                            Unsubscribe(item.Key);
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var item in oldItems)
+                        UnsubscribeIfNeed(item);
+                }
+#if !NET5_0
+                _oldItems?.Clear();
+#endif
+            }
+        }
+
+        private void OnPropertyChanged(object? sender, PropertyChangedEventArgs args)
+        {
+            var owner = OwnerOptional;
+            if (owner != null && sender != null)
+                OnChanged(owner, CollectionChangedAction.Changed, sender, args.PropertyName ?? "");
+        }
 
         private void SubscribeIfNeed(object? item)
         {
-            if (item == null || _items == null)
+            if (item == null || !IsObservable(item))
                 return;
 
+            _items ??= new Dictionary<object, int>(7, InternalEqualityComparer.Reference);
             if (_items.TryGetValue(item, out var count) || TrySubscribe(item))
                 _items[item] = count + 1;
         }
@@ -298,32 +318,13 @@ namespace MugenMvvm.Collections.Components
         {
             if (item == null || _items == null || !_items.TryGetValue(item, out var count))
                 return;
-            if (--count == 0)
+            if (count == 1)
             {
                 Unsubscribe(item);
                 _items.Remove(item);
             }
             else
                 _items[item] = count - 1;
-        }
-
-        private void Subscribe(bool force)
-        {
-            if (force)
-            {
-                if (_items == null)
-                    Interlocked.Exchange(ref _items, new Dictionary<object, int>(7, InternalEqualityComparer.Reference));
-            }
-
-            if (_items == null)
-                return;
-
-            var items = GetItems();
-            if (items != null)
-            {
-                foreach (var item in items)
-                    SubscribeIfNeed(item);
-            }
         }
 
         private void Clear()
@@ -340,7 +341,7 @@ namespace MugenMvvm.Collections.Components
             if (Interlocked.Decrement(ref _suspendCount) == 0 && _isNotificationsDirty)
             {
                 _isNotificationsDirty = false;
-                OnChanged(null, null);
+                RaiseChanged();
             }
         }
 
@@ -352,67 +353,33 @@ namespace MugenMvvm.Collections.Components
 
         bool ISuspendableComponent<IReadOnlyObservableCollection>.IsSuspended(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
 
-        ActionToken ISuspendableComponent<IReadOnlyObservableCollection>.TrySuspend(IReadOnlyObservableCollection owner, object? state, IReadOnlyMetadataContext? metadata)
+        ActionToken ISuspendableComponent<IReadOnlyObservableCollection>.TrySuspend(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             Interlocked.Increment(ref _suspendCount);
             return ActionToken.FromDelegate(this, t => t.EndSuspend());
         }
 
-        private interface IObserver : IDisposable
+        protected interface IObserver : IDisposable
         {
-            public bool OnChanged(object? item, string? member, bool force);
-        }
+            bool IsSupported(object item);
 
-        [StructLayout(LayoutKind.Auto)]
-        public readonly struct ChangedEventInfo<T> : IEquatable<ChangedEventInfo<T>> where T : class
-        {
-            public readonly IReadOnlyObservableCollection Collection;
-            public readonly T? Item;
-            public readonly string? Member;
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal ChangedEventInfo(IReadOnlyObservableCollection collection, T? item, string? member)
-            {
-                Collection = collection;
-                Item = item;
-                Member = member;
-            }
-
-            public bool IsCollectionEvent
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => Item == null && Member == null;
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool IsMemberChanged(string member, bool emptyMemberResult = true) => Item != null && (member == Member || Member == "" && emptyMemberResult);
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public bool IsMemberOrCollectionChanged(string member, bool emptyMemberResult = true) => Item == null || member == Member || Member == "" && emptyMemberResult;
-
-            public bool Equals(ChangedEventInfo<T> other) =>
-                ReferenceEquals(Collection, other.Collection) && EqualityComparer<T?>.Default.Equals(Item, other.Item) && Member == other.Member;
-
-            public override bool Equals(object? obj) => obj is ChangedEventInfo<T> other && Equals(other);
-
-            public override int GetHashCode() => HashCode.Combine(Collection, Item, Member);
+            bool OnChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter, bool force);
         }
 
         private sealed class Observer<T, TTargetOrState> : IObserver where T : class
         {
-            private readonly CollectionObserverBase _observer;
             private readonly IWeakReference? _targetRef;
             private readonly TTargetOrState? _state;
-            private readonly Action<TTargetOrState, ItemOrArray<ChangedEventInfo<T>>> _onChanged;
-            private readonly Func<TTargetOrState, ChangedEventInfo<T>, bool> _predicate;
+            private readonly Action<TTargetOrState, ItemOrArray<CollectionChangedEventInfo<T>>> _onChanged;
+            private readonly Func<TTargetOrState, CollectionChangedEventInfo<T>, bool> _predicate;
             private readonly int _delay;
+            private readonly bool _listenItemChanges;
             private Timer? _timer;
-            private HashSet<ChangedEventInfo<T>>? _pendingItems;
+            private HashSet<CollectionChangedEventInfo<T>>? _pendingItems;
 
-            public Observer(CollectionObserverBase observer, Func<TTargetOrState, ChangedEventInfo<T>, bool> predicate,
-                Action<TTargetOrState, ItemOrArray<ChangedEventInfo<T>>> onChanged, TTargetOrState state, int delay, bool weak)
+            public Observer(Func<TTargetOrState, CollectionChangedEventInfo<T>, bool> predicate, Action<TTargetOrState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
+                TTargetOrState state, int delay, bool weak, bool listenItemChanges)
             {
-                _observer = observer;
                 if (weak)
                     _targetRef = state.ToWeakReference();
                 else
@@ -421,6 +388,7 @@ namespace MugenMvvm.Collections.Components
                 _onChanged = onChanged;
                 _predicate = predicate;
                 _delay = delay;
+                _listenItemChanges = listenItemChanges;
                 if (delay != 0)
                     _timer = WeakTimer.Get(this, o => o.TimerCallback());
             }
@@ -431,12 +399,10 @@ namespace MugenMvvm.Collections.Components
                 _timer = null;
             }
 
-            public bool OnChanged(object? item, string? member, bool force)
-            {
-                var collection = _observer.OwnerOptional;
-                if (collection == null)
-                    return true;
+            public bool IsSupported(object item) => _listenItemChanges && item is T and INotifyPropertyChanged;
 
+            public bool OnChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter, bool force)
+            {
                 if (item is not T itemT)
                 {
                     if (item != null)
@@ -445,7 +411,7 @@ namespace MugenMvvm.Collections.Components
                     itemT = null!;
                 }
 
-                var eventInfo = new ChangedEventInfo<T>(collection, itemT, member);
+                var eventInfo = new CollectionChangedEventInfo<T>(collection, itemT, parameter, action);
                 if (!CanInvoke(eventInfo, out var r))
                     return r;
 
@@ -454,7 +420,9 @@ namespace MugenMvvm.Collections.Components
 
                 lock (this)
                 {
-                    _pendingItems ??= new HashSet<ChangedEventInfo<T>>();
+                    _pendingItems ??= new HashSet<CollectionChangedEventInfo<T>>();
+                    if (eventInfo.Action == CollectionChangedAction.Reset)
+                        _pendingItems.Clear();
                     _pendingItems.Add(eventInfo);
                 }
 
@@ -469,7 +437,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            private bool CanInvoke(ChangedEventInfo<T> eventInfo, out bool result)
+            private bool CanInvoke(CollectionChangedEventInfo<T> eventInfo, out bool result)
             {
                 if (_targetRef == null)
                 {
@@ -477,7 +445,7 @@ namespace MugenMvvm.Collections.Components
                     return _predicate(_state!, eventInfo);
                 }
 
-                var target = (TTargetOrState?) _targetRef.Target;
+                var target = (TTargetOrState?)_targetRef.Target;
                 if (target == null)
                 {
                     result = false;
@@ -488,7 +456,7 @@ namespace MugenMvvm.Collections.Components
                 return _predicate(target, eventInfo);
             }
 
-            private bool OnChanged(ItemOrArray<ChangedEventInfo<T>> eventInfo)
+            private bool OnChanged(ItemOrArray<CollectionChangedEventInfo<T>> eventInfo)
             {
                 if (_targetRef == null)
                 {
@@ -496,7 +464,7 @@ namespace MugenMvvm.Collections.Components
                     return true;
                 }
 
-                var target = (TTargetOrState?) _targetRef.Target;
+                var target = (TTargetOrState?)_targetRef.Target;
                 if (target == null)
                     return false;
 
@@ -506,11 +474,11 @@ namespace MugenMvvm.Collections.Components
 
             private void TimerCallback()
             {
-                ItemOrArray<ChangedEventInfo<T>> notifications;
+                ItemOrArray<CollectionChangedEventInfo<T>> notifications;
                 lock (this)
                 {
-                    notifications = ItemOrArray.Get<ChangedEventInfo<T>>(_pendingItems!.Count);
-                    int index = 0;
+                    notifications = ItemOrArray.Get<CollectionChangedEventInfo<T>>(_pendingItems!.Count);
+                    var index = 0;
                     foreach (var item in _pendingItems!)
                         notifications.SetAt(index++, item);
                     _pendingItems.Clear();

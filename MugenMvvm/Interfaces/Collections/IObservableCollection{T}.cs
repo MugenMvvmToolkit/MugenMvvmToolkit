@@ -1,18 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using JetBrains.Annotations;
-using MugenMvvm.Internal;
+﻿using System.Collections.Generic;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IList<T>
+    public interface IObservableCollection<T> : IReadOnlyObservableCollection<T>, IReadOnlyList<T>, IList<T>
     {
         new int Count { get; }
 
         new T this[int index] { get; set; }
-
-        [MustUseReturnValue]
-        ActionToken BatchUpdate();
 
         void Move(int oldIndex, int newIndex);
 

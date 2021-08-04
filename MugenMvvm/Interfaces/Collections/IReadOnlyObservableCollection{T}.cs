@@ -2,10 +2,8 @@
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IReadOnlyObservableCollection<out T> : IReadOnlyObservableCollection, IReadOnlyList<T>
+    public interface IReadOnlyObservableCollection<out T> : IReadOnlyObservableCollection, IReadOnlyCollection<T>
     {
         new int Count { get; }
-
-        new T this[int index] { get; }
     }
 }

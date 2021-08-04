@@ -35,11 +35,11 @@ namespace MugenMvvm.Collections
             if (DecoratedItems)
                 return new FlattenDecoratedCollectionItem(Items!, decorator, isWeak);
 
-            var itemType = MugenExtensions.GetCollectionItemType(Items!);
-            if (!itemType.IsValueType)
+            if (Items is not IReadOnlyObservableCollection observableCollection || !observableCollection.ItemType.IsValueType)
                 return new FlattenCollectionItem<object?>().Initialize(Items!, decorator, isWeak);
 
-            return ((FlattenCollectionItemBase) Activator.CreateInstance(typeof(FlattenCollectionItem<>).MakeGenericType(itemType))!).Initialize(Items!, decorator, isWeak);
+            return ((FlattenCollectionItemBase)Activator.CreateInstance(typeof(FlattenCollectionItem<>).MakeGenericType(observableCollection.ItemType))!).Initialize(Items!,
+                decorator, isWeak);
         }
     }
 }

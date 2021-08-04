@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
@@ -20,6 +21,14 @@ namespace MugenMvvm.Collections.Components
         public int Priority { get; set; }
 
         protected internal ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
+
+        protected internal ActionToken BatchUpdate()
+        {
+            var owner = OwnerOptional;
+            if (owner == null)
+                return default;
+            return owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
+        }
 
         protected abstract IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items);
@@ -42,16 +51,16 @@ namespace MugenMvvm.Collections.Components
         protected virtual bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
             object? item, ref ItemOrListEditor<int> indexes) => false;
 
+        protected override void OnAttaching(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnAttaching(owner, metadata);
+            DecoratorManager = owner.GetComponent<ICollectionDecoratorManagerComponent>();
+        }
+
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
             DecoratorManager = null;
-        }
-
-        protected override void OnAttached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnAttached(owner, metadata);
-            DecoratorManager = owner.GetComponent<ICollectionDecoratorManagerComponent>();
         }
 
         bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)

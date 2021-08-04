@@ -156,21 +156,21 @@ namespace MugenMvvm.Extensions.Components
                 c.OnReset(collection, items);
         }
 
-        public static void OnChanged(this ItemOrArray<ICollectionDecoratorListener> listeners, IReadOnlyObservableCollection collection, object? item, int index, object? args)
+        public static void OnChanged(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int index, object? args)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
                 c.OnChanged(collection, item, index, args);
         }
 
-        public static void OnAdded(this ItemOrArray<ICollectionDecoratorListener> listeners, IReadOnlyObservableCollection collection, object? item, int index)
+        public static void OnAdded(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int index)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
                 c.OnAdded(collection, item, index);
         }
 
-        public static void OnReplaced(this ItemOrArray<ICollectionDecoratorListener> listeners, IReadOnlyObservableCollection collection, object? oldItem, object? newItem,
+        public static void OnReplaced(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? oldItem, object? newItem,
             int index)
         {
             Should.NotBeNull(collection, nameof(collection));
@@ -178,28 +178,28 @@ namespace MugenMvvm.Extensions.Components
                 c.OnReplaced(collection, oldItem, newItem, index);
         }
 
-        public static void OnMoved(this ItemOrArray<ICollectionDecoratorListener> listeners, IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
+        public static void OnMoved(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
                 c.OnMoved(collection, item, oldIndex, newIndex);
         }
 
-        public static void OnRemoved(this ItemOrArray<ICollectionDecoratorListener> listeners, IReadOnlyObservableCollection collection, object? item, int index)
+        public static void OnRemoved(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int index)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
                 c.OnRemoved(collection, item, index);
         }
 
-        public static void OnReset(this ItemOrArray<ICollectionDecoratorListener> listeners, IReadOnlyObservableCollection collection, IEnumerable<object?>? items)
+        public static void OnReset(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, IEnumerable<object?>? items)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
                 c.OnReset(collection, items);
         }
 
-        public static void Initialize<T>(this ItemOrArray<ICollectionItemPreInitializerComponent<T>> components, IReadOnlyObservableCollection<T> collection, T item)
+        public static void Initialize<T>(this ItemOrArray<IPreInitializerCollectionComponent<T>> components, IReadOnlyObservableCollection<T> collection, T item)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in components)

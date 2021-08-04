@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class GroupCollectionDecoratorTest : UnitTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private readonly Dictionary<int, object> _headers;
         private Func<object?, object?>? _getHeader;
         private GroupCollectionDecorator<object, object> _decorator;
@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _headers = new Dictionary<int, object>();
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _getHeader = o => _headers.GetOrAdd((int) o! % 4, i => _headers.GetOrAdd(i, k => k.ToString()));
             _decorator = new GroupCollectionDecorator<object, object>(_getHeader);

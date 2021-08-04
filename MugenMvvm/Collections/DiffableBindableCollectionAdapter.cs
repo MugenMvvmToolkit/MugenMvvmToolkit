@@ -92,7 +92,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnChangedDiff(int position, int finalPosition, int count, bool isMove)
             => OnChanged(_resetItems![finalPosition], position, null, _resetBatchUpdate, _resetVersion);
 
-        protected virtual ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend(this) : default;
+        protected virtual ActionToken SuspendItems() => Items is ISuspendable suspendable ? suspendable.Suspend() : default;
 
         protected sealed override async void OnReset(IEnumerable<object?>? items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
         {

@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             });
 
             _callbackInvoker.IsSuspended.ShouldBeFalse();
-            var actionToken = NavigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>().TrySuspend(NavigationDispatcher, this, null);
+            var actionToken = NavigationDispatcher.TrySuspend(null);
             _callbackInvoker.IsSuspended.ShouldBeTrue();
             NavigationDispatcher.OnNavigated(navigationContext);
 
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             });
 
             _callbackInvoker.IsSuspended.ShouldBeFalse();
-            var actionToken = NavigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>().TrySuspend(NavigationDispatcher, this, null);
+            var actionToken = NavigationDispatcher.TrySuspend(null);
             _callbackInvoker.IsSuspended.ShouldBeTrue();
             NavigationDispatcher.OnNavigationCanceled(navigationContext, DefaultCancellationToken);
 
@@ -130,7 +130,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
 
             _callbackInvoker.IsSuspended.ShouldBeFalse();
 
-            var actionToken = NavigationDispatcher.GetComponents<ISuspendableComponent<INavigationDispatcher>>().TrySuspend(NavigationDispatcher, this, null);
+            var actionToken = NavigationDispatcher.TrySuspend(null);
             _callbackInvoker.IsSuspended.ShouldBeTrue();
             NavigationDispatcher.OnNavigationFailed(navigationContext, exception);
 

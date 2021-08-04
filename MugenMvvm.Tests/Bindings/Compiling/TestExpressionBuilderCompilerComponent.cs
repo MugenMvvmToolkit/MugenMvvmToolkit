@@ -4,7 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Bindings.Interfaces.Compiling.Components;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
+namespace MugenMvvm.Tests.Bindings.Compiling
 {
     public class TestExpressionBuilderComponent : IExpressionBuilderComponent
     {

@@ -53,7 +53,7 @@ namespace MugenMvvm.Models
 
         public void InvalidateProperties() => OnPropertyChanged(Default.EmptyPropertyChangedArgs);
 
-        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken Suspend(IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
             return ActionToken.FromDelegate((m, _) => ((NotifyPropertyChangedBase) m!).EndSuspend(), this);

@@ -12,7 +12,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
@@ -22,9 +21,7 @@ namespace MugenMvvm.Collections
 
         private FlattenCollectionDecorator? _decorator;
         private IWeakReference? _decoratorRef;
-        private ListInternal<ActionToken> _tokens;
         internal ListInternal<int> Indexes;
-        private bool _detached;
 
         protected FlattenCollectionItemBase(IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
@@ -76,7 +73,8 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public void OnAdded(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, object source, int originalIndex, int index, bool notify,
+        public void OnAdded(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int originalIndex,
+            int index, bool notify,
             bool isRecycled, out bool isReset)
         {
             using var _ = MugenExtensions.TryLock(Collection);
@@ -104,10 +102,10 @@ namespace MugenMvvm.Collections
                 if (Collection is IReadOnlyObservableCollection owner)
                     owner.Components.Add(this);
 
-                if (Collection is ISynchronizable collectionSynchronizable && source is ISynchronizable sourceSynchronizable)
+                if (Collection is ISynchronizable collectionSynchronizable)
                 {
-                    collectionSynchronizable.UpdateLocker(sourceSynchronizable.Locker);
-                    sourceSynchronizable.UpdateLocker(collectionSynchronizable.Locker);
+                    collectionSynchronizable.UpdateLocker(source.Locker);
+                    source.UpdateLocker(collectionSynchronizable.Locker);
                 }
             }
         }
@@ -163,18 +161,9 @@ namespace MugenMvvm.Collections
 
         public void Detach()
         {
-            _detached = true;
             Indexes.Clear();
             if (Collection is IReadOnlyObservableCollection owner)
                 owner.Components.Remove(this);
-
-            var tokens = _tokens;
-            if (!tokens.IsEmpty)
-            {
-                _tokens = default;
-                for (var i = 0; i < tokens.Count; i++)
-                    tokens.Items[i].Dispose();
-            }
         }
 
         public void OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
@@ -238,21 +227,20 @@ namespace MugenMvvm.Collections
 
         public void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
-            using var _ = MugenExtensions.TryLock(Collection);
-            if (TryGetDecoratorManager(out var decoratorManager, out var decorator))
-                AddToken(decoratorManager.BatchUpdate(decorator.Owner, decorator));
+            if (TryGetDecoratorManager(out _, out var decorator))
+                decorator.Owner.GetBatchUpdateManager().BeginBatchUpdate(decorator.Owner, BatchUpdateType.Decorators);
         }
 
         public void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
-            using var _ = MugenExtensions.TryLock(Collection);
-            RemoveToken();
+            if (TryGetDecoratorManager(out _, out var decorator))
+                decorator.Owner.GetBatchUpdateManager().EndBatchUpdate(decorator.Owner, BatchUpdateType.Decorators);
         }
 
         public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
         {
-            if (TryGetDecoratorManager(out _, out var decorator) && decorator.OwnerOptional is ISynchronizable synchronizable)
-                synchronizable.UpdateLocker(locker);
+            if (TryGetDecoratorManager(out _, out var decorator))
+                decorator.OwnerOptional?.UpdateLocker(locker);
         }
 
         protected abstract IEnumerable<object?> GetItems();
@@ -280,27 +268,5 @@ namespace MugenMvvm.Collections
 
         private static void Reset(ICollectionDecoratorManagerComponent decoratorManager, FlattenCollectionDecorator decorator) =>
             decoratorManager.OnReset(decorator.Owner, decorator, decorator.Decorate(decoratorManager.Decorate(decorator.Owner, decorator)));
-
-        private void AddToken(ActionToken actionToken)
-        {
-            if (_detached)
-                actionToken.Dispose();
-            else
-            {
-                if (_tokens.IsEmpty)
-                    _tokens = new ListInternal<ActionToken>(2);
-                _tokens.Add(actionToken);
-            }
-        }
-
-        private void RemoveToken()
-        {
-            if (_tokens.Count == 0)
-                return;
-
-            var item = _tokens.Items[_tokens.Count - 1];
-            _tokens.RemoveAt(_tokens.Count - 1);
-            item.Dispose();
-        }
     }
 }

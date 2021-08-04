@@ -7,29 +7,34 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class CollectionDecoratorManagerInitializer : IComponentCollectionManagerListener, IComponentCollectionChangingListener
+    public sealed class CollectionDecoratorManagerInitializer : IComponentCollectionManagerListener, IConditionComponentCollectionComponent
     {
-        bool IComponentCollectionChangingListener.OnAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is ICollectionDecorator || component is ICollectionDecoratorListener)
-            {
-                collection.RemoveComponent(this, metadata);
-                var itemType = MugenExtensions.GetCollectionItemType(collection.Owner);
-                var instance = Activator.CreateInstance(typeof(CollectionDecoratorManager<>).MakeGenericType(itemType));
-                if (instance != null)
-                    collection.TryAdd(instance, metadata);
-            }
-
-            return true;
-        }
-
-        bool IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => true;
-
         void IComponentCollectionManagerListener.OnComponentCollectionCreated(IComponentCollectionManager collectionManager, IComponentCollection collection,
             IReadOnlyMetadataContext? metadata)
         {
             if (collection.Owner is IReadOnlyObservableCollection)
                 collection.AddComponent(this, metadata);
         }
+
+        bool IConditionComponentCollectionComponent.CanAdd(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is ICollectionDecorator or IDecoratedCollectionChangedListener)
+            {
+                collection.RemoveComponent(this, metadata);
+                var itemType = ((IReadOnlyObservableCollection)collection.Owner).ItemType;
+                if (itemType.IsValueType)
+                {
+                    var instance = Activator.CreateInstance(typeof(CollectionDecoratorManager<>).MakeGenericType(itemType));
+                    if (instance != null)
+                        collection.TryAdd(instance, metadata);
+                }
+                else
+                    collection.TryAdd(new CollectionDecoratorManager<object>(), metadata);
+            }
+
+            return true;
+        }
+
+        bool IConditionComponentCollectionComponent.CanRemove(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => true;
     }
 }

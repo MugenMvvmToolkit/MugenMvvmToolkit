@@ -2,6 +2,7 @@
 using MugenMvvm.Bindings.Core.Components;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.Tests.Bindings.Converting;
 using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.Tests.Bindings.Observation;

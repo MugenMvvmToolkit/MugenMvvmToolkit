@@ -13,14 +13,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly LimitCollectionDecorator<int> _decorator;
-        private readonly DecoratorObservableCollectionTracker<object> _tracker;
+        private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public LimitCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
             _decorator = new LimitCollectionDecorator<int>(null, i => i % 2 == 0);
             _collection.AddComponent(_decorator);
-            _tracker = new DecoratorObservableCollectionTracker<object>();
+            _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _tracker.Changed += Assert;
         }

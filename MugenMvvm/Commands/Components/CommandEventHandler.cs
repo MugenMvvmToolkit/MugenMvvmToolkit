@@ -46,7 +46,7 @@ namespace MugenMvvm.Commands.Components
 
         bool ISuspendableComponent<ICompositeCommand>.IsSuspended(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
 
-        ActionToken ISuspendableComponent<ICompositeCommand>.TrySuspend(ICompositeCommand owner, object? state, IReadOnlyMetadataContext? metadata)
+        ActionToken ISuspendableComponent<ICompositeCommand>.TrySuspend(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
             Interlocked.Increment(ref _suspendCount);
             return ActionToken.FromDelegate((o, c) => ((CommandEventHandler) o!).EndSuspendNotifications((ICompositeCommand) c!), this, owner);

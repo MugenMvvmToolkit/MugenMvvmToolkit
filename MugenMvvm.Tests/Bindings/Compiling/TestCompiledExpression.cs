@@ -4,7 +4,7 @@ using MugenMvvm.Bindings.Interfaces.Compiling;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTests.Bindings.Compiling.Internal
+namespace MugenMvvm.Tests.Bindings.Compiling
 {
     public class TestCompiledExpression : ICompiledExpression
     {

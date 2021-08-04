@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
 
             _listener.OnBusyChanged = (_, _) => { ++count; };
             count.ShouldEqual(0);
-            var actionToken = busyToken.Suspend(this, Metadata);
+            var actionToken = busyToken.Suspend(Metadata);
             count.ShouldEqual(1);
             actionToken.Dispose();
             count.ShouldEqual(2);
@@ -186,7 +186,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
         public void TokenShouldInvokeCallbackSuspended(int callbackCount)
         {
             var token = BusyManager.TryBeginBusy("Test")!;
-            token.Suspend(this, Metadata);
+            token.Suspend(Metadata);
             var suspendedCount = 0;
 
             for (var i = 0; i < callbackCount; i++)
@@ -231,7 +231,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             }
 
             suspendedCount.ShouldEqual(0);
-            var actionToken = token.Suspend(this, Metadata);
+            var actionToken = token.Suspend(Metadata);
             suspendedCount.ShouldEqual(callbackCount);
             actionToken.Dispose();
             suspendedCount.ShouldEqual(callbackCount * 2);
@@ -328,7 +328,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             token.IsSuspended.ShouldBeFalse();
 
             suspendValue = true;
-            var actionToken = token.Suspend(this, Metadata);
+            var actionToken = token.Suspend(Metadata);
             token.IsSuspended.ShouldBeTrue();
             count.ShouldEqual(1);
 
@@ -358,7 +358,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             parentToken.IsSuspended.ShouldBeFalse();
 
             suspendValue = true;
-            var actionToken = token.Suspend(this, Metadata);
+            var actionToken = token.Suspend(Metadata);
             parentToken.IsSuspended.ShouldBeFalse();
             token.IsSuspended.ShouldBeTrue();
             count.ShouldEqual(1);
@@ -390,7 +390,7 @@ namespace MugenMvvm.UnitTests.Busy.Components
             parentToken.IsSuspended.ShouldBeFalse();
 
             suspendValue = true;
-            var actionToken = parentToken.Suspend(this, Metadata);
+            var actionToken = parentToken.Suspend(Metadata);
             parentToken.IsSuspended.ShouldBeTrue();
             token.IsSuspended.ShouldBeTrue();
             count.ShouldEqual(1);

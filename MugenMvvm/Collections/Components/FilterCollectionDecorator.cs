@@ -188,7 +188,7 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
-            using var _ = Owner.TryLock();
+            using var _ = Owner.Lock();
             _filter = filter;
             _list.Clear();
             if (HasFilter)

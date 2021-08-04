@@ -5,6 +5,7 @@ using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
+using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.Tests.Bindings.Members;
 using MugenMvvm.Tests.Bindings.Observation;
 using MugenMvvm.Tests.Internal;

@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Tests.Bindings.Compiling;
 using MugenMvvm.UnitTests.Bindings.Compiling.Internal;
 using MugenMvvm.UnitTests.Bindings.Parsing.Internal;
 using Should;

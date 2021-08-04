@@ -11,7 +11,7 @@ using Should;
 
 namespace MugenMvvm.UnitTests.Collections.Internal
 {
-    public class DecoratorObservableCollectionTracker<T> : ICollectionDecoratorListener, ICollectionBatchUpdateListener
+    public class DecoratedCollectionChangeTracker<T> : IDecoratedCollectionChangedListener, ICollectionBatchUpdateListener
     {
         private bool _hasPendingEvents;
         private bool _countRaised;
@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         private int _batchCount;
 
-        public DecoratorObservableCollectionTracker()
+        public DecoratedCollectionChangeTracker()
         {
             ChangedItems = new List<T>();
         }
