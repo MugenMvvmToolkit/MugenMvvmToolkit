@@ -62,38 +62,6 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task ShouldCheckCanExecuteBeforeExecute(bool allowMultipleExecution)
-        {
-            var executed = 0;
-            var canExecuted = 0;
-            Action<IReadOnlyMetadataContext?> execute = m =>
-            {
-                m.ShouldEqual(Metadata);
-                ++executed;
-            };
-            var canExecuteValue = false;
-            Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
-            {
-                ++canExecuted;
-                m!.Get(CommandMetadata.ForceExecute).ShouldBeTrue();
-                return canExecuteValue;
-            };
-
-            var component = Add<object>(Command, execute, canExecute, allowMultipleExecution);
-
-            await component.TryExecuteAsync(Command, null, default, Metadata);
-            executed.ShouldEqual(0);
-            canExecuted.ShouldEqual(1);
-
-            canExecuteValue = true;
-            await component.TryExecuteAsync(Command, null, default, Metadata);
-            executed.ShouldEqual(1);
-            canExecuted.ShouldEqual(2);
-        }
-
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
         public async Task ShouldNotifyCanExecuteChangedAllowMultipleExecution(bool allowMultipleExecution)
         {
             var executed = 0;

@@ -111,8 +111,12 @@ namespace MugenMvvm.Commands
         public void Execute(object? parameter = null) => ExecuteAsync(parameter).LogException(UnhandledExceptionType.Command);
 #pragma warning restore 4014
 
-        public Task<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
-            GetComponents<ICommandExecutorComponent>().TryExecuteAsync(this, parameter, cancellationToken, metadata);
+        public Task<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (CanExecute(parameter, metadata))
+                return GetComponents<ICommandExecutorComponent>().TryExecuteAsync(this, parameter, cancellationToken, metadata);
+            return Default.FalseTask;
+        }
 
         public bool IsExecuting(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandExecutorComponent>().IsExecuting(this, metadata);
 

@@ -53,7 +53,7 @@ namespace MugenMvvm.Commands.Components
 
                 cts = !_allowMultipleExecution && IsAsync ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default) : null;
                 Interlocked.Exchange(ref _cancellationTokenSource, cts)?.Cancel();
-                return await ExecuteAsync(command, parameter, cts?.Token ?? cancellationToken, metadata).ConfigureAwait(false);
+                return await ExecuteAsync(parameter, cts?.Token ?? cancellationToken, metadata).ConfigureAwait(false);
             }
             finally
             {
@@ -89,7 +89,7 @@ namespace MugenMvvm.Commands.Components
             return ((Func<T, IReadOnlyMetadataContext?, bool>)canExecuteDelegate).Invoke((T)parameter!, metadata);
         }
 
-        private async Task<bool> ExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        private async Task<bool> ExecuteAsync(object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (cancellationToken.IsCancellationRequested)
                 return false;
@@ -97,12 +97,6 @@ namespace MugenMvvm.Commands.Components
             var executeAction = _execute;
             if (executeAction == null || cancellationToken.IsCancellationRequested)
                 return false;
-
-            if (!command.CanExecute(parameter, MugenExtensions.GetForceExecuteMetadata(metadata)))
-            {
-                command.RaiseCanExecuteChanged(metadata);
-                return false;
-            }
 
             if (IsAsync)
             {

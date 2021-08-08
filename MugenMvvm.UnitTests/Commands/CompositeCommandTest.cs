@@ -7,6 +7,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Tests.Commands;
 using MugenMvvm.Tests.Internal;
@@ -113,7 +114,7 @@ namespace MugenMvvm.UnitTests.Commands
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -154,7 +155,7 @@ namespace MugenMvvm.UnitTests.Commands
             Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -195,7 +196,7 @@ namespace MugenMvvm.UnitTests.Commands
             Action<IReadOnlyMetadataContext?> execute = m => { };
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -236,7 +237,7 @@ namespace MugenMvvm.UnitTests.Commands
             Action<object, IReadOnlyMetadataContext?> execute = (t, m) => { };
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -384,6 +385,59 @@ namespace MugenMvvm.UnitTests.Commands
 
             Command.CanExecuteChanged -= eventHandler;
             count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public async Task ShouldCheckCanExecuteBeforeExecute(int componentCount)
+        {
+            var canExecuteCount = 0;
+            var invokeCount = 0;
+            var canExecute = false;
+            for (var i = 0; i < componentCount; i++)
+            {
+                bool isLast = i == componentCount - 1;
+                Command.AddComponent(new TestCommandConditionComponent
+                {
+                    CanExecute = (c, item, m) =>
+                    {
+                        c.ShouldEqual(Command);
+                        item.ShouldEqual(this);
+                        m.ShouldEqual(Metadata);
+                        ++canExecuteCount;
+                        if (isLast)
+                            return canExecute;
+                        return true;
+                    },
+                    Priority = -i
+                });
+
+                Command.AddComponent(new TestCommandExecutorComponent
+                {
+                    ExecuteAsync = (cmd, p, c, m) =>
+                    {
+                        cmd.ShouldEqual(Command);
+                        p.ShouldEqual(this);
+                        c.ShouldEqual(DefaultCancellationToken);
+                        m.ShouldEqual(Metadata);
+                        ++invokeCount;
+                        return Default.FalseTask;
+                    },
+                    Priority = -i
+                });
+            }
+
+
+            await Command.ExecuteAsync(this, DefaultCancellationToken, Metadata);
+            canExecuteCount.ShouldEqual(componentCount);
+            invokeCount.ShouldEqual(0);
+
+            canExecuteCount = 0;
+            canExecute = true;
+            await Command.ExecuteAsync(this, DefaultCancellationToken, Metadata);
+            canExecuteCount.ShouldEqual(componentCount);
+            invokeCount.ShouldEqual(componentCount);
         }
 
         private static Func<object?, object?, bool>? GetHasCanNotify(bool value)
