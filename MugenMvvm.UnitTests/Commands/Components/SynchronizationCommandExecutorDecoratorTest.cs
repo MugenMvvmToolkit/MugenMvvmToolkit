@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
+
 #pragma warning disable 4014
 
 namespace MugenMvvm.UnitTests.Commands.Components
@@ -76,34 +77,45 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(false)]
         public async Task SynchronizeExecutionShouldSynchronizeExecutionBetweenCommands(bool bidirectional)
         {
-            var executed = 0;
+            var executed1 = 0;
+            var executed2 = 0;
             var tcs = new TaskCompletionSource<bool>();
             var command1 = CompositeCommand.CreateFromTask(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
                 m.ShouldEqual(Metadata);
-                ++executed;
+                ++executed1;
                 return tcs.Task;
             }, commandManager: CommandManager);
             var command2 = CompositeCommand.Create(this, m =>
             {
                 m.ShouldEqual(Metadata);
-                ++executed;
+                ++executed2;
             }, commandManager: CommandManager);
 
             command1.SynchronizeWith(command2, bidirectional);
+            command1.IsExecuting().ShouldBeFalse();
+            command2.IsExecuting().ShouldBeFalse();
+
             var task = command1.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(1);
+            command1.IsExecuting().ShouldBeTrue();
+            command2.IsExecuting().ShouldEqual(bidirectional);
+
+            executed1.ShouldEqual(1);
             command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(bidirectional ? 1 : 2);
+            executed2.ShouldEqual(bidirectional ? 0 : 1);
 
             tcs.SetResult(default);
             (await task).ShouldEqual(default);
             task.IsCompleted.ShouldBeTrue();
+            command1.IsExecuting().ShouldBeFalse();
+            command2.IsExecuting().ShouldBeFalse();
 
-            executed.ShouldEqual(bidirectional ? 1 : 2);
+            executed1.ShouldEqual(1);
+            executed2.ShouldEqual(bidirectional ? 0 : 1);
             command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(bidirectional ? 2 : 3);
+            executed1.ShouldEqual(1);
+            executed2.ShouldEqual(bidirectional ? 1 : 2);
         }
     }
 }

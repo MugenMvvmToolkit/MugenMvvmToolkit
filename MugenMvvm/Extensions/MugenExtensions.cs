@@ -314,8 +314,10 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
+#if !NET5_0
             if (typeof(TFrom) == typeof(TTo))
                 return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+#endif
             return (TTo)(object)value!;
         }
 
@@ -420,9 +422,11 @@ namespace MugenMvvm.Extensions
             }
         }
 
+#if !NET5_0
         private static class GenericCaster<T>
         {
             public static readonly Func<T, T> Cast = arg1 => arg1;
         }
+#endif
     }
 }

@@ -57,8 +57,12 @@ namespace MugenMvvm.Commands.Components
             }
             finally
             {
-                Interlocked.CompareExchange(ref _cancellationTokenSource, null, cts);
-                cts?.Dispose();
+                if (cts != null)
+                {
+                    Interlocked.CompareExchange(ref _cancellationTokenSource, null, cts);
+                    cts.Dispose();
+                }
+
                 if (Interlocked.Decrement(ref _executeCount) == 0)
                     command.RaiseCanExecuteChanged(metadata);
             }

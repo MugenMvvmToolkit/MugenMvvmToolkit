@@ -107,14 +107,18 @@ namespace MugenMvvm.Commands.Components
             });
         }
 
-        private static bool IsForceExecute(ICompositeCommand command, ICompositeCommand? executingCommand, IReadOnlyMetadataContext? metadata)
+        private static bool IsForceExecute(ICompositeCommand command, ICompositeCommand? executingCommand, IReadOnlyMetadataContext? metadata) =>
+            metadata != null && (ReferenceEquals(metadata, MugenExtensions.ForceExecuteMetadata) || metadata.TryGet(CommandMetadata.ForceExecute, out var value) && value) ||
+            AllowForceExecute(command, executingCommand);
+
+        private static bool AllowForceExecute(ICompositeCommand command, ICompositeCommand? executingCommand)
         {
-            if (metadata != null && (ReferenceEquals(metadata, MugenExtensions.ForceExecuteMetadata) || metadata.TryGet(CommandMetadata.ForceExecute, out var value) && value))
+            if (executingCommand == null)
                 return true;
 
             if (command.HasMetadata && command.Metadata.TryGet(InternalMetadata.AllowForceExecuteCommands, out var commands))
             {
-                if (executingCommand != null && !ReferenceEquals(command, executingCommand) &&
+                if (!ReferenceEquals(command, executingCommand) &&
                     ItemOrIReadOnlyList.FromRawValue<ICompositeCommand>(commands).Contains(executingCommand))
                     return true;
             }
@@ -126,13 +130,17 @@ namespace MugenMvvm.Commands.Components
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             CancellationTokenSource? cts = null;
-            var oldValue = Interlocked.Exchange(ref _executingCommand, command);
             try
             {
-                if (oldValue == null)
+                var executingCommand = Interlocked.CompareExchange(ref _executingCommand, command, null);
+                if (executingCommand == null)
                     RaiseCanExecuteChanged(metadata);
-                else if (!IsForceExecute(command, oldValue, metadata))
-                    return false;
+                else
+                {
+                    if (!IsForceExecute(command, executingCommand, metadata))
+                        return false;
+                    Interlocked.Exchange(ref _executingCommand, command);
+                }
 
                 cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
                 Interlocked.Exchange(ref _cancellationTokenSource, cts)?.Cancel();
@@ -140,9 +148,13 @@ namespace MugenMvvm.Commands.Components
             }
             finally
             {
-                Interlocked.CompareExchange(ref _cancellationTokenSource, null, cts);
-                cts?.Dispose();
-                if (Interlocked.CompareExchange(ref _executingCommand, oldValue, command) == command && oldValue == null)
+                if (cts != null)
+                {
+                    Interlocked.CompareExchange(ref _cancellationTokenSource, null, cts);
+                    cts.Dispose();
+                }
+
+                if (Interlocked.CompareExchange(ref _executingCommand, null, command) == command)
                     RaiseCanExecuteChanged(metadata);
             }
         }
@@ -164,7 +176,7 @@ namespace MugenMvvm.Commands.Components
             }
 
             public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) =>
-                _synchronizer._executingCommand != null || Components.IsExecuting(command, metadata);
+                !AllowForceExecute(command, _synchronizer._executingCommand) || Components.IsExecuting(command, metadata);
 
             public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
                 _synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
