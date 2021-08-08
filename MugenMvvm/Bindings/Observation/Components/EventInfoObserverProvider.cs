@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Extensions;
@@ -85,6 +86,8 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         internal sealed class MainThreadEventListenerCollection : EventListenerCollection
         {
+            private static readonly SendOrPostCallback RaiseCallback = state => ((ExecuteClosure)state!).Execute();
+
             public override void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
             {
                 if (Count == 0)
@@ -94,12 +97,12 @@ namespace MugenMvvm.Bindings.Observation.Components
                 if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main, metadata))
                     base.Raise(sender, args, metadata);
                 else
-                    threadDispatcher.Execute(ThreadExecutionMode.Main, new ExecuteClosure(this, sender, args, metadata), null, metadata);
+                    threadDispatcher.Execute(ThreadExecutionMode.Main, RaiseCallback, new ExecuteClosure(this, sender, args, metadata), metadata);
             }
 
             private void RaiseBase(object? sender, object? args, IReadOnlyMetadataContext? metadata) => base.Raise(sender, args, metadata);
 
-            private sealed class ExecuteClosure : IThreadDispatcherHandler
+            private sealed class ExecuteClosure
             {
                 private readonly MainThreadEventListenerCollection _collection;
                 private readonly object? _sender;
@@ -114,7 +117,7 @@ namespace MugenMvvm.Bindings.Observation.Components
                     _metadata = metadata;
                 }
 
-                public void Execute(object? state) => _collection.RaiseBase(_sender, _args, _metadata);
+                public void Execute() => _collection.RaiseBase(_sender, _args, _metadata);
             }
         }
     }

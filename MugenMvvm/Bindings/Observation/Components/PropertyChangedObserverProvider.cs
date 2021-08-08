@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
@@ -79,6 +80,8 @@ namespace MugenMvvm.Bindings.Observation.Components
 
         internal sealed class MainThreadMemberListenerCollection : MemberListenerCollection
         {
+            private static readonly SendOrPostCallback RaiseCallback = state => ((ExecuteClosure)state!).Execute();
+
             public override void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
             {
                 if (Count == 0)
@@ -88,12 +91,12 @@ namespace MugenMvvm.Bindings.Observation.Components
                 if (threadDispatcher.CanExecuteInline(ThreadExecutionMode.Main, metadata))
                     base.Raise(sender, message, memberName, metadata);
                 else
-                    threadDispatcher.Execute(ThreadExecutionMode.Main, new ExecuteClosure(this, sender, message, memberName, metadata), null, metadata);
+                    threadDispatcher.Execute(ThreadExecutionMode.Main, RaiseCallback, new ExecuteClosure(this, sender, message, memberName, metadata), metadata);
             }
 
             private void RaiseBase(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata) => base.Raise(sender, message, memberName, metadata);
 
-            private sealed class ExecuteClosure : IThreadDispatcherHandler
+            private sealed class ExecuteClosure
             {
                 private readonly MainThreadMemberListenerCollection _collection;
                 private readonly object? _sender;
@@ -110,7 +113,7 @@ namespace MugenMvvm.Bindings.Observation.Components
                     _metadata = metadata;
                 }
 
-                public void Execute(object? state) => _collection.RaiseBase(_sender, _message, _memberName, _metadata);
+                public void Execute() => _collection.RaiseBase(_sender, _message, _memberName, _metadata);
             }
         }
     }

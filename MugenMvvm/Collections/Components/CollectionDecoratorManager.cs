@@ -43,7 +43,7 @@ namespace MugenMvvm.Collections.Components
                 Reset(null, true, false);
 
             var items = collection.AsEnumerable();
-            var decorators = GetDecorators(decorator, out var index, true);
+            var decorators = GetDecorators(collection, decorator, out var index, true);
             if (index == InvalidDecoratorIndex)
                 yield break;
 
@@ -88,7 +88,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (!_isInitialized)
                 return;
-            var decorators = GetDecorators(decorator, out var startIndex);
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
 
@@ -106,7 +106,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (!_isInitialized)
                 return;
-            var decorators = GetDecorators(decorator, out var startIndex);
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
 
@@ -124,7 +124,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (!_isInitialized)
                 return;
-            var decorators = GetDecorators(decorator, out var startIndex);
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.Collections.Components
             if (oldIndex == newIndex)
                 return;
 
-            var decorators = GetDecorators(decorator, out var startIndex);
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
 
@@ -163,7 +163,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (!_isInitialized)
                 return;
-            var decorators = GetDecorators(decorator, out var startIndex);
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
 
@@ -181,7 +181,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (!_isInitialized)
                 return;
-            var decorators = GetDecorators(decorator, out var startIndex);
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
 
@@ -238,9 +238,10 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private ItemOrArray<ICollectionDecorator> GetDecorators(ICollectionDecorator? decorator, out int index, bool isLengthDefault = false)
+        private static ItemOrArray<ICollectionDecorator> GetDecorators(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, out int index,
+            bool isLengthDefault = false)
         {
-            var components = Owner.GetComponents<ICollectionDecorator>();
+            var components = collection.GetComponents<ICollectionDecorator>();
             index = isLengthDefault ? components.Count : 0;
             if (decorator == null)
                 return components;
@@ -325,6 +326,7 @@ namespace MugenMvvm.Collections.Components
 
         void IDisposableComponent<IReadOnlyObservableCollection>.Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
+            owner.RemoveComponents<IDecoratedCollectionChangedListener>(metadata);
             owner.RemoveComponents<ICollectionDecoratorManagerComponent>(metadata);
             owner.RemoveComponents<IDecoratedCollectionChangedListener>(metadata);
             owner.ClearComponents(metadata);

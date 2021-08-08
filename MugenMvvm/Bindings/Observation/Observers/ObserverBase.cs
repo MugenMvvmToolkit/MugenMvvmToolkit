@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
-    public abstract class ObserverBase : IMemberPathObserver //todo thread safe
+    public abstract class ObserverBase : IMemberPathObserver
     {
         protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
