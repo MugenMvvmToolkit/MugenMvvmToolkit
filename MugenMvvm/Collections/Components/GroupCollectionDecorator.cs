@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class GroupCollectionDecorator<TKey, T> : CollectionDecoratorBase where TKey : class
+    public class GroupCollectionDecorator<T, TKey> : CollectionDecoratorBase where TKey : class
     {
         private readonly Func<T, TKey?> _getGroup;
         private readonly UpdateGroupDelegate? _updateGroup;
@@ -106,16 +106,16 @@ namespace MugenMvvm.Collections.Components
             var newItemGroup = GetGroup(newItem, out _);
             if (!_groups.Comparer.Equals(oldItemGroup!, newItemGroup!))
             {
-                RemoveGroupIfNeed(decoratorManager, collection, oldItemGroup, oldItemGroup == null ? default! : (T) oldItem!);
-                AddGroupIfNeed(decoratorManager, collection, newItemGroup, newItemGroup == null ? default! : (T) newItem!);
+                RemoveGroupIfNeed(decoratorManager, collection, oldItemGroup, oldItemGroup == null ? default! : (T)oldItem!);
+                AddGroupIfNeed(decoratorManager, collection, newItemGroup, newItemGroup == null ? default! : (T)newItem!);
             }
             else if (oldGroupInfo != null)
             {
-                var oldItemT = (T) oldItem!;
+                var oldItemT = (T)oldItem!;
                 oldGroupInfo.Remove(oldItemT);
                 _updateGroup?.Invoke(oldItemGroup!, oldGroupInfo, CollectionGroupChangedAction.ItemRemoved, oldItemT, null);
 
-                var newItemT = (T) newItem!;
+                var newItemT = (T)newItem!;
                 oldGroupInfo.Add(newItemT);
                 _updateGroup?.Invoke(oldItemGroup!, oldGroupInfo, CollectionGroupChangedAction.ItemAdded, newItemT, null);
             }

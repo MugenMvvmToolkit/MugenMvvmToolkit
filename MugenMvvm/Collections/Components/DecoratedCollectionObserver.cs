@@ -1,35 +1,27 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class DecoratedCollectionObserver : CollectionObserverBase, IListenerCollectionDecorator
+    public class DecoratedCollectionObserver : CollectionObserverBase, IListenerCollectionDecorator, IEnumerable<object?>
     {
         [Preserve(Conditional = true)]
         public DecoratedCollectionObserver()
         {
         }
 
+        public bool IsLazy => false;
+
         bool ICollectionDecorator.HasAdditionalItems => false;
 
-        protected override IEnumerable<object?>? GetItems()
-        {
-            var collection = OwnerOptional;
-            var decoratorManager = collection?.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            if (decoratorManager == null)
-                return null;
-            return GetItemsInternal(collection!, decoratorManager);
-        }
+        public IEnumerator<object?> GetEnumerator() => OwnerOptional.DecoratedItems<object?>(this)?.GetEnumerator() ?? Default.EmptyEnumerator<object?>();
 
-        private IEnumerable<object?>? GetItemsInternal(IReadOnlyObservableCollection collection, ICollectionDecoratorManagerComponent collectionDecorator)
-        {
-            using var l = collection.Lock();
-            foreach (var o in collectionDecorator.Decorate(collection, this))
-                yield return o;
-        }
+        protected internal override IEnumerable<object?> GetItems(IReadOnlyObservableCollection collection) => this;
 
         bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes) => false;
 
@@ -66,5 +58,7 @@ namespace MugenMvvm.Collections.Components
             OnReset(collection, null, items);
             return true;
         }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

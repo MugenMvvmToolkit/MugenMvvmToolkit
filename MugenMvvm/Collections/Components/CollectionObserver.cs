@@ -13,7 +13,7 @@ namespace MugenMvvm.Collections.Components
         {
         }
 
-        protected override IEnumerable<object?>? GetItems() => OwnerOptional?.AsEnumerable();
+        protected internal override IEnumerable<object?> GetItems(IReadOnlyObservableCollection collection) => collection.AsEnumerable();
 
         void ICollectionChangedListener<object?>.OnAdded(IReadOnlyObservableCollection<object?> collection, object? item, int index) => OnAdded(collection, item);
 

@@ -81,7 +81,7 @@ namespace MugenMvvm.Collections
             isReset = false;
             if (notify)
             {
-                Size = GetItems().Count();
+                Size = GetItems().CountEx();
                 if (Size > decorator.BatchThreshold)
                 {
                     isReset = true;

@@ -27,6 +27,8 @@ namespace MugenMvvm.Collections
         private readonly IReadOnlyObservableCollection _source;
         private readonly bool _disposeSource;
         private DecoratorListener? _decorator;
+        private bool _hasCount;
+        private int _count;
 
         public DecoratedReadOnlyObservableCollection(IReadOnlyObservableCollection source, int priority, bool disposeSource,
             IComponentCollectionManager? componentCollectionManager = null)
@@ -36,10 +38,27 @@ namespace MugenMvvm.Collections
             _source = source;
             _disposeSource = disposeSource;
             _decorator = new DecoratorListener(this, priority);
-            source.AddComponent(_decorator);
+            using (source.Lock())
+            {
+                source.AddComponent(_decorator);
+                if (!_hasCount)
+                {
+                    var decoratorManager = source.GetComponentOptional<ICollectionDecoratorManagerComponent>();
+                    if (decoratorManager != null)
+                        Count = decoratorManager.Decorate(_source, _decorator).CountEx();
+                }
+            }
         }
 
-        public int Count { get; private set; }
+        public int Count
+        {
+            get => _count;
+            private set
+            {
+                _count = value;
+                _hasCount = true;
+            }
+        }
 
         public ILocker Locker => _source.Locker;
 
@@ -69,22 +88,15 @@ namespace MugenMvvm.Collections
             var decorator = _decorator;
             if (decorator == null)
                 return Default.EmptyEnumerator<T>();
-            var manager = _source.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            if (manager == null)
+            var items = _source.DecoratedItems<T>(decorator);
+            if (items == null)
                 return Default.EmptyEnumerator<T>();
-            return GetItems(decorator, manager).GetEnumerator()!;
+            return items.GetEnumerator()!;
         }
 
         public void UpdateLocker(ILocker locker) => _source.UpdateLocker(locker);
 
         public ActionToken Lock() => _source.Lock();
-
-        private IEnumerable<T?> GetItems(DecoratorListener decorator, ICollectionDecoratorManagerComponent decoratorManagerComponent)
-        {
-            using var _ = _source.Lock();
-            foreach (T? item in decoratorManagerComponent.Decorate(_source, decorator))
-                yield return item;
-        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -98,6 +110,8 @@ namespace MugenMvvm.Collections
                 Priority = priority;
                 _targetRef = target.ToWeakReference();
             }
+
+            public bool IsLazy => false;
 
             public bool HasAdditionalItems => false;
 

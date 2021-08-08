@@ -36,7 +36,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Add);
                 ++invokeCount;
@@ -68,7 +69,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
                 {
                     var eventInfo = infos.Single();
-                    eventInfo.Collection.ShouldEqual(_collection);
+                    eventInfo.Collection!.ShouldEqual(_collection);
+                    eventInfo.Items!.ShouldEqual(_collection);
                     currentItem.ShouldEqual(eventInfo.Item);
                     eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
                     eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
@@ -111,7 +113,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 eventInfo.Item.ShouldBeNull();
                 eventInfo.Parameter.ShouldBeNull();
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
@@ -133,7 +136,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
                 eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
@@ -228,7 +232,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Move);
                 ++invokeCount;
@@ -258,7 +263,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Remove);
                 ++invokeCount;
@@ -283,7 +289,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
                 eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
@@ -325,7 +332,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 oldItem.ShouldEqual(eventInfo.OldItem);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Replace);
@@ -357,7 +365,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
                 eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
@@ -392,7 +401,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 eventInfo.Item.ShouldBeNull();
                 eventInfo.Parameter.ShouldEqual(resetItems);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
@@ -418,7 +428,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 currentItem.ShouldEqual(eventInfo.Item);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Changed);
                 eventInfo.Member.ShouldEqual(nameof(TestNotifyPropertyChangedModel.Property));
@@ -472,7 +483,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsCollectionEvent, infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 eventInfo.Item.ShouldBeNull();
                 ((IEnumerable<object>)eventInfo.Parameter!).ShouldEqual(_collection);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);
@@ -498,7 +510,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _observer.AddObserver<TestNotifyPropertyChangedModel>(info => info.IsMemberOrCollectionChanged(nameof(TestNotifyPropertyChangedModel.Property)), infos =>
             {
                 var eventInfo = infos.Single();
-                eventInfo.Collection.ShouldEqual(_collection);
+                eventInfo.Collection!.ShouldEqual(_collection);
+                eventInfo.Items!.ShouldEqual(_collection);
                 eventInfo.Item.ShouldBeNull();
                 ((IEnumerable<object>)eventInfo.Parameter!).ShouldEqual(_collection);
                 eventInfo.Action.ShouldEqual(CollectionChangedAction.Reset);

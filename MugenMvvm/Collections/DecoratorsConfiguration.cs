@@ -22,7 +22,7 @@ namespace MugenMvvm.Collections
             Priority = priority;
         }
 
-        public DecoratorsConfiguration AddDecorator(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null)
+        public DecoratorsConfiguration Add(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null)
         {
             if (Collection == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration));

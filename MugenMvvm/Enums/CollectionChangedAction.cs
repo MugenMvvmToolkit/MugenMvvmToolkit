@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Enums
 {
-    public enum CollectionChangedAction : short
+    public enum CollectionChangedAction : byte
     {
         Add = 1,
         Move = 2,

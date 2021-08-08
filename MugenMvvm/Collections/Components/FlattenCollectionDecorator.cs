@@ -26,6 +26,8 @@ namespace MugenMvvm.Collections.Components
 
         internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
 
+        public override bool IsLazy => false;
+
         public int BatchThreshold
         {
             get => _batchThreshold.GetValueOrDefault(CollectionMetadata.FlattenCollectionDecoratorBatchThreshold);

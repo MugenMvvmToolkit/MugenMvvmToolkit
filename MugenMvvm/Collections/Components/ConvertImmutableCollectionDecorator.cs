@@ -22,6 +22,8 @@ namespace MugenMvvm.Collections.Components
 
         public Func<T, TTo> Converter { get; }
 
+        public bool IsLazy => true;
+
         public bool HasAdditionalItems => true;
 
         public int Priority { get; set; }

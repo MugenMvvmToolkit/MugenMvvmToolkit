@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
+#pragma warning disable 4014
 
 namespace MugenMvvm.UnitTests.Commands.Components
 {

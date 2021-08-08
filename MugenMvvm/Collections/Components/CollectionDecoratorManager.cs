@@ -271,34 +271,33 @@ namespace MugenMvvm.Collections.Components
         {
             if (force || CanReset(component))
             {
-                _isInitialized = true;
                 var collection = OwnerOptional;
-                if (collection != null)
+                if (collection == null)
+                    return;
+
+                if (!_isInitialized)
                 {
-                    if (component is IListenerCollectionDecorator decoratorListener && !decoratorListener.HasAdditionalItems)
-                    {
-                        if (!remove)
-                        {
-                            var items = Decorate(collection, decoratorListener);
-                            decoratorListener.OnReset(collection, ref items);
-                        }
-                    }
-                    else if (component is not ICollectionDecorator && component is IDecoratedCollectionChangedListener listener)
-                    {
-                        if (!remove)
-                            listener.OnReset(collection, Decorate(collection));
-                    }
-                    else
-                        OnReset(collection, null, collection.AsEnumerable());
+                    _isInitialized = true;
+                    OnReset(collection, null, collection.AsEnumerable());
+                    return;
                 }
+
+                if (!remove && component is ICollectionDecorator decorator)
+                {
+                    var items = Decorate(collection, decorator);
+                    if (decorator.OnReset(collection, ref items))
+                        OnReset(collection, decorator, items);
+                }
+                else
+                    OnReset(collection, null, collection.AsEnumerable());
             }
         }
 
         private bool CanReset(object? component)
         {
             if (_isInitialized)
-                return component == null || component is ICollectionDecorator;
-            return component is IListenerCollectionDecorator or IDecoratedCollectionChangedListener;
+                return component == null || component is ICollectionDecorator && component is not IListenerCollectionDecorator;
+            return component is IListenerCollectionDecorator or IDecoratedCollectionChangedListener or ICollectionDecorator { IsLazy: false };
         }
 
         void ICollectionChangedListener<T>.OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAdded(collection, null, item, index);

@@ -2,26 +2,45 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct CollectionChangedEventInfo<T> : IEquatable<CollectionChangedEventInfo<T>> where T : class
     {
-        public readonly IReadOnlyObservableCollection Collection;
+        private readonly CollectionObserverBase _observer;
         public readonly CollectionChangedAction Action;
         public readonly T? Item;
         public readonly object? Parameter;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal CollectionChangedEventInfo(IReadOnlyObservableCollection collection, T? item, object? parameter, CollectionChangedAction action)
+        internal CollectionChangedEventInfo(CollectionObserverBase observer, T? item, object? parameter, CollectionChangedAction action)
         {
+            _observer = observer;
             Action = action;
-            Collection = collection;
             Item = item;
             Parameter = parameter;
+        }
+
+        public IReadOnlyObservableCollection? Collection
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _observer.OwnerOptional;
+        }
+
+        public IEnumerable<object?> Items
+        {
+            get
+            {
+                var owner = _observer.OwnerOptional;
+                if (owner == null)
+                    return Default.EmptyEnumerable<object?>();
+                return _observer.GetItems(owner);
+            }
         }
 
         public bool IsCollectionEvent

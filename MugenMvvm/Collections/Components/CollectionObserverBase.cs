@@ -67,10 +67,10 @@ namespace MugenMvvm.Collections.Components
         {
             var owner = OwnerOptional;
             if (owner != null)
-                OnChanged(owner, CollectionChangedAction.Reset, null, GetItems(), force);
+                OnChanged(owner, CollectionChangedAction.Reset, null, GetItems(owner), force);
         }
 
-        protected abstract IEnumerable<object?>? GetItems();
+        protected internal abstract IEnumerable<object?> GetItems(IReadOnlyObservableCollection collection);
 
         protected virtual void OnCollectionChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter) =>
             OnChanged(collection, action, item, parameter);
@@ -97,7 +97,7 @@ namespace MugenMvvm.Collections.Components
                     continue;
                 }
 
-                if (!observer.OnChanged(collection, action, item, parameter, force))
+                if (!observer.OnChanged(this, action, item, parameter, force))
                 {
                     hasDeadRefs = true;
                     items[i] = null;
@@ -152,7 +152,7 @@ namespace MugenMvvm.Collections.Components
         {
             base.OnAttached(owner, metadata);
             Resubscribe(owner);
-            OnCollectionChanged(owner, CollectionChangedAction.Reset, null, GetItems());
+            OnCollectionChanged(owner, CollectionChangedAction.Reset, null, GetItems(owner));
         }
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
@@ -213,6 +213,8 @@ namespace MugenMvvm.Collections.Components
             return ActionToken.FromDelegate((l, item) => ((CollectionObserverBase)l!).RemoveObserver((IObserver)item!), this, observer);
         }
 
+        protected CollectionChangedEventInfo<T> GetEventInfo<T>(T? item, object? parameter, CollectionChangedAction action) where T : class => new(this, item, parameter, action);
+
         private ActionToken AddObserverInternal<T, TState>(Func<TState, CollectionChangedEventInfo<T>, bool> predicate,
             Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, TState state, int delay, bool weak, bool listenItemChanges)
             where T : class
@@ -243,9 +245,7 @@ namespace MugenMvvm.Collections.Components
                 return;
             using (collection.Lock())
             {
-                var items = GetItems();
-                if (items != null)
-                    Resubscribe(null, items);
+                Resubscribe(null, GetItems(collection));
             }
         }
 
@@ -363,7 +363,7 @@ namespace MugenMvvm.Collections.Components
         {
             bool IsSupported(object item);
 
-            bool OnChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter, bool force);
+            bool OnChanged(CollectionObserverBase observer, CollectionChangedAction action, object? item, object? parameter, bool force);
         }
 
         private sealed class Observer<T, TTargetOrState> : IObserver where T : class
@@ -401,7 +401,7 @@ namespace MugenMvvm.Collections.Components
 
             public bool IsSupported(object item) => _listenItemChanges && item is T and INotifyPropertyChanged;
 
-            public bool OnChanged(IReadOnlyObservableCollection collection, CollectionChangedAction action, object? item, object? parameter, bool force)
+            public bool OnChanged(CollectionObserverBase observer, CollectionChangedAction action, object? item, object? parameter, bool force)
             {
                 if (item is not T itemT)
                 {
@@ -411,7 +411,7 @@ namespace MugenMvvm.Collections.Components
                     itemT = null!;
                 }
 
-                var eventInfo = new CollectionChangedEventInfo<T>(collection, itemT, parameter, action);
+                var eventInfo = new CollectionChangedEventInfo<T>(observer, itemT, parameter, action);
                 if (!CanInvoke(eventInfo, out var r))
                     return r;
 

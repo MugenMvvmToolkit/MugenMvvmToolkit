@@ -41,6 +41,7 @@ namespace MugenMvvm.Collections
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
         private int _suspendCount;
+        private bool? _initializeAsync;
         private int? _batchThreshold;
         private int? _batchDelay;
 
@@ -88,6 +89,13 @@ namespace MugenMvvm.Collections
         {
             get => _batchDelay.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterBatchDelay);
             set => _batchDelay = value;
+        }
+
+        [Preserve]
+        public bool InitializeAsync
+        {
+            get => _initializeAsync.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterInitializeAsync);
+            set => _initializeAsync = value;
         }
 
         protected virtual bool IsAlive => true;
@@ -206,7 +214,7 @@ namespace MugenMvvm.Collections
             if (e.Action == CollectionChangedAction.Reset)
             {
                 pendingEvents.Clear();
-                var resetItems = ((IEnumerable<object?>?) e.NewItem)?.ToArray();
+                var resetItems = ((IEnumerable<object?>?)e.NewItem)?.ToArray();
                 if (resetItems == null || resetItems.Length == 0)
                     pendingEvents.Add(CollectionChangedEvent.Reset(null));
                 else
@@ -411,8 +419,10 @@ namespace MugenMvvm.Collections
             ThreadDispatcher.Execute(ExecutionMode, this, BoxingExtensions.Box(version));
         }
 
-        private void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue)
+        private async void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue)
         {
+            if (InitializeAsync)
+                await ThreadDispatcher.SwitchToBackgroundAsync();
             int version;
             using var oldLock = MugenExtensions.TryLock(oldValue);
             using var newLock = MugenExtensions.TryLock(newValue);
@@ -441,20 +451,7 @@ namespace MugenMvvm.Collections
             oldLock.Dispose();
             newLock.Dispose();
 
-            if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                OnCollectionChanged(version, oldValue, newValue);
-            else
-            {
-                ThreadDispatcher.Execute(ExecutionMode, state =>
-                {
-                    var s = (Tuple<BindableCollectionAdapter, int, IEnumerable?, IEnumerable?>) state!;
-                    s.Item1.OnCollectionChanged(s.Item2, s.Item3, s.Item4);
-                }, Tuple.Create(this, version, oldValue, newValue));
-            }
-        }
-
-        private void OnCollectionChanged(int version, IEnumerable? oldValue, IEnumerable? newValue)
-        {
+            await ThreadDispatcher.SwitchToAsync(ExecutionMode);
             if (Version == version)
             {
                 OnCollectionChanged(oldValue, newValue, version);
@@ -474,10 +471,10 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     if (e.OldItems!.Count == 1)
                         return false;
-                    items = GetCollectionItems((IEnumerable) sender);
+                    items = GetCollectionItems((IEnumerable)sender);
                     return true;
                 case NotifyCollectionChangedAction.Reset:
-                    items = GetCollectionItems((IEnumerable) sender);
+                    items = GetCollectionItems((IEnumerable)sender);
                     return items.CountEx() != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
@@ -487,7 +484,7 @@ namespace MugenMvvm.Collections
 
         void IThreadDispatcherHandler.Execute(object? state)
         {
-            var version = (int) state!;
+            var version = (int)state!;
             if (Version != version)
                 return;
 
@@ -540,7 +537,7 @@ namespace MugenMvvm.Collections
             public IEnumerable<object?>? ResetItems
             {
                 [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => (IEnumerable<object?>?) NewItem;
+                get => (IEnumerable<object?>?)NewItem;
             }
 
             public object? ChangedArgs
@@ -566,7 +563,7 @@ namespace MugenMvvm.Collections
                         adapter.OnReplaced(OldItem, NewItem, OldIndex, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Reset:
-                        adapter.OnReset((IEnumerable<object?>?) NewItem, (CollectionChangedEvent[]?) OldItem, batchUpdate, version);
+                        adapter.OnReset((IEnumerable<object?>?)NewItem, (CollectionChangedEvent[]?)OldItem, batchUpdate, version);
                         break;
                     case CollectionChangedAction.Changed:
                         adapter.OnChanged(OldItem, OldIndex, NewItem, batchUpdate, version);
@@ -604,7 +601,7 @@ namespace MugenMvvm.Collections
                     case CollectionChangedAction.Reset:
                         source.Clear();
                         if (NewItem != null)
-                            source.AddRange((IEnumerable<object?>) NewItem!);
+                            source.AddRange((IEnumerable<object?>)NewItem!);
                         break;
                 }
             }
@@ -688,7 +685,7 @@ namespace MugenMvvm.Collections
 
                 var adapter = GetAdapter(sender);
                 if (adapter == null || !adapter.IsAlive)
-                    ((INotifyCollectionChanged) sender).CollectionChanged -= OnCollectionChanged;
+                    ((INotifyCollectionChanged)sender).CollectionChanged -= OnCollectionChanged;
                 else
                     adapter.OnCollectionChanged(sender, args, _version);
             }
@@ -722,7 +719,7 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             protected BindableCollectionAdapter? GetAdapter(object? owner)
             {
-                var adapter = (BindableCollectionAdapter?) Reference.Target;
+                var adapter = (BindableCollectionAdapter?)Reference.Target;
                 if (adapter != null && adapter.IsAlive)
                     return adapter;
 

@@ -6,6 +6,8 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecorator : IComponent<IReadOnlyObservableCollection>
     {
+        bool IsLazy { get; }
+        
         bool HasAdditionalItems { get; }
 
         bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes);

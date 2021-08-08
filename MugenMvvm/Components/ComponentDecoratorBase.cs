@@ -24,7 +24,7 @@ namespace MugenMvvm.Components
         protected virtual void Decorate(IComponentCollection collection, ref ItemOrListEditor<TComponent> components, IReadOnlyMetadataContext? metadata) =>
             Components = this.Decorate(ref components);
 
-        protected override void OnAttaching(T owner, IReadOnlyMetadataContext? metadata) => owner.Components.AddComponent(this, metadata);
+        protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata) => owner.Components.AddComponent(this, metadata);
 
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {

@@ -16,6 +16,8 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
+        public virtual bool IsLazy => true;
+
         public abstract bool HasAdditionalItems { get; }
 
         public int Priority { get; set; }

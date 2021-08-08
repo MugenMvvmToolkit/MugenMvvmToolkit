@@ -27,6 +27,8 @@ namespace MugenMvvm.Tests.Collections
 
         public bool ThrowErrorNullDelegate { get; set; }
 
+        public bool IsLazy { get; set; }
+
         public bool HasAdditionalItems { get; set; } = true;
 
         public int Priority { get; set; }

@@ -21,14 +21,17 @@ namespace MugenMvvm.Collections.Components
         private Dictionary<T, TTo?>? _resetCache;
 
         public ConvertCollectionDecorator(Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null,
-            int priority = CollectionComponentPriority.ConverterDecorator) : base(priority)
+            int priority = CollectionComponentPriority.ConverterDecorator, bool isLazy = true) : base(priority)
         {
             Should.NotBeNull(converter, nameof(converter));
             _items = IndexMapList<(T, TTo?)>.Get();
             Converter = converter;
             _cleanup = cleanup;
+            IsLazy = isLazy;
             _comparer = comparer ?? EqualityComparer<TTo?>.Default;
         }
+
+        public override bool IsLazy { get; }
 
         public override bool HasAdditionalItems => _items.Size != 0;
 
@@ -178,7 +181,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private static IEqualityComparer<T> GetComparer() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>) InternalEqualityComparer.Reference;
+        private static IEqualityComparer<T> GetComparer() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>)InternalEqualityComparer.Reference;
 
         private bool TryGet(object? item, int index, out TTo? result)
         {

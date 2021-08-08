@@ -638,7 +638,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             decorator2Count.ShouldEqual(2);
         }
 
-        public static void ShouldTrackItemsMulti3(IObservableCollection<TestCollectionItem> source, IReadOnlyObservableCollection<TestCollectionItem> target)
+        internal static void ShouldTrackItemsMulti3(IObservableCollection<TestCollectionItem> source, IReadOnlyObservableCollection<TestCollectionItem> target)
         {
             const int count = 100;
             var comparer = Comparer<object?>.Create((x1, x2) =>
@@ -658,7 +658,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             target.AddComponent(decorator1);
             target.AddComponent(decorator2);
             target.AddComponent(new HeaderFooterCollectionDecorator { Header = "Header", Footer = "Footer" });
-            target.AddComponent(new GroupCollectionDecorator<object, TestCollectionItem>(o => o!.StableId % 2, null, null, -1));
+            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, -1));
             target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items)));
             target.AddComponent(new PinHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
             {
