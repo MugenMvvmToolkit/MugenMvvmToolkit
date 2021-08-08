@@ -31,7 +31,7 @@ namespace MugenMvvm.Commands.Components
                 return;
             Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(target, nameof(target));
-            Synchronize(command, target, priority);
+            Synchronize(command, target, priority, null);
             if (!bidirectional)
                 AddRemoveForceExecuteCommands(target.Metadata, command, false);
         }
@@ -45,13 +45,21 @@ namespace MugenMvvm.Commands.Components
         protected override void OnAttached(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttached(owner, metadata);
-            owner.AddComponent(new CommandExecutorInterceptor(this, Priority));
+            if (metadata == null || !metadata.Contains(InternalMetadata.ExecutionDecorator))
+                owner.AddComponent(new CommandExecutorInterceptor(this, Priority));
         }
 
         protected override void OnDetached(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
-            owner.RemoveComponents<CommandExecutorInterceptor>();
+            if (metadata != null && metadata.TryGet(InternalMetadata.ExecutionDecorator, out var synchronizer))
+            {
+                foreach (var interceptor in owner.GetComponents<CommandExecutorInterceptor>())
+                    interceptor.Synchronizer = synchronizer;
+            }
+            else
+                owner.RemoveComponents<CommandExecutorInterceptor>();
+
             foreach (var command in Owners)
             {
                 if (command.HasMetadata)
@@ -59,7 +67,7 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        private static void Synchronize(ICompositeCommand command, ICompositeCommand target, int priority)
+        private static void Synchronize(ICompositeCommand command, ICompositeCommand target, int priority, IReadOnlyMetadataContext? metadata)
         {
             var synchronizer1 = command.GetComponentOptional<SynchronizationCommandExecutorDecorator>();
             var synchronizer2 = target.GetComponentOptional<SynchronizationCommandExecutorDecorator>();
@@ -67,11 +75,12 @@ namespace MugenMvvm.Commands.Components
                 return;
             if (synchronizer1 != null && synchronizer2 != null)
             {
+                metadata ??= InternalMetadata.ExecutionDecorator.ToContext(synchronizer1);
                 var owners = synchronizer2.Owners;
-                target.RemoveComponent(synchronizer2);
-                target.AddComponent(synchronizer1);
+                target.RemoveComponent(synchronizer2, metadata);
+                target.AddComponent(synchronizer1, metadata);
                 foreach (var owner in owners)
-                    Synchronize(command, owner, priority);
+                    Synchronize(command, owner, priority, metadata);
                 return;
             }
 
@@ -165,21 +174,21 @@ namespace MugenMvvm.Commands.Components
                 owner.RaiseCanExecuteChanged(metadata);
         }
 
-        private sealed class CommandExecutorInterceptor : ComponentDecoratorBase<ICompositeCommand, ICommandExecutorComponent>, ICommandExecutorComponent
+        internal sealed class CommandExecutorInterceptor : ComponentDecoratorBase<ICompositeCommand, ICommandExecutorComponent>, ICommandExecutorComponent
         {
-            private readonly SynchronizationCommandExecutorDecorator _synchronizer;
+            public SynchronizationCommandExecutorDecorator Synchronizer;
 
             public CommandExecutorInterceptor(SynchronizationCommandExecutorDecorator synchronizer, int priority)
                 : base(priority)
             {
-                _synchronizer = synchronizer;
+                Synchronizer = synchronizer;
             }
 
             public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) =>
-                !AllowForceExecute(command, _synchronizer._executingCommand) || Components.IsExecuting(command, metadata);
+                !AllowForceExecute(command, Synchronizer._executingCommand) || Components.IsExecuting(command, metadata);
 
             public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-                _synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
+                Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
         }
     }
 }

@@ -21,12 +21,16 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
         private static IMetadataContextKey<PropertyChangedCommandObserver>? _commandNotifier;
+        private static IMetadataContextKey<SynchronizationCommandExecutorDecorator>? _commandDecorator;
 
         public static IMetadataContextKey<object?> AllowForceExecuteCommands =>
             _allowForceExecuteCommands ??= GetBuilder(_allowForceExecuteCommands, nameof(AllowForceExecuteCommands)).Build();
 
         public static IMetadataContextKey<PropertyChangedCommandObserver> CommandNotifier
             => _commandNotifier ??= GetBuilder(_commandNotifier, nameof(CommandNotifier)).Build();
+
+        public static IMetadataContextKey<SynchronizationCommandExecutorDecorator> ExecutionDecorator
+            => _commandDecorator ??= GetBuilder(_commandDecorator, nameof(ExecutionDecorator)).Build();
 
         public static IMetadataContextKey<HashSet<string>> OpenedNavigationProviders
             => _openedNavigationProviders ??= GetBuilder(_openedNavigationProviders, nameof(OpenedNavigationProviders)).Serializable().Build();

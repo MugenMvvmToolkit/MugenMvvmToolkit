@@ -29,9 +29,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             cmd3.SynchronizeWith(cmd4);
             cmd4.SynchronizeWith(cmd1);
 
-            cmd1.GetComponents<SynchronizationCommandExecutorDecorator>().Single().ShouldEqual(cmd2.GetComponents<SynchronizationCommandExecutorDecorator>().Single());
-            cmd1.GetComponents<SynchronizationCommandExecutorDecorator>().Single().ShouldEqual(cmd3.GetComponents<SynchronizationCommandExecutorDecorator>().Single());
-            cmd1.GetComponents<SynchronizationCommandExecutorDecorator>().Single().ShouldEqual(cmd4.GetComponents<SynchronizationCommandExecutorDecorator>().Single());
+            var commandExecutorDecorator = cmd1.GetComponents<SynchronizationCommandExecutorDecorator>().Single();
+            commandExecutorDecorator.ShouldEqual(cmd2.GetComponents<SynchronizationCommandExecutorDecorator>().Single());
+            commandExecutorDecorator.ShouldEqual(cmd3.GetComponents<SynchronizationCommandExecutorDecorator>().Single());
+            commandExecutorDecorator.ShouldEqual(cmd4.GetComponents<SynchronizationCommandExecutorDecorator>().Single());
+
+            cmd1.GetComponents<SynchronizationCommandExecutorDecorator.CommandExecutorInterceptor>().Single().Synchronizer.ShouldEqual(commandExecutorDecorator);
+            cmd2.GetComponents<SynchronizationCommandExecutorDecorator.CommandExecutorInterceptor>().Single().Synchronizer.ShouldEqual(commandExecutorDecorator);
+            cmd3.GetComponents<SynchronizationCommandExecutorDecorator.CommandExecutorInterceptor>().Single().Synchronizer.ShouldEqual(commandExecutorDecorator);
+            cmd4.GetComponents<SynchronizationCommandExecutorDecorator.CommandExecutorInterceptor>().Single().Synchronizer.ShouldEqual(commandExecutorDecorator);
         }
 
         [Theory]
