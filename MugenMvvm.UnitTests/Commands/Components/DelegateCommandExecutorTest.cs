@@ -2,7 +2,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -30,12 +29,34 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var executed = 0;
             Action<IReadOnlyMetadataContext?> execute = m => ++executed;
-            var component = (DelegateCommandExecutor.IDelegateCommandExecutor) DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             Command.GetComponents<IDisposableComponent<ICompositeCommand>>().Dispose(Command, null);
 
             component.CanExecute(Command, null, Metadata).ShouldBeFalse();
             await component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
             executed.ShouldEqual(0);
+        }
+
+        [Fact]
+        public async Task ShouldCancelPreviousTokenForceExecute()
+        {
+            var executed = 0;
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, _) =>
+            {
+                ++executed;
+                var source = new TaskCompletionSource<object>();
+                c.Register(() => source.TrySetCanceled(c));
+                return source.Task;
+            };
+            var component = Add<object>(Command, execute, null, false);
+            var task1 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, null);
+            executed.ShouldEqual(1);
+
+            var task2 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, MugenExtensions.GetForceExecuteMetadata(null));
+            await task1.WaitSafeAsync();
+            task1.IsCanceled.ShouldBeTrue();
+            task2.IsCompleted.ShouldBeFalse();
+            executed.ShouldEqual(2);
         }
 
         [Theory]
@@ -54,14 +75,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<IReadOnlyMetadataContext?, bool> canExecute = m =>
             {
                 ++canExecuted;
-                if (!allowMultipleExecution)
-                    m!.Get(CommandMetadata.ForceExecute).ShouldBeTrue();
-                else
-                    m.ShouldEqual(Metadata);
+                m!.Get(CommandMetadata.ForceExecute).ShouldBeTrue();
                 return canExecuteValue;
             };
 
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, canExecute, allowMultipleExecution);
+            var component = Add<object>(Command, execute, canExecute, allowMultipleExecution);
 
             await component.TryExecuteAsync(Command, null, default, Metadata);
             executed.ShouldEqual(0);
@@ -82,19 +100,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var tcs = new TaskCompletionSource<object>();
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => tcs.Task;
 
-            var listener = new TestCommandEventHandlerComponent {RaiseCanExecuteChanged = c => ++executed};
+            var listener = new TestCommandEventHandlerComponent { RaiseCanExecuteChanged = c => ++executed };
             Command.AddComponent(listener);
 
-            var component = (DelegateCommandExecutor.IDelegateCommandExecutor) DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             executed.ShouldEqual(1);
             executed = 0;
             var task = Command.ExecuteAsync(this, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(allowMultipleExecution ? 0 : 1);
+            executed.ShouldEqual(1);
 
             component.CanExecute(Command, null, Metadata).ShouldEqual(allowMultipleExecution);
             tcs.SetResult(this);
             await task;
-            executed.ShouldEqual(allowMultipleExecution ? 0 : 2);
+            executed.ShouldEqual(2);
         }
 
         [Theory]
@@ -104,7 +122,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         {
             var exception = new NotSupportedException();
             Action<IReadOnlyMetadataContext?> execute = m => throw exception;
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             var task = component.TryExecuteAsync(Command, null, default, null);
             task.IsFaulted.ShouldBeTrue();
             task.Exception!.GetBaseException().ShouldEqual(exception);
@@ -121,7 +139,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 ++executed;
             };
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             await component.TryExecuteAsync(Command, null, default, Metadata);
             executed.ShouldEqual(1);
         }
@@ -138,7 +156,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 ++executed;
             };
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             await component.TryExecuteAsync(Command, this, default, Metadata);
             executed.ShouldEqual(1);
         }
@@ -153,11 +171,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) =>
             {
                 ++executed;
-                c.ShouldEqual(DefaultCancellationToken);
+                if (allowMultipleExecution)
+                    c.ShouldEqual(DefaultCancellationToken);
+                else
+                    c.CanBeCanceled.ShouldBeTrue();
                 m.ShouldEqual(Metadata);
                 return tcs.Task;
             };
-            var component = (DelegateCommandExecutor.IDelegateCommandExecutor) DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             var task1 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
             var task2 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
 
@@ -181,11 +202,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) =>
             {
                 ++executed;
-                c.ShouldEqual(DefaultCancellationToken);
+                if (allowMultipleExecution)
+                    c.ShouldEqual(DefaultCancellationToken);
+                else
+                    c.CanBeCanceled.ShouldBeTrue();
                 m.ShouldEqual(context);
                 return tcs.Task;
             };
-            var component = (DelegateCommandExecutor.IDelegateCommandExecutor) DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             var task1 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, context);
             var task2 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, context);
 
@@ -198,6 +222,34 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(2);
             await component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
             executed.ShouldEqual(3);
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public async Task ShouldSupportBoolTaskFuncTask(bool result, bool allowMultipleExecution)
+        {
+            var executed = 0;
+            var tcs = new TaskCompletionSource<bool>();
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute = (c, m) =>
+            {
+                ++executed;
+                if (allowMultipleExecution)
+                    c.ShouldEqual(DefaultCancellationToken);
+                else
+                    c.CanBeCanceled.ShouldBeTrue();
+                m.ShouldEqual(Metadata);
+                return tcs.Task;
+            };
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
+            var task = component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
+            executed.ShouldEqual(1);
+            task.IsCompleted.ShouldBeFalse();
+            tcs.SetResult(result);
+            (await task).ShouldEqual(result);
+            task.IsCompleted.ShouldBeTrue();
         }
 
         [Theory]
@@ -214,7 +266,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 return canExecuteValue;
             };
-            var component = (DelegateCommandExecutor.IDelegateCommandExecutor) DelegateCommandExecutor.Add<object>(Command, execute, canExecute, allowMultipleExecution);
+            var component = Add<object>(Command, execute, canExecute, allowMultipleExecution);
             component.CanExecute(Command, null, Metadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
@@ -238,13 +290,42 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 ++executed;
                 return canExecuteValue;
             };
-            var component = (DelegateCommandExecutor.IDelegateCommandExecutor) DelegateCommandExecutor.Add<object>(Command, execute, canExecute, allowMultipleExecution);
+            var component = Add<object>(Command, execute, canExecute, allowMultipleExecution);
             component.CanExecute(Command, this, Metadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
             component.CanExecute(Command, this, Metadata).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public async Task ShouldSupportFuncBoolTaskWithObject(bool result, bool allowMultipleExecution)
+        {
+            var executed = 0;
+            var tcs = new TaskCompletionSource<bool>();
+            Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute = (item, c, m) =>
+            {
+                item.ShouldEqual(this);
+                if (allowMultipleExecution)
+                    c.ShouldEqual(DefaultCancellationToken);
+                else
+                    c.CanBeCanceled.ShouldBeTrue();
+                m.ShouldEqual(Metadata);
+                ++executed;
+                return tcs.Task;
+            };
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
+            var task = component.TryExecuteAsync(Command, this, DefaultCancellationToken, Metadata);
+            executed.ShouldEqual(1);
+            task.IsCompleted.ShouldBeFalse();
+            tcs.SetResult(result);
+            (await task).ShouldEqual(result);
+            task.IsCompleted.ShouldBeTrue();
         }
 
         [Theory]
@@ -257,11 +338,14 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) =>
             {
                 ++executed;
-                c.ShouldEqual(DefaultCancellationToken);
+                if (allowMultipleExecution)
+                    c.ShouldEqual(DefaultCancellationToken);
+                else
+                    c.CanBeCanceled.ShouldBeTrue();
                 m.ShouldEqual(Metadata);
                 return tcs.Task;
             };
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             var task = component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
@@ -280,12 +364,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) =>
             {
                 item.ShouldEqual(this);
-                c.ShouldEqual(DefaultCancellationToken);
+                if (allowMultipleExecution)
+                    c.ShouldEqual(DefaultCancellationToken);
+                else
+                    c.CanBeCanceled.ShouldBeTrue();
                 m.ShouldEqual(Metadata);
                 ++executed;
                 return tcs.Task;
             };
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
+            var component = Add<object>(Command, execute, null, allowMultipleExecution);
             var task = component.TryExecuteAsync(Command, this, DefaultCancellationToken, Metadata);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
@@ -294,100 +381,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
             task.IsCompleted.ShouldBeTrue();
         }
 
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(false, false)]
-        public async Task ShouldSupportFuncBoolTaskWithObject(bool result, bool allowMultipleExecution)
+        private static DelegateCommandExecutor<T> Add<T>(ICompositeCommand command, Delegate execute, Delegate? canExecute, bool allowMultipleExecution)
         {
-            var executed = 0;
-            var tcs = new TaskCompletionSource<bool>();
-            Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute = (item, c, m) =>
-            {
-                item.ShouldEqual(this);
-                c.ShouldEqual(DefaultCancellationToken);
-                m.ShouldEqual(Metadata);
-                ++executed;
-                return tcs.Task;
-            };
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
-            var task = component.TryExecuteAsync(Command, this, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(1);
-            task.IsCompleted.ShouldBeFalse();
-            tcs.SetResult(result);
-            (await task).ShouldEqual(result);
-            task.IsCompleted.ShouldBeTrue();
-        }
-
-        [Theory]
-        [InlineData(true, true)]
-        [InlineData(false, true)]
-        [InlineData(true, false)]
-        [InlineData(false, false)]
-        public async Task ShouldSupportBoolTaskFuncTask(bool result, bool allowMultipleExecution)
-        {
-            var executed = 0;
-            var tcs = new TaskCompletionSource<bool>();
-            Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute = (c, m) =>
-            {
-                ++executed;
-                c.ShouldEqual(DefaultCancellationToken);
-                m.ShouldEqual(Metadata);
-                return tcs.Task;
-            };
-            var component = DelegateCommandExecutor.Add<object>(Command, execute, null, allowMultipleExecution);
-            var task = component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(1);
-            task.IsCompleted.ShouldBeFalse();
-            tcs.SetResult(result);
-            (await task).ShouldEqual(result);
-            task.IsCompleted.ShouldBeTrue();
-        }
-
-        [Theory]
-        [InlineData(true, true, true)]
-        [InlineData(true, true, false)]
-        [InlineData(false, false, true)]
-        [InlineData(false, false, false)]
-        [InlineData(true, false, true)]
-        [InlineData(true, false, false)]
-        [InlineData(false, true, true)]
-        [InlineData(false, true, false)]
-        public async Task SynchronizeExecutionShouldSynchronizeExecutionBetweenCommands(bool allowMultipleExecution1, bool allowMultipleExecution2, bool bidirectional)
-        {
-            var executed = 0;
-            var tcs = new TaskCompletionSource<bool>();
-            Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute1 = (c, m) =>
-            {
-                c.ShouldEqual(DefaultCancellationToken);
-                m.ShouldEqual(Metadata);
-                ++executed;
-                return tcs.Task;
-            };
-            Action<IReadOnlyMetadataContext?> execute2 = m =>
-            {
-                m.ShouldEqual(Metadata);
-                ++executed;
-            };
-
-            var command2 = new CompositeCommand(null, ComponentCollectionManager);
-            DelegateCommandExecutor.Add<object>(Command, execute1, null, allowMultipleExecution1);
-            DelegateCommandExecutor.Add<object>(command2, execute2, null, allowMultipleExecution2);
-
-            DelegateCommandExecutor.Synchronize(Command, command2, bidirectional);
-            var task = Command.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(1);
-            command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(bidirectional ? 1 : 2);
-
-            tcs.SetResult(default);
-            (await task).ShouldEqual(default);
-            task.IsCompleted.ShouldBeTrue();
-
-            executed.ShouldEqual(bidirectional ? 1 : 2);
-            command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
-            executed.ShouldEqual(bidirectional ? 2 : 3);
+            var component = new DelegateCommandExecutor<T>(execute, canExecute, allowMultipleExecution);
+            command.AddComponent(component);
+            return component;
         }
     }
 }

@@ -41,7 +41,7 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        private static IReadOnlyMetadataContext? _forceExecuteMetadata;
+        internal static IReadOnlyMetadataContext? ForceExecuteMetadata;
 
         public static void Start<TViewModel>(this IMugenApplication? _, IReadOnlyMetadataContext? metadata = null)
             where TViewModel : IViewModelBase => Start(null, typeof(TViewModel), metadata);
@@ -219,10 +219,13 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static ActionToken AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
+        public static ICompositeCommand AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier) => command.AddNotifier(notifier, out _);
+
+        public static ICompositeCommand AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier, out ActionToken removeToken)
         {
             Should.NotBeNull(command, nameof(command));
-            return command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
+            removeToken = command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
+            return command;
         }
 
         public static Task<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
@@ -232,19 +235,22 @@ namespace MugenMvvm.Extensions
             return command.ExecuteAsync(parameter, cancellationToken, GetForceExecuteMetadata(metadata));
         }
 
-        public static void SynchronizeExecutionWith(this ICompositeCommand command, ICompositeCommand target, bool bidirectional = true) =>
-            DelegateCommandExecutor.Synchronize(command, target, bidirectional);
-
-        public static void AddChildCommand(this ICompositeCommand owner, ICompositeCommand command)
+        public static ICompositeCommand SynchronizeWith(this ICompositeCommand command, ICompositeCommand target, bool bidirectional = true)
         {
-            Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<ChildCommandAdapter>().Add(command);
+            SynchronizationCommandExecutorDecorator.Synchronize(command, target, bidirectional);
+            return command;
         }
 
-        public static void RemoveChildCommand(this ICompositeCommand owner, ICompositeCommand command)
+        public static bool AddChildCommand(this ICompositeCommand owner, ICompositeCommand command)
         {
             Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<ChildCommandAdapter>().Remove(command);
+            return owner.GetOrAddComponent<ChildCommandAdapter>().Add(command);
+        }
+
+        public static bool RemoveChildCommand(this ICompositeCommand owner, ICompositeCommand command)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            return owner.GetOrAddComponent<ChildCommandAdapter>().Remove(command);
         }
 
         public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
@@ -262,7 +268,7 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
         }
@@ -277,7 +283,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(owner, nameof(owner));
             owner.GetOrAddComponent<DisposeCallbackComponent<T>>().Register(token);
-            return (T) owner;
+            return (T)owner;
         }
 
         public static T? TryUnwrap<T>(object target) where T : class
@@ -309,8 +315,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo) (object) value!;
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value!;
         }
 
         [StringFormatMethod("format")]
@@ -359,7 +365,7 @@ namespace MugenMvvm.Extensions
 
         internal static void CommandNotifierOnPropertyChangedHandler(this IWeakReference weakReference, object? sender, PropertyChangedEventArgs args)
         {
-            var handler = (PropertyChangedCommandObserver?) weakReference.Target;
+            var handler = (PropertyChangedCommandObserver?)weakReference.Target;
             if (handler == null)
             {
                 if (sender is INotifyPropertyChanged propertyChanged)
@@ -372,7 +378,7 @@ namespace MugenMvvm.Extensions
         internal static IReadOnlyMetadataContext GetForceExecuteMetadata(IReadOnlyMetadataContext? metadata)
         {
             if (metadata == null || metadata.Count == 0)
-                return _forceExecuteMetadata ??= CommandMetadata.ForceExecute.ToContext(true);
+                return ForceExecuteMetadata ??= CommandMetadata.ForceExecute.ToContext(true);
             return metadata.WithValue(CommandMetadata.ForceExecute, true);
         }
 

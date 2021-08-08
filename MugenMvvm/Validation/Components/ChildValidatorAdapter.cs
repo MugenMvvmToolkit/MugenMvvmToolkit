@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class ChildValidatorAdapter : MultiAttachableComponentBase<IValidator>, IValidationHandlerComponent, IValidatorErrorManagerComponent,
+    public sealed class ChildValidatorAdapter : AttachableComponentBase<IValidator>, IValidationHandlerComponent, IValidatorErrorManagerComponent,
         IDisposableComponent<IValidator>, IHasPriority
     {
         private ListInternal<IValidator> _validators;
@@ -29,18 +29,19 @@ namespace MugenMvvm.Validation.Components
 
         public int Priority { get; init; } = ValidationComponentPriority.ChildValidatorAdapter;
 
-        public void Add(IValidator validator)
+        public bool Add(IValidator validator)
         {
             Should.NotBeNull(validator, nameof(validator));
             lock (_listener)
             {
                 if (_validators.Contains(validator))
-                    return;
+                    return false;
                 validator.AddComponent(_listener);
                 _validators.Add(validator);
             }
 
             RaiseErrorsChanged(default, null);
+            return true;
         }
 
         public bool Contains(IValidator validator)
@@ -52,17 +53,18 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        public void Remove(IValidator validator)
+        public bool Remove(IValidator validator)
         {
             Should.NotBeNull(validator, nameof(validator));
             lock (_listener)
             {
                 if (!_validators.Remove(validator))
-                    return;
+                    return false;
                 validator.RemoveComponent(_listener);
             }
 
             RaiseErrorsChanged(default, null);
+            return true;
         }
 
         public void Dispose(IValidator owner, IReadOnlyMetadataContext? metadata)
@@ -139,17 +141,11 @@ namespace MugenMvvm.Validation.Components
         {
         }
 
-        private void RaiseErrorsChanged(ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
-        {
-            foreach (var owner in Owners)
-                owner.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(owner, members, metadata);
-        }
+        private void RaiseErrorsChanged(ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata) =>
+            OwnerOptional?.GetComponents<IValidatorErrorsChangedListener>().OnErrorsChanged(OwnerOptional, members, metadata);
 
-        private void RaiseAsyncValidation(string? member, Task validationTask, IReadOnlyMetadataContext? metadata)
-        {
-            foreach (var owner in Owners)
-                owner.GetComponents<IAsyncValidationListener>().OnAsyncValidation(owner, member, validationTask, metadata);
-        }
+        private void RaiseAsyncValidation(string? member, Task validationTask, IReadOnlyMetadataContext? metadata) =>
+            OwnerOptional?.GetComponents<IAsyncValidationListener>().OnAsyncValidation(OwnerOptional, member, validationTask, metadata);
 
         private sealed class ValidatorListener : IValidatorErrorsChangedListener, IAsyncValidationListener
         {

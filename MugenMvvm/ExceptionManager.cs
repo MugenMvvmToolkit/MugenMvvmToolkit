@@ -65,10 +65,6 @@ namespace MugenMvvm
         public static void ThrowEnumOutOfRange<T>(string paramName, T @enum) => throw new ArgumentOutOfRangeException(paramName, UnhandledEnumFormat1.Format(@enum!.ToString()));
 
         [DoesNotReturn]
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public static void ThrowCommandCannotBeExecuted() => throw new InvalidOperationException(CommandCannotBeExecutedString);
-
-        [DoesNotReturn]
         public static void ThrowWrapperTypeNotSupported(Type wrapperType) => throw new ArgumentException(WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
 
         [DoesNotReturn]

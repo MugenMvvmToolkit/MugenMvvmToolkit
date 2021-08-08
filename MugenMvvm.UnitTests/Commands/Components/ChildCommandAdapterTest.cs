@@ -33,16 +33,30 @@ namespace MugenMvvm.UnitTests.Commands.Components
             };
 
             if (extMethod)
-                Command.AddChildCommand(cmd);
+            {
+                Command.AddChildCommand(cmd).ShouldBeTrue();
+                Command.AddChildCommand(cmd).ShouldBeFalse();
+            }
             else
-                _adapter.Add(cmd);
+            {
+                _adapter.Add(cmd).ShouldBeTrue();
+                _adapter.Add(cmd).ShouldBeFalse();
+            }
+
             _adapter.Contains(cmd).ShouldBeTrue();
             invokeCount.ShouldEqual(1);
 
             if (extMethod)
-                Command.RemoveChildCommand(cmd);
+            {
+                Command.RemoveChildCommand(cmd).ShouldBeTrue();
+                Command.RemoveChildCommand(cmd).ShouldBeFalse();
+            }
             else
-                _adapter.Remove(cmd);
+            {
+                _adapter.Remove(cmd).ShouldBeTrue();
+                _adapter.Remove(cmd).ShouldBeFalse();
+            }
+
             _adapter.Contains(cmd).ShouldBeFalse();
             invokeCount.ShouldEqual(2);
         }
@@ -123,7 +137,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 p.ShouldEqual(parameter);
                 m.ShouldEqual(Metadata);
                 ++cmd1Count;
-            });
+            }, allowMultipleExecution: true);
             var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
             {
                 p.ShouldEqual(parameter);
@@ -131,7 +145,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 ++cmd2Count;
                 return Task.CompletedTask;
-            });
+            }, allowMultipleExecution: true);
 
             Command.AddChildCommand(cmd1);
             Command.AddChildCommand(cmd2);
@@ -155,7 +169,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 ++cmd1Count;
                 return Task.FromResult(result);
-            });
+            }, allowMultipleExecution: true);
             var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
             {
                 p.ShouldEqual(parameter);
@@ -163,7 +177,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 ++cmd2Count;
                 return Task.FromResult(true);
-            });
+            }, allowMultipleExecution: true);
 
             Command.AddChildCommand(cmd1);
             Command.AddChildCommand(cmd2);

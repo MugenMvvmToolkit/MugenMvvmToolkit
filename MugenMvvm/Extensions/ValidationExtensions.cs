@@ -31,16 +31,16 @@ namespace MugenMvvm.Extensions
             validator.SetErrors(validator, errors, metadata);
         }
 
-        public static void AddChildValidator(this IValidator owner, IValidator validator)
+        public static bool AddChildValidator(this IValidator owner, IValidator validator)
         {
             Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<ChildValidatorAdapter>().Add(validator);
+            return owner.GetOrAddComponent<ChildValidatorAdapter>().Add(validator);
         }
 
-        public static void RemoveChildValidator(this IValidator owner, IValidator validator)
+        public static bool RemoveChildValidator(this IValidator owner, IValidator validator)
         {
             Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<ChildValidatorAdapter>().Remove(validator);
+            return owner.GetOrAddComponent<ChildValidatorAdapter>().Remove(validator);
         }
 
         public static bool Contains(this ItemOrIReadOnlyList<ValidationErrorInfo> errors, string? member)

@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldCacheCommandEventHandler(bool cache)
         {
             _component.CacheCommandNotifier = cache;
-            var metadataOwner = new TestMetadataOwnerPropertyChanged {Metadata = new MetadataContext()};
+            var metadataOwner = new TestMetadataOwnerPropertyChanged { Metadata = new MetadataContext() };
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var request = DelegateCommandRequest.Get(execute, canExecute, null, null, default, null);
@@ -89,6 +89,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public async Task TryGetCommandShouldUseValidParameters1(bool hasCanExecute, bool? allowMultipleExecution, bool hasThreadExecutionMode, bool addNotifiers,
             bool hasCanNotify, bool hasMetadata)
         {
+            Metadata.Set(MetadataContextKey.FromKey<object?>(NewId()), null);
             var executedCount = 0;
             var canExecuteValue = true;
             Action<IReadOnlyMetadataContext?> execute = m =>
@@ -102,9 +103,9 @@ namespace MugenMvvm.UnitTests.Commands.Components
                     m.ShouldEqual(Metadata);
                     return canExecuteValue;
                 }
-                : (Func<IReadOnlyMetadataContext?, bool>?) null;
+                : (Func<IReadOnlyMetadataContext?, bool>?)null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -113,7 +114,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command = CommandManager.TryGetCommand<object>(this, request, metadata)!;
             command.ShouldNotBeNull();
 
-            var component = command.GetComponent<DelegateCommandExecutor.IDelegateCommandExecutor>();
+            var component = command.GetComponent<DelegateCommandExecutor<object>>();
             await component.TryExecuteAsync(command, null, DefaultCancellationToken, Metadata);
             executedCount.ShouldEqual(1);
             if (canExecute != null)

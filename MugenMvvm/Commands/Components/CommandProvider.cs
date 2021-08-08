@@ -37,11 +37,11 @@ namespace MugenMvvm.Commands.Components
             command.AddComponent(new CommandEventHandler());
 
             if (request is Delegate execute)
-                DelegateCommandExecutor.Add<TParameter>(command, execute, null, AllowMultipleExecution);
+                command.AddComponent(new DelegateCommandExecutor<TParameter>(execute, null, AllowMultipleExecution));
             else if (request is DelegateCommandRequest commandRequest)
             {
-                DelegateCommandExecutor.Add<TParameter>(command, commandRequest.Execute, commandRequest.CanExecute,
-                    commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution));
+                command.AddComponent(new DelegateCommandExecutor<TParameter>(commandRequest.Execute, commandRequest.CanExecute,
+                    commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
                 var observer = GetCommandObserver(owner, commandRequest, metadata);
                 if (observer != null)
                     command.AddComponent(observer, metadata);
@@ -52,7 +52,7 @@ namespace MugenMvvm.Commands.Components
 
         private static PropertyChangedCommandObserver? GetCommandObserverInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
-            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver {CanNotify = commandRequest.CanNotify};
+            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver { CanNotify = commandRequest.CanNotify };
             var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIEnumerable.FromItem(owner) : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
             {

@@ -45,16 +45,30 @@ namespace MugenMvvm.UnitTests.Validation.Components
             });
 
             if (extMethod)
-                Validator.AddChildValidator(validator);
+            {
+                Validator.AddChildValidator(validator).ShouldBeTrue();
+                Validator.AddChildValidator(validator).ShouldBeFalse();
+            }
             else
-                _adapter.Add(validator);
+            {
+                _adapter.Add(validator).ShouldBeTrue();
+                _adapter.Add(validator).ShouldBeFalse();
+            }
+
             _adapter.Contains(validator).ShouldBeTrue();
             invokeCount.ShouldEqual(1);
 
             if (extMethod)
-                Validator.RemoveChildValidator(validator);
+            {
+                Validator.RemoveChildValidator(validator).ShouldBeTrue();
+                Validator.RemoveChildValidator(validator).ShouldBeFalse();
+            }
             else
-                _adapter.Remove(validator);
+            {
+                _adapter.Remove(validator).ShouldBeTrue();
+                _adapter.Remove(validator).ShouldBeFalse();
+            }
+
             _adapter.Contains(validator).ShouldBeFalse();
             invokeCount.ShouldEqual(2);
         }

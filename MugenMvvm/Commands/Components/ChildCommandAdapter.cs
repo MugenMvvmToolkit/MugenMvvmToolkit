@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Commands.Components
 {
-    public class ChildCommandAdapter : MultiAttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, ICommandExecutorComponent, IHasPriority
+    public class ChildCommandAdapter : AttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, ICommandExecutorComponent, IHasPriority
     {
         private readonly CommandListener _listener;
         private bool _suppressExecute;
@@ -57,18 +57,19 @@ namespace MugenMvvm.Commands.Components
         // ReSharper disable once InconsistentlySynchronizedField
         protected List<ICompositeCommand> Commands => _listener;
 
-        public void Add(ICompositeCommand command)
+        public bool Add(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
             lock (_listener)
             {
                 if (_listener.Contains(command))
-                    return;
+                    return false;
                 _listener.Add(command);
                 command.AddComponent(_listener);
             }
 
             RaiseCanExecuteChanged();
+            return true;
         }
 
         public bool Contains(ICompositeCommand command)
@@ -80,17 +81,18 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        public void Remove(ICompositeCommand command)
+        public bool Remove(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
             lock (_listener)
             {
                 if (!_listener.Remove(command))
-                    return;
+                    return false;
                 command.RemoveComponent(_listener);
             }
 
             RaiseCanExecuteChanged();
+            return true;
         }
 
         public virtual bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
@@ -191,11 +193,7 @@ namespace MugenMvvm.Commands.Components
             return true;
         }
 
-        private void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null)
-        {
-            foreach (var owner in Owners)
-                owner.RaiseCanExecuteChanged(metadata);
-        }
+        private void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.RaiseCanExecuteChanged(metadata);
 
         private sealed class CommandListener : List<ICompositeCommand>, ICommandEventHandlerComponent
         {
