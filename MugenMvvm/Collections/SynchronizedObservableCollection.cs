@@ -313,9 +313,6 @@ namespace MugenMvvm.Collections
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsCompatibleObject(object? value) => value is T || value == null && default(T) == null;
-
         private void InsertInternal(int index, T item, bool isAdd)
         {
             if (!_conditions.CanAdd(this, item, index))
@@ -505,15 +502,15 @@ namespace MugenMvvm.Collections
             }
         }
 
-        bool IList.Contains(object? value) => IsCompatibleObject(value) && Contains((T)value!);
+        bool IList.Contains(object? value) => TypeChecker.IsCompatible<T>(value) && Contains((T)value!);
 
-        int IList.IndexOf(object? value) => IsCompatibleObject(value!) ? IndexOf((T)value!) : -1;
+        int IList.IndexOf(object? value) => TypeChecker.IsCompatible<T>(value!) ? IndexOf((T)value!) : -1;
 
         void IList.Insert(int index, object? value) => Insert(index, (T)value!);
 
         void IList.Remove(object? value)
         {
-            if (IsCompatibleObject(value!))
+            if (TypeChecker.IsCompatible<T>(value!))
                 Remove((T)value!);
         }
 

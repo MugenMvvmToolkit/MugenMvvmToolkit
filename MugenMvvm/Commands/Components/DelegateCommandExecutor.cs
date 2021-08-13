@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
@@ -70,6 +71,7 @@ namespace MugenMvvm.Commands.Components
 
         public void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
+            _cancellationTokenSource?.Cancel();
             _execute = null;
             _canExecute = null;
         }
@@ -91,7 +93,7 @@ namespace MugenMvvm.Commands.Components
 
         private async Task<bool> ExecuteAsync(object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested || !TypeChecker.IsCompatible<T>(parameter))
                 return false;
 
             var executeAction = _execute;

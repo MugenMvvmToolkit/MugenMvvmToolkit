@@ -10,6 +10,9 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsValueType<T>() => GenericChecker<T>.IsValueType;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsCompatible<T>(object? value) => value is T || value == null && default(T) == null;
+
         private static class GenericChecker<T>
         {
             public static readonly bool IsNullableType = default(T) == null;
