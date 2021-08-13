@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -22,8 +21,7 @@ namespace MugenMvvm.ViewModels.Components
         }
 
         public int Priority { get; init; } = ViewModelComponentPriority.InheritParentServiceResolver;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.GetService(false);
 
         public object? TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)

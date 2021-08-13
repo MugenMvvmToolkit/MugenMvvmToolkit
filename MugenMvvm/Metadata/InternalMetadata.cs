@@ -16,7 +16,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<object?>? _view;
         private static IMetadataContextKey<object?>? _allowForceExecuteCommands;
         private static IMetadataContextKey<Dictionary<string, IViewModelPresenterMediator>>? _mediators;
-        private static IMetadataContextKey<List<NavigationCallback?>>? _showingCallbacks;
+        private static IMetadataContextKey<List<NavigationCallback?>>? _showCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closingCallbacks;
         private static IMetadataContextKey<List<NavigationCallback?>>? _closeCallbacks;
         private static IMetadataContextKey<SortedList<string, object?>>? _attachedValuesKey;
@@ -38,8 +38,8 @@ namespace MugenMvvm.Metadata
         public static IMetadataContextKey<SortedList<string, object?>> AttachedValuesKey
             => _attachedValuesKey ??= GetBuilder(_attachedValuesKey, nameof(AttachedValuesKey)).Build();
 
-        public static IMetadataContextKey<List<NavigationCallback?>> ShowingCallbacks
-            => _showingCallbacks ??= GetBuilder(_showingCallbacks, nameof(ShowingCallbacks)).Serializable().Build();
+        public static IMetadataContextKey<List<NavigationCallback?>> ShowCallbacks
+            => _showCallbacks ??= GetBuilder(_showCallbacks, nameof(ShowCallbacks)).Serializable().Build();
 
         public static IMetadataContextKey<List<NavigationCallback?>> ClosingCallbacks
             => _closingCallbacks ??= GetBuilder(_closingCallbacks, nameof(ClosingCallbacks)).Serializable().Build();

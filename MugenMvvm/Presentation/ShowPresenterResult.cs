@@ -12,27 +12,27 @@ namespace MugenMvvm.Presentation
     {
         public readonly INavigationCallback CloseCallback;
         public readonly IPresenterResult Result;
-        public readonly INavigationCallback? ShowingCallback;
+        public readonly INavigationCallback? ShowCallback;
 
-        public ShowPresenterResult(IPresenterResult result, INavigationCallback? showingCallback, INavigationCallback closeCallback)
+        public ShowPresenterResult(IPresenterResult result, INavigationCallback? showCallback, INavigationCallback closeCallback)
         {
             Should.NotBeNull(result, nameof(result));
             Result = result;
-            ShowingCallback = showingCallback;
+            ShowCallback = showCallback;
             CloseCallback = closeCallback;
         }
 
-        public ValueTask<INavigationContext?> WaitShowingAsync(bool isSerializable = false)
+        public ValueTask<INavigationContext?> WaitShowAsync(bool isSerializable = false)
         {
-            if (ShowingCallback == null)
+            if (ShowCallback == null)
                 return default;
-            return ShowingCallback.AsTask(isSerializable)!;
+            return ShowCallback.AsTask(isSerializable)!;
         }
 
-        public bool Equals(ShowPresenterResult other) => CloseCallback.Equals(other.CloseCallback) && Result.Equals(other.Result) && Equals(ShowingCallback, other.ShowingCallback);
+        public bool Equals(ShowPresenterResult other) => CloseCallback.Equals(other.CloseCallback) && Result.Equals(other.Result) && Equals(ShowCallback, other.ShowCallback);
 
         public override bool Equals(object? obj) => obj is ShowPresenterResult other && Equals(other);
 
-        public override int GetHashCode() => HashCode.Combine(CloseCallback, Result, ShowingCallback);
+        public override int GetHashCode() => HashCode.Combine(CloseCallback, Result, ShowCallback);
     }
 }

@@ -242,15 +242,13 @@ namespace MugenMvvm.Extensions.Components
             else
                 (components as IDisposableComponent<T>)?.Dispose(owner, metadata);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static void Dispose<T>(this ItemOrArray<IDisposableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             foreach (var c in components)
                 c.Dispose(owner, metadata);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static void Invalidate<T>(this ItemOrArray<IHasCacheComponent<T>> components, T owner, object? state, IReadOnlyMetadataContext? metadata) where T : class
         {
             Should.NotBeNull(owner, nameof(owner));

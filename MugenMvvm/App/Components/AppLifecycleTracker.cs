@@ -44,7 +44,7 @@ namespace MugenMvvm.App.Components
                 var closeContext = BackgroundCloseContext(application);
                 dispatcher
                     .GetComponents<INavigationCallbackManagerComponent>(metadata)
-                    .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, InternalConstant.BackgroundNavigationId, NavigationType.Background, application,
+                    .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Show, InternalConstant.BackgroundNavigationId, NavigationType.Background, application,
                         metadata);
                 dispatcher.OnNavigated(closeContext);
                 closeContext.ClearMetadata(true);

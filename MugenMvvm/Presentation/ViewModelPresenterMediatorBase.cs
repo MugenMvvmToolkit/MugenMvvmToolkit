@@ -294,7 +294,7 @@ namespace MugenMvvm.Presentation
             return newView;
         }
 
-        protected Task WaitShowingAsync() => _showingTask?.Task ?? Task.CompletedTask;
+        protected Task WaitShowAsync() => _showingTask?.Task ?? Task.CompletedTask;
 
         private async void Show(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -358,7 +358,7 @@ namespace MugenMvvm.Presentation
                 context = GetNavigationContext(NavigationMode.Close, metadata);
                 ClosingContext = context;
 
-                await WaitShowingAsync();
+                await WaitShowAsync();
                 await ThreadDispatcher.SwitchToAsync(ExecutionMode);
 
                 if (!EnsureValidState(context, cancellationToken))

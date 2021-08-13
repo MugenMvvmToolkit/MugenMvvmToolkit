@@ -67,7 +67,7 @@ namespace MugenMvvm.Navigation.Components
                 return default;
 
             var list = new ItemOrListEditor<INavigationCallback>(3);
-            AddCallbacks(InternalMetadata.ShowingCallbacks, targetMetadata, ref list);
+            AddCallbacks(InternalMetadata.ShowCallbacks, targetMetadata, ref list);
             AddCallbacks(InternalMetadata.ClosingCallbacks, targetMetadata, ref list);
             AddCallbacks(InternalMetadata.CloseCallbacks, targetMetadata, ref list);
             return list;
@@ -136,8 +136,8 @@ namespace MugenMvvm.Navigation.Components
 
         private static IMetadataContextKey<List<NavigationCallback?>>? GetKeyByCallback(NavigationCallbackType callbackType)
         {
-            if (callbackType == NavigationCallbackType.Showing)
-                return InternalMetadata.ShowingCallbacks;
+            if (callbackType == NavigationCallbackType.Show)
+                return InternalMetadata.ShowCallbacks;
             if (callbackType == NavigationCallbackType.Closing)
                 return InternalMetadata.ClosingCallbacks;
             if (callbackType == NavigationCallbackType.Close)

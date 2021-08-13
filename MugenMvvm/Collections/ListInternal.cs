@@ -65,8 +65,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int BinarySearch(T item, IComparer<T>? comparer = null)
-            => BinarySearch(0, Count, item, comparer);
+        public readonly int BinarySearch(T item, IComparer<T>? comparer = null) => BinarySearch(0, Count, item, comparer);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly int BinarySearch(int index, int count, T item, IComparer<T>? comparer) => Array.BinarySearch(Items, index, count, item, comparer);

@@ -26,19 +26,19 @@ namespace MugenMvvm.Views.Components
         public int Priority { get; init; } = ViewComponentPriority.MappingProvider;
 
         public IViewMapping AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null,
-            IReadOnlyMetadataContext? metadata = null)
+            PostConditionDelegate? postCondition = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
             Should.NotBeNull(viewType, nameof(viewType));
             var mapping = new ViewMapping(id ?? $"{viewModelType.Name}{viewType.Name}{name}", viewModelType, viewType, metadata);
-            AddMapping(mapping, exactlyEqual, name);
+            AddMapping(mapping, exactlyEqual, name, postCondition);
             return mapping;
         }
 
-        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null)
+        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null, PostConditionDelegate? postCondition = null)
         {
             Should.NotBeNull(mapping, nameof(mapping));
-            var mappingInfo = new MappingInfo(mapping, exactlyEqual, name);
+            var mappingInfo = new MappingInfo(mapping, exactlyEqual, name, postCondition);
             lock (_mappings)
             {
                 _mappings.Add(mappingInfo);
@@ -97,27 +97,31 @@ namespace MugenMvvm.Views.Components
             return mappings.ToItemOrList();
         }
 
+        public delegate bool PostConditionDelegate(IViewMapping mapping, Type requestedType, bool isViewMapping, object? target, IReadOnlyMetadataContext? metadata);
+
         [StructLayout(LayoutKind.Auto)]
         private readonly struct MappingInfo
         {
             private readonly bool _exactlyEqual;
             private readonly string? _name;
+            private readonly PostConditionDelegate? _postCondition;
             public readonly IViewMapping Mapping;
 
-            public MappingInfo(IViewMapping mapping, bool exactlyEqual, string? name)
+            public MappingInfo(IViewMapping mapping, bool exactlyEqual, string? name, PostConditionDelegate? postCondition)
             {
                 _exactlyEqual = exactlyEqual;
                 _name = name;
+                _postCondition = postCondition;
                 Mapping = mapping;
             }
 
             public bool IsValidViewType(Type viewType, object? target, int resolvedCount, IReadOnlyMetadataContext? metadata) =>
-                IsValidType(Mapping.ViewType, viewType, target, resolvedCount, metadata);
+                IsValidType(Mapping.ViewType, viewType, target, resolvedCount, true, metadata);
 
             public bool IsValidViewModelType(Type viewModelType, object? target, int resolvedCount, IReadOnlyMetadataContext? metadata) =>
-                IsValidType(Mapping.ViewModelType, viewModelType, target, resolvedCount, metadata);
+                IsValidType(Mapping.ViewModelType, viewModelType, target, resolvedCount, false, metadata);
 
-            private bool IsValidType(Type mappingType, Type requestedType, object? target, int resolvedCount, IReadOnlyMetadataContext? metadata)
+            private bool IsValidType(Type mappingType, Type requestedType, object? target, int resolvedCount, bool isViewMapping, IReadOnlyMetadataContext? metadata)
             {
                 if (_name != GetViewNameFromContext(target, metadata))
                     return false;
@@ -127,12 +131,13 @@ namespace MugenMvvm.Views.Components
                     if (resolvedCount != 0)
                         return false;
                     if (requestedType.IsGenericType && mappingType == requestedType.GetGenericTypeDefinition())
-                        return true;
+                        return _postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, metadata);
                 }
                 else if (mappingType == requestedType)
-                    return true;
+                    return _postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, metadata);
 
-                return !_exactlyEqual && mappingType.IsAssignableFromGeneric(requestedType);
+                return !_exactlyEqual && mappingType.IsAssignableFromGeneric(requestedType) &&
+                       (_postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, metadata));
             }
 
             private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata) =>

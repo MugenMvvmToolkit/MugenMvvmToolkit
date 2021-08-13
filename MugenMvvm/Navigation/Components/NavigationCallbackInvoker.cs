@@ -17,7 +17,7 @@ namespace MugenMvvm.Navigation.Components
         protected override void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
             InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, exception, false, default);
-            InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, exception, false, default);
+            InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Show, exception, false, default);
             InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, exception, false, default);
         }
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Navigation.Components
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
             else
             {
-                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, true, cancellationToken);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Show, null, true, cancellationToken);
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, null, true, cancellationToken);
             }
@@ -41,12 +41,12 @@ namespace MugenMvvm.Navigation.Components
         {
             if (navigationContext.NavigationMode.IsClose)
             {
-                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, false, default);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Show, null, false, default);
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, false, default);
                 InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, null, false, default);
             }
             else
-                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, false, default);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Show, null, false, default);
         }
 
         private void InvokeCallbacks(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception,

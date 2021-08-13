@@ -119,11 +119,9 @@ namespace MugenMvvm.Commands
         }
 
         public bool IsExecuting(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandExecutorComponent>().IsExecuting(this, metadata);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 
         public void Dispose()

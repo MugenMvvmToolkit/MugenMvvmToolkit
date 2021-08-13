@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var metadata = new MetadataContext();
             if (name != null && !shouldFail)
                 metadata.Set(NavigationMetadata.ViewName, name);
-            _component.AddMapping(vmType, vType, true, name, name, Metadata);
+            _component.AddMapping(vmType, vType, true, name, name, null, Metadata);
 
             try
             {
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var metadata = new MetadataContext();
             if (name != null && !shouldFail)
                 metadata.Set(NavigationMetadata.ViewName, name);
-            _component.AddMapping(vmType, vType, false, name, null, Metadata);
+            _component.AddMapping(vmType, vType, false, name, null, null, Metadata);
 
             try
             {
@@ -214,7 +214,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
             var id = $"{vmType.Name}{vType.Name}{name}";
-            _component.AddMapping(vmType, vType, false, name, null, Metadata);
+            _component.AddMapping(vmType, vType, false, name, null, null, Metadata);
 
             try
             {
@@ -292,11 +292,51 @@ namespace MugenMvvm.UnitTests.Views.Components
         }
 
         [Fact]
+        public void AddMappingShouldSupportPostCondition()
+        {
+            var vmType = typeof(TestViewModel);
+            var vType = typeof(BaseView);
+
+            int invokeCount = 0;
+            IViewMapping? expectedMapping = null;
+            var expectedType = vmType;
+            var expectedIsViewMapping = false;
+            object? expectedTarget = null;
+            bool result = true;
+
+            expectedMapping = _component.AddMapping(vmType, vType, false, null, null, (m, t, isViewMapping, target, metadata) =>
+            {
+                m.ShouldEqual(expectedMapping);
+                expectedType.ShouldEqual(t);
+                expectedIsViewMapping.ShouldEqual(isViewMapping);
+                target.ShouldEqual(expectedTarget);
+                metadata.ShouldEqual(Metadata);
+                ++invokeCount;
+                return result;
+            }, Metadata);
+
+
+            var vm = new TestViewModel();
+            expectedTarget = vm;
+            expectedType = vm.GetType();
+            expectedIsViewMapping = false;
+            ViewManager.GetMappings(vm, Metadata).Single().ShouldEqual(expectedMapping);
+            invokeCount.ShouldEqual(1);
+
+            var view = new BaseView();
+            expectedTarget = view;
+            expectedType = view.GetType();
+            expectedIsViewMapping = true;
+            ViewManager.GetMappings(view, Metadata).Single().ShouldEqual(expectedMapping);
+            invokeCount.ShouldEqual(2);
+        }
+
+        [Fact]
         public void ClearMappingsShouldClearMappings()
         {
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
-            _component.AddMapping(vmType, vType, false, null, null, Metadata);
+            _component.AddMapping(vmType, vType, false, null, null, null, Metadata);
 
             var vm = new TestViewModel();
             ViewManager.GetMappings(vm, Metadata).Single().ShouldNotBeNull();

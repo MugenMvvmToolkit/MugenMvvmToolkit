@@ -21,7 +21,7 @@ public class BindViewDispatcher implements IViewDispatcher {
     private IBindViewCallback _bindCallback;
 
     public BindViewDispatcher(IBindViewCallback bindCallback) {
-        _bindCallback = bindCallback;
+        setBindCallback(bindCallback);
     }
 
     public IBindViewCallback getBindCallback() {
@@ -29,6 +29,8 @@ public class BindViewDispatcher implements IViewDispatcher {
     }
 
     public void setBindCallback(IBindViewCallback bindCallback) {
+        if (_bindCallback == bindCallback)
+            return;
         if (_bindCallback != null)
             _bindCallback.setViewAccessor(null);
         _bindCallback = bindCallback;

@@ -160,7 +160,11 @@ namespace MugenMvvm.Bindings.Members.Components
                 get => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
             }
 
-            public int ParametersCount => Setter ? Parameters.Count - 1 : Parameters.Count;
+            public int ParametersCount
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => Setter ? Parameters.Count - 1 : Parameters.Count;
+            }
 
             public bool Equals(MemberKey other)
             {

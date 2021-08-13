@@ -11,7 +11,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class MessagingComponentExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IMessageContext? TryGetMessageContext(this ItemOrArray<IMessageContextProviderComponent> components, IMessenger messenger, object? sender, object message,
             IReadOnlyMetadataContext? metadata)
         {
@@ -26,8 +25,7 @@ namespace MugenMvvm.Extensions.Components
 
             return null;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static bool TryPublish(this ItemOrArray<IMessagePublisherComponent> components, IMessenger messenger, IMessageContext messageContext)
         {
             Should.NotBeNull(messenger, nameof(messenger));

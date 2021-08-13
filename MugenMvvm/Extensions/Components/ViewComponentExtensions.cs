@@ -13,7 +13,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class ViewComponentExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnLifecycleChanged(this ItemOrArray<IViewLifecycleListener> components, IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState,
             object? state,
             IReadOnlyMetadataContext? metadata)

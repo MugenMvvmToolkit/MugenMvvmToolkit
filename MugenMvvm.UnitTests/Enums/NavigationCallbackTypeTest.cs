@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTests.Enums
         public void CompareToEqualsShouldBeValid()
         {
             var enum1 = NavigationCallbackType.Close;
-            var enum2 = NavigationCallbackType.Showing;
+            var enum2 = NavigationCallbackType.Show;
             var enum3 = new NavigationCallbackType(enum1.Value);
             var v1 = enum1.Value;
             var v2 = enum2.Value;

@@ -56,12 +56,12 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 callbackTypes.Count.ShouldEqual(3);
                 callbackTypes.ShouldContain(NavigationCallbackType.Close);
                 callbackTypes.ShouldContain(NavigationCallbackType.Closing);
-                callbackTypes.ShouldContain(NavigationCallbackType.Showing);
+                callbackTypes.ShouldContain(NavigationCallbackType.Show);
             }
             else
             {
                 callbackTypes.Count.ShouldEqual(1);
-                callbackTypes.ShouldContain(NavigationCallbackType.Showing);
+                callbackTypes.ShouldContain(NavigationCallbackType.Show);
             }
         }
 
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 callbackTypes.Count.ShouldEqual(3);
                 callbackTypes.ShouldContain(NavigationCallbackType.Close);
                 callbackTypes.ShouldContain(NavigationCallbackType.Closing);
-                callbackTypes.ShouldContain(NavigationCallbackType.Showing);
+                callbackTypes.ShouldContain(NavigationCallbackType.Show);
             }
         }
 
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
             callbackTypes.Count.ShouldEqual(3);
             callbackTypes.ShouldContain(NavigationCallbackType.Close);
             callbackTypes.ShouldContain(NavigationCallbackType.Closing);
-            callbackTypes.ShouldContain(NavigationCallbackType.Showing);
+            callbackTypes.ShouldContain(NavigationCallbackType.Show);
         }
 
         protected override INavigationDispatcher GetNavigationDispatcher() => new NavigationDispatcher(ComponentCollectionManager);

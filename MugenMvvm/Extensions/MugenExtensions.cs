@@ -148,14 +148,11 @@ namespace MugenMvvm.Extensions
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state,
             IReadOnlyMetadataContext? metadata = null) =>
             ExecuteRaw(threadDispatcher, executionMode, handler, state, metadata);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static ThreadSwitcherAwaitable SwitchToMainAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Main);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static ThreadSwitcherAwaitable SwitchToBackgroundAsync(this IThreadDispatcher? threadDispatcher) => threadDispatcher.SwitchToAsync(ThreadExecutionMode.Background);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static ThreadSwitcherAwaitable SwitchToAsync(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode) =>
             new(threadDispatcher.DefaultIfNull(), executionMode);
 

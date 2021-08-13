@@ -28,16 +28,16 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             TryGetShowPresenterResult(presenter.DefaultIfNull(viewModel).Show(viewModel, cancellationToken, metadata), navigationDispatcher.DefaultIfNull(viewModel), metadata,
-                out var showingCallback, out var closeCallback, out var presenterResult);
-            return new ShowPresenterResult(presenterResult, showingCallback, closeCallback);
+                out var showCallback, out var closeCallback, out var presenterResult);
+            return new ShowPresenterResult(presenterResult, showCallback, closeCallback);
         }
 
         public static ShowPresenterResult<T> ShowAsync<T>(this IHasResult<T> hasNavigationResult, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
             TryGetShowPresenterResult(presenter.DefaultIfNull(hasNavigationResult).Show(hasNavigationResult, cancellationToken, metadata),
-                navigationDispatcher.DefaultIfNull(hasNavigationResult), metadata, out var showingCallback, out var closeCallback, out var presenterResult);
-            return new ShowPresenterResult<T>(presenterResult, showingCallback, closeCallback);
+                navigationDispatcher.DefaultIfNull(hasNavigationResult), metadata, out var showCallback, out var closeCallback, out var presenterResult);
+            return new ShowPresenterResult<T>(presenterResult, showCallback, closeCallback);
         }
 
         public static ValueTask<bool> CloseAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default, bool isSerializable = true,
@@ -73,17 +73,17 @@ namespace MugenMvvm.Extensions
         }
 
         private static void TryGetShowPresenterResult(ItemOrIReadOnlyList<IPresenterResult> result, INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata,
-            out INavigationCallback? showingCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)
+            out INavigationCallback? showCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)
         {
             if (result.List != null || result.Item == null)
                 ExceptionManager.ThrowMultiplePresenterResultNotSupported();
             presenterResult = result.Item;
-            showingCallback = null;
+            showCallback = null;
             closeCallback = null!;
             foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result.Item, metadata))
             {
-                if (navigationCallback.CallbackType == NavigationCallbackType.Showing)
-                    showingCallback = navigationCallback;
+                if (navigationCallback.CallbackType == NavigationCallbackType.Show)
+                    showCallback = navigationCallback;
                 else if (navigationCallback.CallbackType == NavigationCallbackType.Close)
                     closeCallback = navigationCallback;
             }

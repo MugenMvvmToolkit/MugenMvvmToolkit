@@ -9,7 +9,6 @@ namespace MugenMvvm.Extensions.Components
 {
     public static class ViewModelComponentExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnLifecycleChanged(this ItemOrArray<IViewModelLifecycleListener> components, IViewModelManager viewModelManager, IViewModelBase viewModel,
             ViewModelLifecycleState lifecycleState,
             object? state, IReadOnlyMetadataContext? metadata)

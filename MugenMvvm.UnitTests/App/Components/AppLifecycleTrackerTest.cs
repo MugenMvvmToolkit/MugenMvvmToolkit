@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTests.App.Components
         public void ShouldRegisterBackgroundCallback()
         {
             var invokeCount = 0;
-            var callbackType = NavigationCallbackType.Showing;
+            var callbackType = NavigationCallbackType.Show;
             using var t = NavigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
                 TryAddNavigationCallback = (_, type, s, arg3, arg4, arg5) =>

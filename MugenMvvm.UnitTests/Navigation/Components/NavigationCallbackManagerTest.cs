@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 if (wrapTarget)
                 {
                     var result = GetPresenterResult(target, null, "t");
-                    var callback = _callbackManager.TryAddNavigationCallback(NavigationDispatcher, NavigationCallbackType.Showing, result.NavigationId, result.NavigationType,
+                    var callback = _callbackManager.TryAddNavigationCallback(NavigationDispatcher, NavigationCallbackType.Show, result.NavigationId, result.NavigationType,
                         result,
                         Metadata)!;
                     callback.ShouldNotBeNull();
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 }
                 else
                 {
-                    var callback = _callbackManager.TryAddNavigationCallback(NavigationDispatcher, NavigationCallbackType.Showing, "t", NavigationType.Popup, target,
+                    var callback = _callbackManager.TryAddNavigationCallback(NavigationDispatcher, NavigationCallbackType.Show, "t", NavigationType.Popup, target,
                         Metadata)!;
                     callback.ShouldNotBeNull();
                     addedCallbacks.Add(callback);
