@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class LimitCollectionDecorator<T> : CollectionDecoratorBase
+    public class LimitCollectionDecorator<T> : CollectionDecoratorBase where T : notnull
     {
         private const int NotFound = -1;
 

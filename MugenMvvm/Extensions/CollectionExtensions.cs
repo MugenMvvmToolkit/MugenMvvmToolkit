@@ -219,11 +219,11 @@ namespace MugenMvvm.Extensions
             return configuration.Add(decorator);
         }
 
-        public static DecoratorsConfiguration Take<T>(this DecoratorsConfiguration configuration, int limit, Func<T, bool>? condition = null) =>
+        public static DecoratorsConfiguration Take<T>(this DecoratorsConfiguration configuration, int limit, Func<T, bool>? condition = null) where T : notnull =>
             configuration.Take(limit, condition, out _);
 
         public static DecoratorsConfiguration Take<T>(this DecoratorsConfiguration configuration, int limit, Func<T, bool>? condition,
-            out LimitCollectionDecorator<T> decorator)
+            out LimitCollectionDecorator<T> decorator) where T : notnull
         {
             decorator = new LimitCollectionDecorator<T>(limit, condition, configuration.Priority);
             return configuration.Add(decorator);
@@ -299,11 +299,11 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null) =>
+            IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null) where T : notnull =>
             configuration.PinHeaderFooter(isHeaderOrFooter, headerComparer, footerComparer, out _);
 
         public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer, IComparer<T>? footerComparer, out PinHeaderFooterCollectionDecorator<T> decorator)
+            IComparer<T>? headerComparer, IComparer<T>? footerComparer, out PinHeaderFooterCollectionDecorator<T> decorator) where T : notnull
         {
             decorator = new PinHeaderFooterCollectionDecorator<T>(isHeaderOrFooter, headerComparer, footerComparer, configuration.Priority);
             return configuration.Add(decorator);

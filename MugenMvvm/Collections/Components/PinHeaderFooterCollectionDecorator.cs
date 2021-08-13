@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class PinHeaderFooterCollectionDecorator<T> : CollectionDecoratorBase, IComparer<PinHeaderFooterCollectionDecorator<T>.ItemInfo>
+    public class PinHeaderFooterCollectionDecorator<T> : CollectionDecoratorBase, IComparer<PinHeaderFooterCollectionDecorator<T>.ItemInfo> where T : notnull
     {
         private readonly Func<T, bool?> _isHeaderOrFooter;
         private readonly IComparer<T>? _headerComparer;
@@ -202,11 +202,11 @@ namespace MugenMvvm.Collections.Components
 
             if (isHeaderOrFooter.Value)
             {
-                index = Add(ref _headers, (T) item!, index, _headerComparer);
+                index = Add(ref _headers, (T)item!, index, _headerComparer);
                 ++_footerIndex;
             }
             else
-                index = Add(ref _footers, (T) item!, index, _footerComparer) + _footerIndex;
+                index = Add(ref _footers, (T)item!, index, _footerComparer) + _footerIndex;
 
             return true;
         }
@@ -223,7 +223,7 @@ namespace MugenMvvm.Collections.Components
             }
             else if (isHeaderOrFooter.Value)
             {
-                index = headerIndex ?? _headers.IndexOf(new ItemInfo((T) item!, index));
+                index = headerIndex ?? _headers.IndexOf(new ItemInfo((T)item!, index));
                 if (index >= 0)
                 {
                     _headers.RemoveAt(index);
@@ -232,7 +232,7 @@ namespace MugenMvvm.Collections.Components
             }
             else
             {
-                index = footerIndex ?? _footers.IndexOf(new ItemInfo((T) item!, index));
+                index = footerIndex ?? _footers.IndexOf(new ItemInfo((T)item!, index));
                 if (index >= 0)
                 {
                     _footers.RemoveAt(index);

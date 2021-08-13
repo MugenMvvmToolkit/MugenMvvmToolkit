@@ -80,6 +80,9 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var oldIndex = _items.IndexOfKey(index);
+            if (oldIndex < 0 && typeof(T) == typeof(TTo))
+                return true;
+
             var oldItem = _items.Values[oldIndex].to;
             var newItem = Converter(itemT, oldItem);
             if (!_comparer.Equals(oldItem, newItem))
