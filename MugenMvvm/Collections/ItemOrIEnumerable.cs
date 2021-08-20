@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
-using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Collections
 {
@@ -25,11 +23,18 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIEnumerable<T> FromList<T>(List<T>? list) => FromList<List<T>, T>(list);
+        public static ItemOrIEnumerable<T> FromList<T>(List<T>? list)
+        {
+            if (list == null)
+                return default;
+            return FromList<List<T>, T>(list);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIEnumerable<T> FromList<T>(IReadOnlyList<T>? readOnlyList)
         {
+            if (readOnlyList == null)
+                return default;
             if (readOnlyList is T[] array)
                 return FromList(array);
             return FromList<IReadOnlyList<T>, T>(readOnlyList);
@@ -41,25 +46,13 @@ namespace MugenMvvm.Collections
                 return default;
             if (enumerable is T[] array)
                 return FromList(array);
-            if (enumerable is IReadOnlyList<T> list)
-                return FromList(list);
-
-            var count = enumerable.CountEx();
-            if (count == 0)
+            if (enumerable is List<T> list)
+                return FromList<List<T>, T>(list);
+            if (enumerable is IReadOnlyList<T> readOnlyList)
+                return FromList<IReadOnlyList<T>, T>(readOnlyList);
+            if (enumerable is IReadOnlyCollection<T> readOnlyCollection && readOnlyCollection.Count == 0)
                 return default;
-            if (count == 1)
-                return new ItemOrIEnumerable<T>(enumerable.ElementAt(0), null, 1);
             return new ItemOrIEnumerable<T>(default, enumerable, 0);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIEnumerable<T> FromList<TList, T>(TList? list) where TList : IReadOnlyList<T>
-        {
-            if (list == null || list.Count == 0)
-                return default;
-            if (list.Count == 1)
-                return new ItemOrIEnumerable<T>(list[0], null, 1);
-            return new ItemOrIEnumerable<T>(default, list, 0);
         }
 
         [Preserve(Conditional = true)]
@@ -71,6 +64,17 @@ namespace MugenMvvm.Collections
             if (value is IEnumerable<T> list)
                 return FromList(list);
             return new ItemOrIEnumerable<T>((T)value, null, 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ItemOrIEnumerable<T> FromList<TList, T>(TList list) where TList : IReadOnlyList<T>
+        {
+            var count = list.Count;
+            if (count == 0)
+                return default;
+            if (count == 1)
+                return new ItemOrIEnumerable<T>(list[0], null, 1);
+            return new ItemOrIEnumerable<T>(default, list, 0);
         }
     }
 }

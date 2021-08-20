@@ -10,7 +10,7 @@ namespace MugenMvvm.Commands
         private object? _notifiers;
 
         public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, ThreadExecutionMode? eventThreadMode,
-            ItemOrIEnumerable<object> notifiers, Func<object?, object?, bool>? canNotify)
+            ItemOrIReadOnlyCollection<object> notifiers, Func<object?, object?, bool>? canNotify)
         {
             Should.NotBeNull(execute, nameof(execute));
             Execute = execute;
@@ -31,13 +31,13 @@ namespace MugenMvvm.Commands
 
         public Delegate Execute { get; protected set; }
 
-        public ItemOrIEnumerable<object> Notifiers
+        public ItemOrIReadOnlyCollection<object> Notifiers
         {
-            get => ItemOrIEnumerable.FromRawValue<object>(_notifiers);
+            get => ItemOrIReadOnlyCollection.FromRawValue<object>(_notifiers);
             protected set => _notifiers = value.GetRawValue();
         }
 
-        public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, ThreadExecutionMode? eventThreadMode, ItemOrIEnumerable<object> notifiers,
+        public static object Get(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, ThreadExecutionMode? eventThreadMode, ItemOrIReadOnlyCollection<object> notifiers,
             Func<object?, object?, bool>? canNotify)
         {
             if (canExecute == null && allowMultipleExecution == null && eventThreadMode == null)

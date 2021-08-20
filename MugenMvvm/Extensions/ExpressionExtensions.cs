@@ -20,6 +20,7 @@ namespace MugenMvvm.Extensions
         {
             { typeof(ItemOrArray<>), typeof(ItemOrArray).GetMethodOrThrow(nameof(ItemOrArray.FromRawValue), BindingFlagsEx.StaticPublic) },
             { typeof(ItemOrIEnumerable<>), typeof(ItemOrIEnumerable).GetMethodOrThrow(nameof(ItemOrIEnumerable.FromRawValue), BindingFlagsEx.StaticPublic) },
+            { typeof(ItemOrIReadOnlyCollection<>), typeof(ItemOrIReadOnlyCollection).GetMethodOrThrow(nameof(ItemOrIReadOnlyList.FromRawValue), BindingFlagsEx.StaticPublic) },
             { typeof(ItemOrIReadOnlyList<>), typeof(ItemOrIReadOnlyList).GetMethodOrThrow(nameof(ItemOrIReadOnlyList.FromRawValue), BindingFlagsEx.StaticPublic) }
         };
 

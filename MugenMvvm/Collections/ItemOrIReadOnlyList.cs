@@ -23,24 +23,21 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIReadOnlyList<T> FromList<T>(List<T>? list) => FromList<List<T>, T>(list);
+        public static ItemOrIReadOnlyList<T> FromList<T>(List<T>? list)
+        {
+            if (list == null)
+                return default;
+            return FromList<List<T>, T>(list);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrIReadOnlyList<T> FromList<T>(IReadOnlyList<T>? readOnlyList)
         {
+            if (readOnlyList == null)
+                return default;
             if (readOnlyList is T[] array)
                 return FromList(array);
             return FromList<IReadOnlyList<T>, T>(readOnlyList);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static ItemOrIReadOnlyList<T> FromList<TList, T>(TList? list) where TList : IReadOnlyList<T>
-        {
-            if (list == null || list.Count == 0)
-                return default;
-            if (list.Count == 1)
-                return new ItemOrIReadOnlyList<T>(list[0], null, 1);
-            return new ItemOrIReadOnlyList<T>(default, list, 0);
         }
 
         [Preserve(Conditional = true)]
@@ -52,6 +49,17 @@ namespace MugenMvvm.Collections
             if (value is IReadOnlyList<T> list)
                 return FromList(list);
             return new ItemOrIReadOnlyList<T>((T)value, null, 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static ItemOrIReadOnlyList<T> FromList<TList, T>(TList list) where TList : IReadOnlyList<T>
+        {
+            var count = list.Count;
+            if (count == 0)
+                return default;
+            if (count == 1)
+                return new ItemOrIReadOnlyList<T>(list[0], null, 1);
+            return new ItemOrIReadOnlyList<T>(default, list, 0);
         }
     }
 }

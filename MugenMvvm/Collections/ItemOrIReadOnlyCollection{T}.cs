@@ -4,20 +4,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ItemOrIEnumerable<T> : IEnumerable<T>
+    public readonly struct ItemOrIReadOnlyCollection<T> : IReadOnlyCollection<T>
     {
         internal readonly int FixedCount;
         public readonly T? Item;
-        public readonly IEnumerable<T>? List;
+        public readonly IReadOnlyCollection<T>? List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrIEnumerable(T? item)
+        public ItemOrIReadOnlyCollection(T? item)
         {
             Item = item;
             List = null;
@@ -25,7 +24,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal ItemOrIEnumerable(T? item, IEnumerable<T>? list, int fixedCount)
+        internal ItemOrIReadOnlyCollection(T? item, IReadOnlyCollection<T>? list, int fixedCount)
         {
             Item = item!;
             List = list;
@@ -37,36 +36,52 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => FixedCount == 0 && List == null;
         }
-        
+
         public bool HasItem
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => FixedCount == 1 && List == null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIEnumerable<T>(T? item) => ItemOrIEnumerable.FromItem(item, item != null);
+        public int Count
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (FixedCount != 0)
+                    return FixedCount;
+                if (List == null)
+                    return 0;
+                return List.Count;
+            }
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIEnumerable<T>(T[]? items) => ItemOrIEnumerable.FromList(items);
+        public static implicit operator ItemOrIReadOnlyCollection<T>(T? item) => ItemOrIReadOnlyCollection.FromItem(item, item != null);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrIEnumerable<T>(List<T>? items) => ItemOrIEnumerable.FromList(items);
+        public static implicit operator ItemOrIReadOnlyCollection<T>(T[]? items) => ItemOrIReadOnlyCollection.FromList(items);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public int Count() => FixedCount == 0 ? List.CountEx() : FixedCount;
+        public static implicit operator ItemOrIReadOnlyCollection<T>(List<T>? items) => ItemOrIReadOnlyCollection.FromList(items);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ItemOrIReadOnlyCollection<T>(HashSet<T>? items) => ItemOrIReadOnlyCollection.FromList(items);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator ItemOrIEnumerable<T>(ItemOrIReadOnlyCollection<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.FixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsEnumerable() => AsList();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IEnumerable<T> AsList()
+        public IReadOnlyCollection<T> AsList()
         {
             if (List != null)
                 return List;
             if (FixedCount == 0)
-                return Default.EmptyEnumerable<T>();
-            return Default.SingleItemEnumerable(Item!);
+                return Array.Empty<T>();
+            return new[] { Item! };
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

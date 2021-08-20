@@ -234,7 +234,7 @@ namespace MugenMvvm.UnitTests.Commands
             bool hasMetadata)
         {
             var owner = new object();
-            Action<object, IReadOnlyMetadataContext?> execute = (t, m) => { };
+            Action<object?, IReadOnlyMetadataContext?> execute = (t, m) => { };
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
             var notifiers = addNotifiers ? new[] { new object() } : null;

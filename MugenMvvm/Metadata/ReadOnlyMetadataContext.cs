@@ -10,7 +10,7 @@ namespace MugenMvvm.Metadata
     {
         private readonly Dictionary<IMetadataContextKey, object?> _dictionary;
 
-        public ReadOnlyMetadataContext(ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
+        public ReadOnlyMetadataContext(ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             _dictionary = new Dictionary<IMetadataContextKey, object?>(values.Count, InternalEqualityComparer.MetadataContextKey);
             foreach (var contextValue in values)
@@ -19,7 +19,7 @@ namespace MugenMvvm.Metadata
 
         public int Count => _dictionary.Count;
 
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => ItemOrIEnumerable.FromList(_dictionary);
+        public ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> GetValues() => ItemOrIReadOnlyCollection.FromList(_dictionary);
 
         public bool Contains(IMetadataContextKey contextKey) => _dictionary.ContainsKey(contextKey);
 

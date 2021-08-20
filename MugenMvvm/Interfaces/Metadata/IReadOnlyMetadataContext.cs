@@ -8,7 +8,7 @@ namespace MugenMvvm.Interfaces.Metadata
     {
         int Count { get; }
 
-        ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues();
+        ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> GetValues();
 
         bool Contains(IMetadataContextKey contextKey);
 

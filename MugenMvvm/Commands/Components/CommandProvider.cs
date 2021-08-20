@@ -53,7 +53,7 @@ namespace MugenMvvm.Commands.Components
         private static PropertyChangedCommandObserver? GetCommandObserverInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
             var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver { CanNotify = commandRequest.CanNotify };
-            var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIEnumerable.FromItem(owner) : commandRequest.Notifiers;
+            var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIReadOnlyCollection.FromItem(owner) : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
             {
                 if (notifier is INotifyPropertyChanged propertyChanged)

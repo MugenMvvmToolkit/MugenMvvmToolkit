@@ -7,11 +7,11 @@ namespace MugenMvvm.Internal
 {
     public static class WeakTimer
     {
-        public static Timer Get<T>(T state, Action<T> action, IWeakReference? weakReference = null) where T : class
+        public static Timer Get<T>(T target, Action<T> action, IWeakReference? targetReference = null) where T : class
         {
-            Should.NotBeNull(state, nameof(state));
+            Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(action, nameof(action));
-            var closure = new TimerClosure<T>(weakReference ?? state.ToWeakReference(), action);
+            var closure = new TimerClosure<T>(targetReference ?? target.ToWeakReference(), action);
             closure.Timer = new Timer(o => ((TimerClosure<T>)o!).Execute(), closure, Timeout.Infinite, Timeout.Infinite);
             return closure.Timer;
         }

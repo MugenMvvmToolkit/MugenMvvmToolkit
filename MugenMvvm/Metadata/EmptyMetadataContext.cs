@@ -14,7 +14,7 @@ namespace MugenMvvm.Metadata
 
         public int Count => 0;
 
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues() => default;
+        public ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> GetValues() => default;
 
         public bool Contains(IMetadataContextKey contextKey) => false;
 

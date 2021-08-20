@@ -286,7 +286,7 @@ namespace MugenMvvm.Bindings.Core
 
         protected virtual int GetMetadataCount() => 1;
 
-        protected virtual ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() => BindingMetadata.Binding.ToValue(this);
+        protected virtual ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() => BindingMetadata.Binding.ToValue(this);
 
         protected virtual bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {
@@ -595,7 +595,7 @@ namespace MugenMvvm.Bindings.Core
                 BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
         }
 
-        ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
+        ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() => GetMetadataValues();
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => ContainsMetadata(contextKey);
 

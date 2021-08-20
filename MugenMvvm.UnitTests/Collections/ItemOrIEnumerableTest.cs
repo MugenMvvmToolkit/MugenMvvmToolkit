@@ -70,15 +70,13 @@ namespace MugenMvvm.UnitTests.Collections
         public void ShouldHandleEnumerable2()
         {
             var list = new List<ItemOrIEnumerableTest> { this }.Where(_ => true);
-            AssertItem(ItemOrIEnumerable.FromList(list), list.ElementAt(0));
-            AssertItem(ItemOrIEnumerable.FromList(list), list.ElementAt(0));
+            AssertList(ItemOrIEnumerable.FromList(list), list);
         }
 
         [Fact]
         public void ShouldHandleEnumerable3()
         {
             var list = new List<ItemOrIEnumerableTest> { this, this }.Where(_ => true);
-            AssertList(ItemOrIEnumerable.FromList(list), list);
             AssertList(ItemOrIEnumerable.FromList(list), list);
         }
 
@@ -145,7 +143,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             itemOrList.Item.ShouldEqual(default!);
             itemOrList.IsEmpty.ShouldBeTrue();
-            itemOrList.Count.ShouldEqual(0);
+            itemOrList.Count().ShouldEqual(0);
             itemOrList.HasItem.ShouldBeFalse();
             itemOrList.List.ShouldBeNull();
             itemOrList.AsList().ShouldEqual(Array.Empty<T>());
@@ -168,7 +166,7 @@ namespace MugenMvvm.UnitTests.Collections
             var list = new[] { item };
             itemOrList.Item.ShouldEqual(item);
             itemOrList.IsEmpty.ShouldBeFalse();
-            itemOrList.Count.ShouldEqual(1);
+            itemOrList.Count().ShouldEqual(1);
             itemOrList.HasItem.ShouldBeTrue();
             itemOrList.List.ShouldBeNull();
             itemOrList.AsList().ShouldEqual(list);
@@ -190,7 +188,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             itemOrList.Item.ShouldBeNull();
             itemOrList.IsEmpty.ShouldBeFalse();
-            itemOrList.Count.ShouldEqual(list.Count());
+            itemOrList.Count().ShouldEqual(list.Count());
             itemOrList.HasItem.ShouldBeFalse();
             itemOrList.List.ShouldEqual(list);
             itemOrList.ToArray().ShouldEqual(list);

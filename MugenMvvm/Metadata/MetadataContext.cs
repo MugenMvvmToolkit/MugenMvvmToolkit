@@ -58,7 +58,7 @@ namespace MugenMvvm.Metadata
 
         bool IComponentOwner.HasComponents => _components != null && _components.Count != 0;
 
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>>.Enumerator GetEnumerator() => GetValues().GetEnumerator();
+        public ItemOrListEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator() => GetValues().GetEnumerator();
 
         public void Add<T>(IMetadataContextKey<T> contextKey, T value) => Set(contextKey, value, out _);
 
@@ -295,7 +295,7 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues()
+        public ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> GetValues()
         {
             var components = GetComponents();
             lock (_dictionary)

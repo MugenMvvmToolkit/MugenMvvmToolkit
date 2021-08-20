@@ -17,6 +17,10 @@ namespace MugenMvvm.Extensions
             where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<T>(this ItemOrIReadOnlyCollection<T> itemOrList)
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyList<T> itemOrList)
             where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
@@ -34,6 +38,14 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ItemOrArray<T> itemOrList)
+        {
+            foreach (var item in itemOrList)
+                return item;
+            return default;
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T? FirstOrDefault<T>(this ItemOrIReadOnlyCollection<T> itemOrList)
         {
             foreach (var item in itemOrList)
                 return item;
@@ -61,6 +73,18 @@ namespace MugenMvvm.Extensions
         }
 
         public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
+        {
+            comparer ??= EqualityComparer<T>.Default;
+            foreach (var v in itemOrList)
+            {
+                if (comparer.Equals(v, value))
+                    return true;
+            }
+
+            return false;
+        }
+        
+        public static bool Contains<T>(this ItemOrIReadOnlyCollection<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
             comparer ??= EqualityComparer<T>.Default;
             foreach (var v in itemOrList)

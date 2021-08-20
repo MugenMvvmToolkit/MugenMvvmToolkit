@@ -13,16 +13,6 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsCompletedSuccessfully(this Task task)
-        {
-#if NET461
-            return task.IsCompleted && !task.IsFaulted && !task.IsCanceled;
-#else
-            return task.IsCompletedSuccessfully;
-#endif
-        }
-
         public static T GetResult<T>(this ValueTask<T> task)
         {
             if (task.IsCompletedSuccessfully)
@@ -194,6 +184,16 @@ namespace MugenMvvm.Extensions
             if (task == null)
                 return default;
             return new ValueTask<T>(task);
+        }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsCompletedSuccessfully(this Task task)
+        {
+#if NET461
+            return task.IsCompleted && !task.IsFaulted && !task.IsCanceled;
+#else
+            return task.IsCompletedSuccessfully;
+#endif
         }
 
         internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)

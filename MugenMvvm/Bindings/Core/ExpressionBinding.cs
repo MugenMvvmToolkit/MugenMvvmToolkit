@@ -47,7 +47,7 @@ namespace MugenMvvm.Bindings.Core
 
         protected override int GetMetadataCount() => 2;
 
-        protected override ItemOrIEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() =>
+        protected override ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> GetMetadataValues() =>
             new[] { BindingMetadata.Binding.ToValue(this), BindingMetadata.IsExpressionBinding.ToValue(true) };
 
         protected override bool ContainsMetadata(IMetadataContextKey contextKey) => base.ContainsMetadata(contextKey) || BindingMetadata.IsExpressionBinding.Equals(contextKey);

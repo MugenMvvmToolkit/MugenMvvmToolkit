@@ -37,6 +37,7 @@ namespace MugenMvvm.UnitTests.Collections
             AssertEmpty(ItemOrIReadOnlyList.FromList<string>(array: null));
             AssertEmpty(ItemOrIReadOnlyList.FromList(Array.Empty<string>()));
 
+            ItemOrIReadOnlyCollectionTest.AssertEmpty<string>(ItemOrIReadOnlyList.FromList<string>(array: null));
             ItemOrIEnumerableTest.AssertEmpty<string>(ItemOrIReadOnlyList.FromList<string>(array: null));
         }
 
@@ -48,6 +49,7 @@ namespace MugenMvvm.UnitTests.Collections
             AssertItem(list, list[0]);
             AssertItem(ItemOrIReadOnlyList.FromList(list), list[0]);
 
+            ItemOrIReadOnlyCollectionTest.AssertItem(ItemOrIReadOnlyList.FromList(list), this);
             ItemOrIEnumerableTest.AssertItem(ItemOrIReadOnlyList.FromList(list), this);
         }
 
@@ -59,6 +61,7 @@ namespace MugenMvvm.UnitTests.Collections
             AssertList(list, list);
             AssertList(ItemOrIReadOnlyList.FromList(list), list);
 
+            ItemOrIReadOnlyCollectionTest.AssertList(ItemOrIReadOnlyList.FromList(list), list);
             ItemOrIEnumerableTest.AssertList(ItemOrIReadOnlyList.FromList(list), list);
         }
 
@@ -119,6 +122,9 @@ namespace MugenMvvm.UnitTests.Collections
             AssertItem(ItemOrIReadOnlyList.FromItem(this, true), this);
             AssertEmpty(ItemOrIReadOnlyList.FromItem(this, false));
 
+            ItemOrIReadOnlyCollectionTest.AssertItem(ItemOrIReadOnlyList.FromItem(this, true), this);
+            ItemOrIReadOnlyCollectionTest.AssertEmpty<ItemOrIReadOnlyListTest>(ItemOrIReadOnlyList.FromItem(this, false));
+            
             ItemOrIEnumerableTest.AssertItem(ItemOrIReadOnlyList.FromItem(this, true), this);
             ItemOrIEnumerableTest.AssertEmpty<ItemOrIReadOnlyListTest>(ItemOrIReadOnlyList.FromItem(this, false));
         }
