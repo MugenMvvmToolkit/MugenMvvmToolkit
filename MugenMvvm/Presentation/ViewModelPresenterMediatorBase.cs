@@ -302,7 +302,7 @@ namespace MugenMvvm.Presentation
             try
             {
                 _showingTask?.TrySetCanceled();
-                _showingToken?.Cancel();
+                _showingToken.SafeCancel();
                 _showingToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
                 _showingTask = new TaskCompletionSource<object?>();
                 cancellationToken = _showingToken.Token;
@@ -354,7 +354,7 @@ namespace MugenMvvm.Presentation
             INavigationContext? context = null;
             try
             {
-                _showingToken?.Cancel();
+                _showingToken.SafeCancel();
                 context = GetNavigationContext(NavigationMode.Close, metadata);
                 ClosingContext = context;
 

@@ -39,7 +39,7 @@ namespace MugenMvvm.Validation.Components
                 _validatingTasks.Remove(member, out oldValue);
             }
 
-            oldValue?.Cancel();
+            oldValue.SafeCancel();
 
             var task = Components.TryValidateAsync(validator, member, source.Token, metadata);
             if (!task.IsCompleted)
@@ -50,7 +50,7 @@ namespace MugenMvvm.Validation.Components
                     _validatingTasks[member] = source;
                 }
 
-                oldValue?.Cancel();
+                oldValue.SafeCancel();
                 validator.GetComponents<IAsyncValidationListener>().OnAsyncValidation(validator, member, task, metadata);
 
                 task.ContinueWith((_, s) =>

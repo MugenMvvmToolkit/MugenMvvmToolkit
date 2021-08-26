@@ -152,7 +152,7 @@ namespace MugenMvvm.Commands.Components
                 }
 
                 cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
-                Interlocked.Exchange(ref _cancellationTokenSource, cts)?.Cancel();
+                Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
                 return await components.TryExecuteAsync(command, parameter, cts.Token, metadata).ConfigureAwait(false);
             }
             finally

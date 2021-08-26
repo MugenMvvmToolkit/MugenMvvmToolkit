@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
@@ -23,6 +24,7 @@ using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
@@ -270,18 +272,126 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
-        public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, IDisposable token) where T : class, IDisposable
+        public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, IDisposable? token) where T : class, IDisposable
         {
-            Should.NotBeNull(token, nameof(token));
+            if (token == null)
+                return (T)owner;
             return owner.RegisterDisposeToken(ActionToken.FromDisposable(token));
         }
 
         public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, ActionToken token) where T : class, IDisposable
         {
             Should.NotBeNull(owner, nameof(owner));
-            owner.GetOrAddComponent<DisposeCallbackComponent<T>>().Register(token);
+            if (!token.IsEmpty)
+                owner.GetOrAddComponent<DisposeCallbackComponent<T>>().Register(token);
             return (T)owner;
         }
+
+        public static void RegisterDisposeToken(IHasDisposeCallback owner, IDisposable? token)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            if (token != null)
+                owner.RegisterDisposeToken(ActionToken.FromDisposable(token));
+        }
+
+        [return: NotNullIfNotNull("disposable")]
+        public static T? DisposeWith<T, TOwner>(this T? disposable, IComponentOwner<TOwner> owner)
+            where T : class, IDisposable
+            where TOwner : class, IDisposable
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            if (disposable != null)
+                owner.RegisterDisposeToken(ActionToken.FromDisposable(disposable));
+            return disposable;
+        }
+
+        public static void DisposeWith<T>(this ActionToken token, IComponentOwner<T> owner) where T : class, IDisposable
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            owner.RegisterDisposeToken(token);
+        }
+
+        [return: NotNullIfNotNull("disposable")]
+        public static T? DisposeWith<T>(this T? disposable, IHasDisposeCallback owner) where T : class, IDisposable
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            if (disposable != null)
+                owner.RegisterDisposeToken(ActionToken.FromDisposable(disposable));
+            return disposable;
+        }
+
+        public static void DisposeWith(this ActionToken token, IHasDisposeCallback owner)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            owner.RegisterDisposeToken(token);
+        }
+
+        public static ItemOrArray<T> DisposeWith<T, TOwner>(this ItemOrArray<T> disposables, IComponentOwner<TOwner> owner) where T : class, IDisposable
+            where TOwner : class, IDisposable
+        {
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        public static ItemOrArray<T> DisposeWith<T>(this ItemOrArray<T> disposables, IHasDisposeCallback owner) where T : class, IDisposable
+        {
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        public static ItemOrIReadOnlyList<T> DisposeWith<T, TOwner>(this ItemOrIReadOnlyList<T> disposables, IComponentOwner<TOwner> owner) where T : class, IDisposable
+            where TOwner : class, IDisposable
+        {
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        public static ItemOrIReadOnlyList<T> DisposeWith<T>(this ItemOrIReadOnlyList<T> disposables, IHasDisposeCallback owner) where T : class, IDisposable
+        {
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        public static ItemOrIReadOnlyCollection<T> DisposeWith<T, TOwner>(this ItemOrIReadOnlyCollection<T> disposables, IComponentOwner<TOwner> owner) where T : class, IDisposable
+            where TOwner : class, IDisposable
+        {
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        public static ItemOrIReadOnlyCollection<T> DisposeWith<T>(this ItemOrIReadOnlyCollection<T> disposables, IHasDisposeCallback owner) where T : class, IDisposable
+        {
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        [return: NotNullIfNotNull("disposables")]
+        public static IReadOnlyCollection<T>? DisposeWith<T, TOwner>(this IReadOnlyCollection<T>? disposables, IComponentOwner<TOwner> owner) where T : class, IDisposable
+            where TOwner : class, IDisposable
+        {
+            if (disposables == null)
+                return null;
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        [return: NotNullIfNotNull("disposables")]
+        public static IReadOnlyCollection<T>? DisposeWith<T>(this IReadOnlyCollection<T>? disposables, IHasDisposeCallback owner) where T : class, IDisposable
+        {
+            if (disposables == null)
+                return null;
+            disposables.ToDisposableToken().DisposeWith(owner);
+            return disposables;
+        }
+
+        public static ActionToken ToDisposableToken<T>(this IReadOnlyCollection<T>? disposables) where T : class, IDisposable =>
+            ActionToken.FromDisposable(ItemOrIReadOnlyCollection.FromList(disposables));
+
+        public static ActionToken ToDisposableToken<T>(this ItemOrArray<T> disposables) where T : class, IDisposable => ActionToken.FromDisposable<T>(disposables);
+
+        public static ActionToken ToDisposableToken<T>(this ItemOrIReadOnlyList<T> disposables) where T : class, IDisposable => ActionToken.FromDisposable<T>(disposables);
+
+        public static ActionToken ToDisposableToken<T>(this ItemOrIReadOnlyCollection<T> disposables) where T : class, IDisposable => ActionToken.FromDisposable(disposables);
 
         public static T? TryUnwrap<T>(object target) where T : class
         {

@@ -7,7 +7,7 @@ using MugenMvvm.Collections;
 namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
-    public struct ActionToken : IDisposable
+    public struct ActionToken : IDisposable, IEquatable<ActionToken>
     {
         private object? _handler;
         private object? _state1;
@@ -67,6 +67,29 @@ namespace MugenMvvm.Internal
             return default;
         }
 
+        public static ActionToken FromDisposable<T>(ItemOrIReadOnlyCollection<T> disposables) where T : class, IDisposable
+        {
+            if (disposables.HasItem)
+                return FromDisposable(disposables.Item);
+            if (disposables.List != null)
+            {
+                return FromDelegate((o, _) =>
+                {
+                    foreach (var t in ItemOrIReadOnlyCollection.FromRawValue<IDisposable>(o))
+                        t.Dispose();
+                }, disposables.List);
+            }
+
+            return default;
+        }
+
+        public void Deconstruct(out object? handler, out object? state1, out object? state2)
+        {
+            handler = _handler;
+            state1 = _state1;
+            state2 = _state2;
+        }
+
         public void Dispose()
         {
             if (_handler == null)
@@ -84,12 +107,13 @@ namespace MugenMvvm.Internal
             _state2 = null;
         }
 
-        public void Deconstruct(out object? handler, out object? state1, out object? state2)
-        {
-            handler = _handler;
-            state1 = _state1;
-            state2 = _state2;
-        }
+        public bool Equals(ActionToken other) => Equals(_handler, other._handler) && Equals(_state1, other._state1) && Equals(_state2, other._state2);
+
+        public override bool Equals(object? obj) => obj is ActionToken other && Equals(other);
+
+        // ReSharper disable NonReadonlyMemberInGetHashCode
+        public override int GetHashCode() => HashCode.Combine(_handler, _state1, _state2);
+        // ReSharper restore NonReadonlyMemberInGetHashCode
 
         public interface IHandler
         {

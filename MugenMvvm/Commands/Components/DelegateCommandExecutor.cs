@@ -53,7 +53,7 @@ namespace MugenMvvm.Commands.Components
                     return false;
 
                 cts = !_allowMultipleExecution && IsAsync ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default) : null;
-                Interlocked.Exchange(ref _cancellationTokenSource, cts)?.Cancel();
+                Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
                 return await ExecuteAsync(parameter, cts?.Token ?? cancellationToken, metadata).ConfigureAwait(false);
             }
             finally
@@ -71,7 +71,7 @@ namespace MugenMvvm.Commands.Components
 
         public void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
-            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource.SafeCancel();
             _execute = null;
             _canExecute = null;
         }

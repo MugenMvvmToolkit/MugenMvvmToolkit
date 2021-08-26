@@ -10,19 +10,19 @@ namespace MugenMvvm.Extensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrArray<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIEnumerable<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyCollection<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
-        
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyList<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrListEditor<T> editor)
@@ -43,7 +43,7 @@ namespace MugenMvvm.Extensions
                 return item;
             return default;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ItemOrIReadOnlyCollection<T> itemOrList)
         {
@@ -83,7 +83,7 @@ namespace MugenMvvm.Extensions
 
             return false;
         }
-        
+
         public static bool Contains<T>(this ItemOrIReadOnlyCollection<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
             comparer ??= EqualityComparer<T>.Default;
@@ -120,7 +120,7 @@ namespace MugenMvvm.Extensions
         {
             if (array.List != null)
                 array.List[index] = value;
-            else if ((uint) index < (uint) array.Count)
+            else if ((uint)index < (uint)array.Count)
                 array = new ItemOrArray<T>(value);
             else
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
