@@ -488,7 +488,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             var target = context.BuildTarget(methodCallExpression.Target, out var type);
             return TryBuildExpression(context, methodCallExpression.Method, new TargetData(type, target), GetArguments(methodCallExpression, context),
-                _resourceResolver.GetTypes(methodCallExpression.TypeArgs, context.Metadata));
+                _resourceResolver.GetTypes(methodCallExpression.TypeArgs, context.Metadata), methodCallExpression);
         }
 
         private Expression? TryBuildIndex(IExpressionBuilderContext context, IIndexExpressionNode indexExpression)
@@ -508,13 +508,15 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return Expression.ArrayIndex(target!, expressions.Item!);
             }
 
-            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), default);
+            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), default,
+                indexExpression);
         }
 
         private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ItemOrArray<ArgumentData> args,
-            ItemOrArray<Type> typeArgs)
+            ItemOrArray<Type> typeArgs, IExpressionNode expressionNode)
         {
-            var methods = GetMethods(targetData.Type, methodName, targetData.IsStatic, typeArgs, context.GetMetadataOrDefault());
+            var methods = GetMethods(targetData.Type, methodName, expressionNode.TryGetMetadataValue(BindingParameterNameConstant.MemberFlags, MemberFlags), targetData.IsStatic,
+                typeArgs, context.GetMetadataOrDefault());
             GetBestMethodCandidates(ref methods, args);
             var expression = TryGenerateMethodCall(context, ref methods, targetData, ref args);
             if (expression != null)
@@ -554,11 +556,12 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
         }
 
-        private ItemOrArray<MethodData> GetMethods(Type type, string methodName, bool isStatic, ItemOrArray<Type> typeArgs, IReadOnlyMetadataContext? metadata)
+        private ItemOrArray<MethodData> GetMethods(Type type, string methodName, EnumFlags<MemberFlags> flags, bool isStatic, ItemOrArray<Type> typeArgs,
+            IReadOnlyMetadataContext? metadata)
         {
             var members = _memberManager
                           .DefaultIfNull()
-                          .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
+                          .TryGetMembers(type, MemberType.Method, flags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
 
             var methods = ItemOrArray.Get<MethodData>(members.Count);
             var count = 0;
@@ -840,7 +843,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 var key = new MethodInvokerKey(target.GetType(), args);
                 if (!TryGetValue(key, out var method))
                 {
-                    var methods = _component.GetMethods(key.Type, methodName, false, ItemOrArray.FromRawValue<Type>(typeArgs), metadata);
+                    var methods = _component.GetMethods(key.Type, methodName, _component.MemberFlags, false, ItemOrArray.FromRawValue<Type>(typeArgs), metadata);
                     ItemOrArray<Type> instanceArgs = default;
                     for (var i = 0; i < methods.Count; i++)
                         methods.SetAt(i, methods[i].WithArgs(args, ref instanceArgs));

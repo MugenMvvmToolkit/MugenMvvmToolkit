@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,6 +23,7 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
+        private static IReadOnlyDictionary<string, object?>? _memberFlagsMetadata;
         private static readonly HashSet<char> BindingTargetDelimiters = new() { ',', ';', ' ' };
         private static readonly HashSet<char> BindingDelimiters = new() { ',', ';' };
 
@@ -122,7 +124,7 @@ namespace MugenMvvm.Bindings.Extensions
                     typeArgs.SetAt(i, genericArguments[i].AssemblyQualifiedName!);
             }
 
-            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs);
+            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs, method.GetMemberFlagsMetadata());
         }
 
         public static IExpressionNode Convert<T>(this IExpressionConverterContext<T> context, T expression) where T : class
@@ -407,6 +409,16 @@ namespace MugenMvvm.Bindings.Extensions
             }
 
             return result.ToItemOrList();
+        }
+
+        internal static IReadOnlyDictionary<string, object?>? GetMemberFlagsMetadata(this MemberInfo memberInfo)
+        {
+            if (!memberInfo.GetAccessModifiers().HasFlag(MemberFlags.NonPublic))
+                return null;
+            return _memberFlagsMetadata ??= new ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>
+            {
+                { BindingParameterNameConstant.MemberFlags, MemberFlags.All }
+            });
         }
 
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)

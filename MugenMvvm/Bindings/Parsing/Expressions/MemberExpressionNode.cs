@@ -52,9 +52,9 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
 
         public string Member { get; }
 
-        public static MemberExpressionNode Get(IExpressionNode? target, string member)
+        public static MemberExpressionNode Get(IExpressionNode? target, string member, IReadOnlyDictionary<string, object?>? metadata = null)
         {
-            if (target == null)
+            if (target == null && (metadata == null || metadata.Count == 0))
             {
                 switch (member)
                 {
@@ -115,7 +115,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
                 }
             }
 
-            return new MemberExpressionNode(target, member);
+            return new MemberExpressionNode(target, member, metadata);
         }
 
         public override string ToString()

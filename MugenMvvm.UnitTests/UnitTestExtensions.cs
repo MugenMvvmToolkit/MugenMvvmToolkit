@@ -1,13 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using Should;
-using Should.Core.Assertions;
 
 namespace MugenMvvm.UnitTests
 {
@@ -16,16 +13,10 @@ namespace MugenMvvm.UnitTests
         public static T UpdateMetadata<T>(this T expression, string key1, object? value1, string? key2 = null, object? value2 = null)
             where T : class, IExpressionNode
         {
-            var dictionary = new Dictionary<string, object?> {[key1] = value1};
+            var dictionary = new Dictionary<string, object?> { [key1] = value1 };
             if (key2 != null)
                 dictionary[key2] = value2;
-            return (T) expression.UpdateMetadata(dictionary);
-        }
-
-        public static void ShouldEqual(this IReadOnlyObservableCollection x1, IEnumerable x2)
-        {
-            if (!ReferenceEquals(x1, x2))
-                x1.OfType<object>().SequenceEqual(x2.OfType<object>()).ShouldBeTrue();
+            return (T)expression.UpdateMetadata(dictionary);
         }
 
         public static async Task WaitSafeAsync<T>(this ValueTask<T> task)
@@ -57,26 +48,12 @@ namespace MugenMvvm.UnitTests
         public static object? Invoke(this Expression expression, IEnumerable<Expression> parameters, params object?[] args) =>
             Expression.Lambda(expression, parameters.OfType<ParameterExpression>()).Compile().DynamicInvoke(args);
 
-        public static void ShouldContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable)
-        {
-            foreach (var item in itemsEnumerable)
-                CollectionAssertExtensions.ShouldContain(enumerable, item);
-        }
-
-        public static void ShouldNotContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable)
-        {
-            foreach (var item in itemsEnumerable)
-                enumerable.ShouldNotContain(item);
-        }
-
-        public static void ShouldContain<T>(this IEnumerable<T> enumerable, params T[] items) => ShouldContain(enumerable, itemsEnumerable: items);
-
         public static void ShouldBeNull(this object @object, string msg) => @object.ShouldBeNull();
 
         public static void ShouldEqual(this IExpressionNode? x1, IExpressionNode? x2) => x1!.ShouldEqual(x2!, ExpressionNodeEqualityComparer.Instance);
 
         public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second) =>
-            first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
+            first.ShouldEqual(second, ExpressionNodeEqualityComparer.Instance);
 
         public static void ShouldEqual(this IReadOnlyMetadataContext? x1, IReadOnlyMetadataContext? x2)
         {
@@ -89,16 +66,46 @@ namespace MugenMvvm.UnitTests
             }
         }
 
-        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value) => Assert.Equal(enumerable, value);
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value) => Xunit.Assert.Equal(enumerable, value);
 
-        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer)
+        public static void ShouldEqual<T>(this IEnumerable<T>? enumerable, IEnumerable<T>? value, IEqualityComparer<T> comparer) => Xunit.Assert.Equal(enumerable, value, comparer);
+
+        public static void ShouldEqualUnordered<T>(this IEnumerable<T> x1, IEnumerable<T> x2, IEqualityComparer<T>? comparer = null) where T : notnull
         {
-            if (EqualityComparer<IEnumerable<T>?>.Default.Equals(enumerable, value))
-                return;
-            enumerable!.ShouldNotBeNull(nameof(enumerable));
-            value!.ShouldNotBeNull(nameof(value));
-            enumerable!.SequenceEqual(value!, comparer).ShouldBeTrue();
+            var dictionary = new Dictionary<T, int>(comparer ?? EqualityComparer<T>.Default);
+            foreach (var item in x1)
+            {
+                dictionary.TryGetValue(item, out var count);
+                dictionary[item] = count + 1;
+            }
+
+            foreach (var item in x2)
+            {
+                dictionary.TryGetValue(item, out var count).ShouldBeTrue($"Cannot find item {item}");
+                if (count == 1)
+                    dictionary.Remove(item);
+                else
+                    dictionary[item] = count - 1;
+            }
+
+            dictionary.Count.ShouldEqual(0);
         }
+
+        public static void ShouldContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable, IEqualityComparer<T>? comparer = null)
+        {
+            var hashSet = new HashSet<T>(enumerable, comparer ?? EqualityComparer<T>.Default);
+            foreach (var item in itemsEnumerable)
+                CollectionAssertExtensions.ShouldContain(hashSet, item);
+        }
+
+        public static void ShouldNotContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable, IEqualityComparer<T>? comparer = null)
+        {
+            var hashSet = new HashSet<T>(enumerable, comparer ?? EqualityComparer<T>.Default);
+            foreach (var item in itemsEnumerable)
+                hashSet.ShouldNotContain(item);
+        }
+
+        public static void ShouldContain<T>(this IEnumerable<T> enumerable, params T[] items) => ShouldContain(enumerable, itemsEnumerable: items);
 
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {

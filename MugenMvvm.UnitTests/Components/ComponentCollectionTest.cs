@@ -426,7 +426,7 @@ namespace MugenMvvm.UnitTests.Components
                 removedCount.ShouldEqual(limit);
                 items.Count.ShouldEqual(count - limit);
                 var array = _componentCollection.Get<object>();
-                array.OrderBy(o => o.GetHashCode()).ShouldEqual(items.OrderBy(o => o.GetHashCode()));
+                array.ShouldEqualUnordered(items);
             }
         }
 

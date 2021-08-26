@@ -37,6 +37,11 @@ namespace MugenMvvm.Bindings.Extensions
             where TSource : class =>
             bindingManager.BindInternal(getBuilder, target, source, metadata);
 
+        public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, TTarget> getBuilder,
+            IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
+            where TTarget : class =>
+            bindingManager.BindInternal(getBuilder, target, target, metadata);
+
         public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null, bool includeResult = true)
             where TTarget : class
@@ -46,6 +51,11 @@ namespace MugenMvvm.Bindings.Extensions
             bindingManager.BindInternalWithoutBindings(expression, target, source, metadata);
             return default;
         }
+
+        public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, string expression, IReadOnlyMetadataContext? metadata = null,
+            IBindingManager? bindingManager = null, bool includeResult = true)
+            where TTarget : class =>
+            target.Bind(expression, target, metadata, bindingManager, includeResult);
 
         public static BindingBuilderTo<TTarget, TSource> TwoWay<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder)
             where TTarget : class

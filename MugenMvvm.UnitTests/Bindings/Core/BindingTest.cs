@@ -664,7 +664,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 removingCount.ShouldEqual(limit);
                 removedCount.ShouldEqual(limit);
                 items.Count.ShouldEqual(count - limit);
-                binding.Get<object>().OrderBy(o => o.GetHashCode()).ShouldEqual(items.OrderBy(o => o.GetHashCode()));
+                binding.Get<object>().ShouldEqualUnordered(items);
             }
         }
 

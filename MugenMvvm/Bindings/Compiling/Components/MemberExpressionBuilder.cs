@@ -37,13 +37,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
         public int Priority { get; init; } = CompilingComponentPriority.Member;
 
         [Preserve(Conditional = true)]
-        public object? GetValueDynamic(object? target, string member, IReadOnlyMetadataContext? metadata)
+        public object? GetValueDynamic(object? target, string member, EnumFlags<MemberFlags> flags, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return null;
             var property = _memberManager
                            .DefaultIfNull()
-                           .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
+                           .TryGetMember(target.GetType(), MemberType.Accessor, flags, member, metadata) as IAccessorMemberInfo;
             if (property == null)
                 ExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property.GetValue(target, metadata);
@@ -55,15 +55,15 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return null;
 
             var target = context.BuildTarget(memberExpression.Target, out var type);
-            EnumFlags<MemberFlags> flags;
+            var flags = expression.TryGetMetadataValue(BindingParameterNameConstant.MemberFlags, MemberFlags);
             if (target == null)
             {
                 if (type.IsEnum)
                     return Expression.Constant(Enum.Parse(type, memberExpression.Member));
-                flags = MemberFlags.SetInstanceOrStaticFlags(true);
+                flags = flags.SetInstanceOrStaticFlags(true);
             }
             else
-                flags = MemberFlags.SetInstanceOrStaticFlags(false);
+                flags = flags.SetInstanceOrStaticFlags(false);
 
             var member = _memberManager
                          .DefaultIfNull()
@@ -80,6 +80,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 return Expression.Call(_thisExpression, GetValueDynamicMethod,
                     target.ConvertIfNeed(typeof(object), false),
                     Expression.Constant(memberExpression.Member),
+                    Expression.Constant(flags.SetInstanceOrStaticFlags(false)),
                     context.MetadataExpression);
             }
 
