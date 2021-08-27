@@ -10,11 +10,6 @@ namespace MugenMvvm.UnitTests.Collections
         protected override IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource) =>
             new ReadOnlyObservableCollection<T>(source, 0, disposeSource, ComponentCollectionManager);
 
-        public override void ShouldSynchronizeBatchUpdates(int batchUpdateType)
-        {
-            if (batchUpdateType == 2)
-                return;
-            base.ShouldSynchronizeBatchUpdates(batchUpdateType);
-        }
+        public override void ShouldSynchronizeBatchUpdates(int batchUpdateType, bool supported) => base.ShouldSynchronizeBatchUpdates(batchUpdateType, batchUpdateType == 1);
     }
 }

@@ -24,15 +24,15 @@ namespace MugenMvvm.Collections.Components
         {
         }
 
-        internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
-
-        public override bool IsLazy => false;
+        protected override bool IsLazy => false;
 
         public int BatchThreshold
         {
             get => _batchThreshold.GetValueOrDefault(CollectionMetadata.FlattenCollectionDecoratorBatchThreshold);
             set => _batchThreshold = value;
         }
+
+        internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
 
         internal abstract int GetIndex(int originalIndex);
 
@@ -44,7 +44,8 @@ namespace MugenMvvm.Collections.Components
         where T : class
     {
         private readonly Func<T, FlattenItemInfo> _getNestedCollection;
-        private readonly Dictionary<T, FlattenCollectionItemBase> _collectionItems;
+        private IndexMapList<FlattenCollectionItemBase> _collectionItems;
+        private Dictionary<object, object?>? _resetCache;
 
         public FlattenCollectionDecorator(Func<T, FlattenItemInfo> getNestedCollection, int priority = CollectionComponentPriority.FlattenCollectionDecorator)
             : base(priority)
@@ -52,10 +53,10 @@ namespace MugenMvvm.Collections.Components
             Should.NotBeNull(getNestedCollection, nameof(getNestedCollection));
             _getNestedCollection = getNestedCollection;
             Priority = priority;
-            _collectionItems = new Dictionary<T, FlattenCollectionItemBase>(InternalEqualityComparer.Reference);
+            _collectionItems = IndexMapList<FlattenCollectionItemBase>.Get();
         }
 
-        public override bool HasAdditionalItems => _collectionItems.Count > 0;
+        protected override bool HasAdditionalItems => _collectionItems.Size > 0;
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -67,84 +68,43 @@ namespace MugenMvvm.Collections.Components
             IEnumerable<object?> items) => Decorate(items);
 
         protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object? item, ref ItemOrListEditor<int> indexes)
+            object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
-            foreach (var collectionItem in _collectionItems)
-                collectionItem.Value.FindAllIndexOf(this, item, ref indexes);
+            for (var i = 0; i < _collectionItems.Size; i++)
+                _collectionItems.Indexes[i].Value.FindAllIndexOf(this, item, ignoreDuplicates, ref indexes);
             return true;
         }
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (item is T itemT)
-            {
-                var flattenItemInfo = _getNestedCollection(itemT);
-                _collectionItems.TryGetValue(itemT, out var flattenItem);
-                if (!ReferenceEquals(flattenItemInfo.Items, flattenItem?.Collection))
-                    return OnReplaced(decoratorManager, collection, ref item, ref item, ref index);
-
-                if (flattenItem != null)
-                    return false;
-            }
+            if (item is T)
+                return Replace(decoratorManager, collection, item, item, ref index);
 
             index = GetIndex(index);
             return true;
         }
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnAdded(decoratorManager, collection, item, ref index, true, true, out _);
+            OnAdded(decoratorManager, collection, item, ref index, true, out _);
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
-            ref object? newItem, ref int index)
-        {
-            using var t = BatchUpdate();
-            var addIndex = index;
-            var removed = OnRemoved(decoratorManager, oldItem, ref index, out var isRemoveReset);
-            if (removed)
-            {
-                if (newItem is T newItemT && !_getNestedCollection(newItemT).IsEmpty)
-                {
-                    decoratorManager.OnRemoved(collection, this, oldItem, index);
-                    removed = false;
-                }
-            }
-
-            var added = OnAdded(decoratorManager, collection, newItem, ref addIndex, !isRemoveReset, true, out var isAddReset);
-            if (added && removed)
-                return true;
-            if (isAddReset || isRemoveReset)
-                return false;
-
-            if (removed)
-                decoratorManager.OnRemoved(collection, this, oldItem, index);
-            if (added)
-                decoratorManager.OnAdded(collection, this, newItem, index);
-            return false;
-        }
+            ref object? newItem, ref int index) =>
+            Replace(decoratorManager, collection, oldItem, newItem, ref index);
 
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
             ref int newIndex)
         {
-            if (item is T itemT && TryGetCollectionItem(itemT, out var flattenCollectionItem))
-                flattenCollectionItem.Indexes.Remove(oldIndex);
-            else
-                flattenCollectionItem = null;
-
-            var originalNewIndex = newIndex;
-            oldIndex = UpdateIndexes(oldIndex, -1);
-            newIndex = UpdateIndexes(newIndex, 1);
-            if (flattenCollectionItem == null)
+            if (!UpdateIndexesMove(ref oldIndex, ref newIndex, out var flattenCollectionItem))
                 return true;
 
-            flattenCollectionItem.Indexes.Add(originalNewIndex);
             if (oldIndex != newIndex)
-                flattenCollectionItem.OnMoved(this, decoratorManager, oldIndex, newIndex);
+                flattenCollectionItem.OnMoved(this, decoratorManager, collection, oldIndex, newIndex);
             return false;
         }
 
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnRemoved(decoratorManager, item, ref index, out _);
+            OnRemoved(decoratorManager, collection, ref index, out _);
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
@@ -152,36 +112,35 @@ namespace MugenMvvm.Collections.Components
                 Clear();
             else
             {
-                foreach (var collectionItem in _collectionItems)
-                    collectionItem.Value.Indexes.Clear();
+                if (_resetCache == null)
+                    _resetCache = new Dictionary<object, object?>(_collectionItems.Size, InternalEqualityComparer.Reference);
+                else
+                    _resetCache.Clear();
+                for (var i = 0; i < _collectionItems.Size; i++)
+                {
+                    var value = _collectionItems.Indexes[i].Value;
+                    if (_resetCache.TryGetValue(value.Item, out var v))
+                    {
+                        var rawValue = ItemOrListEditor<FlattenCollectionItemBase>.FromRawValue(v);
+                        rawValue.Add(value);
+                        _resetCache[value.Item] = rawValue.GetRawValueInternal();
+                    }
+                    else
+                        _resetCache[value.Item] = value;
+                }
 
+                _collectionItems.Clear();
                 var index = 0;
-                var i = 0;
                 foreach (var item in items)
                 {
-                    OnAdded(decoratorManager, collection, item, ref i, false, false, out _);
-                    i = ++index;
+                    OnAdded(decoratorManager, collection, item, index, _resetCache);
+                    ++index;
                 }
 
-#if !NET5_0
-                var toRemove = new ItemOrListEditor<T>(2);
-#endif
-                foreach (var item in _collectionItems)
-                {
-                    if (item.Value.Indexes.Count == 0)
-                    {
-#if NET5_0
-                        _collectionItems.Remove(item.Key);
-#else
-                        toRemove.Add(item.Key);
-#endif
-                        item.Value.Detach();
-                    }
-                }
-#if !NET5_0
-                foreach (var item in toRemove)
-                    _collectionItems.Remove(item);
-#endif
+                foreach (var item in _resetCache)
+                foreach (var collectionItemBase in ItemOrIReadOnlyList.FromRawValue<FlattenCollectionItemBase>(item.Value))
+                    collectionItemBase.Detach();
+                _resetCache.Clear();
 
                 items = Decorate(items);
             }
@@ -208,103 +167,178 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        internal sealed override int GetIndex(int originalIndex)
+        internal sealed override int GetIndex(int originalIndex) => GetIndex(originalIndex, _collectionItems.BinarySearch(originalIndex));
+
+        private bool Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? oldItem, object? newItem, ref int index)
         {
-            var result = originalIndex;
-            foreach (var collectionItem in _collectionItems)
+            var oldIndex = _collectionItems.BinarySearch(index);
+            var flattenItemInfo = newItem is T newItemT ? _getNestedCollection(newItemT) : default;
+
+            if (oldIndex < 0)
             {
-                var item = collectionItem.Value;
-                var items = item.Indexes.Items;
-                var count = item.Indexes.Count;
-                for (var i = 0; i < count; i++)
+                if (flattenItemInfo.IsEmpty)
                 {
-                    if (items[i] < originalIndex)
-                        result += item.Size - 1;
+                    index = GetIndex(index, oldIndex);
+                    return true;
                 }
+
+                var originalIndex = index;
+                index = GetIndex(index, oldIndex);
+                var newFlattenItem = flattenItemInfo.GetCollectionItem(newItem!, this);
+                _collectionItems.Add(originalIndex, newFlattenItem, oldIndex);
+                newFlattenItem.OnAdded(this, decoratorManager, collection, index, true, false, out _, oldItem, true);
+                return false;
+            }
+
+            var currentFlattenItem = _collectionItems.Indexes[oldIndex].Value;
+            if (flattenItemInfo.IsEmpty)
+            {
+                index = GetIndex(index, oldIndex);
+                _collectionItems.RemoveAt(oldIndex);
+                currentFlattenItem.OnRemoved(this, decoratorManager, collection, index, out _, newItem, true);
+                return false;
+            }
+
+            if (ReferenceEquals(flattenItemInfo.Items, currentFlattenItem.Collection))
+            {
+                currentFlattenItem.Item = newItem!;
+                return false;
+            }
+
+            index = GetIndex(index, oldIndex);
+            var replaceFlattenItem = flattenItemInfo.GetCollectionItem(newItem!, this);
+            _collectionItems.Indexes[oldIndex].Value = replaceFlattenItem;
+            replaceFlattenItem.OnReplaced(this, decoratorManager, collection, index, currentFlattenItem);
+            return false;
+        }
+
+        private int GetIndex(int originalIndex, int binarySearchIndex)
+        {
+            if (binarySearchIndex < 0)
+                binarySearchIndex = ~binarySearchIndex;
+            for (var i = 0; i < binarySearchIndex; i++)
+                originalIndex += _collectionItems.Indexes[i].Value.Size - 1;
+            return originalIndex;
+        }
+
+        private bool UpdateIndexesMove(ref int oldIndex, ref int newIndex, [NotNullWhen(true)] out FlattenCollectionItemBase? item)
+        {
+            int? oldIndexBinary = _collectionItems.BinarySearch(oldIndex);
+            int? newIndexBinary = _collectionItems.BinarySearch(newIndex);
+            var oldIndexOriginal = oldIndex;
+            var newIndexOriginal = newIndex;
+            oldIndex = GetIndex(oldIndex, oldIndexBinary.Value);
+            if (oldIndexOriginal > newIndexOriginal)
+                newIndex = GetIndex(newIndex, newIndexBinary.Value);
+            var result = _collectionItems.Move(oldIndexOriginal, newIndexOriginal, out item, ref oldIndexBinary, ref newIndexBinary);
+            if (oldIndexOriginal < newIndexOriginal)
+            {
+                newIndex = GetIndex(newIndex, newIndexBinary.Value + (newIndexBinary.Value < 0 ? 0 : 1));
+                if (item != null)
+                    newIndex -= item.Size - 1;
             }
 
             return result;
         }
 
-        private int UpdateIndexes(int index, int value)
+        private int UpdateIndexes(int index, int value, out int binarySearchIndex)
         {
-            var result = index;
-            foreach (var collectionItem in _collectionItems)
-            {
-                var item = collectionItem.Value;
-                var items = item.Indexes.Items;
-                var count = item.Indexes.Count;
-                for (var i = 0; i < count; i++)
-                {
-                    if (items[i] >= index)
-                        items[i] += value;
-                    else
-                        result += item.Size - 1;
-                }
-            }
-
-            return result;
+            binarySearchIndex = _collectionItems.BinarySearch(index);
+            _collectionItems.UpdateIndexesBinary(binarySearchIndex, value);
+            int endIndex;
+            if (binarySearchIndex < 0)
+                endIndex = ~binarySearchIndex;
+            else
+                endIndex = binarySearchIndex;
+            for (var i = 0; i < endIndex; i++)
+                index += _collectionItems.Indexes[i].Value.Size - 1;
+            return index;
         }
 
         private void Clear()
         {
-            foreach (var collectionItem in _collectionItems)
-                collectionItem.Value.Detach();
+            for (var i = 0; i < _collectionItems.Size; i++)
+                _collectionItems.Indexes[i].Value.Detach();
             _collectionItems.Clear();
         }
 
+        private void OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, object? item, int index,
+            Dictionary<object, object?> cache)
+        {
+            if (item is not T itemT)
+                return;
+
+            var isRecycled = false;
+            FlattenCollectionItemBase? flattenItem = null;
+            if (cache.TryGetValue(itemT, out var items))
+            {
+                var editor = ItemOrListEditor<FlattenCollectionItemBase>.FromRawValue(items);
+                flattenItem = editor[editor.Count - 1];
+                if (editor.Count == 1)
+                    cache.Remove(itemT);
+                else
+                {
+                    editor.Remove(flattenItem);
+                    cache[itemT] = editor.GetRawValueInternal();
+                }
+            }
+
+            if (flattenItem == null)
+            {
+                var flattenItemInfo = _getNestedCollection(itemT);
+                if (flattenItemInfo.IsEmpty)
+                    return;
+
+                flattenItem = flattenItemInfo.GetCollectionItem(item, this);
+            }
+
+            _collectionItems.AddRaw(index, flattenItem);
+            flattenItem.OnAdded(this, decoratorManager, source, index, false, isRecycled, out _);
+        }
+
         private bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, object? item, ref int index, bool notify,
-            bool updateIndex, out bool isReset)
+            out bool isReset)
         {
             var originalIndex = index;
-            if (updateIndex)
-                index = UpdateIndexes(index, 1);
+            index = UpdateIndexes(index, 1, out var binarySearchIndex);
             if (item is not T itemT)
             {
                 isReset = false;
                 return true;
             }
 
-            var isRecycled = true;
-            if (!_collectionItems.TryGetValue(itemT, out var flattenCollectionItem))
-            {
-                var flattenItemInfo = _getNestedCollection(itemT);
-                if (flattenItemInfo.IsEmpty)
-                {
-                    isReset = false;
-                    return true;
-                }
-
-                flattenCollectionItem = flattenItemInfo.GetCollectionItem(this);
-                _collectionItems[itemT] = flattenCollectionItem;
-                isRecycled = false;
-            }
-
-            flattenCollectionItem.OnAdded(this, decoratorManager, source, originalIndex, index, notify, isRecycled, out isReset);
-            return false;
-        }
-
-        private bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, object? item, ref int index, out bool isReset)
-        {
-            var originalIndex = index;
-            index = UpdateIndexes(index, -1);
-            if (item is not T itemT || !TryGetCollectionItem(itemT, out var flattenCollectionItem))
+            var flattenItemInfo = _getNestedCollection(itemT);
+            if (flattenItemInfo.IsEmpty)
             {
                 isReset = false;
                 return true;
             }
 
-            if (flattenCollectionItem.OnRemoved(this, decoratorManager, originalIndex - 1, index, out isReset))
-                _collectionItems.Remove(itemT);
+            var flattenCollectionItem = flattenItemInfo.GetCollectionItem(itemT, this);
+            _collectionItems.Add(originalIndex, flattenCollectionItem, binarySearchIndex);
+            flattenCollectionItem.OnAdded(this, decoratorManager, source, index, notify, false, out isReset);
             return false;
         }
 
-        private bool TryGetCollectionItem(T item, [NotNullWhen(true)] out FlattenCollectionItemBase? value)
+        private bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref int index, out bool isReset)
         {
-            if (_collectionItems.TryGetValue(item, out value))
+            index = UpdateIndexes(index, -1, out var binarySearchIndex);
+            if (binarySearchIndex < 0)
+            {
+                isReset = false;
                 return true;
-            value = null;
+            }
+
+            var flattenCollectionItemBase = _collectionItems.Indexes[binarySearchIndex].Value;
+            _collectionItems.RemoveAt(binarySearchIndex);
+            flattenCollectionItemBase.OnRemoved(this, decoratorManager, collection, index, out isReset);
             return false;
+        }
+
+        void ILockerChangedListener<IReadOnlyObservableCollection>.OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
+        {
+            for (var i = 0; i < _collectionItems.Size; i++)
+                _collectionItems.Indexes[i].Value.UpdateLocker(locker);
         }
 
         void IPreInitializerCollectionComponent<object>.Initialize(IReadOnlyObservableCollection<object> collection, object item)
@@ -320,12 +354,6 @@ namespace MugenMvvm.Collections.Components
             using var __ = MugenExtensions.TryLock(flattenItemInfo.Items);
             collection.UpdateLocker(synchronizable.Locker);
             synchronizable.UpdateLocker(collection.Locker);
-        }
-
-        void ILockerChangedListener<IReadOnlyObservableCollection>.OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
-        {
-            foreach (var item in _collectionItems)
-                item.Value.UpdateLocker(locker);
         }
     }
 }

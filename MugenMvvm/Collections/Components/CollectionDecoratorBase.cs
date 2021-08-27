@@ -16,21 +16,13 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public virtual bool IsLazy => true;
-
-        public abstract bool HasAdditionalItems { get; }
-
         public int Priority { get; set; }
 
         protected internal ICollectionDecoratorManagerComponent? DecoratorManager { get; private set; }
 
-        protected internal ActionToken BatchUpdate()
-        {
-            var owner = OwnerOptional;
-            if (owner == null)
-                return default;
-            return owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
-        }
+        protected abstract bool HasAdditionalItems { get; }
+
+        protected virtual bool IsLazy => true;
 
         protected abstract IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items);
@@ -51,7 +43,7 @@ namespace MugenMvvm.Collections.Components
         protected abstract bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items);
 
         protected virtual bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object? item, ref ItemOrListEditor<int> indexes) => false;
+            object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes) => false;
 
         protected override void OnAttaching(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -65,13 +57,26 @@ namespace MugenMvvm.Collections.Components
             DecoratorManager = null;
         }
 
-        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
+        protected ActionToken BatchUpdate()
+        {
+            var owner = OwnerOptional;
+            if (owner == null)
+                return default;
+            return owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
+        }
+
+        bool ICollectionDecorator.IsLazy(IReadOnlyObservableCollection collection) => IsLazy;
+
+        bool ICollectionDecorator.HasAdditionalItems(IReadOnlyObservableCollection collection) => HasAdditionalItems;
+
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates,
+            ref ItemOrListEditor<int> indexes)
         {
             var decoratorManager = DecoratorManager;
             if (decoratorManager == null)
                 return false;
 
-            return TryGetIndexes(decoratorManager, collection, items, item, ref indexes);
+            return TryGetIndexes(decoratorManager, collection, items, item, ignoreDuplicates, ref indexes);
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)

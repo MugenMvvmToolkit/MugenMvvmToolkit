@@ -32,18 +32,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-            {
-                _collection.Add(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Insert(i, i);
-                Assert();
-            }
+            CollectionDecoratorTestBase.AddShouldTrackChangesImpl(_collection, Assert);
         }
 
         [Theory]
@@ -73,14 +62,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-
-            Assert();
-
-            _collection.Clear();
-            Assert();
+            CollectionDecoratorTestBase.ClearShouldTrackChangesImpl(_collection, Assert);
         }
 
         [Fact]
@@ -95,30 +77,30 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Add(targetItem1);
             _collection.Add(targetItem2);
-            _decorator.Header = new[] {header1, header2, header2};
-            _decorator.Footer = new[] {footer1, footer2, footer2};
+            _decorator.Header = new[] { header1, header2, header2 };
+            _decorator.Footer = new[] { footer1, footer2, footer2 };
 
             ICollectionDecorator decorator = _decorator;
             var indexes = new ItemOrListEditor<int>();
 
             indexes.Clear();
-            decorator.TryGetIndexes(_collection, _collection, header1, ref indexes).ShouldBeTrue();
+            decorator.TryGetIndexes(_collection, _collection, header1, false, ref indexes).ShouldBeTrue();
             indexes.Count.ShouldEqual(1);
             indexes[0].ShouldEqual(0);
 
             indexes.Clear();
-            decorator.TryGetIndexes(_collection, _collection, header2, ref indexes).ShouldBeTrue();
+            decorator.TryGetIndexes(_collection, _collection, header2, false, ref indexes).ShouldBeTrue();
             indexes.Count.ShouldEqual(2);
             indexes[0].ShouldEqual(1);
             indexes[1].ShouldEqual(2);
 
             indexes.Clear();
-            decorator.TryGetIndexes(_collection, _collection, footer1, ref indexes).ShouldBeTrue();
+            decorator.TryGetIndexes(_collection, _collection, footer1, false, ref indexes).ShouldBeTrue();
             indexes.Count.ShouldEqual(1);
             indexes[0].ShouldEqual(5);
 
             indexes.Clear();
-            decorator.TryGetIndexes(_collection, _collection, footer2, ref indexes).ShouldBeTrue();
+            decorator.TryGetIndexes(_collection, _collection, footer2, false, ref indexes).ShouldBeTrue();
             indexes.Count.ShouldEqual(2);
             indexes[0].ShouldEqual(6);
             indexes[1].ShouldEqual(7);
@@ -130,23 +112,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Move(i, i + 1);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Move(i + 1, i);
-                Assert();
-            }
+            CollectionDecoratorTestBase.MoveShouldTrackChanges1Impl(_collection, Assert);
         }
 
         [Theory]
@@ -155,23 +121,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-
-            Assert();
-
-            for (var i = 1; i < 10; i++)
-            {
-                _collection.Move(i, i * 2 + 1);
-                Assert();
-            }
-
-            for (var i = 1; i < 10; i++)
-            {
-                _collection.Move(i * 2 + 1, i);
-                Assert();
-            }
+            CollectionDecoratorTestBase.MoveShouldTrackChanges2Impl(_collection, Assert);
         }
 
         [Theory]
@@ -180,21 +130,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-
-            for (var i = 0; i < 20; i++)
-            {
-                _collection.Remove(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.RemoveAt(i);
-                Assert();
-            }
+            CollectionDecoratorTestBase.RemoveShouldTrackChangesImpl(_collection, Assert);
         }
 
         [Theory]
@@ -203,17 +139,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection[i] = i + 101;
-                Assert();
-            }
+            CollectionDecoratorTestBase.ReplaceShouldTrackChanges1Impl(_collection, Assert);
         }
 
         [Theory]
@@ -222,18 +148,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            for (var j = 10; j < 20; j++)
-            {
-                _collection[i] = _collection[j];
-                Assert();
-            }
+            CollectionDecoratorTestBase.ReplaceShouldTrackChanges2Impl(_collection, Assert);
         }
 
         [Theory]
@@ -242,13 +157,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
-            Assert();
+            CollectionDecoratorTestBase.ResetShouldTrackChangesImpl(_collection, Assert);
         }
 
         [Theory]
@@ -316,30 +225,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             _decorator.Header = header;
             _decorator.Footer = footer;
-
-            _collection.Add(1);
-            Assert();
-
-            _collection.Insert(1, 2);
-            Assert();
-
-            _collection.Move(0, 1);
-            Assert();
-
-            _collection.Remove(2);
-            Assert();
-
-            _collection.RemoveAt(0);
-            Assert();
-
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
-            Assert();
-
-            _collection[0] = 200;
-            Assert();
-
-            _collection.Clear();
-            Assert();
+            CollectionDecoratorTestBase.ShouldTrackChangesImpl(_collection, Assert);
 
             _decorator.Footer = header;
             _decorator.Header = footer;
@@ -349,15 +235,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private static IEnumerable<object?[]> GetData() =>
             new[]
             {
-                new object?[] {null, null},
-                new object?[] {new[] {"header"}, null},
-                new object?[] {new[] {"header1", "header2"}, null},
-                new object?[] {null, new[] {"footer"}},
-                new object?[] {null, new[] {"footer1", "footer2"}},
-                new object?[] {new[] {"header"}, new[] {"footer"}},
-                new object?[] {new[] {"header1", "header2"}, new[] {"footer"}},
-                new object?[] {new[] {"header"}, new[] {"footer1", "footer2"}},
-                new object?[] {new[] {"header1", "header2"}, new[] {"footer1", "footer2"}}
+                new object?[] { null, null },
+                new object?[] { new[] { "header" }, null },
+                new object?[] { new[] { "header1", "header2" }, null },
+                new object?[] { null, new[] { "footer" } },
+                new object?[] { null, new[] { "footer1", "footer2" } },
+                new object?[] { new[] { "header" }, new[] { "footer" } },
+                new object?[] { new[] { "header1", "header2" }, new[] { "footer" } },
+                new object?[] { new[] { "header" }, new[] { "footer1", "footer2" } },
+                new object?[] { new[] { "header1", "header2" }, new[] { "footer1", "footer2" } }
             };
 
         private void Assert()

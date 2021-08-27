@@ -21,19 +21,16 @@ namespace MugenMvvm.Collections.Components
         private Dictionary<T, TTo?>? _resetCache;
 
         public ConvertCollectionDecorator(Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null,
-            int priority = CollectionComponentPriority.ConverterDecorator, bool isLazy = true) : base(priority)
+            int priority = CollectionComponentPriority.ConverterDecorator) : base(priority)
         {
             Should.NotBeNull(converter, nameof(converter));
             _items = IndexMapList<(T, TTo?)>.Get();
             Converter = converter;
             _cleanup = cleanup;
-            IsLazy = isLazy;
             _comparer = comparer ?? EqualityComparer<TTo?>.Default;
         }
 
-        public override bool IsLazy { get; }
-
-        public override bool HasAdditionalItems => _items.Size != 0;
+        protected override bool HasAdditionalItems => _items.Size != 0;
 
         public Func<T, TTo?, TTo?> Converter { get; }
 
@@ -44,16 +41,18 @@ namespace MugenMvvm.Collections.Components
         }
 
         protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object? item, ref ItemOrListEditor<int> indexes)
+            object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
             if (item is TTo toItem)
             {
-                var index = 0;
-                foreach (var v in items)
+                for (int i = 0; i < _items.Size; i++)
                 {
-                    if (TryGet(v, index, out var r) && _comparer.Equals(r, toItem))
-                        indexes.Add(index);
-                    ++index;
+                    if (_comparer.Equals(toItem, _items.Indexes[i].Value.to))
+                    {
+                        indexes.Add(_items.Indexes[i].Index);
+                        if (ignoreDuplicates)
+                            return true;
+                    }
                 }
             }
 
@@ -79,16 +78,13 @@ namespace MugenMvvm.Collections.Components
             if (item is not T itemT)
                 return true;
 
-            var oldIndex = _items.IndexOfKey(index);
-            if (oldIndex < 0 && typeof(T) == typeof(TTo))
-                return true;
-
-            var oldItem = _items.Values[oldIndex].to;
+            var oldIndex = _items.BinarySearch(index);
+            var oldItem = _items.Indexes[oldIndex].Value.to;
             var newItem = Converter(itemT, oldItem);
             if (!_comparer.Equals(oldItem, newItem))
             {
                 _cleanup?.Invoke(itemT, oldItem!);
-                _items.SetValue(oldIndex, (itemT, newItem));
+                _items.Indexes[oldIndex].Value = (itemT, newItem);
                 decoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
                 return false;
             }
@@ -106,13 +102,20 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var oldIndex = oldItem is T ? _items.IndexOfKey(index) : -1;
+            var oldIndex = oldItem is T ? _items.BinarySearch(index) : -1;
             if (oldIndex == -1)
                 newItem = TryAdd(newItem, index, null, false, false);
             else
             {
-                oldItem = RemoveRaw(oldIndex);
-                newItem = TryAdd(newItem, index, null, false, false);
+                if (newItem is T newItemT)
+                {
+                    oldItem = RemoveRaw(oldIndex, false);
+                    var value = Converter(newItemT, null);
+                    _items.Indexes[oldIndex].Value = (newItemT, value);
+                    newItem = value;
+                }
+                else
+                    oldItem = RemoveRaw(oldIndex, true);
             }
 
             return true;
@@ -121,18 +124,8 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
             ref int newIndex)
         {
-            var indexToUpdate = item is T ? _items.IndexOfKey(oldIndex) : -1;
-            _items.UpdateIndexes(oldIndex + 1, -1);
-            _items.UpdateIndexes(newIndex, 1);
-
-            if (indexToUpdate != -1)
-            {
-                var value = _items.Values[indexToUpdate];
-                _items.RemoveAt(indexToUpdate);
-                _items.Add(newIndex, value);
+            if (_items.Move(oldIndex, newIndex, out var value))
                 item = value.to;
-            }
-
             return true;
         }
 
@@ -151,7 +144,7 @@ namespace MugenMvvm.Collections.Components
                 _resetCache ??= new Dictionary<T, TTo?>(_items.Size, GetComparer());
                 for (var i = 0; i < _items.Size; i++)
                 {
-                    var item = _items.Values[i];
+                    var item = _items.Indexes[i].Value;
                     _resetCache[item.from] = item.to;
                 }
 
@@ -190,7 +183,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (item is T)
             {
-                result = _items.Values[_items.IndexOfKey(index)].to;
+                result = _items.Indexes[_items.BinarySearch(index)].Value.to;
                 return true;
             }
 
@@ -232,13 +225,14 @@ namespace MugenMvvm.Collections.Components
             _items.UpdateIndexesBinary(indexToRemove, -1);
             if (indexToRemove < 0)
                 return item;
-            return RemoveRaw(indexToRemove);
+            return RemoveRaw(indexToRemove, true);
         }
 
-        private object? RemoveRaw(int index)
+        private object? RemoveRaw(int index, bool removeFromCollection)
         {
-            var value = _items.Values[index];
-            _items.RemoveAt(index);
+            var value = _items.Indexes[index].Value;
+            if (removeFromCollection)
+                _items.RemoveAt(index);
             _cleanup?.Invoke(value.from, value.to!);
             return value.to;
         }
@@ -249,7 +243,7 @@ namespace MugenMvvm.Collections.Components
             {
                 for (var i = 0; i < _items.Size; i++)
                 {
-                    var item = _items.Values[i];
+                    var item = _items.Indexes[i].Value;
                     _cleanup(item.from, item.to!);
                 }
             }

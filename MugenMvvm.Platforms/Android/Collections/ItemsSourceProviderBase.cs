@@ -71,7 +71,7 @@ namespace MugenMvvm.Android.Collections
 
         public virtual void Move(int oldIndex, int newIndex)
         {
-            if (CollectionAdapter.Collection is IList list)
+            if (CollectionAdapter.Collection is IList list && oldIndex != newIndex)
             {
                 var obj = list[oldIndex];
                 list.RemoveAt(oldIndex);

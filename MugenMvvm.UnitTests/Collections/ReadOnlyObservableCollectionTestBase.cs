@@ -356,9 +356,9 @@ namespace MugenMvvm.UnitTests.Collections
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        public virtual void ShouldSynchronizeBatchUpdates(int batchUpdateType)
+        [InlineData(1, false)]
+        [InlineData(2, true)]
+        public virtual void ShouldSynchronizeBatchUpdates(int batchUpdateType, bool supported)
         {
             var updateType = BatchUpdateType.Get(batchUpdateType);
             var batchCount = 0;
@@ -378,20 +378,20 @@ namespace MugenMvvm.UnitTests.Collections
             });
 
             var b1 = _source.BatchUpdate(updateType);
-            batchCount.ShouldEqual(1);
+            batchCount.ShouldEqual(supported ? 1 : 0);
 
             var b2 = _source.BatchUpdate(updateType);
-            batchCount.ShouldEqual(1);
+            batchCount.ShouldEqual(supported ? 1 : 0);
 
             b1.Dispose();
-            batchCount.ShouldEqual(1);
+            batchCount.ShouldEqual(supported ? 1 : 0);
 
             b2.Dispose();
             batchCount.ShouldEqual(0);
 
             b1 = _source.BatchUpdate(updateType);
             b2 = _source.BatchUpdate(updateType);
-            batchCount.ShouldEqual(1);
+            batchCount.ShouldEqual(supported ? 1 : 0);
             target.Dispose();
             batchCount.ShouldEqual(0);
 

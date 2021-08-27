@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -24,7 +23,7 @@ namespace MugenMvvm.Collections.Components
             NullItemResult = true;
         }
 
-        public override bool HasAdditionalItems => false;
+        protected override bool HasAdditionalItems => false;
 
         public Func<T, bool>? Filter
         {
@@ -48,7 +47,7 @@ namespace MugenMvvm.Collections.Components
         public IEnumerator<object?> GetEnumerator()
         {
             for (var i = 0; i < _list.Size; i++)
-                yield return _list.Values[i];
+                yield return _list.Indexes[i].Value;
         }
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
@@ -119,36 +118,20 @@ namespace MugenMvvm.Collections.Components
 
             if (FilterInternal(newItem))
             {
-                oldItem = _list.GetValue(filterIndex)!;
-                _list.SetValue(filterIndex, newItem);
+                oldItem = _list.Indexes[filterIndex].Value;
+                _list.Indexes[filterIndex].Value = newItem;
                 index = filterIndex;
                 return true;
             }
 
-            var oldValue = _list.GetValue(filterIndex);
+            var oldValue = _list.Indexes[filterIndex].Value;
             _list.RemoveAt(filterIndex);
             decoratorManager.OnRemoved(collection, this, oldValue, filterIndex);
             return false;
         }
 
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
-            ref int newIndex)
-        {
-            if (!HasFilter)
-                return true;
-
-            var filterIndex = _list.IndexOfKey(oldIndex);
-            _list.UpdateIndexes(oldIndex + 1, -1);
-            _list.UpdateIndexes(newIndex, 1);
-
-            if (filterIndex == -1)
-                return false;
-
-            _list.RemoveAt(filterIndex);
-            oldIndex = filterIndex;
-            newIndex = _list.Add(newIndex, item);
-            return true;
-        }
+            ref int newIndex) => !HasFilter || _list.Move(ref oldIndex, ref newIndex, out _);
 
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {

@@ -67,11 +67,11 @@ namespace MugenMvvm.Collections.Components
             if (component is not ICollectionBatchUpdateListener batchUpdateListener)
                 return;
 
-            using var _ = ((IReadOnlyObservableCollection) collection.Owner).Lock();
+            using var _ = ((IReadOnlyObservableCollection)collection.Owner).Lock();
             if (_counters.Count == 0)
                 return;
             foreach (var counter in _counters)
-                batchUpdateListener.OnBeginBatchUpdate((IReadOnlyObservableCollection) collection.Owner, counter.Key);
+                batchUpdateListener.OnBeginBatchUpdate((IReadOnlyObservableCollection)collection.Owner, counter.Key);
         }
 
         void IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
@@ -79,11 +79,11 @@ namespace MugenMvvm.Collections.Components
             if (component is not ICollectionBatchUpdateListener batchUpdateListener)
                 return;
 
-            using var _ = ((IReadOnlyObservableCollection) collection.Owner).Lock();
+            using var _ = ((IReadOnlyObservableCollection)collection.Owner).Lock();
             if (_counters.Count == 0)
                 return;
             foreach (var counter in _counters)
-                batchUpdateListener.OnEndBatchUpdate((IReadOnlyObservableCollection) collection.Owner, counter.Key);
+                batchUpdateListener.OnEndBatchUpdate((IReadOnlyObservableCollection)collection.Owner, counter.Key);
         }
 
 

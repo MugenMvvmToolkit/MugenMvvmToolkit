@@ -12,5 +12,6 @@
         public const int LimitDecorator = 0;
         public const int HeaderFooterDecorator = ComponentPriority.PostInitializer + 1000;
         public const int FlattenCollectionDecorator = ComponentPriority.PostInitializer;
+        public const int TrackerDecorator = ComponentPriority.PostInitializer - 100;
     }
 }

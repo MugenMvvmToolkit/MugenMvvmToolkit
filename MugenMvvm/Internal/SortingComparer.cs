@@ -9,44 +9,74 @@ namespace MugenMvvm.Internal
 {
     public abstract class SortingComparer<T> : IComparer<T>
     {
+        private readonly Func<T, bool?>? _isHeaderOrFooter;
         private readonly ItemOrArray<SortingInfo> _sortInfo;
 
-        private SortingComparer(ItemOrArray<SortingInfo> sortInfo)
+        private SortingComparer(ItemOrArray<SortingInfo> sortInfo, Func<T, bool?>? isHeaderOrFooter)
         {
             _sortInfo = sortInfo;
+            _isHeaderOrFooter = isHeaderOrFooter;
         }
 
-        public static Builder Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, true));
+        public static Builder PinHeaderFooter(Func<T, bool?>? isHeaderOrFooter) => new(default, isHeaderOrFooter);
 
-        public static Builder Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, false));
+        public static Builder Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, true), null);
 
-        public static Builder Compare(Func<T, T, int> compare) => new(SortingInfo.Create(compare));
+        public static Builder Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo.Create(expression, false), null);
 
-        public IComparer<object?> AsObjectComparer() => (IComparer<object?>) this;
+        public static Builder Compare(Func<T, T, int> compare) => new(SortingInfo.Create(compare), null);
+
+        public IComparer<object?> AsObjectComparer() => (IComparer<object?>)this;
 
         public int Compare(T? x, T? y)
         {
+            if (_isHeaderOrFooter != null)
+            {
+                var compare = Compare(_isHeaderOrFooter(x!), _isHeaderOrFooter(y!));
+                if (compare != 0)
+                    return compare;
+            }
+
             foreach (var item in _sortInfo)
             {
                 var compare = item.Compare(x!, y!);
-                if (compare == 0)
-                    continue;
-                return compare;
+                if (compare != 0)
+                    return compare;
             }
 
+            return 0;
+        }
+
+        private static int Compare(bool? x1, bool? x2)
+        {
+            if (Nullable.Equals(x1, x2))
+                return 0;
+
+            if (x1 != null)
+            {
+                if (x2 != null)
+                    return x2.Value.CompareTo(x1.Value);
+                return x1.Value ? -1 : 1;
+            }
+
+            if (x2 != null)
+                return x2.Value ? 1 : -1;
             return 0;
         }
 
         [StructLayout(LayoutKind.Auto)]
         public ref struct Builder
         {
+            private readonly Func<T, bool?>? _isHeaderOrFooter;
             private ItemOrListEditor<SortingInfo> _sortInfo;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal Builder(SortingInfo sortingInfo)
+            internal Builder(SortingInfo sortingInfo, Func<T, bool?>? isHeaderOrFooter)
             {
+                _isHeaderOrFooter = isHeaderOrFooter;
                 _sortInfo = new ItemOrListEditor<SortingInfo>(2);
-                _sortInfo.Add(sortingInfo);
+                if (!sortingInfo.IsEmpty)
+                    _sortInfo.Add(sortingInfo);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -71,7 +101,7 @@ namespace MugenMvvm.Internal
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public SortingComparer<T> Build() => new Comparer(_sortInfo.ToItemOrArray());
+            public SortingComparer<T> Build() => new Comparer(_sortInfo.ToItemOrArray(), _isHeaderOrFooter);
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -99,7 +129,7 @@ namespace MugenMvvm.Internal
                 Should.NotBeNull(expression, nameof(expression));
                 return new SortingInfo((exp, isAsc, x, y) =>
                 {
-                    var func = (Func<T, TValue>) exp;
+                    var func = (Func<T, TValue>)exp;
                     if (isAsc)
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
@@ -109,13 +139,13 @@ namespace MugenMvvm.Internal
             public static SortingInfo Create(Func<T, T, int> compare)
             {
                 Should.NotBeNull(compare, nameof(compare));
-                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>) exp).Invoke(x, y), compare, false);
+                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>)exp).Invoke(x, y), compare, false);
             }
         }
 
-        public sealed class Comparer : SortingComparer<T>, IComparer<object?>
+        private sealed class Comparer : SortingComparer<T>, IComparer<object?>
         {
-            internal Comparer(ItemOrArray<SortingInfo> sortInfo) : base(sortInfo)
+            internal Comparer(ItemOrArray<SortingInfo> sortInfo, Func<T, bool?>? isHeaderOrFooter) : base(sortInfo, isHeaderOrFooter)
             {
             }
 
@@ -124,12 +154,28 @@ namespace MugenMvvm.Internal
                 if (x is T xT)
                 {
                     if (y is T yT)
+                    {
+                        if (_isHeaderOrFooter != null)
+                        {
+                            var compare = Compare(_isHeaderOrFooter(xT), _isHeaderOrFooter(yT));
+                            if (compare != 0)
+                                return compare;
+                        }
+
                         return Compare(xT, yT);
-                    return -1;
+                    }
+
+                    if (_isHeaderOrFooter == null)
+                        return -1;
+                    return Compare(_isHeaderOrFooter(xT), null);
                 }
 
-                if (y is T)
-                    return 1;
+                if (y is T yTt)
+                {
+                    if (_isHeaderOrFooter == null)
+                        return 1;
+                    return Compare(null, _isHeaderOrFooter(yTt));
+                }
 
                 return 0;
             }

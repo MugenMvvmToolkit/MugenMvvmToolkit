@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
@@ -17,7 +16,8 @@ namespace MugenMvvm.Collections.Components
     {
         private readonly Func<T, TKey?> _getGroup;
         private readonly UpdateGroupDelegate? _updateGroup;
-        private readonly Dictionary<TKey, GroupInfo> _groups;
+        private readonly Dictionary<TKey, List<T>> _groups;
+        private ListInternal<TKey> _groupList;
 #if !NET5_0
         private List<TKey>? _oldGroups;
 #endif
@@ -28,11 +28,12 @@ namespace MugenMvvm.Collections.Components
             Should.NotBeNull(getGroup, nameof(getGroup));
             _getGroup = getGroup;
             _updateGroup = updateGroup;
-            _groups = new Dictionary<TKey, GroupInfo>(comparer ?? EqualityComparer<TKey>.Default);
+            _groups = new Dictionary<TKey, List<T>>(comparer ?? EqualityComparer<TKey>.Default);
+            _groupList = new ListInternal<TKey>(0);
             Priority = priority;
         }
 
-        public override bool HasAdditionalItems => _groups.Count != 0;
+        protected override bool HasAdditionalItems => _groups.Count != 0;
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -44,15 +45,21 @@ namespace MugenMvvm.Collections.Components
             IEnumerable<object?> items) => Decorate(items);
 
         protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object? item, ref ItemOrListEditor<int> indexes)
+            object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
-            if (item == null)
-                return true;
-
-            foreach (var groupInfo in _groups)
+            if (item is TKey itemGroup)
             {
-                if (Equals(groupInfo.Key, item))
-                    indexes.Add(groupInfo.Value.Index);
+                var count = _groupList.Count;
+                var groups = _groupList.Items;
+                for (int i = 0; i < count; i++)
+                {
+                    if (_groups.Comparer.Equals(groups[i], itemGroup))
+                    {
+                        indexes.Add(i);
+                        if (ignoreDuplicates)
+                            return true;
+                    }
+                }
             }
 
             return true;
@@ -69,7 +76,7 @@ namespace MugenMvvm.Collections.Components
                     TKey? oldGroup = null;
                     foreach (var group in _groups)
                     {
-                        if (group.Value.Contains(t) && !_groups.Comparer.Equals(newGroup!, group.Key!))
+                        if (!_groups.Comparer.Equals(newGroup!, group.Key!) && group.Value.Contains(t))
                         {
                             oldGroup = group.Key;
                             break;
@@ -147,13 +154,10 @@ namespace MugenMvvm.Collections.Components
                 Clear();
             else
             {
+                _groupList.Clear();
                 foreach (var group in _groups)
-                {
-                    group.Value.Index = -1;
                     group.Value.Clear();
-                }
 
-                var index = 0;
                 foreach (var item in items)
                 {
                     if (item is not T t)
@@ -165,13 +169,14 @@ namespace MugenMvvm.Collections.Components
 
                     if (_groups.TryGetValue(group, out var value))
                     {
-                        if (value.Index == -1)
-                            value.Index = index++;
+                        if (value.Count == 0)
+                            _groupList.Add(group);
                     }
                     else
                     {
-                        value = new GroupInfo(index++);
+                        value = new List<T>();
                         _groups[group] = value;
+                        _groupList.Add(group);
                     }
 
                     value.Add(t);
@@ -180,7 +185,7 @@ namespace MugenMvvm.Collections.Components
 #if NET5_0
                 foreach (var group in _groups)
                 {
-                    if (group.Value.Index != -1)
+                    if (group.Value.Count != 0)
                     {
                         _updateGroup?.Invoke(group.Key, group.Value, CollectionGroupChangedAction.Reset, default, null);
                         continue;
@@ -193,7 +198,7 @@ namespace MugenMvvm.Collections.Components
                 _oldGroups?.Clear();
                 foreach (var group in _groups)
                 {
-                    if (group.Value.Index != -1)
+                    if (group.Value.Count != 0)
                     {
                         _updateGroup?.Invoke(group.Key, group.Value, CollectionGroupChangedAction.Reset, default, null);
                         continue;
@@ -218,7 +223,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private TKey? GetGroup(object? item, out GroupInfo? groupInfo)
+        private TKey? GetGroup(object? item, out List<T>? groupInfo)
         {
             if (item is T itemT)
             {
@@ -239,6 +244,7 @@ namespace MugenMvvm.Collections.Components
                     _updateGroup(group.Key, group.Value, CollectionGroupChangedAction.GroupRemoved, default, null);
             }
 
+            _groupList.Clear();
             _groups.Clear();
         }
 
@@ -249,9 +255,10 @@ namespace MugenMvvm.Collections.Components
 
             if (!_groups.TryGetValue(group, out var groupInfo))
             {
-                groupInfo = new GroupInfo(_groups.Count);
+                _groupList.Add(group);
+                groupInfo = new List<T>();
                 _groups[group] = groupInfo;
-                decoratorManager.OnAdded(collection, this, group, groupInfo.Index);
+                decoratorManager.OnAdded(collection, this, group, _groupList.Count - 1);
             }
 
             groupInfo.Add(item);
@@ -271,34 +278,23 @@ namespace MugenMvvm.Collections.Components
             }
 
             _groups.Remove(group);
-            foreach (var info in _groups)
-            {
-                if (info.Value.Index > groupInfo.Index)
-                    --info.Value.Index;
-            }
+            var oldIndex = _groupList.IndexOf(group);
+            _groupList.RemoveAt(oldIndex);
 
-            decoratorManager.OnRemoved(collection, this, group, groupInfo.Index);
+            decoratorManager.OnRemoved(collection, this, group, oldIndex);
             _updateGroup?.Invoke(group, groupInfo, CollectionGroupChangedAction.GroupRemoved, item, null);
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?> items)
         {
-            foreach (var group in _groups.OrderBy(pair => pair.Value.Index))
-                yield return group.Key;
+            var count = _groupList.Count;
+            var groups = _groupList.Items;
+            for (int i = 0; i < count; i++)
+                yield return groups[i];
             foreach (var item in items)
                 yield return item;
         }
 
-        public delegate void UpdateGroupDelegate(TKey group, IReadOnlyList<T> groupItems, CollectionGroupChangedAction action, T? item, object? args);
-
-        private sealed class GroupInfo : List<T>
-        {
-            public int Index;
-
-            public GroupInfo(int index)
-            {
-                Index = index;
-            }
-        }
+        public delegate void UpdateGroupDelegate(TKey group, IReadOnlyCollection<T> groupItems, CollectionGroupChangedAction action, T? item, object? args);
     }
 }

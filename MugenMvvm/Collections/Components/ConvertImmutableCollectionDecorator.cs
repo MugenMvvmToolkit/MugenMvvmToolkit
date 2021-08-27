@@ -22,11 +22,11 @@ namespace MugenMvvm.Collections.Components
 
         public Func<T, TTo> Converter { get; }
 
-        public bool IsLazy => true;
-
-        public bool HasAdditionalItems => true;
-
         public int Priority { get; set; }
+
+        public bool IsLazy(IReadOnlyObservableCollection collection) => true;
+
+        public bool HasAdditionalItems(IReadOnlyObservableCollection collection) => true;
 
         private object? Convert(object? arg)
         {
@@ -35,7 +35,8 @@ namespace MugenMvvm.Collections.Components
             return arg;
         }
 
-        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates,
+            ref ItemOrListEditor<int> indexes)
         {
             if (typeof(TTo) == typeof(object))
                 return false;
@@ -46,7 +47,12 @@ namespace MugenMvvm.Collections.Components
                 foreach (var v in items)
                 {
                     if (v is T t && EqualityComparer<TTo>.Default.Equals(Converter(t), itemTo))
+                    {
                         indexes.Add(index);
+                        if (ignoreDuplicates)
+                            return true;
+                    }
+
                     ++index;
                 }
             }

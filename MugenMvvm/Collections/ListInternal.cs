@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Collections
 {
-    [StructLayout((LayoutKind.Auto))]
+    [StructLayout(LayoutKind.Auto)]
     internal struct ListInternal<T>
     {
         private const int DefaultCapacity = 4;
@@ -19,6 +20,7 @@ namespace MugenMvvm.Collections
             Count = 0;
         }
 
+        [MemberNotNullWhen(false, nameof(Items))]
         public bool IsEmpty => Items == null;
 
         public int Capacity
@@ -46,7 +48,7 @@ namespace MugenMvvm.Collections
         {
             T[] array = Items;
             var size = Count;
-            if ((uint) size < (uint) array.Length)
+            if ((uint)size < (uint)array.Length)
             {
                 Count = size + 1;
                 array[size] = item;
@@ -94,7 +96,7 @@ namespace MugenMvvm.Collections
         public readonly bool Contains(T item) => Count != 0 && IndexOf(item) != -1;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public readonly int IndexOf(T item) => Array.IndexOf(Items, item, 0, Count);
+        public readonly int IndexOf(T item) => Count == 0 ? -1 : Array.IndexOf(Items, item, 0, Count);
 
         public void Insert(int index, T item)
         {
@@ -162,7 +164,7 @@ namespace MugenMvvm.Collections
             if (Items.Length < min)
             {
                 var newCapacity = Items.Length == 0 ? DefaultCapacity : Items.Length * 2;
-                if ((uint) newCapacity > 2146435071U)
+                if ((uint)newCapacity > 2146435071U)
                     newCapacity = 2146435071;
                 if (newCapacity < min)
                     newCapacity = min;
@@ -170,7 +172,6 @@ namespace MugenMvvm.Collections
             }
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private void AddWithResize(T item)
         {
             var size = Count;

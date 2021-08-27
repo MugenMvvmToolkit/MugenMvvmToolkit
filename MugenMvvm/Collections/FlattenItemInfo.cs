@@ -17,7 +17,7 @@ namespace MugenMvvm.Collections
         internal readonly bool DecoratedItems;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public FlattenItemInfo(IEnumerable? items, bool decoratedItems = true)
+        public FlattenItemInfo(IEnumerable? items, bool decoratedItems)
         {
             Items = items;
             DecoratedItems = decoratedItems;
@@ -29,17 +29,17 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IEnumerable<object?> GetItems() => DecoratedItems ? Items!.DecoratedItems() : Items!.AsEnumerable();
 
-        internal FlattenCollectionItemBase GetCollectionItem(FlattenCollectionDecorator decorator)
+        internal FlattenCollectionItemBase GetCollectionItem(object item, FlattenCollectionDecorator decorator)
         {
             var isWeak = Items is IReadOnlyObservableCollection;
             if (DecoratedItems)
-                return new FlattenDecoratedCollectionItem(Items!, decorator, isWeak);
+                return new FlattenDecoratedCollectionItem(item, Items!, decorator, isWeak);
 
             if (Items is not IReadOnlyObservableCollection observableCollection || !observableCollection.ItemType.IsValueType)
-                return new FlattenCollectionItem<object?>().Initialize(Items!, decorator, isWeak);
+                return new FlattenCollectionItem<object?>().Initialize(item, Items!, decorator, isWeak);
 
-            return ((FlattenCollectionItemBase)Activator.CreateInstance(typeof(FlattenCollectionItem<>).MakeGenericType(observableCollection.ItemType))!).Initialize(Items!,
-                decorator, isWeak);
+            return ((FlattenCollectionItemBase)Activator
+                .CreateInstance(typeof(FlattenCollectionItem<>).MakeGenericType(observableCollection.ItemType))!).Initialize(item, Items!, decorator, isWeak);
         }
     }
 }

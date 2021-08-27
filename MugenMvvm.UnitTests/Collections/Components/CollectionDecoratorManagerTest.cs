@@ -638,6 +638,27 @@ namespace MugenMvvm.UnitTests.Collections.Components
             decorator2Count.ShouldEqual(2);
         }
 
+        [Fact]
+        public void ShouldSuspendDecoratorsBatchUpdateSource1()
+        {
+            var collection = CreateCollection<TestCollectionItem>();
+            using var batchUpdate = collection.BatchUpdate();
+            ShouldTrackItemsMulti3(collection, collection);
+        }
+
+        [Fact]
+        public void ShouldSuspendDecoratorsBatchUpdateSource2()
+        {
+            var collection = CreateCollection(new TestCollectionItem(), new TestCollectionItem());
+            var collectionItems = collection.ToArray();
+            using var batchUpdate = collection.BatchUpdate();
+            collection.Add(new TestCollectionItem());
+            collection.Add(new TestCollectionItem());
+            collection.DecoratedItems().ShouldEqual(collectionItems);
+            batchUpdate.Dispose();
+            collection.DecoratedItems().ShouldEqual(collection);
+        }
+
         internal static void ShouldTrackItemsMulti3(IObservableCollection<TestCollectionItem> source, IReadOnlyObservableCollection<TestCollectionItem> target)
         {
             const int count = 100;
@@ -653,26 +674,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.Changed += assert;
             target.AddComponent(tracker);
 
-            var decorator1 = new SortCollectionDecorator(comparer);
+            var decorator1 = new SortCollectionDecorator(comparer) { Priority = int.MaxValue };
             var decorator2 = new FilterCollectionDecorator<TestCollectionItem> { Filter = i => i.Id % 2 == 0 };
             target.AddComponent(decorator1);
             target.AddComponent(decorator2);
             target.AddComponent(new HeaderFooterCollectionDecorator { Header = "Header", Footer = "Footer" });
             target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, -1));
-            target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items)));
-            target.AddComponent(new PinHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
-            {
-                if (t.StableId % 3 == 0)
-                    return false;
-                return null;
-            }));
-            target.AddComponent(new PinHeaderFooterCollectionDecorator<TestCollectionItem>(t =>
-            {
-                if (t.StableId % 10 == 0)
-                    return true;
-                return null;
-            }, SortingComparer<TestCollectionItem>.Descending(o => o.StableId).Build()));
-            target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(50, item => item != null));
+            target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items, true)));
+            target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(10));
+            target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>((item, _) => item));
 
             source.Add(new TestCollectionItem { Id = 1 });
             assert();

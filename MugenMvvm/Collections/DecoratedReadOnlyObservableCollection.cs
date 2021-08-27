@@ -88,15 +88,24 @@ namespace MugenMvvm.Collections
             var decorator = _decorator;
             if (decorator == null)
                 return Default.EmptyEnumerator<T>();
-            var items = _source.DecoratedItems<T>(decorator);
-            if (items == null)
-                return Default.EmptyEnumerator<T>();
-            return items.GetEnumerator()!;
+            return GetEnumerable(decorator).GetEnumerator();
         }
 
         public void UpdateLocker(ILocker locker) => _source.UpdateLocker(locker);
 
         public ActionToken Lock() => _source.Lock();
+
+        private IEnumerable<T> GetEnumerable(ICollectionDecorator decorator)
+        {
+            Should.NotBeNull(decorator, nameof(decorator));
+            var decoratorManager = _source.GetComponentOptional<ICollectionDecoratorManagerComponent>();
+            if (decoratorManager == null)
+                yield break;
+
+            using var l = Lock();
+            foreach (T? o in decoratorManager.Decorate(_source, decorator))
+                yield return o!;
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -111,25 +120,30 @@ namespace MugenMvvm.Collections
                 _targetRef = target.ToWeakReference();
             }
 
-            public bool IsLazy => false;
-
-            public bool HasAdditionalItems => false;
-
             public int Priority { get; }
 
             public void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
             {
+                if (batchUpdateType != BatchUpdateType.Decorators)
+                    return;
                 var target = TryGetTarget(collection);
                 target?.GetBatchUpdateManager().BeginBatchUpdate(target, batchUpdateType);
             }
 
             public void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
             {
+                if (batchUpdateType != BatchUpdateType.Decorators)
+                    return;
                 var target = TryGetTarget(collection);
                 target?.GetBatchUpdateManager().EndBatchUpdate(target, batchUpdateType);
             }
 
-            public bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes) => false;
+            public bool IsLazy(IReadOnlyObservableCollection collection) => false;
+
+            public bool HasAdditionalItems(IReadOnlyObservableCollection collection) => false;
+
+            public bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates,
+                ref ItemOrListEditor<int> indexes) => false;
 
             public IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items) => items;
 

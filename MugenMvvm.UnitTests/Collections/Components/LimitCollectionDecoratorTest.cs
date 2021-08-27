@@ -26,26 +26,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void AddShouldTrackChanges(int? limit)
+        [MemberData(nameof(GetData))]
+        public void AddShouldTrackChanges(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-            for (var i = 0; i < 100; i++)
-            {
-                _collection.Add(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Insert(i, i);
-                Assert();
-            }
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.AddShouldTrackChangesImpl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -54,12 +41,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
+        [MemberData(nameof(GetDataDefaultCondition))]
         public void ChangeShouldTrackChanges1(int? limit)
         {
             var ignoreIds = new HashSet<int>();
@@ -88,15 +70,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ChangeShouldTrackChanges2(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ChangeShouldTrackChanges2(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
+            if (!hasCondition)
+                _decorator.Condition = null;
 
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
@@ -121,22 +100,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ClearShouldTrackChanges(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ClearShouldTrackChanges(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            _collection.Clear();
-            Assert();
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.ClearShouldTrackChangesImpl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -145,31 +115,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void MoveShouldTrackChanges1(int? limit)
+        [MemberData(nameof(GetData))]
+        public void MoveShouldTrackChanges1(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Move(i, i + 1);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Move(i + 1, i);
-                Assert();
-            }
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.MoveShouldTrackChanges1Impl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -178,31 +130,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void MoveShouldTrackChanges2(int? limit)
+        [MemberData(nameof(GetData))]
+        public void MoveShouldTrackChanges2(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 1; i < 10; i++)
-            {
-                _collection.Move(i, i * 2 + i);
-                Assert();
-            }
-
-            for (var i = 1; i < 10; i++)
-            {
-                _collection.Move(i * 2 + i, i);
-                Assert();
-            }
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.MoveShouldTrackChanges2Impl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -225,38 +159,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void RemoveShouldTrackChanges(int? limit)
+        [MemberData(nameof(GetData))]
+        public void RemoveShouldTrackChanges(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 20; i++)
-            {
-                _collection.Remove(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.RemoveAt(i);
-                Assert();
-            }
-
-            var count = _collection.Count;
-            for (var i = 0; i < count; i++)
-            {
-                _collection.RemoveAt(0);
-                Assert();
-            }
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.RemoveShouldTrackChangesImpl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -265,25 +174,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ReplaceShouldTrackChanges1(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ReplaceShouldTrackChanges1(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection[i] = i + 101;
-                Assert();
-            }
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.ReplaceShouldTrackChanges1Impl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -292,26 +189,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ReplaceShouldTrackChanges2(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ReplaceShouldTrackChanges2(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            for (var j = 10; j < 20; j++)
-            {
-                _collection[i] = _collection[j];
-                Assert();
-            }
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.ReplaceShouldTrackChanges2Impl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -320,22 +204,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ResetShouldTrackChanges(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ResetShouldTrackChanges(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
-            Assert();
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.ResetShouldTrackChangesImpl(_collection, Assert);
 
             _decorator.Limit = null;
             Assert();
@@ -344,15 +219,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ShouldAttachDetach(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ShouldAttachDetach(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
+            if (!hasCondition)
+                _decorator.Condition = null;
 
             _collection.RemoveComponent(_decorator);
 
@@ -369,45 +241,53 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Theory]
-        [InlineData(0)]
-        [InlineData(1)]
-        [InlineData(10)]
-        [InlineData(100)]
-        [InlineData(int.MaxValue)]
-        [InlineData(null)]
-        public void ShouldTrackChanges(int? limit)
+        [MemberData(nameof(GetData))]
+        public void ShouldTrackChanges(int? limit, bool hasCondition)
         {
             _decorator.Limit = limit;
-
-            _collection.Add(1);
-            Assert();
-
-            _collection.Insert(1, 2);
-            Assert();
-
-            _collection.Move(0, 1);
-            Assert();
-
-            _collection.Remove(2);
-            Assert();
-
-            _collection.RemoveAt(0);
-            Assert();
-
-            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
-            Assert();
-
-            _collection[0] = 200;
-            Assert();
-
-            _collection.Clear();
-            Assert();
+            if (!hasCondition)
+                _decorator.Condition = null;
+            CollectionDecoratorTestBase.ShouldTrackChangesImpl(_collection, Assert);
         }
+
+        public static IEnumerable<object?[]> GetData() => new[]
+        {
+            new object?[] { 0, true },
+            new object?[] { 1, true },
+            new object?[] { 2, true },
+            new object?[] { 3, true },
+            new object?[] { 10, true },
+            new object?[] { 100, true },
+            new object?[] { int.MaxValue - 1, true },
+            new object?[] { null, true },
+            new object?[] { 0, false },
+            new object?[] { 1, false },
+            new object?[] { 2, false },
+            new object?[] { 3, false },
+            new object?[] { 10, false },
+            new object?[] { 100, false },
+            new object?[] { int.MaxValue - 1, false },
+            new object?[] { null, false },
+        };
+
+        public static IEnumerable<object?[]> GetDataDefaultCondition() => new[]
+        {
+            new object?[] { 0 },
+            new object?[] { 1 },
+            new object?[] { 2 },
+            new object?[] { 3 },
+            new object?[] { 10 },
+            new object?[] { 100 },
+            new object?[] { int.MaxValue - 1 },
+            new object?[] { null },
+        };
 
         private void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
-            _tracker.ChangedItems.ShouldEqual(_decorator.Limit == null ? _collection : Decorate(_decorator.Limit.Value));
+            _tracker.ChangedItems.ShouldEqual(_collection.GetComponentOptional<LimitCollectionDecorator<int>>() == null || _decorator.Limit == null
+                ? _collection
+                : Decorate(_decorator.Limit.Value));
         }
 
         private IEnumerable<object?> Decorate(int limit)

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
@@ -17,20 +19,16 @@ namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
-        public static DecoratorsConfiguration Bind(this IReadOnlyObservableCollection collection, bool disposeSourceOnDispose = false) =>
-            collection.Bind<object?>(out _, disposeSourceOnDispose);
+        public static IReadOnlyObservableCollection<T> BindToSource<T>(this IReadOnlyObservableCollection<T> collection, bool disposeSourceOnDispose = false) =>
+            new ReadOnlyObservableCollection<T>(collection, 0, disposeSourceOnDispose);
 
-        public static DecoratorsConfiguration Bind<T>(this IReadOnlyObservableCollection collection, bool disposeSourceOnDispose = false) =>
-            collection.Bind<T>(out _, disposeSourceOnDispose);
+        public static IReadOnlyObservableCollection<object?> Bind(this IReadOnlyObservableCollection collection, bool disposeSourceOnDispose = false) =>
+            collection.Bind<object?>(disposeSourceOnDispose);
 
-        public static DecoratorsConfiguration Bind(this IReadOnlyObservableCollection collection, out IReadOnlyObservableCollection<object?> result,
-            bool disposeSourceOnDispose = false) => collection.Bind<object>(out result, disposeSourceOnDispose);
-
-        public static DecoratorsConfiguration Bind<T>(this IReadOnlyObservableCollection collection, out IReadOnlyObservableCollection<T> result,
-            bool disposeSourceOnDispose = false)
+        public static IReadOnlyObservableCollection<T> Bind<T>(this IReadOnlyObservableCollection collection, bool disposeSourceOnDispose = false)
         {
-            collection.ConfigureDecorators().Bind(out result, disposeSourceOnDispose);
-            return result.ConfigureDecorators(0);
+            collection.ConfigureDecorators().Bind<T>(out var result, disposeSourceOnDispose);
+            return result;
         }
 
         public static DecoratorsConfiguration ConfigureDecorators(this IReadOnlyObservableCollection collection, int? priority = null, int step = 10)
@@ -52,18 +50,6 @@ namespace MugenMvvm.Extensions
                 return null;
             var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
             return component == null ? collection.AsEnumerable() : component.Decorate(collection);
-        }
-
-        public static IEnumerable<T?> DecoratedItems<T>(this IReadOnlyObservableCollection? collection, ICollectionDecorator decorator)
-        {
-            Should.NotBeNull(decorator, nameof(decorator));
-            var decoratorManager = collection?.GetComponentOptional<ICollectionDecoratorManagerComponent>();
-            if (decoratorManager == null)
-                yield break;
-
-            using var l = collection!.Lock();
-            foreach (T? o in decoratorManager.Decorate(collection, decorator))
-                yield return o;
         }
 
         public static ICollectionBatchUpdateManagerComponent GetBatchUpdateManager(this IReadOnlyObservableCollection collection) =>
@@ -92,100 +78,6 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(collection, nameof(collection));
             collection.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.RaiseItemChanged(collection, item, args);
         }
-
-        public static IReadOnlyObservableCollection Subscribe<T>(this IReadOnlyObservableCollection collection,
-            Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay = 0,
-            bool listenItemChanges = true)
-            where T : class =>
-            collection.Subscribe(predicate, onChanged, delay, listenItemChanges, out _);
-
-        public static IReadOnlyObservableCollection Subscribe<T, TState>(this IReadOnlyObservableCollection collection,
-            Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            TState state, int delay = 0, bool listenItemChanges = true) where T : class =>
-            collection.Subscribe(predicate, onChanged, state, delay, listenItemChanges, out _);
-
-        public static IReadOnlyObservableCollection SubscribeWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay = 0, bool listenItemChanges = true)
-            where T : class
-            where TTarget : class =>
-            collection.SubscribeWeak(target, predicate, onChanged, delay, listenItemChanges, out _);
-
-        public static IReadOnlyObservableCollection Subscribe<T>(this IReadOnlyObservableCollection collection,
-            Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay,
-            bool listenItemChanges, out ActionToken removeToken)
-            where T : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, delay, listenItemChanges);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection Subscribe<T, TState>(this IReadOnlyObservableCollection collection,
-            Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            TState state, int delay, bool listenItemChanges, out ActionToken removeToken) where T : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, state, delay, listenItemChanges);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection SubscribeWeak<T, TTarget>(this IReadOnlyObservableCollection collection, TTarget target,
-            Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay, bool listenItemChanges, out ActionToken removeToken)
-            where T : class
-            where TTarget : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserverWeak(target, predicate, onChanged, delay, listenItemChanges);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection<T> Subscribe<T>(this IReadOnlyObservableCollection<T> collection,
-            Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay = 0,
-            bool listenItemChanges = true)
-            where T : class =>
-            collection.Subscribe(predicate, onChanged, delay, listenItemChanges, out _);
-
-        public static IReadOnlyObservableCollection<T> Subscribe<T, TState>(this IReadOnlyObservableCollection<T> collection, TState state,
-            Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay = 0, bool listenItemChanges = true)
-            where T : class =>
-            collection.Subscribe(state, predicate, onChanged, delay, listenItemChanges, out _);
-
-        public static IReadOnlyObservableCollection<T> SubscribeWeak<T, TTarget>(this IReadOnlyObservableCollection<T> collection, TTarget target,
-            Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay = 0, bool listenItemChanges = true)
-            where T : class
-            where TTarget : class =>
-            collection.SubscribeWeak(target, predicate, onChanged, delay, listenItemChanges, out _);
-
-        public static IReadOnlyObservableCollection<T> Subscribe<T>(this IReadOnlyObservableCollection<T> collection,
-            Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay,
-            bool listenItemChanges, out ActionToken removeToken)
-            where T : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, delay, listenItemChanges);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection<T> Subscribe<T, TState>(this IReadOnlyObservableCollection<T> collection, TState state,
-            Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay,
-            bool listenItemChanges, out ActionToken removeToken) where T : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserver(predicate, onChanged, state, delay, listenItemChanges);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection<T> SubscribeWeak<T, TTarget>(this IReadOnlyObservableCollection<T> collection, TTarget target,
-            Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay, bool listenItemChanges, out ActionToken removeToken)
-            where T : class
-            where TTarget : class
-        {
-            removeToken = collection.GetOrAddComponent<CollectionObserver>().AddObserverWeak(target, predicate, onChanged, delay, listenItemChanges);
-            return collection;
-        }
-
-        public static IReadOnlyObservableCollection<T> AsReadOnlyObservableCollection<T>(this IReadOnlyObservableCollection<T> collection, bool disposeSourceOnDispose = false) =>
-            new ReadOnlyObservableCollection<T>(collection, 0, disposeSourceOnDispose);
 
         public static DecoratorsConfiguration Select<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult?, TResult?> selector,
             Action<T, TResult>? cleanup = null, IEqualityComparer<TResult?>? comparer = null) where T : notnull where TResult : class? =>
@@ -231,8 +123,7 @@ namespace MugenMvvm.Extensions
 
         public static DecoratorsConfiguration OrderBy<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer) => configuration.OrderBy(comparer, out _);
 
-        public static DecoratorsConfiguration OrderBy<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer,
-            out SortCollectionDecorator decorator)
+        public static DecoratorsConfiguration OrderBy<T>(this DecoratorsConfiguration configuration, IComparer<T> comparer, out SortCollectionDecorator decorator)
         {
             Should.NotBeNull(comparer, nameof(comparer));
             decorator = new SortCollectionDecorator(comparer as IComparer<object?> ?? new WrapperObjectComparer<T>(comparer), configuration.Priority);
@@ -240,8 +131,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration SelectMany<T>(this DecoratorsConfiguration configuration, Func<T, IEnumerable> selector, bool decoratedItems = true)
-            where T : class =>
-            configuration.SelectMany(selector, decoratedItems, out _);
+            where T : class => configuration.SelectMany(selector, decoratedItems, out _);
 
         public static DecoratorsConfiguration SelectMany<T>(this DecoratorsConfiguration configuration, Func<T, IEnumerable> selector, bool decoratedItems,
             out FlattenCollectionDecorator<T> decorator) where T : class
@@ -260,8 +150,10 @@ namespace MugenMvvm.Extensions
             return configuration.Add(decorator);
         }
 
-        public static DecoratorsConfiguration GroupBy<T, TKey>(this DecoratorsConfiguration configuration, Func<T, TKey?> getGroup, IComparer<TKey>? groupComparer = null,
-            IEqualityComparer<TKey>? equalityComparer = null, bool flatten = true) where TKey : class
+        public static DecoratorsConfiguration GroupBy<T, TGroup>(this DecoratorsConfiguration configuration, Func<T, TGroup?> getGroup, IComparer<TGroup>? groupComparer = null,
+            IEqualityComparer<TGroup>? equalityComparer = null, bool flatten = true)
+            where TGroup : class
+            where T : notnull
         {
             configuration = configuration.GroupByRaw(getGroup, (group, items, action, item, args) =>
                                          {
@@ -272,7 +164,7 @@ namespace MugenMvvm.Extensions
             if (groupComparer != null)
                 configuration = configuration.OrderBy(groupComparer);
             if (flatten)
-                return configuration.SelectMany<TKey>(group => new FlattenItemInfo((group as ICollectionGroup<T>)?.Items));
+                return configuration.SelectMany<TGroup>(group => new FlattenItemInfo((group as ICollectionGroup<T>)?.Items, true));
             return configuration;
         }
 
@@ -298,17 +190,6 @@ namespace MugenMvvm.Extensions
             return configuration.Add(decorator);
         }
 
-        public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer = null, IComparer<T>? footerComparer = null) where T : notnull =>
-            configuration.PinHeaderFooter(isHeaderOrFooter, headerComparer, footerComparer, out _);
-
-        public static DecoratorsConfiguration PinHeaderFooter<T>(this DecoratorsConfiguration configuration, Func<T, bool?> isHeaderOrFooter,
-            IComparer<T>? headerComparer, IComparer<T>? footerComparer, out PinHeaderFooterCollectionDecorator<T> decorator) where T : notnull
-        {
-            decorator = new PinHeaderFooterCollectionDecorator<T>(isHeaderOrFooter, headerComparer, footerComparer, configuration.Priority);
-            return configuration.Add(decorator);
-        }
-
         public static DecoratorsConfiguration Prepend(this DecoratorsConfiguration configuration, ItemOrIReadOnlyList<object> items) =>
             configuration.WithHeaderFooter(items, default, out _);
 
@@ -322,66 +203,29 @@ namespace MugenMvvm.Extensions
                                 .SelectMany<IEnumerable>(decoratedItemsSource ? items.FlattenDecorated : items.Flatten);
         }
 
-        public static DecoratorsConfiguration Subscribe<T>(this DecoratorsConfiguration configuration, Action<IEnumerable<T>, T> onAdded, Action<IEnumerable<T>, T> onRemoved,
-            Action<IEnumerable<T>, T>? onChanged = null) where T : class => configuration.Subscribe(onAdded, onRemoved, onChanged, out _);
-
-        public static DecoratorsConfiguration Subscribe<T>(this DecoratorsConfiguration configuration, Action<IEnumerable<T>, T> onAdded, Action<IEnumerable<T>, T> onRemoved,
-            Action<IEnumerable<T>, T>? onChanged, out ActionToken removeToken)
-            where T : class
-        {
-            var decorator = new ConvertHandlerClosure<T>(configuration.Collection, onAdded, onRemoved, onChanged, configuration.Priority).Decorator;
-            removeToken = configuration.Collection.AddComponent(decorator);
-            return configuration.UpdatePriority();
-        }
-
-        public static DecoratorsConfiguration Subscribe<T>(this DecoratorsConfiguration configuration,
-            Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay = 0,
-            bool listenItemChanges = true)
-            where T : class =>
-            configuration.Subscribe(predicate, onChanged, delay, listenItemChanges, out _);
+        public static DecoratorsConfiguration Subscribe<T, TState>(this DecoratorsConfiguration configuration,
+            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> onAdded,
+            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, TState> onRemoved,
+            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, object?, TState>? onChanged = null,
+            Action<IReadOnlyDictionary<T, (TState state, int count)>>? onReset = null,
+            IEqualityComparer<T>? comparer = null)
+            where T : notnull =>
+            configuration.Subscribe(onAdded, onRemoved, onChanged, onReset, comparer, out _);
 
         public static DecoratorsConfiguration Subscribe<T, TState>(this DecoratorsConfiguration configuration,
-            Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            TState state, int delay = 0, bool listenItemChanges = true) where T : class =>
-            configuration.Subscribe(predicate, onChanged, state, delay, listenItemChanges, out _);
-
-        public static DecoratorsConfiguration SubscribeWeak<T, TTarget>(this DecoratorsConfiguration configuration, TTarget target,
-            Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay = 0, bool listenItemChanges = true)
-            where T : class
-            where TTarget : class =>
-            configuration.SubscribeWeak(target, predicate, onChanged, delay, listenItemChanges, out _);
-
-        public static DecoratorsConfiguration Subscribe<T>(this DecoratorsConfiguration configuration,
-            Func<CollectionChangedEventInfo<T>, bool> predicate, Action<ItemOrArray<CollectionChangedEventInfo<T>>> onChanged, int delay,
-            bool listenItemChanges, out ActionToken removeToken)
-            where T : class
+            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> onAdded,
+            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, TState> onRemoved,
+            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, object?, TState>? onChanged,
+            Action<IReadOnlyDictionary<T, (TState state, int count)>>? onReset,
+            IEqualityComparer<T>? comparer, out ActionToken removeToken)
+            where T : notnull
         {
-            removeToken = configuration.GetObserverCollectionDecorator().AddObserver(predicate, onChanged, delay, listenItemChanges);
-            return configuration;
-        }
-
-        public static DecoratorsConfiguration Subscribe<T, TState>(this DecoratorsConfiguration configuration,
-            Func<TState, CollectionChangedEventInfo<T>, bool> predicate, Action<TState, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            TState state, int delay, bool listenItemChanges, out ActionToken removeToken) where T : class
-        {
-            removeToken = configuration.GetObserverCollectionDecorator().AddObserver(predicate, onChanged, state, delay, listenItemChanges);
-            return configuration;
-        }
-
-        public static DecoratorsConfiguration SubscribeWeak<T, TTarget>(this DecoratorsConfiguration configuration, TTarget target,
-            Func<TTarget, CollectionChangedEventInfo<T>, bool> predicate, Action<TTarget, ItemOrArray<CollectionChangedEventInfo<T>>> onChanged,
-            int delay, bool listenItemChanges, out ActionToken removeToken)
-            where T : class
-            where TTarget : class
-        {
-            removeToken = configuration.GetObserverCollectionDecorator().AddObserverWeak(target, predicate, onChanged, delay, listenItemChanges);
-            return configuration;
+            var decorator = new TrackerCollectionDecorator<T, TState>(onAdded, onRemoved, onChanged, onReset, comparer, configuration.Priority);
+            return configuration.Add(decorator, null, out removeToken);
         }
 
         public static DecoratorsConfiguration Bind(this DecoratorsConfiguration configuration, out IReadOnlyObservableCollection<object?> collection,
-            bool disposeSourceOnDispose = false) =>
-            configuration.Bind<object?>(out collection, disposeSourceOnDispose);
+            bool disposeSourceOnDispose = false) => configuration.Bind<object?>(out collection, disposeSourceOnDispose);
 
         public static DecoratorsConfiguration Bind<T>(this DecoratorsConfiguration configuration, out IReadOnlyObservableCollection<T> collection,
             bool disposeSourceOnDispose = false)
@@ -390,34 +234,223 @@ namespace MugenMvvm.Extensions
             return configuration.UpdatePriority();
         }
 
-        public static DecoratorsConfiguration AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members,
-            object? args = null, int delay = 0) where T : class => configuration.AutoRefreshOnPropertyChanged<T>(members, args, delay, out _);
+        public static DecoratorsConfiguration TrackSelectedItem<T>(this DecoratorsConfiguration configuration, Func<T?> getSelectedItem, Action<T?> setSelectedItem,
+            Func<IEnumerable<T>, T?, T?>? getDefault = null, IEqualityComparer<T>? comparer = null) where T : class =>
+            configuration.TrackSelectedItem(getSelectedItem, setSelectedItem, getDefault, comparer, out _);
 
-        public static DecoratorsConfiguration AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members,
-            object? args, int delay, out ActionToken removeToken)
-            where T : class
+        public static DecoratorsConfiguration TrackSelectedItem<T>(this DecoratorsConfiguration configuration, Func<T?> getSelectedItem, Action<T?> setSelectedItem,
+            Func<IEnumerable<T>, T?, T?>? getDefault, IEqualityComparer<T>? comparer, out ActionToken removeToken) where T : class
         {
-            removeToken = configuration.GetObserverCollectionDecorator().AddObserver<T, (ItemOrArray<string> members, object? args)>((s, info) =>
+            Should.NotBeNull(getSelectedItem, nameof(getSelectedItem));
+            Should.NotBeNull(setSelectedItem, nameof(setSelectedItem));
+            return configuration.Subscribe<T, object?>((items, item, _, _, isReset) =>
             {
-                if (info.IsCollectionEvent)
-                    return false;
-
-                foreach (var member in s.members)
+                if (!isReset)
                 {
-                    if (info.IsMemberChanged(member))
-                        return true;
+                    var selectedItem = getSelectedItem();
+                    if (selectedItem == null || !(comparer ?? EqualityComparer<T>.Default).Equals(selectedItem, item) && !items.ContainsKey(selectedItem))
+                        setSelectedItem(item);
                 }
 
-                return false;
-            }, (s, info) =>
+                return null;
+            }, (items, _, _, _, isReset) =>
             {
-                foreach (var eventInfo in info)
-                    eventInfo.Collection?.RaiseItemChanged(eventInfo.Item, s.args);
-            }, (members, args), delay, true);
-            return configuration;
+                if (!isReset)
+                {
+                    var selectedItem = getSelectedItem();
+                    if (selectedItem == null || !items.ContainsKey(selectedItem))
+                        setSelectedItem(getDefault == null ? Enumerable.FirstOrDefault(items).Key : getDefault(items.Keys, selectedItem));
+                }
+
+                return null;
+            }, null, items =>
+            {
+                var selectedItem = getSelectedItem();
+                if (selectedItem == null || !items.ContainsKey(selectedItem))
+                    setSelectedItem(getDefault == null ? Enumerable.FirstOrDefault(items).Key : getDefault(items.Keys, selectedItem));
+            }, comparer, out removeToken);
         }
 
-        public static void ApplyChangesTo<T>(this CollectionGroupChangedAction action, IList<T> items, IReadOnlyList<T> groupItems, T? item, object? args)
+        public static DecoratorsConfiguration AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members, object? args = null)
+            where T : class => configuration.AutoRefreshOnPropertyChanged<T>(members, args, out _);
+
+        public static DecoratorsConfiguration AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration configuration, ItemOrArray<string> members,
+            object? args, out ActionToken removeToken) where T : class
+        {
+            var collection = configuration.Collection;
+            PropertyChangedEventHandler handler = (sender, e) =>
+            {
+                if (sender != null && string.IsNullOrEmpty(e.PropertyName) || members.Contains(e.PropertyName!))
+                    collection.RaiseItemChanged(sender, args ?? e);
+            };
+            return configuration.Subscribe<T, PropertyChangedEventHandler?>((_, item, _, count, _) =>
+            {
+                if (count == 1 && item is INotifyPropertyChanged notifyPropertyChanged)
+                {
+                    notifyPropertyChanged.PropertyChanged += handler;
+                    return handler;
+                }
+
+                return null;
+            }, (_, item, state, count, _) =>
+            {
+                if (count == 0 && state != null)
+                    ((INotifyPropertyChanged)item).PropertyChanged -= state;
+                return state;
+            }, null, null, InternalEqualityComparer.Reference, out removeToken);
+        }
+
+        public static DecoratorsConfiguration AutoRefreshOnObservable<T, TSignal>(this DecoratorsConfiguration configuration, Func<T, IObservable<TSignal>> getObservable,
+            object? args = null) where T : class => configuration.AutoRefreshOnObservable(getObservable, args, out _);
+
+        public static DecoratorsConfiguration AutoRefreshOnObservable<T, TSignal>(this DecoratorsConfiguration configuration, Func<T, IObservable<TSignal>> getObservable,
+            object? args, out ActionToken removeToken) where T : class
+        {
+            Should.NotBeNull(getObservable, nameof(getObservable));
+            var collection = configuration.Collection;
+            return configuration.Subscribe<T, IDisposable>((_, item, state, _, _) =>
+            {
+                if (state == null)
+                    return getObservable(item).Subscribe(new ItemChangedObserver<TSignal>(collection, item, args));
+                return state;
+            }, (_, _, state, count, _) =>
+            {
+                if (count == 0)
+                    state.Dispose();
+                return state;
+            }, null, null, InternalEqualityComparer.Reference, out removeToken);
+        }
+
+        public static DecoratorsConfiguration Min<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
+            TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult>? comparer = null)
+            where T : notnull =>
+            configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, false, out _);
+
+        public static DecoratorsConfiguration Min<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
+            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult>? comparer, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, false, out removeToken);
+
+        public static DecoratorsConfiguration Max<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
+            TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult>? comparer = null)
+            where T : notnull =>
+            configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, true, out _);
+
+        public static DecoratorsConfiguration Max<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
+            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult>? comparer, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, true, out removeToken);
+
+        public static DecoratorsConfiguration Count<T>(this DecoratorsConfiguration configuration, Action<int> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Count(onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Count<T>(this DecoratorsConfiguration configuration, Action<int> onChanged, Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, _ => 1, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, int> selector, Action<int> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, int?> selector, Action<int?> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, long> selector, Action<long> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, long?> selector, Action<long?> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, float> selector, Action<float> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, float?> selector, Action<float?> onChanged,
+            Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, double> selector, Action<double> onChanged,
+            Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, double?> selector, Action<double?> onChanged,
+            Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, decimal> selector, Action<decimal> onChanged,
+            Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, decimal?> selector, Action<decimal?> onChanged,
+            Func<T, bool>? predicate = null)
+            where T : notnull => configuration.Sum(selector, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, int> selector, Action<int> onChanged, Func<T, bool>? predicate,
+            out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, int?> selector, Action<int?> onChanged, Func<T, bool>? predicate,
+            out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, long> selector, Action<long> onChanged, Func<T, bool>? predicate,
+            out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, long?> selector, Action<long?> onChanged, Func<T, bool>? predicate,
+            out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, float> selector, Action<float> onChanged, Func<T, bool>? predicate,
+            out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, float?> selector, Action<float?> onChanged,
+            Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, double> selector, Action<double> onChanged,
+            Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, double?> selector, Action<double?> onChanged,
+            Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, decimal> selector, Action<decimal> onChanged,
+            Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Sum<T>(this DecoratorsConfiguration configuration, Func<T, decimal?> selector, Action<decimal?> onChanged,
+            Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull =>
+            configuration.Accumulate(0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, onChanged, predicate, out removeToken);
+
+        public static DecoratorsConfiguration Accumulate<T, TResult>(this DecoratorsConfiguration configuration, TResult seed, Func<T, TResult> selector,
+            Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Action<TResult> onChanged, Func<T, bool>? predicate = null)
+            where T : notnull =>
+            configuration.Accumulate(seed, selector, add, remove, onChanged, predicate, out _);
+
+        public static DecoratorsConfiguration Accumulate<T, TResult>(this DecoratorsConfiguration configuration, TResult seed, Func<T, TResult> selector,
+            Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Action<TResult> onChanged, Func<T, bool>? predicate, out ActionToken removeToken)
+            where T : notnull
+        {
+            Should.NotBeNull(selector, nameof(selector));
+            Should.NotBeNull(add, nameof(add));
+            Should.NotBeNull(remove, nameof(remove));
+            Should.NotBeNull(onChanged, nameof(onChanged));
+            var closure = new AccumulateClosure<T, TResult>(seed, selector, add, remove, onChanged, predicate);
+            return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnReset, null, out removeToken);
+        }
+
+        public static void ApplyChangesTo<T>(this CollectionGroupChangedAction action, IList<T> items, IReadOnlyCollection<T> groupItems, T? item, object? args)
         {
             switch (action)
             {
@@ -571,7 +604,8 @@ namespace MugenMvvm.Extensions
             return v;
         }
 
-        public static IReadOnlyDictionary<TKey, TValue> Merge<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, IReadOnlyDictionary<TKey, TValue> values)
+        public static IReadOnlyDictionary<TKey, TValue> Merge<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, IReadOnlyDictionary<TKey, TValue> values,
+            IEqualityComparer<TKey>? comparer = null)
             where TKey : notnull
         {
             Should.NotBeNull(dictionary, nameof(dictionary));
@@ -582,9 +616,11 @@ namespace MugenMvvm.Extensions
                 return dictionary;
 
 #if NET461
-            var result = dictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
+            var result = new Dictionary<TKey, TValue>(dictionary.Count, comparer ?? EqualityComparer<TKey>.Default);
+            foreach (var value in dictionary)
+                result[value.Key] = value.Value;
 #else
-            var result = new Dictionary<TKey, TValue>(dictionary);
+            var result = new Dictionary<TKey, TValue>(dictionary, comparer ?? EqualityComparer<TKey>.Default);
 #endif
             foreach (var value in values)
                 result[value.Key] = value.Value;
@@ -674,13 +710,29 @@ namespace MugenMvvm.Extensions
             return enumerable.Count();
         }
 
-        internal static void FindAllIndexOf(this IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
+        internal static void FindAllIndexOf(this IEnumerable<object?> items, object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
+            if (ignoreDuplicates)
+            {
+                if (items is IList<object?> list)
+                {
+                    var indexOf = list.IndexOf(item);
+                    if (indexOf >= 0)
+                        indexes.Add(indexOf);
+                    return;
+                }
+            }
+
             var index = 0;
             foreach (var value in items)
             {
                 if (Equals(item, value))
+                {
                     indexes.Add(index);
+                    if (ignoreDuplicates)
+                        return;
+                }
+
                 ++index;
             }
         }
@@ -738,21 +790,6 @@ namespace MugenMvvm.Extensions
                 manager, collection);
         }
 
-        private static DecoratedCollectionObserver GetObserverCollectionDecorator(this ref DecoratorsConfiguration configuration)
-        {
-            var components = configuration.Collection.GetComponents<DecoratedCollectionObserver>();
-            if (components.Count != 0)
-            {
-                var component = components[components.Count - 1];
-                if (component.Priority == configuration.Priority - configuration.Step)
-                    return component;
-            }
-
-            var decorator = new DecoratedCollectionObserver { Priority = configuration.Priority };
-            configuration = configuration.Add(decorator);
-            return decorator;
-        }
-
         private static FlattenItemInfo FlattenDecorated(this IEnumerable enumerable, IEnumerable value)
         {
             if (ReferenceEquals(enumerable, value))
@@ -767,45 +804,43 @@ namespace MugenMvvm.Extensions
             return default;
         }
 
-        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable> selector, T item) => new(selector(item));
+        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable> selector, T item) => new(selector(item), true);
 
         private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable> selector, T item) => new(selector(item), false);
 
-        private sealed class ConvertHandlerClosure<T> : IEnumerable<T> where T : class
+        private static DecoratorsConfiguration MaxMin<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
+            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult>? comparer, bool isMax, out ActionToken removeToken)
+            where T : notnull
+        {
+            Should.NotBeNull(selector, nameof(selector));
+            Should.NotBeNull(onChanged, nameof(onChanged));
+            var closure = new MaxMinClosure<T, TResult>(defaultValue!, selector, onChanged, comparer, isMax, predicate);
+            return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnReset, null, out removeToken);
+        }
+
+        private sealed class ItemChangedObserver<T> : IObserver<T>
         {
             private readonly IReadOnlyObservableCollection _collection;
-            private readonly Action<IEnumerable<T>, T> _onAdded;
-            private readonly Action<IEnumerable<T>, T> _onRemoved;
-            private readonly Action<IEnumerable<T>, T>? _onChanged;
+            private readonly object _item;
+            private readonly object? _args;
+            private int _isStopped;
 
-            public ConvertHandlerClosure(IReadOnlyObservableCollection collection, Action<IEnumerable<T>, T> onAdded, Action<IEnumerable<T>, T> onRemoved,
-                Action<IEnumerable<T>, T>? onChanged, int priority)
+            public ItemChangedObserver(IReadOnlyObservableCollection collection, object item, object? args = null)
             {
-                Should.NotBeNull(onAdded, nameof(onAdded));
-                Should.NotBeNull(onRemoved, nameof(onRemoved));
                 _collection = collection;
-                _onAdded = onAdded;
-                _onRemoved = onRemoved;
-                _onChanged = onChanged;
-                Decorator = new ConvertCollectionDecorator<T, T>(Convert, Cleanup, InternalEqualityComparer.Reference!, priority, false);
+                _item = item;
+                _args = args;
             }
 
-            public ConvertCollectionDecorator<T, T> Decorator { get; }
+            public void OnCompleted() => Interlocked.Exchange(ref _isStopped, 1);
 
-            public IEnumerator<T> GetEnumerator() => _collection.DecoratedItems<object?>(Decorator)?.OfType<T>().GetEnumerator() ?? Default.EmptyEnumerator<T>();
+            public void OnError(Exception error) => Interlocked.Exchange(ref _isStopped, 1);
 
-            private T Convert(T item, T? oldItem)
+            public void OnNext(T value)
             {
-                if (ReferenceEquals(item, oldItem))
-                    _onChanged?.Invoke(this, item);
-                else
-                    _onAdded(this, item);
-                return item;
+                if (Volatile.Read(ref _isStopped) == 0)
+                    _collection.RaiseItemChanged(_item, _args);
             }
-
-            private void Cleanup(T item, T? oldItem) => _onRemoved(this, item);
-
-            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
 #if SPAN_API

@@ -39,10 +39,15 @@ namespace MugenMvvm.Tests.Collections
                 throw new NotSupportedException();
         }
 
-        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes)
+        bool ICollectionDecorator.IsLazy(IReadOnlyObservableCollection collection) => IsLazy;
+
+        bool ICollectionDecorator.HasAdditionalItems(IReadOnlyObservableCollection collection) => HasAdditionalItems;
+
+        bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates,
+            ref ItemOrListEditor<int> indexes)
         {
             ThrowIfNeed(TryGetIndexes);
-            return TryGetIndexes?.Invoke(collection, items, item, ref indexes) ?? false;
+            return TryGetIndexes?.Invoke(collection, items, item, ignoreDuplicates, ref indexes) ?? false;
         }
 
         IEnumerable<object?> ICollectionDecorator.Decorate(IReadOnlyObservableCollection collection, IEnumerable<object?> items)
@@ -87,6 +92,7 @@ namespace MugenMvvm.Tests.Collections
             return OnReset?.Invoke(ref items) ?? true;
         }
 
-        public delegate bool TryGetIndexesDelegate(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, ref ItemOrListEditor<int> indexes);
+        public delegate bool TryGetIndexesDelegate(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates,
+            ref ItemOrListEditor<int> indexes);
     }
 }

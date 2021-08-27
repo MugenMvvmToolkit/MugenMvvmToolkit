@@ -4,60 +4,44 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 
 // ReSharper disable PossibleMultipleEnumeration
 
-// ReSharper disable NonAtomicCompoundOperator
-
 namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
-    public sealed class SynchronizedObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection,
-        IHasComponentAddedHandler, IHasComponentRemovedHandler, IHasComponentChangedHandler, IHasComponentAddConditionHandler
+    public sealed class SynchronizedObservableCollection<T> : SynchronizableComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection,
+        IHasComponentAddConditionHandler
     {
         private const int DefaultCapacity = 4;
         private const int MaxArrayLength = 0X7FEFFFFF;
 
-        private readonly ComponentTracker _componentTracker;
-
-        private ILocker? _lastTakenLocker;
-        private int _lockCount;
-        private ILocker _locker;
-
-        private volatile int _size;
+        private int _size;
         private T[] _items;
-        private ItemOrArray<IPreInitializerCollectionComponent<T>> _preInitializers;
-        private ItemOrArray<IConditionCollectionComponent<T>> _conditions;
-        private ItemOrArray<ICollectionChangingListener<T>> _changingListeners;
-        private ItemOrArray<ICollectionChangedListener<T>> _changedListeners;
 
         public SynchronizedObservableCollection(IComponentCollectionManager? componentCollectionManager = null) : this(null, componentCollectionManager)
         {
         }
 
+        public SynchronizedObservableCollection(int capacity, IComponentCollectionManager? componentCollectionManager = null) : this(null, componentCollectionManager)
+        {
+            if (capacity > 0)
+                _items = new T[capacity];
+        }
+
         public SynchronizedObservableCollection(IEnumerable<T>? items, IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
-            _locker = new DecrementPriorityLocker();
-            _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IPreInitializerCollectionComponent<T>, SynchronizedObservableCollection<T>>(
-                (components, state, _) => state._preInitializers = components, this);
-            _componentTracker.AddListener<IConditionCollectionComponent<T>, SynchronizedObservableCollection<T>>((components, state, _) => state._conditions = components, this);
-            _componentTracker.AddListener<ICollectionChangingListener<T>, SynchronizedObservableCollection<T>>((components, state, _) => state._changingListeners = components,
-                this);
-            _componentTracker.AddListener<ICollectionChangedListener<T>, SynchronizedObservableCollection<T>>((components, state, _) => state._changedListeners = components, this);
-
             if (items == null)
                 _items = Array.Empty<T>();
             else if (items is ICollection<T> c)
@@ -84,7 +68,7 @@ namespace MugenMvvm.Collections
 
         public bool IsReadOnly => false;
 
-        public int Count => _size;
+        public int Count => Volatile.Read(ref _size);
 
         bool ICollection.IsSynchronized => true;
 
@@ -101,8 +85,6 @@ namespace MugenMvvm.Collections
 
         Type IReadOnlyObservableCollection.ItemType => typeof(T);
 
-        ILocker ISynchronizable.Locker => _locker;
-
         public T this[int index]
         {
             get
@@ -117,7 +99,7 @@ namespace MugenMvvm.Collections
             }
             set
             {
-                _preInitializers.Initialize(this, value);
+                GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, value);
                 using (Lock())
                 {
                     if ((uint)index >= (uint)_size)
@@ -127,12 +109,12 @@ namespace MugenMvvm.Collections
                     if (EqualityComparer<T>.Default.Equals(value, oldItem))
                         return;
 
-                    if (!_conditions.CanReplace(this, oldItem, value, index))
+                    if (!GetComponents<IConditionCollectionComponent<T>>().CanReplace(this, oldItem, value, index))
                         return;
 
-                    _changingListeners.OnReplacing(this, oldItem, value, index);
+                    GetComponents<ICollectionChangingListener<T>>().OnReplacing(this, oldItem, value, index);
                     _items[index] = value;
-                    _changedListeners.OnReplaced(this, oldItem, value, index);
+                    GetComponents<ICollectionChangedListener<T>>().OnReplaced(this, oldItem, value, index);
                 }
             }
         }
@@ -178,7 +160,7 @@ namespace MugenMvvm.Collections
 
         public void Add(T item)
         {
-            _preInitializers.Initialize(this, item);
+            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, item);
             using (Lock())
             {
                 InsertInternal(_size, item, true);
@@ -220,7 +202,7 @@ namespace MugenMvvm.Collections
 
         public void Insert(int index, T item)
         {
-            _preInitializers.Initialize(this, item);
+            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, item);
             using (Lock())
             {
                 if ((uint)index > (uint)_size)
@@ -232,22 +214,28 @@ namespace MugenMvvm.Collections
 
         public void Reset(IEnumerable<T>? items)
         {
-            if (items != null && _preInitializers.Count != 0)
+            if (ReferenceEquals(items, this))
+                return;
+            if (items != null)
             {
-                foreach (var item in items)
-                    _preInitializers.Initialize(this, item);
+                var preInitializers = GetComponents<IPreInitializerCollectionComponent<T>>();
+                if (preInitializers.Count != 0)
+                {
+                    foreach (var item in items)
+                        preInitializers.Initialize(this, item);
+                }
             }
 
             using (Lock())
             {
-                if (items == null && _size == 0 || !_conditions.CanReset(this, items))
+                if (items == null && _size == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items))
                     return;
 
-                _changingListeners.OnResetting(this, items);
+                GetComponents<ICollectionChangingListener<T>>().OnResetting(this, items);
                 ClearRaw();
                 if (items != null)
                     InsertRangeRaw(_size, items);
-                _changedListeners.OnReset(this, items);
+                GetComponents<ICollectionChangedListener<T>>().OnReset(this, items);
             }
         }
 
@@ -264,77 +252,38 @@ namespace MugenMvvm.Collections
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(newIndex));
 
                 var obj = _items[oldIndex];
-                if (!_conditions.CanMove(this, obj, oldIndex, newIndex))
+                if (!GetComponents<IConditionCollectionComponent<T>>().CanMove(this, obj, oldIndex, newIndex))
                     return;
 
-                _changingListeners.OnMoving(this, obj, oldIndex, newIndex);
+                GetComponents<ICollectionChangingListener<T>>().OnMoving(this, obj, oldIndex, newIndex);
                 RemoveAtRaw(oldIndex);
                 InsertRaw(newIndex, obj);
-                _changedListeners.OnMoved(this, obj, oldIndex, newIndex);
-            }
-        }
-
-        public ActionToken Lock()
-        {
-            var lockTaken = false;
-            ILocker? locker = null;
-            try
-            {
-                while (true)
-                {
-                    locker = _lastTakenLocker ?? _locker;
-                    locker.Enter(ref lockTaken);
-
-                    var currentLocker = _lastTakenLocker ?? _locker;
-                    if (ReferenceEquals(currentLocker, locker))
-                    {
-                        if (lockTaken)
-                        {
-                            _lastTakenLocker = locker;
-                            ++_lockCount;
-                            return ActionToken.FromDelegate((c, l) => ((SynchronizedObservableCollection<T>)c!).Unlock((ILocker)l!), this, locker);
-                        }
-
-                        return default;
-                    }
-
-                    if (lockTaken)
-                    {
-                        lockTaken = false;
-                        locker.Exit();
-                    }
-                }
-            }
-            catch
-            {
-                if (lockTaken && locker != null)
-                    locker.Exit();
-                throw;
+                GetComponents<ICollectionChangedListener<T>>().OnMoved(this, obj, oldIndex, newIndex);
             }
         }
 
         private void InsertInternal(int index, T item, bool isAdd)
         {
-            if (!_conditions.CanAdd(this, item, index))
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index))
                 return;
 
-            _changingListeners.OnAdding(this, item, index);
+            GetComponents<ICollectionChangingListener<T>>().OnAdding(this, item, index);
             if (isAdd)
                 AddRaw(item);
             else
                 InsertRaw(index, item);
-            _changedListeners.OnAdded(this, item, index);
+            GetComponents<ICollectionChangedListener<T>>().OnAdded(this, item, index);
         }
 
         private void RemoveInternal(int index)
         {
             var oldItem = _items[index];
-            if (!_conditions.CanRemove(this, oldItem, index))
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanRemove(this, oldItem, index))
                 return;
 
-            _changingListeners.OnRemoving(this, oldItem, index);
+            GetComponents<ICollectionChangingListener<T>>().OnRemoving(this, oldItem, index);
             RemoveAtRaw(index);
-            _changedListeners.OnRemoved(this, oldItem, index);
+            GetComponents<ICollectionChangedListener<T>>().OnRemoved(this, oldItem, index);
         }
 
         private void AddRaw(T item)
@@ -414,17 +363,8 @@ namespace MugenMvvm.Collections
 #endif
         }
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private int IndexOfInternal(T? item) => Array.IndexOf(_items, item, 0, _size);
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Unlock(ILocker locker)
-        {
-            Should.BeValid(_lockCount > 0, nameof(_lockCount));
-            if (--_lockCount == 0)
-                _lastTakenLocker = null;
-            locker.Exit();
-        }
+        private int IndexOfInternal(T? item) => Array.IndexOf(_items, item, 0, _size);
 
         private object? Get(int index) => BoxingExtensions.Box(this[index]);
 
@@ -475,26 +415,9 @@ namespace MugenMvvm.Collections
 
         bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
-        void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (!IsDisposed)
-                _componentTracker.OnComponentChanged(collection, component, metadata);
-        }
-
-        void IHasComponentChangedHandler.OnComponentChanged(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (!IsDisposed)
-                _componentTracker.OnComponentChanged(collection, component, metadata);
-        }
-
-        void IHasComponentRemovedHandler.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (!IsDisposed)
-                _componentTracker.OnComponentChanged(collection, component, metadata);
-        }
-
         int IList.Add(object? value)
         {
+            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, (T)value!);
             using (Lock())
             {
                 InsertInternal(_size, (T)value!, true);
@@ -515,20 +438,6 @@ namespace MugenMvvm.Collections
         }
 
         void IObservableCollection.Reset(IEnumerable? items) => Reset((IEnumerable<T>?)items);
-
-        void ISynchronizable.UpdateLocker(ILocker locker)
-        {
-            Should.NotBeNull(locker, nameof(locker));
-            if (ReferenceEquals(locker, _locker))
-                return;
-
-            using var _ = Lock();
-            if (locker.Priority > _locker.Priority)
-            {
-                _locker = locker;
-                GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(this, locker, null);
-            }
-        }
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>

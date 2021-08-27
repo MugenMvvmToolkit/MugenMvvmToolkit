@@ -21,7 +21,7 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public override bool HasAdditionalItems => false;
+        protected override bool HasAdditionalItems => false;
 
         public IComparer<object?>? Comparer
         {
@@ -56,16 +56,20 @@ namespace MugenMvvm.Collections.Components
             if (Comparer == null)
                 return true;
 
-            var oldIndex = GetIndexByOriginalIndex(item, index);
-            _items.RemoveAt(oldIndex);
-            var newIndex = _items.AddOrdered(new OrderedItem(index, item), this);
-            if (oldIndex == newIndex)
-                index = oldIndex;
-            else
+            if (IsChanged(item, index, out var oldIndex))
             {
-                decoratorManager.OnMoved(collection, this, item, oldIndex, newIndex);
-                index = newIndex;
+                _items.RemoveAt(oldIndex);
+                var newIndex = _items.AddOrdered(new OrderedItem(index, item), this);
+                if (oldIndex == newIndex)
+                    index = oldIndex;
+                else
+                {
+                    decoratorManager.OnMoved(collection, this, item, oldIndex, newIndex);
+                    index = newIndex;
+                }
             }
+            else
+                index = oldIndex;
 
             return true;
         }
@@ -87,13 +91,16 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var oldIndex = GetIndexByOriginalIndex(oldItem, index);
-            if (oldIndex == -1)
+            if (Comparer.Compare(oldItem, newItem) != 0)
+            {
+                _items.RemoveAt(oldIndex);
+                decoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
+                decoratorManager.OnAdded(collection, this, newItem, _items.AddOrdered(new OrderedItem(index, newItem), this));
                 return false;
+            }
 
-            _items.RemoveAt(oldIndex);
-            decoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
-            decoratorManager.OnAdded(collection, this, newItem, _items.AddOrdered(new OrderedItem(index, newItem), this));
-            return false;
+            _items.Items[oldIndex] = new OrderedItem(index, newItem);
+            return true;
         }
 
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
@@ -103,8 +110,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var index = GetIndexByOriginalIndex(item, oldIndex);
-            UpdateIndexes(oldIndex + 1, -1);
-            UpdateIndexes(newIndex, 1);
+            UpdateIndexesMove(oldIndex, newIndex);
 
             if (index != -1)
                 _items.Items[index].OriginalIndex = newIndex;
@@ -141,6 +147,17 @@ namespace MugenMvvm.Collections.Components
             }
 
             return true;
+        }
+
+        private bool IsChanged(object? item, int originalIndex, out int oldIndex)
+        {
+            var currentItem = new OrderedItem(originalIndex, item);
+            oldIndex = GetIndexByOriginalIndex(item, originalIndex);
+            if (oldIndex != 0 && Compare(_items.Items[oldIndex - 1], currentItem) > 0)
+                return true;
+            if (oldIndex < _items.Count - 1 && Compare(_items.Items[oldIndex + 1], currentItem) < 0)
+                return true;
+            return false;
         }
 
         private void ReorderInternal(IComparer<object?>? comparer, bool setComparer)
@@ -183,9 +200,9 @@ namespace MugenMvvm.Collections.Components
         private int GetIndexByOriginalIndex(object? item, int index)
         {
             var binarySearchIndex = _items.BinarySearch(new OrderedItem(index, item), this);
-            if (binarySearchIndex >= 0)
-                return binarySearchIndex;
-            return GetIndexByOriginalIndexFallback(index);
+            if (binarySearchIndex < 0)
+                return GetIndexByOriginalIndexFallback(index);
+            return binarySearchIndex;
         }
 
         private int GetIndexByOriginalIndexFallback(int index)
@@ -199,6 +216,40 @@ namespace MugenMvvm.Collections.Components
             }
 
             return -1;
+        }
+
+        private void UpdateIndexesMove(int oldIndex, int newIndex)
+        {
+            var count = _items.Count;
+            var items = _items.Items;
+            if (oldIndex < newIndex)
+            {
+                var countToUpdate = newIndex - oldIndex;
+                for (int i = 0; i < count; i++)
+                {
+                    var originalIndex = items[i].OriginalIndex;
+                    if (originalIndex > oldIndex && originalIndex <= newIndex)
+                    {
+                        items[i].OriginalIndex = originalIndex - 1;
+                        if (--countToUpdate == 0)
+                            break;
+                    }
+                }
+            }
+            else
+            {
+                var countToUpdate = oldIndex - newIndex;
+                for (int i = 0; i < count; i++)
+                {
+                    var originalIndex = items[i].OriginalIndex;
+                    if (originalIndex >= newIndex && originalIndex < oldIndex)
+                    {
+                        items[i].OriginalIndex = originalIndex + 1;
+                        if (--countToUpdate == 0)
+                            break;
+                    }
+                }
+            }
         }
 
         private void UpdateIndexes(int index, int value)
@@ -228,7 +279,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y)
+        private int Compare(OrderedItem x, OrderedItem y)
         {
             if (Comparer == null)
                 return 0;
@@ -237,6 +288,8 @@ namespace MugenMvvm.Collections.Components
                 return x.OriginalIndex.CompareTo(y.OriginalIndex);
             return result;
         }
+
+        int IComparer<OrderedItem>.Compare(OrderedItem x, OrderedItem y) => Compare(x, y);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

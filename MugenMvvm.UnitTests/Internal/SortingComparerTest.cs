@@ -91,5 +91,74 @@ namespace MugenMvvm.UnitTests.Internal
 
             list.ShouldEqual(ints.OrderByDescending(i => i).ThenByDescending(i => i % 2 == 0).ThenBy(i => i % 3 == 0));
         }
+
+        [Theory]
+        [InlineData(1000)]
+        [InlineData(100)]
+        public void PinHeaderFooterShouldBeCorrect1(int count)
+        {
+            var ints = new List<int>();
+            for (var i = 0; i < count; i++)
+                ints.Insert(0, i);
+
+            Func<int, bool?> condition = i =>
+            {
+                if (i >= 90)
+                    return true;
+                if (i < 10)
+                    return false;
+                return null;
+            };
+            var comparer = SortingComparer<int>.PinHeaderFooter(condition).ThenBy(i => i).Build();
+
+            var list = ints.ToList();
+            list.Sort(comparer);
+
+            var headers = ints.Where(i => condition(i).GetValueOrDefault()).OrderBy(i => i).ToList();
+            var footers = ints.Where(i => !condition(i).GetValueOrDefault(true)).OrderBy(i => i).ToList();
+            ints.RemoveAll(i => condition(i).HasValue);
+
+            headers.Concat(ints.OrderBy(i => i)).Concat(footers).ShouldEqual(list);
+        }
+
+        [Theory]
+        [InlineData(1000)]
+        [InlineData(100)]
+        public void PinHeaderFooterShouldBeCorrect2(int count)
+        {
+            Func<int, bool?> condition = i =>
+            {
+                if (i >= 90)
+                    return true;
+                if (i < 10)
+                    return false;
+                return null;
+            };
+
+            var items = new List<object>();
+            for (var i = 0; i < count; i++)
+            {
+                if (condition(i).HasValue)
+                    items.Insert(0, i);
+                else
+                    items.Insert(0, i.ToString());
+            }
+
+            var comparer = SortingComparer<object>.PinHeaderFooter(o =>
+            {
+                if (o is int i)
+                    return condition(i);
+                return null;
+            }).ThenBy(i => i.GetHashCode()).Build().AsObjectComparer();
+
+            var list = items.ToList();
+            list.Sort(comparer);
+
+            var headers = items.OfType<int>().Where(i => condition(i).GetValueOrDefault()).OrderBy(i => i).OfType<object>().ToList();
+            var footers = items.OfType<int>().Where(i => !condition(i).GetValueOrDefault(true)).OrderBy(i => i).OfType<object>().ToList();
+            items.RemoveAll(o => o is int i && condition(i).HasValue);
+
+            headers.Concat(items.OrderBy(o => o, comparer)).Concat(footers).ShouldEqual(list);
+        }
     }
 }

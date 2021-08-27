@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
@@ -15,7 +16,7 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
 {
-    public class GroupCollectionDecoratorTest : UnitTestBase
+    public class GroupCollectionDecoratorTest : CollectionDecoratorTestBase
     {
         private readonly SynchronizedObservableCollection<object> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
@@ -29,26 +30,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _headers = new Dictionary<int, object>();
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            _getHeader = o => _headers.GetOrAdd((int) o! % 4, i => _headers.GetOrAdd(i, k => k.ToString()));
+            _getHeader = o => _headers.GetOrAdd((int)o! % 4, i => _headers.GetOrAdd(i, k => k.ToString()));
             _decorator = new GroupCollectionDecorator<object, object>(_getHeader);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
-        }
-
-        [Fact]
-        public void AddShouldTrackChanges()
-        {
-            for (var i = 0; i < 100; i++)
-            {
-                _collection.Add(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Insert(i, i);
-                Assert();
-            }
         }
 
         [Fact]
@@ -60,21 +45,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < _collection.Count; i++)
             {
-                _collection.RaiseItemChanged(_collection[i], null);
+                _collection.RaiseItemChanged(_collection[i]);
                 Assert();
                 _tracker.ItemChangedCount.ShouldEqual(i + 1);
             }
-        }
-
-        [Fact]
-        public void ClearShouldTrackChanges()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            _collection.Clear();
-            Assert();
         }
 
         [Fact]
@@ -90,13 +64,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection.Add(targetItem3);
             _collection.Add(targetItem4);
 
-            var decorator = (ICollectionDecorator) _collection.GetComponent<GroupCollectionDecorator<object, object>>();
+            var decorator = (ICollectionDecorator)_collection.GetComponent<GroupCollectionDecorator<object, object>>();
 
             var i = 0;
             foreach (var o in _collection.DecoratedItems())
             {
                 var indexes = new ItemOrListEditor<int>();
-                decorator.TryGetIndexes(_collection, _collection, o!, ref indexes).ShouldBeTrue();
+                decorator.TryGetIndexes(_collection, _collection, o!, false, ref indexes).ShouldBeTrue();
                 if (o is string)
                 {
                     indexes.Count.ShouldEqual(1);
@@ -110,110 +84,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void MoveShouldTrackChanges1()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Move(i, i + 1);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.Move(i + 1, i);
-                Assert();
-            }
-        }
-
-        [Fact]
-        public void MoveShouldTrackChanges2()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 1; i < 10; i++)
-            {
-                _collection.Move(i, i * 2 + i);
-                Assert();
-            }
-
-            for (var i = 1; i < 10; i++)
-            {
-                _collection.Move(i * 2 + i, i);
-                Assert();
-            }
-        }
-
-        [Fact]
-        public void RemoveShouldTrackChanges()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 20; i++)
-            {
-                _collection.Remove(i);
-                Assert();
-            }
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection.RemoveAt(i);
-                Assert();
-            }
-
-            var count = _collection.Count;
-            for (var i = 0; i < count; i++)
-            {
-                _collection.RemoveAt(0);
-                Assert();
-            }
-        }
-
-        [Fact]
-        public void ReplaceShouldTrackChanges1()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            {
-                _collection[i] = i + 101;
-                Assert();
-            }
-        }
-
-        [Fact]
-        public void ReplaceShouldTrackChanges2()
-        {
-            for (var i = 0; i < 100; i++)
-                _collection.Add(i);
-            Assert();
-
-            for (var i = 0; i < 10; i++)
-            for (var j = 10; j < 20; j++)
-            {
-                _collection[i] = _collection[j];
-                Assert();
-            }
-        }
-
-        [Fact]
-        public void ResetShouldTrackChanges()
+        public override void ResetShouldTrackChanges()
         {
             for (var i = 0; i < 100; i++)
                 _collection.Add(i);
             Assert();
 
             _headers.Clear();
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
             Assert();
         }
 
@@ -235,30 +113,50 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
-        public void ShouldTrackChanges()
+        public override void ShouldTrackChanges()
         {
-            _collection.Add(1);
-            Assert();
+            var collection = GetCollection();
+            for (var i = 0; i < 2; i++)
+            {
+                collection.Add(1);
+                Assert();
 
-            _collection.Insert(1, 2);
-            Assert();
+                collection.Insert(1, 2);
+                Assert();
 
-            _collection.Move(0, 1);
-            Assert();
+                collection.Move(0, 1);
+                Assert();
 
-            _collection.Remove(2);
-            Assert();
+                collection.Move(1, 0);
+                Assert();
 
-            _collection.RemoveAt(0);
-            Assert();
+                collection.Remove(2);
+                Assert();
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
-            Assert();
+                collection.RemoveAt(0);
+                Assert();
 
-            _collection[0] = 200;
-            Assert();
+                _headers.Clear();
+                collection.Reset(new object[] { 1, 2, 3, 4, 5, i });
+                Assert();
 
-            _collection.Clear();
+                collection[0] = 200;
+                Assert();
+
+                collection[3] = 3;
+                Assert();
+
+                collection.Move(0, collection.Count - 1);
+                Assert();
+
+                collection.Move(0, collection.Count - 2);
+                Assert();
+
+                collection[i] = i;
+                Assert();
+            }
+
+            collection.Clear();
             Assert();
         }
 
@@ -269,21 +167,21 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var header = new List<int>();
             var changedItems = new List<int>();
             _collection.RemoveComponent(_decorator);
-            _getHeader = o => (int) o! % 2 == 0 ? header : null;
+            _getHeader = o => (int)o! % 2 == 0 ? header : null;
             _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, groupItems, action, item, args) =>
             {
-                var ints = (List<int>) h;
+                var ints = (List<int>)h;
                 switch (action)
                 {
                     case CollectionGroupChangedAction.ItemAdded:
-                        ints.Add((int) item!);
+                        ints.Add((int)item!);
                         break;
                     case CollectionGroupChangedAction.ItemRemoved:
-                        ints.Remove((int) item!);
+                        ints.Remove((int)item!);
                         break;
                     case CollectionGroupChangedAction.ItemChanged:
                         args.ShouldEqual(eventArgs);
-                        changedItems.Add((int) item!);
+                        changedItems.Add((int)item!);
                         break;
                     case CollectionGroupChangedAction.Reset:
                         ints.Reset(groupItems.Cast<int>());
@@ -294,70 +192,69 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 }
 
                 if (action != CollectionGroupChangedAction.GroupRemoved)
-                    groupItems.Cast<int>().OrderBy(i => i).ShouldEqual(ints.OrderBy(i => i));
+                    groupItems.Cast<int>().ShouldEqualUnordered(ints);
             });
             _collection.AddComponent(_decorator);
 
-            var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<int>().OrderBy(i => i);
-            var items = header.OrderBy(i => i);
+            var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<int>();
             for (var i = 0; i < 100; i++)
             {
                 _collection.Add(i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
 
                 _collection.RaiseItemChanged(i, eventArgs);
-                changedItems.OrderBy(i => i).ShouldEqual(expectedItems);
+                changedItems.ShouldEqualUnordered(expectedItems);
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Insert(i, i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.RemoveAt(i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Move(i, i + 1);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i * 2 + i, i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection[i] = i + 101;
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
-            _collection.Reset(new object[] {1, 2, 3, 4, 5});
-            items.ShouldEqual(expectedItems);
+            _collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            header.ShouldEqualUnordered(expectedItems);
             Assert();
 
             _collection.Clear();
-            items.ShouldEqual(expectedItems);
+            header.ShouldEqualUnordered(expectedItems);
             Assert();
         }
 
@@ -368,21 +265,21 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var eventArgs = NewId();
             var header = new List<UnstableKey>();
             var changedItems = new List<UnstableKey>();
-            _getHeader = o => ((UnstableKey) o!).Id! % 2 == 0 ? header : null;
+            _getHeader = o => ((UnstableKey)o!).Id! % 2 == 0 ? header : null;
             _decorator = new GroupCollectionDecorator<object, object>(_getHeader, (h, groupItems, action, item, args) =>
             {
-                var list = (List<UnstableKey>) h;
+                var list = (List<UnstableKey>)h;
                 switch (action)
                 {
                     case CollectionGroupChangedAction.ItemAdded:
-                        list.Add((UnstableKey) item!);
+                        list.Add((UnstableKey)item!);
                         break;
                     case CollectionGroupChangedAction.ItemRemoved:
-                        list.Remove((UnstableKey) item!);
+                        list.Remove((UnstableKey)item!);
                         break;
                     case CollectionGroupChangedAction.ItemChanged:
                         args.ShouldEqual(eventArgs);
-                        changedItems.Add((UnstableKey) item!);
+                        changedItems.Add((UnstableKey)item!);
                         break;
                     case CollectionGroupChangedAction.GroupRemoved:
                         list.Clear();
@@ -393,80 +290,79 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 }
 
                 if (action != CollectionGroupChangedAction.GroupRemoved)
-                    groupItems.Cast<UnstableKey>().OrderBy(key => key.Id).ShouldEqual(list.OrderBy(key => key.Id));
+                    groupItems.Cast<UnstableKey>().ShouldEqualUnordered(list);
             });
             _collection.AddComponent(_decorator);
 
-            var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<UnstableKey>().OrderBy(i => i.Id).ThenBy(key => key.GetHashCode());
-            var items = header.OrderBy(i => i.Id).ThenBy(key => key.GetHashCode());
+            var expectedItems = _collection.Where(o => _getHeader(o) != null).Cast<UnstableKey>();
             for (var i = 0; i < 100; i++)
             {
                 var unstableKey = new UnstableKey(i);
                 _collection.Add(unstableKey);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
 
                 _collection.RaiseItemChanged(unstableKey, eventArgs);
-                changedItems.OrderBy(i => i.Id).ThenBy(key => key.GetHashCode()).ShouldEqual(expectedItems);
+                changedItems.ShouldEqualUnordered(expectedItems);
             }
 
             foreach (UnstableKey key in _collection)
             {
                 key.Id++;
                 _collection.RaiseItemChanged(key, eventArgs);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Insert(i, new UnstableKey(i));
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.RemoveAt(i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection.Move(i, i + 1);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i, i * 2 + i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 1; i < 10; i++)
             {
                 _collection.Move(i * 2 + i, i);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
                 _collection[i] = new UnstableKey(i + 101);
-                items.ShouldEqual(expectedItems);
+                header.ShouldEqualUnordered(expectedItems);
                 Assert();
             }
 
-            _collection.Reset(new object[] {new UnstableKey(1), new UnstableKey(2), new UnstableKey(3), new UnstableKey(4), new UnstableKey(5)});
+            _collection.Reset(new object[] { new UnstableKey(1), new UnstableKey(2), new UnstableKey(3), new UnstableKey(4), new UnstableKey(5) });
             Assert();
 
             foreach (UnstableKey key in _collection)
             {
                 key.Id++;
-                _collection.RaiseItemChanged(key, null);
+                _collection.RaiseItemChanged(key);
                 Assert();
             }
 
@@ -474,11 +370,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
-        private void Assert()
+        protected override void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(Decorate(_collection.GetComponentOptional<GroupCollectionDecorator<object, object>>() == _decorator ? _getHeader : null));
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
+
+        protected override IObservableCollection<object> GetCollection() => _collection;
 
         private IEnumerable<object> Decorate(Func<object?, object?>? getHeader)
         {

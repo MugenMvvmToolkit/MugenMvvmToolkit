@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
@@ -22,11 +23,13 @@ namespace MugenMvvm.Collections
             Priority = priority;
         }
 
-        public DecoratorsConfiguration Add(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null)
+        public DecoratorsConfiguration Add(IComponent<IReadOnlyObservableCollection> decorator, int? priority = null) => Add(decorator, priority, out _);
+
+        public DecoratorsConfiguration Add(IComponent<IReadOnlyObservableCollection> decorator, int? priority, out ActionToken removeToken)
         {
             if (Collection == null)
                 ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration));
-            Collection.AddComponent(decorator);
+            removeToken = Collection.AddComponent(decorator);
             return UpdatePriority(priority);
         }
 

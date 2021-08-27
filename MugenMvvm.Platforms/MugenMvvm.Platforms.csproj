@@ -75,9 +75,12 @@
 
   <Target Name="AndroidNativeBuild" BeforeTargets="_CreateBindingResourceArchive" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Exec Command="..\MugenMvvm.Android.Native\build.bat" Condition=" '$(OS)' == 'Windows_NT' And '$(Configuration)' != 'Debug' " />
+    <Exec Command="..\MugenMvvm.Android.Native\build.sh" Condition=" '$(OS)' != 'Windows_NT' And '$(Configuration)' != 'Debug' " />
     <Exec Command="..\MugenMvvm.Android.Native\build_debug.bat" Condition=" '$(OS)' == 'Windows_NT' And '$(Configuration)' == 'Debug' " />
+    <Exec Command="..\MugenMvvm.Android.Native\build_debug.sh" Condition=" '$(OS)' != 'Windows_NT' And '$(Configuration)' == 'Debug' " />
   </Target>
   <Target Name="AndroidNativeClean" BeforeTargets="Clean" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Exec Command="..\MugenMvvm.Android.Native\clean.bat" Condition=" '$(OS)' == 'Windows_NT' " />
+    <Exec Command="..\MugenMvvm.Android.Native\clean.sh" Condition=" '$(OS)' != 'Windows_NT' " />
   </Target>
 </Project>
