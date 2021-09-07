@@ -10,5 +10,7 @@ namespace MugenMvvm.Interfaces.Commands.Components
         bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata);
 
         Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+
+        Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata);
     }
 }

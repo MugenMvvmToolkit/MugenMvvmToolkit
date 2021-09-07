@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTests.Commands
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -155,7 +155,7 @@ namespace MugenMvvm.UnitTests.Commands
             Func<object?, CancellationToken, IReadOnlyMetadataContext?, Task> execute = (item, c, m) => Task.CompletedTask;
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -196,7 +196,7 @@ namespace MugenMvvm.UnitTests.Commands
             Action<IReadOnlyMetadataContext?> execute = m => { };
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -237,7 +237,7 @@ namespace MugenMvvm.UnitTests.Commands
             Action<object?, IReadOnlyMetadataContext?> execute = (t, m) => { };
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 
@@ -338,6 +338,38 @@ namespace MugenMvvm.UnitTests.Commands
                 tcs[i].SetResult(i == componentCount - 1);
 
             (await task).ShouldBeTrue();
+            invokeCount.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public async Task WaitShouldBeHandledByComponents(int componentCount)
+        {
+            var invokeCount = 0;
+            var tcs = new TaskCompletionSource<bool>[componentCount];
+            for (var i = 0; i < componentCount; i++)
+            {
+                var tc = new TaskCompletionSource<bool>();
+                tcs[i] = tc;
+                Command.AddComponent(new TestCommandExecutorComponent
+                {
+                    TryWaitAsync = (cmd, m) =>
+                    {
+                        cmd.ShouldEqual(Command);
+                        m.ShouldEqual(Metadata);
+                        ++invokeCount;
+                        return tc.Task;
+                    },
+                    Priority = -i
+                });
+            }
+
+            var task = Command.WaitAsync(Metadata);
+            for (var i = 0; i < tcs.Length; i++)
+                tcs[i].SetResult(i == componentCount - 1);
+
+            await task;
             invokeCount.ShouldEqual(componentCount);
         }
 

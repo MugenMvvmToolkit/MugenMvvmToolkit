@@ -59,6 +59,31 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(2);
         }
 
+        [Fact]
+        public async Task ShouldWaitLastExecute()
+        {
+            var executed = 0;
+            var taskCompletionSource = new TaskCompletionSource<object>();
+            Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, _) =>
+            {
+                ++executed;
+                return taskCompletionSource.Task;
+            };
+            var component = Add<object>(Command, execute, null, false);
+            var task1 = component.TryExecuteAsync(Command, null, DefaultCancellationToken, null);
+            executed.ShouldEqual(1);
+
+            var task2 = component.TryWaitAsync(Command, null);
+            executed.ShouldEqual(1);
+
+            task1.IsCompleted.ShouldBeFalse();
+            task2.IsCompleted.ShouldBeFalse();
+
+            taskCompletionSource.TrySetResult(null!);
+            await task1;
+            await task2;
+        }
+
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
@@ -68,7 +93,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var tcs = new TaskCompletionSource<object>();
             Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute = (c, m) => tcs.Task;
 
-            var listener = new TestCommandEventHandlerComponent { RaiseCanExecuteChanged = c => ++executed };
+            var listener = new TestCommandEventHandlerComponent {RaiseCanExecuteChanged = c => ++executed};
             Command.AddComponent(listener);
 
             var component = Add<object>(Command, execute, null, allowMultipleExecution);

@@ -189,6 +189,8 @@ namespace MugenMvvm.Commands.Components
 
             public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
                 Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
+
+            public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => Components.TryWaitAsync(command, metadata);
         }
     }
 }

@@ -305,5 +305,42 @@ namespace MugenMvvm.UnitTests.Commands.Components
             isExecuting2 = true;
             Assert();
         }
+
+        [Fact]
+        public async Task WaitAsyncShouldBeHandledByCommands()
+        {
+            var cmd1Count = 0;
+            var cmd2Count = 0;
+            var tcs1 = new TaskCompletionSource<object>();
+            var tcs2 = new TaskCompletionSource<object>();
+            var cmd1 = CompositeCommand.CreateFromTask<object?>(this, (_, _, _) =>
+            {
+                ++cmd1Count;
+                return tcs1.Task;
+            }, allowMultipleExecution: true);
+            var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (_, _, _) =>
+            {
+                ++cmd2Count;
+                return tcs2.Task;
+            }, allowMultipleExecution: true);
+
+            Command.AddChildCommand(cmd1);
+            Command.AddChildCommand(cmd2);
+
+            var task1 = Command.ExecuteAsync(null, DefaultCancellationToken, Metadata);
+            var task2 = Command.WaitAsync(Metadata);
+            task1.IsCompleted.ShouldBeFalse();
+            task2.IsCompleted.ShouldBeFalse();
+            cmd1Count.ShouldEqual(1);
+            cmd2Count.ShouldEqual(1);
+
+            tcs1.TrySetResult(null!);
+            task1.IsCompleted.ShouldBeFalse();
+            task2.IsCompleted.ShouldBeFalse();
+
+            tcs2.TrySetResult(null!);
+            await task1;
+            await task2;
+        }
     }
 }

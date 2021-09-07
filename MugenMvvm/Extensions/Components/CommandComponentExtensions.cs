@@ -91,5 +91,11 @@ namespace MugenMvvm.Extensions.Components
 
             return false;
         }
+
+        public static Task TryWaitAsync(this ItemOrArray<ICommandExecutorComponent> components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(command, nameof(command));
+            return components.InvokeAllAsync(command, default, metadata, (component, s, _, m) => component.TryWaitAsync(s, m));
+        }
     }
 }

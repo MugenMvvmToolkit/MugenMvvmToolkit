@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -118,10 +117,12 @@ namespace MugenMvvm.Commands
             return Default.FalseTask;
         }
 
+        public Task WaitAsync(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandExecutorComponent>().TryWaitAsync(this, metadata);
+
         public bool IsExecuting(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandExecutorComponent>().IsExecuting(this, metadata);
-        
+
         public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
-        
+
         public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 
         public void Dispose()

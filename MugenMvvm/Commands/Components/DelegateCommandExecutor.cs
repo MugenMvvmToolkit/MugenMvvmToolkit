@@ -11,6 +11,8 @@ using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
+#pragma warning disable 4014
+
 namespace MugenMvvm.Commands.Components
 {
     public sealed class DelegateCommandExecutor<T> : ICommandExecutorComponent, ICommandConditionComponent, IDisposableComponent<ICompositeCommand>, IHasPriority
@@ -18,6 +20,7 @@ namespace MugenMvvm.Commands.Components
         private readonly bool _allowMultipleExecution;
         private Delegate? _execute;
         private Delegate? _canExecute;
+        private Task? _executingTask;
         private volatile int _executeCount;
         private CancellationTokenSource? _cancellationTokenSource;
 
@@ -45,6 +48,7 @@ namespace MugenMvvm.Commands.Components
         public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             CancellationTokenSource? cts = null;
+            Task<bool>? task = null;
             try
             {
                 if (Interlocked.Increment(ref _executeCount) == 1)
@@ -54,7 +58,9 @@ namespace MugenMvvm.Commands.Components
 
                 cts = !_allowMultipleExecution && IsAsync ? CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default) : null;
                 Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
-                return await ExecuteAsync(parameter, cts?.Token ?? cancellationToken, metadata).ConfigureAwait(false);
+                task = ExecuteAsync(parameter, cts?.Token ?? cancellationToken, metadata);
+                Interlocked.Exchange(ref _executingTask, task);
+                return await task.ConfigureAwait(false);
             }
             finally
             {
@@ -64,10 +70,15 @@ namespace MugenMvvm.Commands.Components
                     cts.Dispose();
                 }
 
+                if (task != null)
+                    Interlocked.CompareExchange(ref _executingTask, null, task);
+
                 if (Interlocked.Decrement(ref _executeCount) == 0)
                     command.RaiseCanExecuteChanged(metadata);
             }
         }
+
+        public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => _executingTask ?? Task.CompletedTask;
 
         public void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
@@ -88,7 +99,7 @@ namespace MugenMvvm.Commands.Components
 
             if (canExecuteDelegate is Func<IReadOnlyMetadataContext?, bool> func)
                 return func(metadata);
-            return ((Func<T, IReadOnlyMetadataContext?, bool>)canExecuteDelegate).Invoke((T)parameter!, metadata);
+            return ((Func<T, IReadOnlyMetadataContext?, bool>) canExecuteDelegate).Invoke((T) parameter!, metadata);
         }
 
         private async Task<bool> ExecuteAsync(object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
@@ -106,19 +117,19 @@ namespace MugenMvvm.Commands.Components
                     return await executeTaskBool(cancellationToken, metadata).ConfigureAwait(false);
 
                 if (executeAction is Func<T, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> executeTaskBoolArg)
-                    return await executeTaskBoolArg((T)parameter!, cancellationToken, metadata).ConfigureAwait(false);
+                    return await executeTaskBoolArg((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
 
                 if (executeAction is Func<CancellationToken, IReadOnlyMetadataContext?, Task> executeTask)
                     await executeTask(cancellationToken, metadata).ConfigureAwait(false);
                 else
-                    await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, Task>)executeAction).Invoke((T)parameter!, cancellationToken, metadata).ConfigureAwait(false);
+                    await ((Func<T, CancellationToken, IReadOnlyMetadataContext?, Task>) executeAction).Invoke((T) parameter!, cancellationToken, metadata).ConfigureAwait(false);
                 return true;
             }
 
             if (executeAction is Action<IReadOnlyMetadataContext?> execute)
                 execute(metadata);
             else
-                ((Action<T, IReadOnlyMetadataContext?>)executeAction).Invoke((T)parameter!, metadata);
+                ((Action<T, IReadOnlyMetadataContext?>) executeAction).Invoke((T) parameter!, metadata);
             return true;
         }
     }

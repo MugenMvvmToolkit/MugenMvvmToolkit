@@ -177,6 +177,22 @@ namespace MugenMvvm.Commands.Components
             return result;
         }
 
+        public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        {
+            var tasks = new ItemOrListEditor<Task>();
+            lock (_listener)
+            {
+                for (var i = 0; i < _listener.Count; i++)
+                {
+                    var task = _listener[i].WaitAsync(metadata);
+                    if (!task.IsCompleted)
+                        tasks.Add(task);
+                }
+            }
+
+            return tasks.WhenAll();
+        }
+
         private bool CanExecuteInternal(object? parameter, IReadOnlyMetadataContext? metadata)
         {
             var canExecuteHandler = CanExecuteHandler;

@@ -17,5 +17,7 @@ namespace MugenMvvm.Interfaces.Commands
         void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null);
 
         Task<bool> ExecuteAsync(object? parameter = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
+
+        Task WaitAsync(IReadOnlyMetadataContext? metadata = null);
     }
 }
