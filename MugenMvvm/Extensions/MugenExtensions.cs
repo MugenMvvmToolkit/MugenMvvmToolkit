@@ -218,13 +218,16 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static ICompositeCommand AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier) => command.AddNotifier(notifier, out _);
-
-        public static ICompositeCommand AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier, out ActionToken removeToken)
+        public static bool AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
-            removeToken = command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
-            return command;
+            return command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
+        }
+
+        public static bool RemoveNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
+        {
+            Should.NotBeNull(command, nameof(command));
+            return command.GetComponentOptional<PropertyChangedCommandObserver>()?.Remove(notifier) ?? false;
         }
 
         public static Task<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
@@ -249,7 +252,7 @@ namespace MugenMvvm.Extensions
         public static bool RemoveChildCommand(this ICompositeCommand owner, ICompositeCommand command)
         {
             Should.NotBeNull(owner, nameof(owner));
-            return owner.GetOrAddComponent<ChildCommandAdapter>().Remove(command);
+            return owner.GetComponentOptional<ChildCommandAdapter>()?.Remove(command) ?? false;
         }
 
         public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
@@ -267,7 +270,7 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) { Priority = priority };
+            var wrapper = new DelegateWrapperManager<TConditionRequest, TWrapRequest>(condition, wrapperFactory) {Priority = priority};
             wrapperManager.Components.Add(wrapper, metadata);
             return wrapper;
         }
@@ -275,7 +278,7 @@ namespace MugenMvvm.Extensions
         public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, IDisposable? token) where T : class, IDisposable
         {
             if (token == null)
-                return (T)owner;
+                return (T) owner;
             return owner.RegisterDisposeToken(ActionToken.FromDisposable(token));
         }
 
@@ -284,7 +287,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             if (!token.IsEmpty)
                 owner.GetOrAddComponent<DisposeCallbackComponent<T>>().Register(token);
-            return (T)owner;
+            return (T) owner;
         }
 
         public static void RegisterDisposeToken(IHasDisposeCallback owner, IDisposable? token)
@@ -425,7 +428,7 @@ namespace MugenMvvm.Extensions
             if (typeof(TFrom) == typeof(TTo))
                 return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
 #endif
-            return (TTo)(object)value!;
+            return (TTo) (object) value!;
         }
 
         [StringFormatMethod("format")]
@@ -459,8 +462,16 @@ namespace MugenMvvm.Extensions
         public static ActionToken ToDebuggable(this ActionToken actionToken, object target, bool includeStackTrace = false) =>
             DebugActionToken.Wrap(target, actionToken, includeStackTrace);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ActionToken TryLock(object? target) => target is ISynchronizable synchronizable ? synchronizable.Lock() : default;
+        internal static ActionToken Lock(object? target) => target is ISynchronizable synchronizable ? synchronizable.Lock() : default;
+
+        internal static bool TryLock(object? target, out ActionToken lockToken)
+        {
+            if (target is ISynchronizable synchronizable)
+                return synchronizable.TryLock(out lockToken);
+
+            lockToken = default;
+            return true;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
@@ -474,7 +485,7 @@ namespace MugenMvvm.Extensions
 
         internal static void CommandNotifierOnPropertyChangedHandler(this IWeakReference weakReference, object? sender, PropertyChangedEventArgs args)
         {
-            var handler = (PropertyChangedCommandObserver?)weakReference.Target;
+            var handler = (PropertyChangedCommandObserver?) weakReference.Target;
             if (handler == null)
             {
                 if (sender is INotifyPropertyChanged propertyChanged)

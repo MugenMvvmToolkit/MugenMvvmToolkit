@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        private static void AssertItems<T>(Dictionary<T, int> currentItems, IReadOnlyDictionary<T, (int, int count)> items)
+        private static void AssertItems<T>(Dictionary<T, int> currentItems, IReadOnlyDictionary<T, (int, int count)> items) where T : notnull
         {
             currentItems.Count.ShouldEqual(items.Count);
             foreach (var item in currentItems)

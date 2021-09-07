@@ -5,10 +5,10 @@ namespace MugenMvvm.Collections
 {
     internal sealed class MaxMinClosure<T, TResult>
     {
-        private readonly TResult _defaultValue;
+        private readonly TResult? _defaultValue;
         private readonly Func<T, TResult?> _selector;
         private readonly Action<TResult?> _onChanged;
-        private readonly IComparer<TResult>? _comparer;
+        private readonly IComparer<TResult?>? _comparer;
         private readonly bool _isMax;
         private readonly Func<T, bool>? _predicate;
         private bool _isDirty;
@@ -16,7 +16,7 @@ namespace MugenMvvm.Collections
         private bool _hasValue;
         private TResult? _value;
 
-        public MaxMinClosure(TResult defaultValue, Func<T, TResult?> selector, Action<TResult?> onChanged, IComparer<TResult>? comparer, bool isMax,
+        public MaxMinClosure(TResult? defaultValue, Func<T, TResult?> selector, Action<TResult?> onChanged, IComparer<TResult?>? comparer, bool isMax,
             Func<T, bool>? predicate = null)
         {
             _defaultValue = defaultValue;
@@ -159,7 +159,7 @@ namespace MugenMvvm.Collections
                         continue;
 
                     TResult? itemValue;
-                    if (hasCurrentItem && EqualityComparer<T>.Default.Equals(pair.Key, currentItem))
+                    if (hasCurrentItem && EqualityComparer<T?>.Default.Equals(pair.Key, currentItem))
                     {
                         if (!currentValue.hasValue)
                             continue;

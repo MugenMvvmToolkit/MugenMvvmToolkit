@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models.Components;
@@ -30,25 +31,26 @@ namespace MugenMvvm.Components
         protected virtual void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate(component, metadata);
+                OwnerOptional?.TryInvalidateCache(component, metadata);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate(component, metadata);
+                OwnerOptional?.TryInvalidateCache(component, metadata);
         }
 
         protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttached(owner, metadata);
-            Invalidate(owner, metadata);
+            OwnerOptional?.TryInvalidateCache(owner, metadata);
         }
 
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
             Invalidate(owner, metadata);
+            OwnerOptional?.TryInvalidateCache(owner, metadata);
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) =>

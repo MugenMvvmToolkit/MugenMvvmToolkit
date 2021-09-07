@@ -42,7 +42,7 @@ namespace MugenMvvm.Components
                         {
                             _lastTakenLocker = locker;
                             ++_lockCount;
-                            return ActionToken.FromDelegate((c, l) => ((SynchronizableComponentOwnerBase<T>)c!).Unlock((ILocker)l!), this, locker);
+                            return ActionToken.FromDelegate((c, l) => ((SynchronizableComponentOwnerBase<T>) c!).Unlock((ILocker) l!), this, locker);
                         }
 
                         return default;
@@ -53,6 +53,43 @@ namespace MugenMvvm.Components
                         lockTaken = false;
                         locker.Exit();
                     }
+                }
+            }
+            catch
+            {
+                if (lockTaken && locker != null)
+                    locker.Exit();
+                throw;
+            }
+        }
+
+        public bool TryLock(out ActionToken lockToken)
+        {
+            var lockTaken = false;
+            ILocker? locker = null;
+            try
+            {
+                while (true)
+                {
+                    locker = _lastTakenLocker ?? _locker;
+                    locker.TryEnter(ref lockTaken);
+                    if (!lockTaken)
+                    {
+                        lockToken = default;
+                        return false;
+                    }
+
+                    var currentLocker = _lastTakenLocker ?? _locker;
+                    if (ReferenceEquals(currentLocker, locker))
+                    {
+                        _lastTakenLocker = locker;
+                        ++_lockCount;
+                        lockToken = ActionToken.FromDelegate((c, l) => ((SynchronizableComponentOwnerBase<T>) c!).Unlock((ILocker) l!), this, locker);
+                        return true;
+                    }
+
+                    lockTaken = false;
+                    locker.Exit();
                 }
             }
             catch
@@ -81,7 +118,7 @@ namespace MugenMvvm.Components
             if (locker.Priority > _locker.Priority)
             {
                 _locker = locker;
-                GetComponents<ILockerChangedListener<T>>().OnChanged((T)(object)this, locker, null);
+                GetComponents<ILockerChangedListener<T>>().OnChanged((T) (object) this, locker, null);
             }
         }
     }

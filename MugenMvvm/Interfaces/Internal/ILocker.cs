@@ -5,6 +5,8 @@ namespace MugenMvvm.Interfaces.Internal
     public interface ILocker : IHasPriority
     {
         void Enter(ref bool lockTaken);
+        
+        void TryEnter(ref bool lockTaken);
 
         void Exit();
     }

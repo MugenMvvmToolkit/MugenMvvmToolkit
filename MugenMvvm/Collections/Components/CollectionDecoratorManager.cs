@@ -23,11 +23,10 @@ namespace MugenMvvm.Collections.Components
     public sealed class CollectionDecoratorManager<T> : AttachableComponentBase<IReadOnlyObservableCollection>, ICollectionDecoratorManagerComponent, ICollectionChangedListener<T>,
         IComponentCollectionChangedListener, ICollectionBatchUpdateListener, IDisposableComponent<IReadOnlyObservableCollection>, IHasPriority
     {
+        private const int InvalidDecoratorIndex = -1;
         private bool _isDirty;
         private bool _isInBatchSource;
         private List<object?>? _sourceSnapshot;
-
-        private const int InvalidDecoratorIndex = -1;
         private bool _isInBatch;
         private bool _isInitialized;
 
@@ -41,9 +40,9 @@ namespace MugenMvvm.Collections.Components
             Priority = priority;
         }
 
-        public int Priority { get; init; }
-
         public bool CheckDuplicatesOnItemChanged { get; set; }
+
+        public int Priority { get; init; }
 
         public IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null)
         {
@@ -51,7 +50,7 @@ namespace MugenMvvm.Collections.Components
             if (!_isInitialized)
                 Reset(null, true, false);
 
-            var items = GetSource(collection);
+            var items = GetSource(collection, false);
             var decorators = GetDecorators(collection, decorator, out var index, true);
             if (index == InvalidDecoratorIndex)
                 yield break;
@@ -70,7 +69,7 @@ namespace MugenMvvm.Collections.Components
                 return;
 
             var indexes = new ItemOrListEditor<int>();
-            var items = GetSource(collection);
+            var items = GetSource(collection, false);
             items.FindAllIndexOf(item, !CheckDuplicatesOnItemChanged, ref indexes);
 
             if (indexes.Count != 0)
@@ -211,26 +210,6 @@ namespace MugenMvvm.Collections.Components
                 items.FindAllIndexOf(item, ignoreDuplicates, ref indexes);
         }
 
-        private void OnReset(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items, bool force)
-        {
-            if (force)
-                _isDirty = false;
-            else if (!CanUpdate())
-                return;
-            var decorators = GetDecorators(collection, decorator, out var startIndex);
-            if (startIndex == InvalidDecoratorIndex)
-                return;
-
-            using var token = BatchUpdate(collection);
-            for (var i = startIndex; i < decorators.Count; i++)
-            {
-                if (!decorators[i].OnReset(collection, ref items))
-                    return;
-            }
-
-            collection.GetComponents<IDecoratedCollectionChangedListener>().OnReset(collection, items);
-        }
-
         private static ItemOrArray<ICollectionDecorator> GetDecorators(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, out int index,
             bool isLengthDefault = false)
         {
@@ -259,6 +238,24 @@ namespace MugenMvvm.Collections.Components
             }
 
             return components;
+        }
+
+        private void OnReset(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items, bool force)
+        {
+            if (!force && !CanUpdate())
+                return;
+            var decorators = GetDecorators(collection, decorator, out var startIndex);
+            if (startIndex == InvalidDecoratorIndex)
+                return;
+
+            using var token = BatchUpdate(collection);
+            for (var i = startIndex; i < decorators.Count; i++)
+            {
+                if (!decorators[i].OnReset(collection, ref items))
+                    return;
+            }
+
+            collection.GetComponents<IDecoratedCollectionChangedListener>().OnReset(collection, items);
         }
 
         private void OnChanged(IReadOnlyObservableCollection collection, ItemOrArray<ICollectionDecorator> decorators, int startIndex, object? item,
@@ -297,7 +294,7 @@ namespace MugenMvvm.Collections.Components
                 if (!_isInitialized)
                 {
                     _isInitialized = true;
-                    OnReset(collection, null, GetSource(collection), true);
+                    OnReset(collection, null, GetSource(collection, true), true);
                     return;
                 }
 
@@ -308,14 +305,23 @@ namespace MugenMvvm.Collections.Components
                         OnReset(collection, decorator, items, true);
                 }
                 else
-                    OnReset(collection, null, GetSource(collection), true);
+                    OnReset(collection, null, GetSource(collection, true), true);
             }
         }
 
-        private IEnumerable<object?> GetSource(IReadOnlyObservableCollection collection)
+        private IEnumerable<object?> GetSource(IReadOnlyObservableCollection collection, bool force)
         {
             if (_isInBatchSource)
+            {
+                if (force)
+                {
+                    _isDirty = false;
+                    InitializeSnapshot(collection);
+                }
+
                 return _sourceSnapshot ?? (IEnumerable<object?>)Array.Empty<object?>();
+            }
+
             return collection.AsEnumerable();
         }
 
@@ -335,6 +341,40 @@ namespace MugenMvvm.Collections.Components
                 return component is null or ICollectionDecorator;
             return component is IListenerCollectionDecorator or IDecoratedCollectionChangedListener ||
                    component is ICollectionDecorator collectionDecorator && collectionDecorator.IsLazy(collection);
+        }
+
+        private void InitializeSnapshot(IReadOnlyObservableCollection collection)
+        {
+            if (collection.Count <= 0)
+                return;
+            if (_sourceSnapshot == null)
+                _sourceSnapshot = new List<object?>(collection.AsEnumerable());
+            else
+            {
+                _sourceSnapshot.Clear();
+                _sourceSnapshot.AddRange(collection.AsEnumerable());
+            }
+        }
+
+        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (batchUpdateType != BatchUpdateType.Source)
+                return;
+            _isInBatchSource = true;
+            InitializeSnapshot(collection);
+        }
+
+        void ICollectionBatchUpdateListener.OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (batchUpdateType != BatchUpdateType.Source)
+                return;
+            _isInBatchSource = false;
+            _sourceSnapshot?.Clear();
+            if (_isDirty)
+            {
+                _isDirty = false;
+                Reset(null, true, false);
+            }
         }
 
         void ICollectionChangedListener<T>.OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index) => OnAdded(collection, null, item, index);
@@ -386,33 +426,6 @@ namespace MugenMvvm.Collections.Components
                 _decoratorManager._isInBatch = false;
                 // ReSharper disable once PossiblyImpureMethodCallOnReadonlyVariable
                 _token.Dispose();
-            }
-        }
-
-        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
-        {
-            if (batchUpdateType != BatchUpdateType.Source)
-                return;
-            _isInBatchSource = true;
-            if (collection.Count > 0)
-            {
-                if (_sourceSnapshot == null)
-                    _sourceSnapshot = new List<object?>(collection.AsEnumerable());
-                else
-                    _sourceSnapshot.AddRange(collection.AsEnumerable());
-            }
-        }
-
-        void ICollectionBatchUpdateListener.OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
-        {
-            if (batchUpdateType != BatchUpdateType.Source)
-                return;
-            _isInBatchSource = false;
-            _sourceSnapshot?.Clear();
-            if (_isDirty)
-            {
-                _isDirty = false;
-                Reset(null, true, false);
             }
         }
     }

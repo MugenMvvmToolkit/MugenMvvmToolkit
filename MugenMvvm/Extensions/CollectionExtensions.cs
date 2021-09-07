@@ -12,6 +12,7 @@ using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
@@ -29,6 +30,28 @@ namespace MugenMvvm.Extensions
         {
             collection.ConfigureDecorators().Bind<T>(out var result, disposeSourceOnDispose);
             return result;
+        }
+
+        public static IReadOnlyObservableCollection<object?> CreateDerivedCollection<T>(this IEnumerable<T> items, bool disposeSourceOnDispose = false) where T : class
+        {
+            Should.NotBeNull(items, nameof(items));
+            if (items is IReadOnlyObservableCollection collection)
+                return collection.Bind(disposeSourceOnDispose);
+
+            var objects = new SynchronizedObservableCollection<T>();
+            objects.Reset(items);
+            return objects;
+        }
+
+        public static IReadOnlyObservableCollection<T> CreateDerivedCollectionSource<T>(this IEnumerable<T> items, bool disposeSourceOnDispose = false) where T : class
+        {
+            Should.NotBeNull(items, nameof(items));
+            if (items is IReadOnlyObservableCollection<T> collection)
+                return collection.BindToSource(disposeSourceOnDispose);
+
+            var objects = new SynchronizedObservableCollection<T>();
+            objects.Reset(items);
+            return objects;
         }
 
         public static DecoratorsConfiguration ConfigureDecorators(this IReadOnlyObservableCollection collection, int? priority = null, int step = 10)
@@ -68,8 +91,8 @@ namespace MugenMvvm.Extensions
             collection.GetBatchUpdateManager().BeginBatchUpdate(collection, batchUpdateType);
             return ActionToken.FromDelegate((c, t) =>
             {
-                var observableCollection = (IReadOnlyObservableCollection)c!;
-                observableCollection.GetBatchUpdateManager().EndBatchUpdate(observableCollection, (BatchUpdateType)t!);
+                var observableCollection = (IReadOnlyObservableCollection) c!;
+                observableCollection.GetBatchUpdateManager().EndBatchUpdate(observableCollection, (BatchUpdateType) t!);
             }, collection, batchUpdateType);
         }
 
@@ -78,6 +101,26 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(collection, nameof(collection));
             collection.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.RaiseItemChanged(collection, item, args);
         }
+
+        public static DecoratorsConfiguration DisposeWith<T>(this DecoratorsConfiguration configuration, IComponentOwner<T> owner) where T : class, IDisposable
+        {
+            configuration.Collection.DisposeWith(owner);
+            return configuration;
+        }
+
+        public static DecoratorsConfiguration DisposeWith(this DecoratorsConfiguration configuration, IHasDisposeCallback owner)
+        {
+            configuration.Collection.DisposeWith(owner);
+            return configuration;
+        }
+
+        public static IReadOnlyObservableCollection<object?> AsCollection(this DecoratorsConfiguration configuration) =>
+            (IReadOnlyObservableCollection<object?>) configuration.Collection;
+
+        public static IReadOnlyObservableCollection<T> AsCollection<T>(this DecoratorsConfiguration configuration) => (IReadOnlyObservableCollection<T>) configuration.Collection;
+
+        public static SynchronizedObservableCollection<T> AsSynchronizedCollection<T>(this DecoratorsConfiguration configuration) =>
+            (SynchronizedObservableCollection<T>) configuration.Collection;
 
         public static DecoratorsConfiguration Select<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult?, TResult?> selector,
             Action<T, TResult>? cleanup = null, IEqualityComparer<TResult?>? comparer = null) where T : notnull where TResult : class? =>
@@ -107,7 +150,7 @@ namespace MugenMvvm.Extensions
             bool nullItemResult, out FilterCollectionDecorator<T> decorator)
         {
             Should.NotBeNull(filter, nameof(filter));
-            decorator = new FilterCollectionDecorator<T>(filter, configuration.Priority) { NullItemResult = nullItemResult };
+            decorator = new FilterCollectionDecorator<T>(filter, configuration.Priority) {NullItemResult = nullItemResult};
             return configuration.Add(decorator);
         }
 
@@ -130,10 +173,10 @@ namespace MugenMvvm.Extensions
             return configuration.Add(decorator);
         }
 
-        public static DecoratorsConfiguration SelectMany<T>(this DecoratorsConfiguration configuration, Func<T, IEnumerable> selector, bool decoratedItems = true)
+        public static DecoratorsConfiguration SelectMany<T>(this DecoratorsConfiguration configuration, Func<T, IEnumerable?> selector, bool decoratedItems = true)
             where T : class => configuration.SelectMany(selector, decoratedItems, out _);
 
-        public static DecoratorsConfiguration SelectMany<T>(this DecoratorsConfiguration configuration, Func<T, IEnumerable> selector, bool decoratedItems,
+        public static DecoratorsConfiguration SelectMany<T>(this DecoratorsConfiguration configuration, Func<T, IEnumerable?> selector, bool decoratedItems,
             out FlattenCollectionDecorator<T> decorator) where T : class
         {
             Should.NotBeNull(selector, nameof(selector));
@@ -186,7 +229,7 @@ namespace MugenMvvm.Extensions
         public static DecoratorsConfiguration WithHeaderFooter(this DecoratorsConfiguration configuration, ItemOrIReadOnlyList<object> header,
             ItemOrIReadOnlyList<object> footer, out HeaderFooterCollectionDecorator decorator)
         {
-            decorator = new HeaderFooterCollectionDecorator(configuration.Priority) { Header = header, Footer = footer };
+            decorator = new HeaderFooterCollectionDecorator(configuration.Priority) {Header = header, Footer = footer};
             return configuration.Add(decorator);
         }
 
@@ -259,7 +302,7 @@ namespace MugenMvvm.Extensions
                 {
                     var selectedItem = getSelectedItem();
                     if (selectedItem == null || !items.ContainsKey(selectedItem))
-                        setSelectedItem(getDefault == null ? Enumerable.FirstOrDefault(items).Key : getDefault(items.Keys, selectedItem));
+                        setSelectedItem(getDefault?.Invoke(items.Keys, selectedItem) ?? Enumerable.FirstOrDefault(items).Key);
                 }
 
                 return null;
@@ -267,7 +310,7 @@ namespace MugenMvvm.Extensions
             {
                 var selectedItem = getSelectedItem();
                 if (selectedItem == null || !items.ContainsKey(selectedItem))
-                    setSelectedItem(getDefault == null ? Enumerable.FirstOrDefault(items).Key : getDefault(items.Keys, selectedItem));
+                    setSelectedItem(getDefault?.Invoke(items.Keys, selectedItem) ?? Enumerable.FirstOrDefault(items).Key);
             }, comparer, out removeToken);
         }
 
@@ -295,7 +338,7 @@ namespace MugenMvvm.Extensions
             }, (_, item, state, count, _) =>
             {
                 if (count == 0 && state != null)
-                    ((INotifyPropertyChanged)item).PropertyChanged -= state;
+                    ((INotifyPropertyChanged) item).PropertyChanged -= state;
                 return state;
             }, null, null, InternalEqualityComparer.Reference, out removeToken);
         }
@@ -321,23 +364,23 @@ namespace MugenMvvm.Extensions
             }, null, null, InternalEqualityComparer.Reference, out removeToken);
         }
 
-        public static DecoratorsConfiguration Min<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
-            TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult>? comparer = null)
+        public static DecoratorsConfiguration Min<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult?> onChanged,
+            TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult?>? comparer = null)
             where T : notnull =>
             configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, false, out _);
 
-        public static DecoratorsConfiguration Min<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
-            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult>? comparer, out ActionToken removeToken)
+        public static DecoratorsConfiguration Min<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult?> onChanged,
+            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, out ActionToken removeToken)
             where T : notnull =>
             configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, false, out removeToken);
 
-        public static DecoratorsConfiguration Max<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
-            TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult>? comparer = null)
+        public static DecoratorsConfiguration Max<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult?> onChanged,
+            TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult?>? comparer = null)
             where T : notnull =>
             configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, true, out _);
 
-        public static DecoratorsConfiguration Max<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
-            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult>? comparer, out ActionToken removeToken)
+        public static DecoratorsConfiguration Max<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult?> onChanged,
+            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, out ActionToken removeToken)
             where T : notnull =>
             configuration.MaxMin(selector, onChanged, defaultValue, predicate, comparer, true, out removeToken);
 
@@ -648,7 +691,7 @@ namespace MugenMvvm.Extensions
                 source = items;
             }
             else
-                source = new[] { (T)source, value };
+                source = new[] {(T) source, value};
         }
 
         internal static bool RemoveRaw<T>(ref object? source, T value) where T : class
@@ -786,7 +829,7 @@ namespace MugenMvvm.Extensions
         internal static ActionToken BatchUpdateDecorators(this IReadOnlyObservableCollection collection, ICollectionBatchUpdateManagerComponent manager)
         {
             manager.BeginBatchUpdate(collection, BatchUpdateType.Decorators);
-            return ActionToken.FromDelegate((m, c) => ((ICollectionBatchUpdateManagerComponent)m!).EndBatchUpdate((IReadOnlyObservableCollection)c!, BatchUpdateType.Decorators),
+            return ActionToken.FromDelegate((m, c) => ((ICollectionBatchUpdateManagerComponent) m!).EndBatchUpdate((IReadOnlyObservableCollection) c!, BatchUpdateType.Decorators),
                 manager, collection);
         }
 
@@ -804,18 +847,18 @@ namespace MugenMvvm.Extensions
             return default;
         }
 
-        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable> selector, T item) => new(selector(item), true);
+        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable?> selector, T item) => new(selector(item), true);
 
-        private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable> selector, T item) => new(selector(item), false);
+        private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable?> selector, T item) => new(selector(item), false);
 
-        private static DecoratorsConfiguration MaxMin<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult> onChanged,
-            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult>? comparer, bool isMax, out ActionToken removeToken)
+        private static DecoratorsConfiguration MaxMin<T, TResult>(this DecoratorsConfiguration configuration, Func<T, TResult> selector, Action<TResult?> onChanged,
+            TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, bool isMax, out ActionToken removeToken)
             where T : notnull
         {
             Should.NotBeNull(selector, nameof(selector));
             Should.NotBeNull(onChanged, nameof(onChanged));
-            var closure = new MaxMinClosure<T, TResult>(defaultValue!, selector, onChanged, comparer, isMax, predicate);
-            return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnReset, null, out removeToken);
+            var closure = new MaxMinClosure<T, TResult>(defaultValue, selector, onChanged, comparer, isMax, predicate);
+            return configuration.Subscribe<T, (TResult?, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnReset, null, out removeToken);
         }
 
         private sealed class ItemChangedObserver<T> : IObserver<T>

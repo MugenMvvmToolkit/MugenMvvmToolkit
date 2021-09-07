@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
@@ -350,10 +351,30 @@ namespace MugenMvvm.Collections.Components
             if (flattenItemInfo.IsEmpty || flattenItemInfo.Items is not ISynchronizable synchronizable)
                 return;
 
-            using var _ = collection.Lock();
-            using var __ = MugenExtensions.TryLock(flattenItemInfo.Items);
-            collection.UpdateLocker(synchronizable.Locker);
-            synchronizable.UpdateLocker(collection.Locker);
+            var spinWait = new SpinWait();
+            ActionToken t1 = default;
+            ActionToken t2 = default;
+            try
+            {
+                while (true)
+                {
+                    if (collection.TryLock(out t1) && synchronizable.TryLock(out t2))
+                    {
+                        collection.UpdateLocker(synchronizable.Locker);
+                        synchronizable.UpdateLocker(collection.Locker);
+                        break;
+                    }
+
+                    t1.Dispose();
+                    t2.Dispose();
+                    spinWait.SpinOnce();
+                }
+            }
+            finally
+            {
+                t1.Dispose();
+                t2.Dispose();
+            }
         }
     }
 }

@@ -58,7 +58,7 @@ namespace MugenMvvm.Collections
         {
             var index = 0;
             int? originalIndex = null;
-            using var _ = MugenExtensions.TryLock(Collection);
+            using var _ = MugenExtensions.Lock(Collection);
             foreach (var value in GetItems())
             {
                 if (Equals(item, value))
@@ -75,7 +75,7 @@ namespace MugenMvvm.Collections
         public void OnAdded(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int index,
             bool notify, bool isRecycled, out bool isReset, object? replaceItem = null, bool isReplace = false)
         {
-            using var _ = MugenExtensions.TryLock(Collection);
+            using var _ = MugenExtensions.Lock(Collection);
             isReset = false;
             if (notify)
             {
@@ -113,8 +113,8 @@ namespace MugenMvvm.Collections
         public void OnReplaced(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int index,
             FlattenCollectionItemBase oldItem)
         {
-            using var _ = MugenExtensions.TryLock(oldItem.Collection);
-            using var __ = MugenExtensions.TryLock(Collection);
+            using var _ = MugenExtensions.Lock(oldItem.Collection);
+            using var __ = MugenExtensions.Lock(Collection);
             oldItem.Detach();
             Index = oldItem.Index;
             if (oldItem.Size > decorator.BatchThreshold)
@@ -161,7 +161,7 @@ namespace MugenMvvm.Collections
         public void OnRemoved(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int index,
             out bool isReset, object? replaceItem = null, bool isReplace = false)
         {
-            using var _ = MugenExtensions.TryLock(Collection);
+            using var _ = MugenExtensions.Lock(Collection);
             if (Size > decorator.BatchThreshold)
             {
                 isReset = true;
@@ -205,7 +205,7 @@ namespace MugenMvvm.Collections
         public void OnMoved(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int oldIndex,
             int newIndex)
         {
-            using var _ = MugenExtensions.TryLock(Collection);
+            using var _ = MugenExtensions.Lock(Collection);
             if (Size > decorator.BatchThreshold)
             {
                 Reset(decoratorManager, decorator);

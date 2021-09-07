@@ -66,6 +66,8 @@ namespace MugenMvvm.Collections
 
         public ActionToken Lock() => _source.Lock();
 
+        public bool TryLock(out ActionToken lockToken) => _source.TryLock(out lockToken);
+
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private sealed class Listener : ICollectionChangedListener<T>, ICollectionBatchUpdateListener, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent,
@@ -131,13 +133,13 @@ namespace MugenMvvm.Collections
             {
             }
 
-            public void OnDetached(object owner, IReadOnlyMetadataContext? metadata) => TryGetTarget((IReadOnlyObservableCollection)owner)?.Dispose();
+            public void OnDetached(object owner, IReadOnlyMetadataContext? metadata) => TryGetTarget((IReadOnlyObservableCollection) owner)?.Dispose();
 
             public void Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
 
             private ReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {
-                var target = (ReadOnlyObservableCollection<T>?)_targetRef.Target;
+                var target = (ReadOnlyObservableCollection<T>?) _targetRef.Target;
                 if (target == null)
                 {
                     source.RemoveComponent(this);

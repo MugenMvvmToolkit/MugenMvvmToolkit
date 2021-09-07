@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTests.Extensions
             _collection.ConfigureDecorators().Count(i => countValue = i, condition);
             if (!withCondition)
                 condition = _ => true;
-            Action assert = () => countValue.ShouldEqual(_collection.OfType<IntValue>().Count(condition));
+            Action assert = () => countValue.ShouldEqual(_collection.OfType<IntValue>().Count(condition!));
 
             for (var i = 1; i < count; i++)
             {
@@ -246,7 +246,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 condition = _ => true;
             Action assert = () =>
             {
-                var ints = _collection.OfType<IntValue>().Where(condition).Select(value => value.Value);
+                var ints = _collection.OfType<IntValue>().Where(condition!).Select(value => value.Value);
                 maxValue.ShouldEqual(ints.Any() ? ints.Max() : int.MinValue);
             };
 
@@ -305,7 +305,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 condition = _ => true;
             Action assert = () =>
             {
-                var ints = _collection.OfType<IntValue>().Where(condition).Select(value => value.Value);
+                var ints = _collection.OfType<IntValue>().Where(condition!).Select(value => value.Value);
                 minValue.ShouldEqual(ints.Any() ? ints.Min() : int.MaxValue);
             };
 
@@ -368,7 +368,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return _random.Next(-10000, 10000);
             }
 
-            Action assert = () => sum.ShouldEqual(_collection.OfType<IntValue>().Where(condition).Sum(value => value.Value));
+            Action assert = () => sum.ShouldEqual(_collection.OfType<IntValue>().Where(condition!).Sum(value => value.Value));
             for (var i = 1; i < count; i++)
             {
                 var next = Next();
@@ -428,7 +428,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return (decimal)(_random.NextDouble() * _random.Next(-10000, 10000));
             }
 
-            Action assert = () => sum.ShouldEqual(_collection.OfType<DecimalValue>().Where(condition).Sum(value => value.Value));
+            Action assert = () => sum.ShouldEqual(_collection.OfType<DecimalValue>().Where(condition!).Sum(value => value.Value));
             for (var i = 1; i < count; i++)
             {
                 var next = Next();

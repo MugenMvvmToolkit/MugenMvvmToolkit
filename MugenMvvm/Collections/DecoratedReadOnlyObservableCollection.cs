@@ -95,6 +95,8 @@ namespace MugenMvvm.Collections
 
         public ActionToken Lock() => _source.Lock();
 
+        public bool TryLock(out ActionToken lockToken) => _source.TryLock(out lockToken);
+
         private IEnumerable<T> GetEnumerable(ICollectionDecorator decorator)
         {
             Should.NotBeNull(decorator, nameof(decorator));
