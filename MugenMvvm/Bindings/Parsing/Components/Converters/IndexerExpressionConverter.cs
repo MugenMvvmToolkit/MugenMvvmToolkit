@@ -23,7 +23,7 @@ namespace MugenMvvm.Bindings.Parsing.Components.Converters
                 return result;
 
             return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(ItemOrIReadOnlyList.FromList(index.Arguments)),
-                index.Indexer.GetMemberFlagsMetadata());
+                index.Indexer.GetMemberFlagsMetadata(index.Indexer.DeclaringType is { IsValueType: true }));
         }
     }
 }

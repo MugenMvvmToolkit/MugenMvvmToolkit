@@ -17,25 +17,25 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             BindingBuilderTarget<string, object> target = default;
             Expression<Func<IBindingBuilderContext<string, object>, object?>> expression1 = context => context.Source;
             var converterRequest = (BindingExpressionRequest)target.Action(expression1);
-            converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
+            converterRequest.Target.ShouldEqual(UnaryExpressionNode.ActionMacros);
             converterRequest.Source.ShouldEqual(expression1);
             converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Func<IBindingBuilderContext<string, IComparable>, object?>> expression2 = context => context.Source;
             converterRequest = target.Action(expression2);
-            converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
+            converterRequest.Target.ShouldEqual(UnaryExpressionNode.ActionMacros);
             converterRequest.Source.ShouldEqual(expression2);
             converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Action<IBindingBuilderContext<string, object>>> expression3 = context => context.ToString();
             converterRequest = target.Action(expression3);
-            converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
+            converterRequest.Target.ShouldEqual(UnaryExpressionNode.ActionMacros);
             converterRequest.Source.ShouldEqual(expression3);
             converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Action<IBindingBuilderContext<string, IComparable>>> expression4 = context => context.ToString();
             converterRequest = target.Action(expression4);
-            converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
+            converterRequest.Target.ShouldEqual(UnaryExpressionNode.ActionMacros);
             converterRequest.Source.ShouldEqual(expression4);
             converterRequest.Parameters.Count.ShouldEqual(0);
         }

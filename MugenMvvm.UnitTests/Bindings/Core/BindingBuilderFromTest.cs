@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             converterRequest.Parameters.Count.ShouldEqual(0);
 
             Expression<Func<IBindingBuilderContext<string, object>, object?>> expression1 = context => context.Source;
-            converterRequest = target.To(expression1);
+            converterRequest = target.To<object, object?>(expression1);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression1);
             converterRequest.Parameters.Count.ShouldEqual(0);

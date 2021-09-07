@@ -30,6 +30,14 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">
+    <Reference Include="System.Numerics" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\MugenMvvm.Tests\MugenMvvm.Tests.csproj" />
     <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Internal;
+using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTests.Internal
@@ -118,7 +119,9 @@ namespace MugenMvvm.UnitTests.Internal
             var footers = ints.Where(i => !condition(i).GetValueOrDefault(true)).OrderBy(i => i).ToList();
             ints.RemoveAll(i => condition(i).HasValue);
 
-            headers.Concat(ints.OrderBy(i => i)).Concat(footers).ShouldEqual(list);
+            headers.ShouldEqual(list.Where(i => condition(i).GetValueOrDefault()));
+            footers.ShouldEqual(list.Where(i => !condition(i).GetValueOrDefault(true)));
+            list.Where(i => !condition(i).HasValue).ShouldNotEqual(ints.OrderBy(i => i));
         }
 
         [Theory]
@@ -158,7 +161,8 @@ namespace MugenMvvm.UnitTests.Internal
             var footers = items.OfType<int>().Where(i => !condition(i).GetValueOrDefault(true)).OrderBy(i => i).OfType<object>().ToList();
             items.RemoveAll(o => o is int i && condition(i).HasValue);
 
-            headers.Concat(items.OrderBy(o => o, comparer)).Concat(footers).ShouldEqual(list);
+            headers.ShouldEqual(list.OfType<int>().Where(i => condition(i).GetValueOrDefault()).OfType<object>());
+            footers.ShouldEqual(list.OfType<int>().Where(i => !condition(i).GetValueOrDefault(true)).OfType<object>());
         }
     }
 }

@@ -24,8 +24,10 @@ namespace MugenMvvm.Bindings.Extensions
     public static partial class BindingMugenExtensions
     {
         private static IReadOnlyDictionary<string, object?>? _memberFlagsMetadata;
-        private static readonly HashSet<char> BindingTargetDelimiters = new() { ',', ';', ' ' };
-        private static readonly HashSet<char> BindingDelimiters = new() { ',', ';' };
+        private static IReadOnlyDictionary<string, object?>? _suppressMethodIndexerMetadata;
+        private static IReadOnlyDictionary<string, object?>? _memberFlagsSuppressMethodIndexerMetadata;
+        private static readonly HashSet<char> BindingTargetDelimiters = new() {',', ';', ' '};
+        private static readonly HashSet<char> BindingDelimiters = new() {',', ';'};
 
         public static EnumFlags<T> GetFlags<T>(this IExpressionNode expression, string key, EnumFlags<T> defaultFlags) where T : class, IFlagsEnum
         {
@@ -48,7 +50,7 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(expression, nameof(expression));
             Should.NotBeNull(key, nameof(key));
             if (expression.Metadata.TryGetValue(key, out var v))
-                return (TValue)v!;
+                return (TValue) v!;
             return defaultValue;
         }
 
@@ -106,14 +108,19 @@ namespace MugenMvvm.Bindings.Extensions
             var method = methodCallExpression.Method;
             ParameterInfo[]? parameters = null;
             IExpressionNode? target;
+            Type? targetType;
             var args = context.Convert(ItemOrIReadOnlyList.FromList(methodCallExpression.Arguments));
             if (method.GetAccessModifiers(true, ref parameters).HasFlag(MemberFlags.Extension))
             {
+                targetType = methodCallExpression.Arguments[0].Type;
                 target = args[0];
                 args.RemoveAt(0);
             }
             else
+            {
+                targetType = method.DeclaringType;
                 target = context.ConvertTarget(methodCallExpression.Object, method);
+            }
 
             ItemOrArray<string> typeArgs = default;
             if (method.IsGenericMethod)
@@ -124,7 +131,7 @@ namespace MugenMvvm.Bindings.Extensions
                     typeArgs.SetAt(i, genericArguments[i].AssemblyQualifiedName!);
             }
 
-            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs, method.GetMemberFlagsMetadata());
+            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs, method.GetMemberFlagsMetadata(targetType is {IsValueType: true}));
         }
 
         public static IExpressionNode Convert<T>(this IExpressionConverterContext<T> context, T expression) where T : class
@@ -411,13 +418,35 @@ namespace MugenMvvm.Bindings.Extensions
             return result.ToItemOrList();
         }
 
-        internal static IReadOnlyDictionary<string, object?>? GetMemberFlagsMetadata(this MemberInfo memberInfo)
+        internal static IReadOnlyDictionary<string, object?>? GetMemberFlagsMetadata(this MemberInfo memberInfo, bool suppressMethodIndexerAccessors)
         {
             if (!memberInfo.GetAccessModifiers().HasFlag(MemberFlags.NonPublic))
+            {
+                if (suppressMethodIndexerAccessors)
+                {
+                    return _suppressMethodIndexerMetadata ??= new ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>
+                    {
+                        {BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject},
+                        {BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject}
+                    });
+                }
+
                 return null;
+            }
+
+            if (suppressMethodIndexerAccessors)
+            {
+                return _memberFlagsSuppressMethodIndexerMetadata ??= new ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>
+                {
+                    {BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject},
+                    {BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject},
+                    {BindingParameterNameConstant.MemberFlags, MemberFlags.All}
+                });
+            }
+
             return _memberFlagsMetadata ??= new ReadOnlyDictionary<string, object?>(new Dictionary<string, object?>
             {
-                { BindingParameterNameConstant.MemberFlags, MemberFlags.All }
+                {BindingParameterNameConstant.MemberFlags, MemberFlags.All}
             });
         }
 
@@ -469,7 +498,6 @@ namespace MugenMvvm.Bindings.Extensions
             return default;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsValidIdentifierSymbol(this char symbol, bool isFirstSymbol)
         {
             if (isFirstSymbol)

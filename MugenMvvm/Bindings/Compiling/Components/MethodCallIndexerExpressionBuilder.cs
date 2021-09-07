@@ -28,15 +28,17 @@ namespace MugenMvvm.Bindings.Compiling.Components
     public sealed class MethodCallIndexerExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
         private const float NotExactlyEqualWeight = 1f;
+        private const float NotExactlyEqualNullableWeight = 1.05f;
         private const float NotExactlyEqualBoxWeight = 1.1f;
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
         private const float NotExactlyEqualUnsafeCastObjectWeight = 10f;
+        private const float IsByRefLikeParameterWeight = 10000f;
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
 
         private static readonly ConstructorInfo ItemOrArrayInternalConstructor =
             typeof(ItemOrArray<object>).GetConstructorOrThrow(BindingFlagsEx.InstancePublic | BindingFlagsEx.InstanceNonPublic,
-                new[] { typeof(object), typeof(object[]), typeof(int) });
+                new[] {typeof(object), typeof(object[]), typeof(int)});
 
         private static readonly MethodInfo InvokeMethod = typeof(IMethodMemberInfo).GetMethodOrThrow(nameof(IMethodMemberInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
@@ -177,7 +179,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 if (result.Method.MemberFlags.HasFlag(Enums.MemberFlags.Extension))
                 {
                     targetExp = null;
-                    resultArgs = resultArgs.InsertFirstArg(target.Expression!);
+                    resultArgs = resultArgs.InsertFirstArg(target.Expression!.ConvertIfNeed(result.Method.DeclaringType, true));
                 }
                 else
                     targetExp = target.Expression;
@@ -238,6 +240,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
                         var parameterType = parameters[j].ParameterType;
                         if (parameterType.IsByRef)
                             parameterType = parameterType.GetElementType()!;
+#if NET461
+                        if (parameterType.IsByRefLike())
+                            notExactlyEqual += IsByRefLikeParameterWeight;
+#else
+                        if (parameterType.IsValueType && parameterType.IsByRefLike)
+                            notExactlyEqual += IsByRefLikeParameterWeight;
+#endif
                         if (parameterType == argType)
                         {
                             ++usageCount;
@@ -246,7 +255,16 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
                         if (argType.IsCompatibleWith(parameterType, out var boxRequired))
                         {
-                            notExactlyEqual += boxRequired ? NotExactlyEqualBoxWeight : NotExactlyEqualWeight;
+                            if (boxRequired)
+                                notExactlyEqual += NotExactlyEqualBoxWeight;
+                            else
+                            {
+                                if (argType.IsNullableType() && !parameterType.IsNullableType())
+                                    notExactlyEqual += NotExactlyEqualNullableWeight;
+                                else
+                                    notExactlyEqual += NotExactlyEqualWeight;
+                            }
+
                             ++usageCount;
                         }
                         else
@@ -617,9 +635,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     return false;
 
                 if (typesX == null)
-                    return Equals(typesY!, (object?[])Args);
+                    return Equals(typesY!, (object?[]) Args);
                 if (typesY == null)
-                    return Equals(typesX!, (object?[])other.Args);
+                    return Equals(typesX!, (object?[]) other.Args);
                 return InternalEqualityComparer.Equals(typesX, typesY);
             }
 
@@ -639,7 +657,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 }
                 else
                 {
-                    foreach (var value in (object[])Args)
+                    foreach (var value in (object[]) Args)
                         hashCode.Add(GetValueType(value));
                 }
 
@@ -679,7 +697,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly Expression? Expression;
             public readonly Type Type;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public TargetData(Type type, Expression? expression)
             {
                 Type = type;
@@ -687,11 +704,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
             }
 
             [MemberNotNullWhen(false, nameof(Expression))]
-            public bool IsStatic
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => Expression == null;
-            }
+            public bool IsStatic => Expression == null;
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -701,7 +714,6 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly Expression? Expression;
             public readonly Type? Type;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ArgumentData(IExpressionNode node, Expression? expression, Type? type)
             {
                 Should.NotBeNull(node, nameof(node));
@@ -712,13 +724,8 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 Type = type;
             }
 
-            public bool IsLambda
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => Node.ExpressionType == ExpressionNodeType.Lambda;
-            }
+            public bool IsLambda => Node.ExpressionType == ExpressionNodeType.Lambda;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ArgumentData UpdateExpression(Expression expression) => new(Node, expression, Type);
         }
 
@@ -730,14 +737,12 @@ namespace MugenMvvm.Bindings.Compiling.Components
             public readonly IMethodMemberInfo? Method;
             private readonly object? _args;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MethodData(IMethodMemberInfo method)
                 : this(method, null)
             {
                 Method = method;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public MethodData(IMethodMemberInfo method, IMethodMemberInfo? unresolvedMethod, object? args = null)
             {
                 Method = method;
@@ -759,21 +764,13 @@ namespace MugenMvvm.Bindings.Compiling.Components
                         return 1;
                     if (_args is Expression[] expressions)
                         return expressions.Length;
-                    return ((Type[])_args).Length;
+                    return ((Type[]) _args).Length;
                 }
             }
 
-            public ItemOrArray<Expression> Expressions
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => ItemOrArray.FromRawValue<Expression>(_args);
-            }
+            public ItemOrArray<Expression> Expressions => ItemOrArray.FromRawValue<Expression>(_args);
 
-            public ItemOrIReadOnlyList<IParameterInfo> Parameters
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
-            }
+            public ItemOrIReadOnlyList<IParameterInfo> Parameters => ItemOrIReadOnlyList.FromRawValue<IParameterInfo>(_parametersRaw);
 
             public Type GetExpectedParameterType(int index)
             {
@@ -791,7 +788,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
                 if (_args is Expression[] expressions)
                     return expressions[index].Type;
-                return ((Type[])_args!)[index];
+                return ((Type[]) _args!)[index];
             }
 
             public MethodData WithArgs(ItemOrArray<object?> args, ref ItemOrArray<Type> instanceArgs)

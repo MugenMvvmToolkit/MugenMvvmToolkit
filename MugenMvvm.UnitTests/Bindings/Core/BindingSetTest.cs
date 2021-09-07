@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(source, BindingManager);
             bindingSet.Bind(target, Delegate, Metadata);
-            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
+            bindingSet.Build(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(BindingManager);
             bindingSet.Bind(target, source, Delegate, Metadata);
-            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
+            bindingSet.Build(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(BindingManager);
             bindingSet.Bind(target, request, source, Metadata);
-            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
+            bindingSet.Build(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -156,7 +156,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
 
             var bindingSet = new BindingSet<object>(source, BindingManager);
             bindingSet.Bind(target, request, source: null, Metadata);
-            bindingSet.BuildIncludeBindings(Metadata).Item.ShouldEqual(Binding);
+            bindingSet.Build(Metadata).Item.ShouldEqual(Binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -211,7 +211,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                     bindingSet.Bind(valueTuple.target, valueTuple.request, valueTuple.source, Metadata);
             }
 
-            var bindings = bindingSet.BuildIncludeBindings(Metadata);
+            var bindings = bindingSet.Build(Metadata);
             invokeBuilderCount.ShouldEqual(count * bindingCount);
             sortCount.ShouldEqual(bindingCount > 1 ? count : 0);
             var groupBy = bindings.GroupBy(binding => binding);
@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             foreach (var group in groupBy)
                 group.Count().ShouldEqual(bindingCount);
 
-            bindingSet.BuildIncludeBindings(Metadata).IsEmpty.ShouldBeTrue();
+            bindingSet.Build(Metadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]

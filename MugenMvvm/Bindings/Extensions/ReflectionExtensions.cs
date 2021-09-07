@@ -16,12 +16,21 @@ namespace MugenMvvm.Bindings.Extensions
 {
     public static partial class BindingMugenExtensions
     {
+        private static readonly Type[] ConvertibleTypeArgs = new Type[1];
+        private static readonly Dictionary<KeyValuePair<Type, Type>, bool> ConvertibleCache = new(23, InternalEqualityComparer.TypeType);
         private static readonly Dictionary<Type, object?> DefaultValueCache = new(23, InternalEqualityComparer.Type);
-
+#if NET461
+        private static readonly Dictionary<Type, bool> IsByRefLikeCache = new(23, InternalEqualityComparer.Type);
+#endif
         public static Expression GenerateExpression(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr)
         {
-            Convert(ref left, ref right, true);
-            return getExpr(left, right);
+            if (left.Type != right.Type && left.Type.IsValueType == right.Type.IsValueType)
+            {
+                if (right.Type.GetTypeConvertPriority() > left.Type.GetTypeConvertPriority())
+                    return TryGenerate(right, left, getExpr);
+            }
+
+            return TryGenerate(left, right, getExpr);
         }
 
         public static void Convert(ref Expression left, ref Expression right, bool exactly)
@@ -108,15 +117,21 @@ namespace MugenMvvm.Bindings.Extensions
             if (!target.IsValueType)
             {
                 boxRequired = source.IsValueType;
-                return target.IsAssignableFrom(source);
+                return target.IsAssignableFrom(source) || IsConvertible(target, source);
             }
 
             var st = GetNonNullableType(source);
             var tt = GetNonNullableType(target);
+            if (st == tt)
+                return true;
             if (st != source && tt == st)
-                return false;
+                return IsConvertible(tt, st);
+
             var sc = st.IsEnum ? TypeCode.Object : Type.GetTypeCode(st);
             var tc = tt.IsEnum ? TypeCode.Object : Type.GetTypeCode(tt);
+            if (tc == TypeCode.Object && !tt.IsEnum)
+                return IsConvertible(tt, st);
+
             switch (sc)
             {
                 case TypeCode.SByte:
@@ -239,7 +254,7 @@ namespace MugenMvvm.Bindings.Extensions
                     break;
             }
 
-            return st == tt;
+            return false;
         }
 
         public static bool IsNullableType(this Type type) => type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
@@ -285,7 +300,8 @@ namespace MugenMvvm.Bindings.Extensions
             return method.GetAccessModifiers(false, ref parameters);
         }
 
-        public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method, bool checkExtension, [NotNullIfNotNull("extensionParameters")]
+        public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method, bool checkExtension,
+            [NotNullIfNotNull("extensionParameters")]
             ref ParameterInfo[]? extensionParameters)
         {
             if (method == null)
@@ -344,6 +360,82 @@ namespace MugenMvvm.Bindings.Extensions
             if (member.DeclaringType != null && member.DeclaringType.IsDefined(typeof(NonObservableAttribute), false) || member.IsDefined(typeof(NonObservableAttribute), false))
                 return MemberFlags.NonObservable;
             return default;
+        }
+
+#if NET461
+        internal static bool IsByRefLike(this Type type)
+        {
+            if (!type.IsValueType)
+                return false;
+            lock (IsByRefLikeCache)
+            {
+                if (!IsByRefLikeCache.TryGetValue(type, out var v))
+                {
+                    foreach (var attribute in type.GetCustomAttributes())
+                    {
+                        if ("System.Runtime.CompilerServices.IsByRefLikeAttribute" == attribute.GetType().FullName)
+                        {
+                            v = true;
+                            break;
+                        }
+                    }
+
+                    IsByRefLikeCache[type] = v;
+                }
+
+                return v;
+            }
+        }
+#endif
+
+        private static Expression TryGenerate(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr) =>
+            TryGenerate(left, right, left.Type, getExpr, false) ?? TryGenerate(right, left, right.Type, getExpr, true)!;
+
+        private static Expression? TryGenerate(this Expression left, Expression right, Type typeToConvert, Func<Expression, Expression, Expression> getExpr, bool throwOnError)
+        {
+            try
+            {
+                if ((left.Type.IsNullableType() || right.Type.IsNullableType()) && !typeToConvert.IsNullableType())
+                    typeToConvert = typeof(Nullable<>).MakeGenericType(typeToConvert);
+                return getExpr(left.ConvertIfNeed(typeToConvert, true), right.ConvertIfNeed(typeToConvert, true));
+            }
+            catch
+            {
+                if (throwOnError)
+                    throw;
+                return null;
+            }
+        }
+
+        private static bool IsConvertible(Type typeFrom, Type typeTo)
+        {
+            var key = new KeyValuePair<Type, Type>(typeFrom, typeTo);
+            lock (ConvertibleCache)
+            {
+                if (!ConvertibleCache.TryGetValue(key, out var v))
+                {
+                    ConvertibleTypeArgs[0] = typeTo;
+                    v = typeFrom.GetMethod("op_Implicit", BindingFlags.Static | BindingFlags.Public, null, ConvertibleTypeArgs, null) != null ||
+                        typeFrom.GetMethod("op_Explicit", BindingFlags.Static | BindingFlags.Public, null, ConvertibleTypeArgs, null) != null;
+                    ConvertibleCache[key] = v;
+                }
+
+                return v;
+            }
+        }
+
+        private static int GetTypeConvertPriority(this Type type)
+        {
+            if (type.IsValueType)
+            {
+                type = type.GetNonNullableType();
+                var typeCode = Type.GetTypeCode(type);
+                if (typeCode == TypeCode.Object)
+                    return 100;
+                return (int)typeCode;
+            }
+
+            return 0;
         }
 
         private static Type? FindCommonType(Type genericDefinition, Type type)

@@ -73,16 +73,14 @@ namespace MugenMvvm.Bindings.Compiling.Components
                     right.ConvertIfNeed(typeof(object), false));
             }
 
-            BindingMugenExtensions.Convert(ref left, ref right, true);
-            return Expression.Add(left, right);
+            return left.GenerateExpression(right, (x1, x2) => Expression.Add(x1, x2));
         }
 
         private static Expression GenerateEqual(Expression left, Expression right)
         {
-            BindingMugenExtensions.Convert(ref left, ref right, true);
             try
             {
-                return Expression.Equal(left, right);
+                return left.GenerateExpression(right, (x1, x2) => Expression.Equal(x1, x2));
             }
             catch
             {

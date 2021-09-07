@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Parsing;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Metadata;
@@ -115,7 +117,8 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)),
                 new MemberExpressionNode(null, nameof(StringProperty))));
 
-            item = parser.TryParse(new BindingExpressionRequest(selfExpression, selfExpression, new KeyValuePair<string?, object>(nameof(StringProperty), selfExpression)), Metadata).Item;
+            item = parser.TryParse(new BindingExpressionRequest(selfExpression, selfExpression, new KeyValuePair<string?, object>(nameof(StringProperty), selfExpression)),
+                Metadata).Item;
             item.Target.ShouldEqual(ConstantExpressionNode.Null);
             item.Source.ShouldEqual(ConstantExpressionNode.Null);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)),
@@ -214,6 +217,11 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         [InlineData(5, 5)]
         public void ParseShouldConvertExpression1(int count, int parameterCount)
         {
+            var valueTypeMetadata = new Dictionary<string, object?>
+            {
+                { BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject },
+                { BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject }
+            };
             var expectedResult = new ConditionExpressionNode(
                 new BinaryExpressionNode(BinaryTokenType.Equality,
                     new MethodCallExpressionNode(new MemberExpressionNode(null, nameof(StringProperty)), "IndexOf",
@@ -225,7 +233,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
                     new string[0]),
                 new ConditionExpressionNode(
                     new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual,
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata),
                         ConstantExpressionNode.Get(10, typeof(int))), ConstantExpressionNode.Get("test", typeof(string)),
                     new BinaryExpressionNode(BinaryTokenType.NullCoalescing,
                         new MethodCallExpressionNode(ConstantExpressionNode.Get("v", typeof(string)), "ToString", new IExpressionNode[0], new string[0]),
@@ -246,21 +254,26 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing
         [InlineData(5, 5)]
         public void ParseShouldConvertExpression2(int count, int parameterCount)
         {
+            var valueTypeMetadata = new Dictionary<string, object?>
+            {
+                { BindingParameterNameConstant.SuppressIndexAccessors, BoxingExtensions.TrueObject },
+                { BindingParameterNameConstant.SuppressMethodAccessors, BoxingExtensions.TrueObject }
+            };
             var expectedResult = new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual,
                 new BinaryExpressionNode(BinaryTokenType.Addition,
                     new BinaryExpressionNode(BinaryTokenType.Multiplication,
                         new BinaryExpressionNode(BinaryTokenType.Subtraction,
-                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
+                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata),
                             new BinaryExpressionNode(BinaryTokenType.Division,
-                                new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
-                                new MethodCallExpressionNode(ConstantExpressionNode.Get(3, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]))),
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0])),
+                                new MethodCallExpressionNode(ConstantExpressionNode.Get(2, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata),
+                                new MethodCallExpressionNode(ConstantExpressionNode.Get(3, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata))),
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata)),
                     new BinaryExpressionNode(BinaryTokenType.Subtraction,
                         new BinaryExpressionNode(BinaryTokenType.Multiplication,
-                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1000, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]),
-                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0])),
-                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]))),
-                new MethodCallExpressionNode(ConstantExpressionNode.Get(100, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0]));
+                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1000, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata),
+                            new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata)),
+                        new MethodCallExpressionNode(ConstantExpressionNode.Get(1, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata))),
+                new MethodCallExpressionNode(ConstantExpressionNode.Get(100, typeof(int)), "GetHashCode", new IExpressionNode[0], new string[0], valueTypeMetadata));
             ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(StringProperty), test => test.StringProperty,
                 test => (1.GetHashCode() - 2.GetHashCode() / 3.GetHashCode()) * 1.GetHashCode() + (1000.GetHashCode() * 1.GetHashCode() - 1.GetHashCode()) >= 100.GetHashCode(),
                 expectedResult, count, parameterCount);
