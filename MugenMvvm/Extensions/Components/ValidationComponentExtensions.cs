@@ -41,7 +41,7 @@ namespace MugenMvvm.Extensions.Components
                 c.OnErrorsChanged(validator, members, metadata);
         }
 
-        public static void OnAsyncValidation(this ItemOrArray<IAsyncValidationListener> listeners, IValidator validator, string? member, Task validationTask,
+        public static void OnAsyncValidation(this ItemOrArray<IValidatorAsyncValidationListener> listeners, IValidator validator, string? member, Task validationTask,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(validator, nameof(validator));

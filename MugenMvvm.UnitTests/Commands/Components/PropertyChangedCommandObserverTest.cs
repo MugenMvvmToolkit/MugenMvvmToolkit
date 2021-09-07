@@ -29,14 +29,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Command.AddComponent(commandNotifier);
 
             var models = new List<TestNotifyPropertyChangedModel>();
-            var tokens = new List<ActionToken>();
             for (var i = 0; i < listenersCount; i++)
             {
                 var notifier = new TestNotifyPropertyChangedModel();
                 models.Add(notifier);
-                var token = commandNotifier.Add(notifier);
-                token.IsEmpty.ShouldBeFalse();
-                tokens.Add(token);
+                commandNotifier.Add(notifier).ShouldBeTrue();
+                commandNotifier.Add(notifier).ShouldBeFalse();
+                commandNotifier.Contains(notifier).ShouldBeTrue();
             }
 
             var executed = 0;
@@ -48,8 +47,12 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 model.OnPropertyChanged("Test");
             executed.ShouldEqual(listenersCount);
 
-            foreach (var token in tokens)
-                token.Dispose();
+            foreach (var token in models)
+            {
+                commandNotifier.Remove(token).ShouldBeTrue();
+                commandNotifier.Remove(token).ShouldBeFalse();
+            }
+
             foreach (var model in models)
                 model.OnPropertyChanged("Test");
             executed.ShouldEqual(listenersCount);
@@ -64,10 +67,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             Func<object?, object?, bool> canNotify = (s, o) =>
             {
                 s.ShouldEqual(propertyChangedModel);
-                ((PropertyChangedEventArgs) o!).PropertyName.ShouldEqual(propertyName);
+                ((PropertyChangedEventArgs)o!).PropertyName.ShouldEqual(propertyName);
                 return canNotifyValue;
             };
-            var commandNotifier = new PropertyChangedCommandObserver {CanNotify = canNotify};
+            var commandNotifier = new PropertyChangedCommandObserver { CanNotify = canNotify };
             Command.AddComponent(commandNotifier);
             commandNotifier.Add(propertyChangedModel);
 

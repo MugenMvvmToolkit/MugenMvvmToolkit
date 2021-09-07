@@ -51,7 +51,7 @@ namespace MugenMvvm.Validation.Components
                 }
 
                 oldValue.SafeCancel();
-                validator.GetComponents<IAsyncValidationListener>().OnAsyncValidation(validator, member, task, metadata);
+                validator.GetComponents<IValidatorAsyncValidationListener>().OnAsyncValidation(validator, member, task, metadata);
 
                 task.ContinueWith((_, s) =>
                 {

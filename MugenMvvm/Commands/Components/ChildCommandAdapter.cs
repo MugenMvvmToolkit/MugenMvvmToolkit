@@ -60,6 +60,8 @@ namespace MugenMvvm.Commands.Components
         public bool Add(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
+            if (OwnerOptional == command)
+                return false;
             lock (_listener)
             {
                 if (_listener.Contains(command))

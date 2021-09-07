@@ -233,7 +233,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 Validator.AddChildValidator(validator);
             }
 
-            Validator.AddComponent(new TestAsyncValidationListener
+            Validator.AddComponent(new TestValidatorAsyncValidationListener
             {
                 OnAsyncValidation = (v, e, t, m) =>
                 {
@@ -246,7 +246,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
             });
 
             foreach (var validator in validators)
-                validator.GetComponents<IAsyncValidationListener>().OnAsyncValidation(validator, member, task, Metadata);
+                validator.GetComponents<IValidatorAsyncValidationListener>().OnAsyncValidation(validator, member, task, Metadata);
             count.ShouldEqual(validatorCount);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -15,10 +16,16 @@ namespace MugenMvvm.Commands.Components
     public sealed class PropertyChangedCommandObserver : MultiAttachableComponentBase<ICompositeCommand>, IHasDisposeCondition, IHasPriority,
         IDisposableComponent<ICompositeCommand>
     {
+        private readonly HashSet<INotifyPropertyChanged> _observers;
         private PropertyChangedEventHandler? _handler;
 
         public PropertyChangedCommandObserver()
         {
+#if NET461
+            _observers = new HashSet<INotifyPropertyChanged>(InternalEqualityComparer.Reference);
+#else
+            _observers = new HashSet<INotifyPropertyChanged>(2, InternalEqualityComparer.Reference);
+#endif
             IsDisposable = true;
         }
 
@@ -30,17 +37,50 @@ namespace MugenMvvm.Commands.Components
 
         private PropertyChangedEventHandler PropertyChangedEventHandler => _handler ??= this.ToWeakReference().CommandNotifierOnPropertyChangedHandler;
 
-        public ActionToken Add(INotifyPropertyChanged notifier)
+        public bool Add(INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(notifier, nameof(notifier));
-            notifier.PropertyChanged += PropertyChangedEventHandler;
-            return ActionToken.FromDelegate((n, h) => ((INotifyPropertyChanged)n!).PropertyChanged -= (PropertyChangedEventHandler)h!, notifier, PropertyChangedEventHandler);
+            lock (_observers)
+            {
+                if (!_observers.Add(notifier))
+                    return false;
+                notifier.PropertyChanged += PropertyChangedEventHandler;
+                return true;
+            }
+        }
+
+        public bool Contains(INotifyPropertyChanged notifier)
+        {
+            Should.NotBeNull(notifier, nameof(notifier));
+            lock (_observers)
+            {
+                return _observers.Contains(notifier);
+            }
+        }
+
+        public bool Remove(INotifyPropertyChanged notifier)
+        {
+            Should.NotBeNull(notifier, nameof(notifier));
+            lock (_observers)
+            {
+                if (!_observers.Remove(notifier))
+                    return false;
+                notifier.PropertyChanged -= PropertyChangedEventHandler;
+                return true;
+            }
         }
 
         public void Dispose()
         {
             if (IsDisposable)
             {
+                lock (_observers)
+                {
+                    foreach (var observer in _observers)
+                        observer.PropertyChanged -= PropertyChangedEventHandler;
+                    _observers.Clear();
+                }
+
                 (_handler?.Target as IWeakReference)?.Release();
                 _handler = null;
             }

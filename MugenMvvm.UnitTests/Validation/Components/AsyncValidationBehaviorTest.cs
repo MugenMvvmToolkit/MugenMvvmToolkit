@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             for (var i = 0; i < count; i++)
             {
-                Validator.AddComponent(new TestAsyncValidationListener
+                Validator.AddComponent(new TestValidatorAsyncValidationListener
                 {
                     OnAsyncValidation = (v, m, t, meta) =>
                     {
