@@ -194,8 +194,7 @@ namespace MugenMvvm.Extensions
                 return p.Priority;
             return 0;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static T InvokeSequentially<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             IReadOnlyMetadataContext? metadata, Func<TComponent, TState, IReadOnlyMetadataContext?, T> invoke)
             where TComponent : class, IComponent
@@ -211,8 +210,7 @@ namespace MugenMvvm.Extensions
 
             return default!;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static T InvokeSequentially<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             IReadOnlyMetadataContext? metadata, Func<TComponent, TState, IReadOnlyMetadataContext?, T> invoke, Func<T, bool> isValid)
             where TComponent : class, IComponent
@@ -227,8 +225,7 @@ namespace MugenMvvm.Extensions
 
             return default!;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static bool InvokeSequentially<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke, bool invert = false)
             where TComponent : class, IComponent
@@ -248,8 +245,7 @@ namespace MugenMvvm.Extensions
 
             return invert;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static bool InvokeAll<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke)
             where TComponent : class, IComponent
@@ -264,8 +260,7 @@ namespace MugenMvvm.Extensions
 
             return result;
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static ItemOrIReadOnlyList<T> InvokeAll<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<T>> invoke)
             where TComponent : class, IComponent
@@ -282,8 +277,7 @@ namespace MugenMvvm.Extensions
 
             return editor.ToItemOrList();
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static EnumFlags<T> InvokeAll<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, EnumFlags<T>> invoke)
             where TComponent : class, IComponent

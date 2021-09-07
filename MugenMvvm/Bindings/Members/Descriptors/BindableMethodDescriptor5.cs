@@ -16,32 +16,20 @@ namespace MugenMvvm.Bindings.Members.Descriptors
             Request = request;
         }
 
-        public bool IsStatic
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => typeof(TTarget) == typeof(Type);
-        }
+        public bool IsStatic => typeof(TTarget) == typeof(Type);
 
-        public BindableMethodDescriptor<TTarget, TReturn> RawMethod
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this;
-        }
+        public BindableMethodDescriptor<TTarget, TReturn> RawMethod => this;
 
         [Pure]
         public BindableMethodDescriptor<TNewTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> Override<TNewTarget>() where TNewTarget : class => Request!;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(MemberTypesRequest request) =>
             new(request);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator MemberTypesRequest(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => member.Request!;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator string(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => member.Request?.Name ?? "";
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) =>
             new(member.Request!);
 

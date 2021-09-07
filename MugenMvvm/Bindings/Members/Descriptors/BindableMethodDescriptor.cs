@@ -16,16 +16,11 @@ namespace MugenMvvm.Bindings.Members.Descriptors
             Request = request;
         }
 
-        public bool IsStatic
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => typeof(TTarget) == typeof(Type);
-        }
+        public bool IsStatic => typeof(TTarget) == typeof(Type);
 
         [Pure]
         public BindableMethodDescriptor<TNewTarget, TReturn> Override<TNewTarget>() where TNewTarget : class => new(Request!);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member) => member.Request?.Name ?? "";
 
         public override string ToString() => Request?.ToString() ?? "";

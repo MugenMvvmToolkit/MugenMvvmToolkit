@@ -13,7 +13,6 @@ namespace MugenMvvm.Threading
         private readonly ThreadExecutionMode? _executionMode;
         private readonly IThreadDispatcher? _threadDispatcher;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ThreadSwitcherAwaitable(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
@@ -22,7 +21,6 @@ namespace MugenMvvm.Threading
             _executionMode = executionMode;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ThreadSwitcherAwaiter GetAwaiter() => new(_threadDispatcher, _executionMode);
 
         [StructLayout(LayoutKind.Auto)]
@@ -37,19 +35,12 @@ namespace MugenMvvm.Threading
                 _executionMode = executionMode;
             }
 
-            public bool IsCompleted
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _threadDispatcher == null || _threadDispatcher.CanExecuteInline(_executionMode!);
-            }
+            public bool IsCompleted => _threadDispatcher == null || _threadDispatcher.CanExecuteInline(_executionMode!);
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void OnCompleted(Action continuation) => OnCompletedInternal(continuation);
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UnsafeOnCompleted(Action continuation) => OnCompletedInternal(continuation);
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void GetResult()
             {
             }

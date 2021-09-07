@@ -61,7 +61,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         {
             if (value == null && (type == null || typeof(object) == type))
                 return Null;
-            if (value is bool b)
+            if (value is bool b && (type == null || type == typeof(bool)))
                 return Get(b);
             return new ConstantExpressionNode(value, type);
         }

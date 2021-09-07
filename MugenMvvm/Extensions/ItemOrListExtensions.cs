@@ -114,8 +114,7 @@ namespace MugenMvvm.Extensions
             if (item != null)
                 editor.Add(item);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static void SetAt<T>(this ref ItemOrArray<T> array, int index, T value)
         {
             if (array.List != null)

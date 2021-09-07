@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Extensions
         internal const char DotChar = '.';
 
 #if !SPAN_API
-        internal static readonly char[] CommaSeparator = {CommaChar};
+        internal static readonly char[] CommaSeparator = { CommaChar };
 #endif
         internal static readonly char[] DotSeparator = {DotChar};
         private static readonly int[] ArraySize = new int[1];
@@ -342,7 +342,6 @@ namespace MugenMvvm.Bindings.Extensions
                 ExceptionManager.ThrowCannotCompileExpression(expression);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static List<string>? TryGetErrors(this IExpressionBuilderContext context) => context.GetOrDefault(CompilingMetadata.CompilingErrors);
 
         [Preserve(Conditional = true)]
@@ -689,15 +688,12 @@ namespace MugenMvvm.Bindings.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<MemberFlags> GetDefaultFlags(this EnumFlags<MemberFlags> flags) => flags.Flags == 0 ? MemberFlags.All : flags;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<BindingMemberExpressionFlags> SetTargetFlags(this EnumFlags<BindingMemberExpressionFlags> flags, bool isTarget) =>
             isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<MemberFlags> SetInstanceOrStaticFlags(this EnumFlags<MemberFlags> value, bool isStatic) =>
             isStatic ? (value | MemberFlags.Static) & ~MemberFlags.Instance : (value | MemberFlags.Instance) & ~MemberFlags.Static;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static EnumFlags<MemberFlags> ClearInstanceOrStaticFlags(this EnumFlags<MemberFlags> value, bool isStatic) =>
             isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
 

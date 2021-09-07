@@ -11,7 +11,6 @@ namespace MugenMvvm.App.Configuration
         public readonly IMugenApplicationConfigurator? Configurator;
         public readonly IMugenApplication Application;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MugenApplicationConfiguration(IMugenApplication application, IMugenApplicationConfigurator? configurator)
         {
             Should.NotBeNull(application, nameof(application));
@@ -19,10 +18,8 @@ namespace MugenMvvm.App.Configuration
             Configurator = configurator;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MugenApplicationConfiguration Configure(IMugenApplicationConfigurator? configurator = null) => Configure(new MugenApplication(), configurator);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MugenApplicationConfiguration Configure(IMugenApplication application, IMugenApplicationConfigurator? configurator = null)
         {
             var configuration = new MugenApplicationConfiguration(application, configurator);
@@ -30,10 +27,8 @@ namespace MugenMvvm.App.Configuration
             return configuration;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool HasService<TService>() where TService : class => GetServiceOptional<TService>() != null;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TService GetService<TService>() where TService : class
         {
             if (Configurator == null)
@@ -41,7 +36,6 @@ namespace MugenMvvm.App.Configuration
             return Configurator.GetService<TService>(false)!;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TService? GetServiceOptional<TService>() where TService : class
         {
             if (Configurator == null)
@@ -49,7 +43,6 @@ namespace MugenMvvm.App.Configuration
             return Configurator.GetService<TService>(true);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ServiceConfiguration<TService> InitializeService<TService>(TService service) where TService : class
         {
             if (Configurator == null)
@@ -59,7 +52,6 @@ namespace MugenMvvm.App.Configuration
             return new ServiceConfiguration<TService>(this, service);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ServiceConfiguration<TService> ServiceConfiguration<TService>() where TService : class => new(this, GetService<TService>());
     }
 }

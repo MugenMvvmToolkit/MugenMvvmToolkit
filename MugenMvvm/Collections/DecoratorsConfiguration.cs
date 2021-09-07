@@ -14,7 +14,6 @@ namespace MugenMvvm.Collections
         public readonly int Priority;
         public readonly int Step;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DecoratorsConfiguration(IReadOnlyObservableCollection collection, int priority, int step)
         {
             Should.NotBeNull(collection, nameof(collection));
@@ -33,7 +32,6 @@ namespace MugenMvvm.Collections
             return UpdatePriority(priority);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public DecoratorsConfiguration UpdatePriority(int? priority = null) => new(Collection!, priority ?? Priority - Step, Step);
     }
 }

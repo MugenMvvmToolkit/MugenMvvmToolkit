@@ -34,7 +34,7 @@ namespace MugenMvvm.Bindings.Core
 
         private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalEqualityComparer.ValueTupleReference);
 
-        public void Dispose() => Build();
+        public void Dispose() => Build(includeResult: false);
 
         public BindingSet<TSource> Bind<TTarget>(TTarget target, BindingBuilderDelegate<TTarget, TSource> getBuilder, IReadOnlyMetadataContext? metadata = null)
             where TTarget : class
@@ -61,17 +61,27 @@ namespace MugenMvvm.Bindings.Core
             return this;
         }
 
-        public void Build(IReadOnlyMetadataContext? metadata = null)
+        public BindingSet<TSource> BindToSelf<TTarget>(TTarget target, BindingBuilderDelegate<TTarget, TTarget> getBuilder, IReadOnlyMetadataContext? metadata = null)
+            where TTarget : class
         {
-            var list = new ItemOrListEditor<IBinding>();
-            BuildInternal(false, ref list, metadata);
+            var expressions = BindingManager.ParseBindingExpression(getBuilder, metadata);
+            AddBuilder(target, target, expressions);
+            return this;
         }
 
-        public ItemOrIReadOnlyList<IBinding> BuildIncludeBindings(IReadOnlyMetadataContext? metadata = null)
+        public BindingSet<TSource> BindToSelf<TTarget>(TTarget target, string expression, IReadOnlyMetadataContext? metadata = null)
+            where TTarget : class
+        {
+            var expressions = BindingManager.ParseBindingExpression(expression, metadata);
+            AddBuilder(target, target, expressions);
+            return this;
+        }
+
+        public ItemOrIReadOnlyList<IBinding> Build(IReadOnlyMetadataContext? metadata = null, bool includeResult = true)
         {
             var list = new ItemOrListEditor<IBinding>();
-            BuildInternal(true, ref list, metadata);
-            return list.ToItemOrList();
+            BuildInternal(includeResult, ref list, metadata);
+            return list;
         }
 
         private void BuildInternal(bool includeBindings, ref ItemOrListEditor<IBinding> bindings, IReadOnlyMetadataContext? metadata = null)

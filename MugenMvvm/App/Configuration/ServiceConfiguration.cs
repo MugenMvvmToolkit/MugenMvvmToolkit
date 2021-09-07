@@ -8,8 +8,7 @@ namespace MugenMvvm.App.Configuration
     {
         public readonly TService Service;
         public readonly MugenApplicationConfiguration AppConfiguration;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public ServiceConfiguration(MugenApplicationConfiguration appConfiguration, TService service)
         {
             Should.NotBeNull(service, nameof(service));

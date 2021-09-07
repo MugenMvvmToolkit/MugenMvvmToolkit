@@ -16,7 +16,6 @@ namespace MugenMvvm.Bindings.Extensions
     public static partial class BindingMugenExtensions
     {
         [IgnoreBindingMember]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMembersTargetDescriptor<T> BindableMembers<T>(this T target) where T : class => new(target);
 
         public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null,

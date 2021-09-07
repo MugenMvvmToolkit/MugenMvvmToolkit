@@ -74,6 +74,6 @@ namespace MugenMvvm.Bindings.Observation.Components
         }
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata) =>
-            ((IObservableMemberInfo)member).TryObserve(target, listener, metadata);
+            ((IObservableMemberInfo) member).TryObserve(target, listener, metadata);
     }
 }

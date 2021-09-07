@@ -12,6 +12,7 @@ using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Extensions
 {
@@ -37,11 +38,6 @@ namespace MugenMvvm.Bindings.Extensions
             where TSource : class =>
             bindingManager.BindInternal(getBuilder, target, source, metadata);
 
-        public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, TTarget> getBuilder,
-            IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
-            where TTarget : class =>
-            bindingManager.BindInternal(getBuilder, target, target, metadata);
-
         public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null, bool includeResult = true)
             where TTarget : class
@@ -51,6 +47,11 @@ namespace MugenMvvm.Bindings.Extensions
             bindingManager.BindInternalWithoutBindings(expression, target, source, metadata);
             return default;
         }
+
+        public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, TTarget> getBuilder,
+            IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
+            where TTarget : class =>
+            bindingManager.BindInternal(getBuilder, target, target, metadata);
 
         public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, string expression, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null, bool includeResult = true)
@@ -181,6 +182,16 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNull(expression, nameof(expression));
             return builder.BindingParameter(BindingParameterNameConstant.ConverterParameter, expression);
         }
+
+        public static BindingBuilderTo<TTarget, TSource> Fallback<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, bool value)
+            where TTarget : class
+            where TSource : class =>
+            builder.BindingParameter(BindingParameterNameConstant.Fallback, ConstantExpressionNode.Get(value));
+
+        public static BindingBuilderTo<TTarget, TSource> Fallback<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, int value)
+            where TTarget : class
+            where TSource : class =>
+            builder.BindingParameter(BindingParameterNameConstant.Fallback, ConstantExpressionNode.Get(value));
 
         public static BindingBuilderTo<TTarget, TSource> Fallback<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, object? value)
             where TTarget : class

@@ -26,15 +26,19 @@ namespace MugenMvvm.Internal
 
         public static Builder Compare(Func<T, T, int> compare) => new(SortingInfo.Create(compare), null);
 
-        public IComparer<object?> AsObjectComparer() => (IComparer<object?>)this;
+        public IComparer<object?> AsObjectComparer() => (IComparer<object?>) this;
 
         public int Compare(T? x, T? y)
         {
             if (_isHeaderOrFooter != null)
             {
-                var compare = Compare(_isHeaderOrFooter(x!), _isHeaderOrFooter(y!));
+                var xHeaderOrFooter = _isHeaderOrFooter(x!);
+                var compare = Compare(xHeaderOrFooter, _isHeaderOrFooter(y!));
                 if (compare != 0)
                     return compare;
+
+                if (!xHeaderOrFooter.HasValue)
+                    return 0;
             }
 
             foreach (var item in _sortInfo)
@@ -70,7 +74,6 @@ namespace MugenMvvm.Internal
             private readonly Func<T, bool?>? _isHeaderOrFooter;
             private ItemOrListEditor<SortingInfo> _sortInfo;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             internal Builder(SortingInfo sortingInfo, Func<T, bool?>? isHeaderOrFooter)
             {
                 _isHeaderOrFooter = isHeaderOrFooter;
@@ -79,28 +82,24 @@ namespace MugenMvvm.Internal
                     _sortInfo.Add(sortingInfo);
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Builder ThenBy<TValue>(Func<T, TValue> expression)
             {
                 _sortInfo.Add(SortingInfo.Create(expression, true));
                 return this;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Builder ThenByDescending<TValue>(Func<T, TValue> expression)
             {
                 _sortInfo.Add(SortingInfo.Create(expression, false));
                 return this;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Builder ThenCompare(Func<T, T, int> compare)
             {
                 _sortInfo.Add(SortingInfo.Create(compare));
                 return this;
             }
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public SortingComparer<T> Build() => new Comparer(_sortInfo.ToItemOrArray(), _isHeaderOrFooter);
         }
 
@@ -129,7 +128,7 @@ namespace MugenMvvm.Internal
                 Should.NotBeNull(expression, nameof(expression));
                 return new SortingInfo((exp, isAsc, x, y) =>
                 {
-                    var func = (Func<T, TValue>)exp;
+                    var func = (Func<T, TValue>) exp;
                     if (isAsc)
                         return Comparer<TValue>.Default.Compare(func(x), func(y));
                     return Comparer<TValue>.Default.Compare(func(y), func(x));
@@ -139,7 +138,7 @@ namespace MugenMvvm.Internal
             public static SortingInfo Create(Func<T, T, int> compare)
             {
                 Should.NotBeNull(compare, nameof(compare));
-                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>)exp).Invoke(x, y), compare, false);
+                return new SortingInfo((exp, _, x, y) => ((Func<T, T, int>) exp).Invoke(x, y), compare, false);
             }
         }
 
@@ -154,16 +153,7 @@ namespace MugenMvvm.Internal
                 if (x is T xT)
                 {
                     if (y is T yT)
-                    {
-                        if (_isHeaderOrFooter != null)
-                        {
-                            var compare = Compare(_isHeaderOrFooter(xT), _isHeaderOrFooter(yT));
-                            if (compare != 0)
-                                return compare;
-                        }
-
                         return Compare(xT, yT);
-                    }
 
                     if (_isHeaderOrFooter == null)
                         return -1;
