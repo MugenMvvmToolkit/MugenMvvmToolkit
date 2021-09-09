@@ -269,7 +269,7 @@ namespace MugenMvvm.Tests
                     var services = new Dictionary<Type, PropertyInfo>();
                     foreach (var propertyInfo in GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance))
                     {
-                        if (typeof(IComponentOwner).IsAssignableFrom(propertyInfo.PropertyType))
+                        if (typeof(IMugenService).IsAssignableFrom(propertyInfo.PropertyType))
                             services[propertyInfo.PropertyType] = propertyInfo;
                     }
 

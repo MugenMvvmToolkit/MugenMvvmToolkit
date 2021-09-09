@@ -35,9 +35,9 @@ namespace MugenMvvm.Extensions
         public static IServiceProvider DefaultIfNull(this IServiceProvider? serviceProvider) => serviceProvider ?? MugenService.Instance<IServiceProvider>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DefaultIfNull<T>(this T? component) where T : class, IComponentOwner => component ?? MugenService.Instance<T>();
+        public static T DefaultIfNull<T>(this T? component) where T : class, IMugenService => component ?? MugenService.Instance<T>();
 
-        public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IComponentOwner =>
+        public static T DefaultIfNull<T>(this T? component, object? source) where T : class, IMugenService =>
             component ?? (source as IHasService<T>)?.GetService(false) ?? (T?) (source as IServiceProvider)?.GetService(typeof(T)) ?? MugenService.Instance<T>();
 
         public static object? GetService(this IServiceProvider serviceProvider, Type serviceType, IReadOnlyMetadataContext? metadata)
@@ -194,7 +194,7 @@ namespace MugenMvvm.Extensions
                 return p.Priority;
             return 0;
         }
-        
+
         public static T InvokeSequentially<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             IReadOnlyMetadataContext? metadata, Func<TComponent, TState, IReadOnlyMetadataContext?, T> invoke)
             where TComponent : class, IComponent
@@ -210,7 +210,7 @@ namespace MugenMvvm.Extensions
 
             return default!;
         }
-        
+
         public static T InvokeSequentially<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             IReadOnlyMetadataContext? metadata, Func<TComponent, TState, IReadOnlyMetadataContext?, T> invoke, Func<T, bool> isValid)
             where TComponent : class, IComponent
@@ -225,7 +225,7 @@ namespace MugenMvvm.Extensions
 
             return default!;
         }
-        
+
         public static bool InvokeSequentially<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke, bool invert = false)
             where TComponent : class, IComponent
@@ -245,7 +245,7 @@ namespace MugenMvvm.Extensions
 
             return invert;
         }
-        
+
         public static bool InvokeAll<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke)
             where TComponent : class, IComponent
@@ -260,7 +260,7 @@ namespace MugenMvvm.Extensions
 
             return result;
         }
-        
+
         public static ItemOrIReadOnlyList<T> InvokeAll<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<T>> invoke)
             where TComponent : class, IComponent
@@ -277,7 +277,7 @@ namespace MugenMvvm.Extensions
 
             return editor.ToItemOrList();
         }
-        
+
         public static EnumFlags<T> InvokeAll<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, EnumFlags<T>> invoke)
             where TComponent : class, IComponent
@@ -433,7 +433,7 @@ namespace MugenMvvm.Extensions
             foreach (var c in components)
             {
                 var result = Invoke(c);
-                if (!result.IsCompleted || result.IsFaulted || result.IsCanceled)
+                if (!result.IsCompletedSuccessfully())
                     tasks.Add(result);
             }
 
