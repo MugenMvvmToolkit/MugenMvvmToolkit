@@ -39,8 +39,6 @@ namespace MugenMvvm.Commands
             remove => GetComponents<ICommandEventHandlerComponent>().RemoveCanExecuteChanged(this, value, null);
         }
 
-        public bool IsDisposed => _state == DisposedState;
-
         public bool IsDisposable
         {
             get => _state == DefaultState;
@@ -52,6 +50,8 @@ namespace MugenMvvm.Commands
                     Interlocked.CompareExchange(ref _state, NoDisposeState, DefaultState);
             }
         }
+
+        public bool IsDisposed => _state == DisposedState;
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
@@ -129,7 +129,9 @@ namespace MugenMvvm.Commands
         {
             if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
             {
-                base.GetComponents<IDisposableComponent<ICompositeCommand>>().Dispose(this, null);
+                var components = base.GetComponents<IDisposableComponent<ICompositeCommand>>();
+                components.OnDisposing(this, null);
+                components.OnDisposed(this, null);
                 this.RemoveComponents<ICommandEventHandlerComponent>();
                 this.ClearComponents();
                 this.ClearMetadata(true);
@@ -145,12 +147,12 @@ namespace MugenMvvm.Commands
 
         bool ICommand.CanExecute(object? parameter) => CanExecute(parameter);
 
+        bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
+
         void IHasComponentAddedHandler.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is ICommandConditionComponent)
                 RaiseCanExecuteChanged();
         }
-
-        bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
     }
 }

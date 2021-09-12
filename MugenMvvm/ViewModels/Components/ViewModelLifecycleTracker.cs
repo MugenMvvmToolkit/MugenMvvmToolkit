@@ -27,7 +27,7 @@ namespace MugenMvvm.ViewModels.Components
 
             if (state == ViewModelLifecycleState.Disposed)
             {
-                if (target is ViewModelBase vm)
+                if (target is IHasDisposeState vm)
                     return vm.IsDisposed;
                 return ((IViewModelBase)target).Metadata.TryGet(InternalMetadata.IsDisposed, out var v) && v;
             }

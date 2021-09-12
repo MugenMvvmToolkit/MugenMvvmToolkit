@@ -42,7 +42,11 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        void IDisposableComponent<ICompositeCommand>.Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _canExecuteChanged = null;
+        void IDisposableComponent<ICompositeCommand>.OnDisposing(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<ICompositeCommand>.OnDisposed(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _canExecuteChanged = null;
 
         bool ISuspendableComponent<ICompositeCommand>.IsSuspended(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;
 

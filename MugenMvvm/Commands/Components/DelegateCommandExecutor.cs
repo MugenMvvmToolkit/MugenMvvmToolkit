@@ -80,7 +80,11 @@ namespace MugenMvvm.Commands.Components
 
         public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => _executingTask ?? Task.CompletedTask;
 
-        public void Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
+        public void OnDisposing(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        public void OnDisposed(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
         {
             _cancellationTokenSource.SafeCancel();
             _execute = null;

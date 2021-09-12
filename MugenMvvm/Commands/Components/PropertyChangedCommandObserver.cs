@@ -95,6 +95,10 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        void IDisposableComponent<ICompositeCommand>.Dispose(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => Dispose();
+        public void OnDisposing(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<ICompositeCommand>.OnDisposed(ICompositeCommand owner, IReadOnlyMetadataContext? metadata) => Dispose();
     }
 }

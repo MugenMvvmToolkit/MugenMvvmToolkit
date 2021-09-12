@@ -30,9 +30,9 @@ namespace MugenMvvm.Collections.Components
             _comparer = comparer ?? EqualityComparer<TTo?>.Default;
         }
 
-        protected override bool HasAdditionalItems => _items.Size != 0;
-
         public Func<T, TTo?, TTo?> Converter { get; }
+
+        protected override bool HasAdditionalItems => _items.Size != 0;
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -45,7 +45,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (item is TTo toItem)
             {
-                for (int i = 0; i < _items.Size; i++)
+                for (var i = 0; i < _items.Size; i++)
                 {
                     if (_comparer.Equals(toItem, _items.Indexes[i].Value.to))
                     {
@@ -62,14 +62,9 @@ namespace MugenMvvm.Collections.Components
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items)
         {
-            var index = 0;
-            foreach (var item in items)
-            {
-                if (TryGet(item, index++, out var v))
-                    yield return v;
-                else
-                    yield return item;
-            }
+            if (_items.Size == 0)
+                return items;
+            return DecorateImpl(items);
         }
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
@@ -177,18 +172,29 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private static IEqualityComparer<T> GetComparer() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>)InternalEqualityComparer.Reference;
+        private static IEqualityComparer<T> GetComparer() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>) InternalEqualityComparer.Reference;
 
-        private bool TryGet(object? item, int index, out TTo? result)
+        private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items)
         {
-            if (item is T)
+            var index = 0;
+            var itemIndex = 0;
+            foreach (var item in items)
             {
-                result = _items.Indexes[_items.BinarySearch(index)].Value.to;
-                return true;
-            }
+                if (itemIndex < _items.Size)
+                {
+                    var entry = _items.Indexes[itemIndex];
+                    if (entry.Index == index)
+                    {
+                        ++index;
+                        ++itemIndex;
+                        yield return entry.Value.to;
+                        continue;
+                    }
+                }
 
-            result = null;
-            return false;
+                ++index;
+                yield return item;
+            }
         }
 
         private object? TryAdd(object? item, int index, TTo? convertItem, bool updateIndexes, bool addRaw)

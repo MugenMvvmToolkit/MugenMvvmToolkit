@@ -336,7 +336,7 @@ namespace MugenMvvm.UnitTests.Collections
 
             for (var i = 0; i < count; i++)
             {
-                expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
+                expectedItem = new[] {new TestCollectionItem(), new TestCollectionItem()};
                 source.Reset(expectedItem);
             }
 
@@ -421,7 +421,7 @@ namespace MugenMvvm.UnitTests.Collections
                 _source.RemoveAt(0);
                 Assert(target, i == 0);
 
-                _source.Reset(new object[] { 1, 2, 3, 4, 5 });
+                _source.Reset(new object[] {1, 2, 3, 4, 5});
                 Assert(target, i == 0);
 
                 _source[0] = 200;
@@ -446,24 +446,32 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void SourceShouldDisposeTargetOnDispose()
         {
-            var sourceDisposeCount = 0;
-            var targetDisposeCount = 0;
+            var sourceDisposedCount = 0;
+            var sourceDisposingCount = 0;
+            var targetDisposedCount = 0;
+            var targetDisposingCount = 0;
 
             var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
 
             source.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
             {
-                Dispose = (_, _) => ++sourceDisposeCount
+                OnDisposed = (_, _) => ++sourceDisposedCount,
+                OnDisposing = (_, _) => ++sourceDisposingCount
             });
             target.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
             {
-                Dispose = (_, _) => ++targetDisposeCount
+                OnDisposed = (_, _) => ++targetDisposedCount,
+                OnDisposing = (_, _) => ++targetDisposingCount
             });
 
             source.Dispose();
-            targetDisposeCount.ShouldEqual(1);
-            sourceDisposeCount.ShouldEqual(1);
+            source.IsDisposed.ShouldBeTrue();
+            target.IsDisposed.ShouldBeTrue();
+            targetDisposedCount.ShouldEqual(1);
+            targetDisposingCount.ShouldEqual(1);
+            sourceDisposedCount.ShouldEqual(1);
+            sourceDisposingCount.ShouldEqual(1);
         }
 
         [Theory]
@@ -471,24 +479,32 @@ namespace MugenMvvm.UnitTests.Collections
         [InlineData(false)]
         public void TargetShouldDisposeSourceOnDispose(bool dispose)
         {
-            var sourceDisposeCount = 0;
-            var targetDisposeCount = 0;
+            var sourceDisposedCount = 0;
+            var sourceDisposingCount = 0;
+            var targetDisposedCount = 0;
+            var targetDisposingCount = 0;
 
             var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, dispose);
 
             source.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
             {
-                Dispose = (_, _) => ++sourceDisposeCount
+                OnDisposed = (_, _) => ++sourceDisposedCount,
+                OnDisposing = (_, _) => ++sourceDisposingCount
             });
             target.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
             {
-                Dispose = (_, _) => ++targetDisposeCount
+                OnDisposed = (_, _) => ++targetDisposedCount,
+                OnDisposing = (_, _) => ++targetDisposingCount
             });
 
             target.Dispose();
-            targetDisposeCount.ShouldEqual(1);
-            sourceDisposeCount.ShouldEqual(dispose ? 1 : 0);
+            target.IsDisposed.ShouldBeTrue();
+            source.IsDisposed.ShouldEqual(dispose);
+            targetDisposedCount.ShouldEqual(1);
+            targetDisposingCount.ShouldEqual(1);
+            sourceDisposedCount.ShouldEqual(dispose ? 1 : 0);
+            sourceDisposingCount.ShouldEqual(dispose ? 1 : 0);
         }
 
         protected abstract IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource);

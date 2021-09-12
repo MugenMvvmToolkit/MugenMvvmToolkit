@@ -35,7 +35,11 @@ namespace MugenMvvm.Validation
             return errors.AsList();
         }
 
-        void IDisposableComponent<IValidator>.Dispose(IValidator owner, IReadOnlyMetadataContext? metadata) => ErrorsChanged = null;
+        void IDisposableComponent<IValidator>.OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<IValidator>.OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata) => ErrorsChanged = null;
 
         void IValidatorErrorsChangedListener.OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
         {

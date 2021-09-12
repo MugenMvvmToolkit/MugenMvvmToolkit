@@ -80,7 +80,8 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [InlineData(10, false)]
         public void DisposeShouldDisposeChildValidators(int count, bool canDispose)
         {
-            var invokeCount = 0;
+            var disposedCount = 0;
+            var disposingCount = 0;
             _adapter.DisposeChildValidators = canDispose;
 
             for (var i = 0; i < count; i++)
@@ -88,17 +89,23 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 var validator = new Validator(null, ComponentCollectionManager);
                 validator.AddComponent(new TestDisposableComponent<IValidator>
                 {
-                    Dispose = (o, _) =>
+                    OnDisposed = (o, _) =>
                     {
                         o.ShouldEqual(validator);
-                        ++invokeCount;
+                        ++disposedCount;
+                    },
+                    OnDisposing = (o, _) =>
+                    {
+                        o.ShouldEqual(validator);
+                        ++disposingCount;
                     }
                 });
                 Validator.AddChildValidator(validator);
             }
 
             Validator.Dispose();
-            invokeCount.ShouldEqual(canDispose ? count : 0);
+            disposedCount.ShouldEqual(canDispose ? count : 0);
+            disposingCount.ShouldEqual(canDispose ? count : 0);
         }
 
         [Theory]
@@ -179,7 +186,7 @@ namespace MugenMvvm.UnitTests.Validation.Components
         [InlineData(10)]
         public void HasErrorsShouldBeHandledByComponents(int validatorCount)
         {
-            ItemOrIReadOnlyList<string> expectedMember = new[] { "1", "2" };
+            ItemOrIReadOnlyList<string> expectedMember = new[] {"1", "2"};
             var source = new object();
             var count = 0;
             var hasErrors = false;

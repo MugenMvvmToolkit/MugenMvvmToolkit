@@ -87,7 +87,7 @@ namespace MugenMvvm.Validation.Components
             {
                 var task = rule.ValidateAsync(Target, member, default, metadata);
                 if (!task.IsCompletedSuccessfully)
-                    ExceptionManager.ThrowObjectNotInitialized(task);
+                    ExceptionManager.ThrowObjectNotInitialized(rule);
 
                 editor.AddRange(task.Result);
             }
@@ -95,6 +95,10 @@ namespace MugenMvvm.Validation.Components
             validator.SetErrors(this, editor, metadata);
         }
 
-        void IDisposableComponent<IValidator>.Dispose(IValidator owner, IReadOnlyMetadataContext? metadata) => _disposeToken?.Cancel();
+        void IDisposableComponent<IValidator>.OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<IValidator>.OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata) => _disposeToken?.Cancel();
     }
 }

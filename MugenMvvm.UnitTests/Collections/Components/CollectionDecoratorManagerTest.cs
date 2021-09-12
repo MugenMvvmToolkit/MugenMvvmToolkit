@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnAdded = (c, item, index) =>
                     {
-                        collection.ShouldEqual((object)c);
+                        collection.ShouldEqual((object) c);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++added;
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnReset = (c, v) =>
                     {
-                        c.ShouldEqual((object)collection);
+                        c.ShouldEqual((object) collection);
                         v.ShouldBeNull();
                         ++clear;
                     },
@@ -97,13 +97,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
 
-            var decoratedItems = new[] { item1 };
+            var decoratedItems = new[] {item1};
             var collection = CreateCollection(item1, item2);
             var decorator = new TestCollectionDecorator
             {
                 Decorate = items =>
                 {
-                    items.ShouldEqual(new[] { item1, item2 });
+                    items.ShouldEqual(new[] {item1, item2});
                     return decoratedItems;
                 }
             };
@@ -117,9 +117,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
 
-            var original = new[] { item1, item2 };
-            var decoratedItems1 = new[] { item2 };
-            var decoratedItems2 = new[] { item1 };
+            var original = new[] {item1, item2};
+            var decoratedItems1 = new[] {item2};
+            var decoratedItems2 = new[] {item1};
             var collection = CreateCollection(item1, item2);
             var decorator1 = new TestCollectionDecorator
             {
@@ -154,11 +154,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             const int count = 100;
             var comparer = defaultComparer
-                ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int)o!, (int)o1!))
-                : Comparer<object?>.Create((i, i1) => ((int)i1!).CompareTo((int)i!));
+                ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!))
+                : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
             var collection = CreateCollection<int>();
             var decorator1 = new SortCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
-            var decorator2 = new FilterCollectionDecorator<int>(null, filterFirst ? int.MaxValue : 0) { Filter = i => i % 2 == 0 };
+            var decorator2 = new FilterCollectionDecorator<int>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
@@ -179,7 +179,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.RemoveAt(0);
             tracker.ChangedItems.ShouldEqual(items);
 
-            collection.Reset(new[] { 1, 2, 3, 4, 5 });
+            collection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.ShouldEqual(items);
 
             collection[0] = 200;
@@ -229,15 +229,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
             const int count = 100;
             var comparer = Comparer<object?>.Create((x1, x2) =>
             {
-                var item = (TestCollectionItem)x1!;
-                var collectionItem = (TestCollectionItem)x2!;
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
                 if (defaultComparer)
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
             });
             var collection = CreateCollection<TestCollectionItem>();
             var decorator1 = new SortCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(null, filterFirst ? int.MaxValue : 0) { Filter = i => i.Id % 2 == 0 };
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i.Id % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
@@ -246,10 +246,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.AddComponent(tracker);
             var items = collection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
-            collection.Add(new TestCollectionItem { Id = 1 });
+            collection.Add(new TestCollectionItem {Id = 1});
             tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
-            var item2 = new TestCollectionItem { Id = 2 };
+            var item2 = new TestCollectionItem {Id = 2};
             collection.Insert(1, item2);
             tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
@@ -261,12 +261,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             collection.Reset(new[]
             {
-                new TestCollectionItem { Id = 1 }, new TestCollectionItem { Id = 2 }, new TestCollectionItem { Id = 3 },
-                new TestCollectionItem { Id = 4 }, new TestCollectionItem { Id = 5 }
+                new TestCollectionItem {Id = 1}, new TestCollectionItem {Id = 2}, new TestCollectionItem {Id = 3},
+                new TestCollectionItem {Id = 4}, new TestCollectionItem {Id = 5}
             });
             tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
-            collection[0] = new TestCollectionItem { Id = 200 };
+            collection[0] = new TestCollectionItem {Id = 200};
             tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
 
             collection.Move(1, 2);
@@ -277,7 +277,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < count; i++)
             {
-                collection.Add(new TestCollectionItem { Id = Guid.NewGuid().GetHashCode() });
+                collection.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
                 tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
@@ -289,7 +289,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 10; i++)
             {
-                collection[i] = new TestCollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
+                collection[i] = new TestCollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
                 tracker.ChangedItems.ShouldEqual(items, TestCollectionItem.IdComparer);
             }
 
@@ -323,8 +323,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item1 = new TestCollectionItem();
             var item2 = new TestCollectionItem();
 
-            var decoratedItems = new[] { item1 };
-            var rawItems = new[] { item1, item2 };
+            var decoratedItems = new[] {item1};
+            var rawItems = new[] {item1, item2};
             var collection = CreateCollection(rawItems);
             collection.AddComponent(new TestCollectionDecorator
             {
@@ -338,7 +338,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             collection.Dispose();
             collection.GetComponents<object>().IsEmpty.ShouldBeTrue();
-            collection.DecoratedItems().ShouldEqual(rawItems);
         }
 
         [Theory]
@@ -400,7 +399,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnMoved = (c, item, oldIndex, newIndex) =>
                     {
-                        collection.ShouldEqual((object)c);
+                        collection.ShouldEqual((object) c);
                         oldIndex.ShouldEqual(expectedOldIndex);
                         newIndex.ShouldEqual(expectedNewIndex);
                         expectedItem.ShouldEqual(item);
@@ -441,7 +440,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnRemoved = (o, item, index) =>
                     {
-                        o.ShouldEqual((object)collection);
+                        o.ShouldEqual((object) collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removed;
@@ -480,7 +479,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnRemoved = (c, item, index) =>
                     {
-                        c.ShouldEqual((object)collection);
+                        c.ShouldEqual((object) collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removed;
@@ -519,7 +518,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnReplaced = (c, oldItem, newItem, index) =>
                     {
-                        c.ShouldEqual((object)collection);
+                        c.ShouldEqual((object) collection);
                         expectedIndex.ShouldEqual(index);
                         oldItem.ShouldEqual(expectedOldItem);
                         newItem.ShouldEqual(expectedNewItem);
@@ -559,7 +558,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     ThrowErrorNullDelegate = true,
                     OnReset = (o, enumerable) =>
                     {
-                        o.ShouldEqual((object)collection);
+                        o.ShouldEqual((object) collection);
                         expectedItem.ShouldEqual(enumerable);
                         ++reset;
                     }
@@ -568,7 +567,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < count; i++)
             {
-                expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
+                expectedItem = new[] {new TestCollectionItem(), new TestCollectionItem()};
                 collection.Reset(expectedItem);
             }
 
@@ -590,7 +589,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collection = CreateCollection(item1);
             collection.AddComponent(new TestCollectionDecorator
             {
-                Decorate = objects => objects.Concat(new[] { item2 }),
+                Decorate = objects => objects.Concat(new[] {item2}),
                 OnChanged = (ref object? item, ref int index, ref object? e) =>
                 {
                     item.ShouldEqual(currentItem);
@@ -603,7 +602,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             });
             collection.AddComponent(new TestCollectionDecorator
             {
-                Decorate = objects => objects.Concat(new[] { item3 }),
+                Decorate = objects => objects.Concat(new[] {item3}),
                 OnChanged = (ref object? item, ref int index, ref object? e) =>
                 {
                     item.ShouldEqual(currentItem);
@@ -664,8 +663,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             const int count = 100;
             var comparer = Comparer<object?>.Create((x1, x2) =>
             {
-                var item = (TestCollectionItem)x1!;
-                var collectionItem = (TestCollectionItem)x2!;
+                var item = (TestCollectionItem) x1!;
+                var collectionItem = (TestCollectionItem) x2!;
                 return item.Id.CompareTo(collectionItem.Id);
             });
 
@@ -674,20 +673,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.Changed += assert;
             target.AddComponent(tracker);
 
-            var decorator1 = new SortCollectionDecorator(comparer) { Priority = int.MaxValue };
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> { Filter = i => i.Id % 2 == 0 };
+            var decorator1 = new SortCollectionDecorator(comparer) {Priority = int.MaxValue};
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
             target.AddComponent(decorator1);
             target.AddComponent(decorator2);
-            target.AddComponent(new HeaderFooterCollectionDecorator { Header = "Header", Footer = "Footer" });
+            target.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
             target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, -1));
             target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items, true)));
             target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(10));
             target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>((item, _) => item));
 
-            source.Add(new TestCollectionItem { Id = 1 });
+            source.Add(new TestCollectionItem {Id = 1});
             assert();
 
-            var item2 = new TestCollectionItem { Id = 2 };
+            var item2 = new TestCollectionItem {Id = 2};
             source.Insert(1, item2);
             assert();
 
@@ -699,12 +698,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             source.Reset(new[]
             {
-                new TestCollectionItem { Id = 1 }, new TestCollectionItem { Id = 2 }, new TestCollectionItem { Id = 3 },
-                new TestCollectionItem { Id = 4 }, new TestCollectionItem { Id = 5 }
+                new TestCollectionItem {Id = 1}, new TestCollectionItem {Id = 2}, new TestCollectionItem {Id = 3},
+                new TestCollectionItem {Id = 4}, new TestCollectionItem {Id = 5}
             });
             assert();
 
-            source[0] = new TestCollectionItem { Id = 200 };
+            source[0] = new TestCollectionItem {Id = 200};
             assert();
 
             source.Move(1, 2);
@@ -715,7 +714,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < count; i++)
             {
-                source.Add(new TestCollectionItem { Id = Guid.NewGuid().GetHashCode() });
+                source.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
                 assert();
             }
 
@@ -727,7 +726,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < 10; i++)
             {
-                source[i] = new TestCollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
+                source[i] = new TestCollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
                 assert();
             }
 

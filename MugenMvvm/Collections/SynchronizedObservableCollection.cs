@@ -64,9 +64,9 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public bool IsDisposed { get; private set; }
-
         public bool IsReadOnly => false;
+
+        public bool IsDisposed { get; private set; }
 
         public int Count => Volatile.Read(ref _size);
 
@@ -91,7 +91,8 @@ namespace MugenMvvm.Collections
             {
                 using (Lock())
                 {
-                    if ((uint)index >= (uint)_size)
+                    EnsureNotDisposed();
+                    if ((uint) index >= (uint) _size)
                         ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                     return _items[index];
@@ -102,7 +103,8 @@ namespace MugenMvvm.Collections
                 GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, value);
                 using (Lock())
                 {
-                    if ((uint)index >= (uint)_size)
+                    EnsureNotDisposed();
+                    if ((uint) index >= (uint) _size)
                         ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                     var oldItem = _items[index];
@@ -125,7 +127,12 @@ namespace MugenMvvm.Collections
             set => Set(index, value);
         }
 
-        public Enumerator GetEnumerator() => new(this);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Enumerator GetEnumerator()
+        {
+            EnsureNotDisposed();
+            return new Enumerator(this);
+        }
 
         public void Clear() => Reset(null);
 
@@ -154,6 +161,7 @@ namespace MugenMvvm.Collections
             Should.NotBeNull(array, nameof(array));
             using (Lock())
             {
+                EnsureNotDisposed();
                 Array.Copy(_items, 0, array, arrayIndex, _size);
             }
         }
@@ -175,7 +183,9 @@ namespace MugenMvvm.Collections
             {
                 if (IsDisposed)
                     return;
-                GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>().Dispose(this, null);
+                var components = GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>();
+                components.OnDisposing(this, null);
+                components.OnDisposed(this, null);
                 this.ClearComponents();
                 IsDisposed = true;
             }
@@ -185,7 +195,7 @@ namespace MugenMvvm.Collections
         {
             using (Lock())
             {
-                if ((uint)index >= (uint)_size)
+                if ((uint) index >= (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 RemoveInternal(index);
@@ -205,7 +215,7 @@ namespace MugenMvvm.Collections
             GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, item);
             using (Lock())
             {
-                if ((uint)index > (uint)_size)
+                if ((uint) index > (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                 InsertInternal(index, item, false);
@@ -228,6 +238,7 @@ namespace MugenMvvm.Collections
 
             using (Lock())
             {
+                EnsureNotDisposed();
                 if (items == null && _size == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items))
                     return;
 
@@ -246,9 +257,10 @@ namespace MugenMvvm.Collections
 
             using (Lock())
             {
-                if ((uint)oldIndex >= (uint)_size)
+                EnsureNotDisposed();
+                if ((uint) oldIndex >= (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(oldIndex));
-                if ((uint)newIndex >= (uint)_size)
+                if ((uint) newIndex >= (uint) _size)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(newIndex));
 
                 var obj = _items[oldIndex];
@@ -264,6 +276,7 @@ namespace MugenMvvm.Collections
 
         private void InsertInternal(int index, T item, bool isAdd)
         {
+            EnsureNotDisposed();
             if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index))
                 return;
 
@@ -277,6 +290,7 @@ namespace MugenMvvm.Collections
 
         private void RemoveInternal(int index)
         {
+            EnsureNotDisposed();
             var oldItem = _items[index];
             if (!GetComponents<IConditionCollectionComponent<T>>().CanRemove(this, oldItem, index))
                 return;
@@ -289,7 +303,7 @@ namespace MugenMvvm.Collections
         private void AddRaw(T item)
         {
             var size = _size;
-            if ((uint)size >= (uint)_items.Length)
+            if ((uint) size >= (uint) _items.Length)
                 EnsureCapacity(size + 1);
 
             _size = size + 1;
@@ -343,7 +357,7 @@ namespace MugenMvvm.Collections
 #if !NET461
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 #endif
-            _items[_size] = default!;
+                _items[_size] = default!;
         }
 
         private void ClearRaw()
@@ -364,11 +378,15 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int IndexOfInternal(T? item) => Array.IndexOf(_items, item, 0, _size);
+        private int IndexOfInternal(T? item)
+        {
+            EnsureNotDisposed();
+            return Array.IndexOf(_items, item, 0, _size);
+        }
 
         private object? Get(int index) => BoxingExtensions.Box(this[index]);
 
-        private void Set(int index, object? value) => this[index] = (T)value!;
+        private void Set(int index, object? value) => this[index] = (T) value!;
 
         private void EnsureCapacity(int min)
         {
@@ -376,7 +394,7 @@ namespace MugenMvvm.Collections
                 return;
 
             var newCapacity = _items.Length == 0 ? DefaultCapacity : _items.Length * 2;
-            if ((uint)newCapacity > MaxArrayLength)
+            if ((uint) newCapacity > MaxArrayLength)
                 newCapacity = MaxArrayLength;
             if (newCapacity < min)
                 newCapacity = min;
@@ -399,45 +417,59 @@ namespace MugenMvvm.Collections
                 _items = Array.Empty<T>();
         }
 
+        private EnumeratorRef GetEnumeratorRef()
+        {
+            EnsureNotDisposed();
+            return new EnumeratorRef(this);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void EnsureNotDisposed()
+        {
+            if (IsDisposed)
+                ExceptionManager.ThrowObjectDisposed(this);
+        }
+
         void ICollection.CopyTo(Array array, int index)
         {
             Should.NotBeNull(array, nameof(array));
             Should.BeValid(array.Rank == 1, nameof(array));
             using (Lock())
             {
+                EnsureNotDisposed();
                 Array.Copy(_items, 0, array, index, _size);
             }
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumeratorRef();
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumerator();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumeratorRef();
 
         bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
         int IList.Add(object? value)
         {
-            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, (T)value!);
+            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, (T) value!);
             using (Lock())
             {
-                InsertInternal(_size, (T)value!, true);
+                InsertInternal(_size, (T) value!, true);
                 return _size - 1;
             }
         }
 
-        bool IList.Contains(object? value) => TypeChecker.IsCompatible<T>(value) && Contains((T)value!);
+        bool IList.Contains(object? value) => TypeChecker.IsCompatible<T>(value) && Contains((T) value!);
 
-        int IList.IndexOf(object? value) => TypeChecker.IsCompatible<T>(value!) ? IndexOf((T)value!) : -1;
+        int IList.IndexOf(object? value) => TypeChecker.IsCompatible<T>(value!) ? IndexOf((T) value!) : -1;
 
-        void IList.Insert(int index, object? value) => Insert(index, (T)value!);
+        void IList.Insert(int index, object? value) => Insert(index, (T) value!);
 
         void IList.Remove(object? value)
         {
             if (TypeChecker.IsCompatible<T>(value!))
-                Remove((T)value!);
+                Remove((T) value!);
         }
 
-        void IObservableCollection.Reset(IEnumerable? items) => Reset((IEnumerable<T>?)items);
+        void IObservableCollection.Reset(IEnumerable? items) => Reset((IEnumerable<T>?) items);
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>
@@ -470,6 +502,38 @@ namespace MugenMvvm.Collections
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose() => _locker.Dispose();
+        }
+
+        private sealed class EnumeratorRef : IEnumerator<T>
+        {
+            private readonly SynchronizedObservableCollection<T>? _collection;
+            private ActionToken _locker;
+            private int _index;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            internal EnumeratorRef(SynchronizedObservableCollection<T> collection)
+            {
+                _collection = collection;
+                _index = -1;
+                _locker = collection.Lock();
+            }
+
+            public T Current
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                get => _collection == null ? default! : _collection._items[_index];
+            }
+
+            object IEnumerator.Current => Current!;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Dispose() => _locker.Dispose();
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public bool MoveNext() => _collection != null && ++_index < _collection._size;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void Reset() => _index = -1;
         }
     }
 }

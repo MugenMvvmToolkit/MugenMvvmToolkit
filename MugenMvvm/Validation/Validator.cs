@@ -30,8 +30,6 @@ namespace MugenMvvm.Validation
             _metadata = metadata;
         }
 
-        public bool IsDisposed => _state == DisposedState;
-
         public bool IsDisposable
         {
             get => _state == DefaultState;
@@ -44,6 +42,8 @@ namespace MugenMvvm.Validation
             }
         }
 
+        public bool IsDisposed => _state == DisposedState;
+
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
         public IMetadataContext Metadata => _metadata as IMetadataContext ?? MugenExtensions.EnsureInitialized(ref _metadata);
@@ -52,7 +52,9 @@ namespace MugenMvvm.Validation
         {
             if (Interlocked.CompareExchange(ref _state, DisposedState, DefaultState) == DefaultState)
             {
-                base.GetComponents<IDisposableComponent<IValidator>>().Dispose(this, _metadata);
+                var components = base.GetComponents<IDisposableComponent<IValidator>>();
+                components.OnDisposing(this, _metadata);
+                components.OnDisposed(this, _metadata);
                 this.ClearComponents();
                 this.ClearMetadata(true);
             }

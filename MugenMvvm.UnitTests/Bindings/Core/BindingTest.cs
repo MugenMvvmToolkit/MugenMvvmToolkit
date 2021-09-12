@@ -720,15 +720,21 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             };
 
             var binding = GetBinding(target, source);
-            var disposeComponentCount = 0;
+            var disposedComponentCount = 0;
+            var disposingComponentCount = 0;
             var components = Enumerable
                              .Range(0, count)
                              .Select(i => new TestComponent<IBinding>
                              {
-                                 Dispose = (o, _) =>
+                                 OnDisposing = (o, _) =>
                                  {
                                      o.ShouldEqual(binding);
-                                     ++disposeComponentCount;
+                                     ++disposingComponentCount;
+                                 },
+                                 OnDisposed = (o, _) =>
+                                 {
+                                     o.ShouldEqual(binding);
+                                     ++disposedComponentCount;
                                  }
                              })
                              .Concat(new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()})
@@ -752,7 +758,8 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             });
 
             binding.Dispose();
-            disposeComponentCount.ShouldEqual(count);
+            disposingComponentCount.ShouldEqual(count);
+            disposedComponentCount.ShouldEqual(count);
             binding.State.ShouldEqual(BindingState.Disposed);
             targetDisposed.ShouldBeTrue();
             sourceDisposed.ShouldBeTrue();

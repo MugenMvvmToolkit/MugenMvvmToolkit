@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Validation;
 
 namespace MugenMvvm.Interfaces.Validation
 {
-    public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IDisposable
+    public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IHasDisposeState
     {
         Task ValidateAsync(string? member = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 

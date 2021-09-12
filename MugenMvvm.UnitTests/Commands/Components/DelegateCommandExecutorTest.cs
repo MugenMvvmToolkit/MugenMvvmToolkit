@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var executed = 0;
             Action<IReadOnlyMetadataContext?> execute = m => ++executed;
             var component = Add<object>(Command, execute, null, allowMultipleExecution);
-            Command.GetComponents<IDisposableComponent<ICompositeCommand>>().Dispose(Command, null);
+            Command.GetComponents<IDisposableComponent<ICompositeCommand>>().OnDisposed(Command, null);
 
             component.CanExecute(Command, null, Metadata).ShouldBeFalse();
             await component.TryExecuteAsync(Command, null, DefaultCancellationToken, Metadata);

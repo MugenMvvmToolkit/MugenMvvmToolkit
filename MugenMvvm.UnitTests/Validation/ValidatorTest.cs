@@ -54,7 +54,8 @@ namespace MugenMvvm.UnitTests.Validation
         [InlineData(10, false)]
         public void DisposeShouldClearComponentsMetadataNotifyListeners(int count, bool canDispose)
         {
-            var invokeCount = 0;
+            var disposedCount = 0;
+            var disposingCount = 0;
             Validator.IsDisposable.ShouldBeTrue();
             Validator.IsDisposable = canDispose;
 
@@ -62,10 +63,15 @@ namespace MugenMvvm.UnitTests.Validation
             {
                 Validator.Components.Add(new TestDisposableComponent<IValidator>
                 {
-                    Dispose = (o, m) =>
+                    OnDisposed = (o, m) =>
                     {
                         o.ShouldEqual(Validator);
-                        ++invokeCount;
+                        ++disposedCount;
+                    },
+                    OnDisposing = (o, m) =>
+                    {
+                        o.ShouldEqual(Validator);
+                        ++disposingCount;
                     }
                 });
             }
@@ -76,14 +82,16 @@ namespace MugenMvvm.UnitTests.Validation
             if (canDispose)
             {
                 Validator.IsDisposed.ShouldBeTrue();
-                invokeCount.ShouldEqual(count);
+                disposedCount.ShouldEqual(count);
+                disposingCount.ShouldEqual(count);
                 Validator.Components.Count.ShouldEqual(0);
                 Validator.Metadata.Count.ShouldEqual(0);
             }
             else
             {
                 Validator.IsDisposed.ShouldBeFalse();
-                invokeCount.ShouldEqual(0);
+                disposedCount.ShouldEqual(0);
+                disposingCount.ShouldEqual(0);
                 Validator.Components.Count.ShouldEqual(count);
             }
         }
@@ -164,7 +172,7 @@ namespace MugenMvvm.UnitTests.Validation
         [InlineData(10)]
         public void HasErrorsShouldBeHandledByComponents(int componentCount)
         {
-            ItemOrIReadOnlyList<string> expectedMember = new[] { "1", "2" };
+            ItemOrIReadOnlyList<string> expectedMember = new[] {"1", "2"};
             var source = new object();
             var count = 0;
             var hasErrors = false;
@@ -206,7 +214,7 @@ namespace MugenMvvm.UnitTests.Validation
         [InlineData(10)]
         public void SetErrorsShouldBeHandledByComponents(int componentCount)
         {
-            var errors = new[] { new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2") };
+            var errors = new[] {new ValidationErrorInfo(this, "1", "1"), new ValidationErrorInfo(this, "2", "2")};
             var source = new object();
             var count = 0;
 

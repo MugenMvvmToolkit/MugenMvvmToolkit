@@ -12,6 +12,6 @@ namespace MugenMvvm.Collections
         {
         }
 
-        protected override IEnumerable<object?> GetItems() => Collection.DecoratedItems();
+        protected internal override IEnumerable<object?> GetItems() => Collection.DecoratedItems();
     }
 }

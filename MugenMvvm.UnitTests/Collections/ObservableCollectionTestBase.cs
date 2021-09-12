@@ -234,22 +234,30 @@ namespace MugenMvvm.UnitTests.Collections
         public void DisposeShouldBeHandledByComponents(int componentCount)
         {
             var collection = CreateCollection<object>();
-            var count = 0;
+            var countDisposed = 0;
+            var countDisposing = 0;
 
             for (var i = 0; i < componentCount; i++)
             {
                 collection.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
                 {
-                    Dispose = (o, _) =>
+                    OnDisposed = (o, _) =>
                     {
                         o.ShouldEqual((object) collection);
-                        ++count;
+                        ++countDisposed;
+                    },
+                    OnDisposing = (o, _) =>
+                    {
+                        o.ShouldEqual((object) collection);
+                        ++countDisposing;
                     }
                 });
             }
 
             collection.Dispose();
-            count.ShouldEqual(componentCount);
+            collection.IsDisposed.ShouldBeTrue();
+            countDisposing.ShouldEqual(componentCount);
+            countDisposed.ShouldEqual(componentCount);
         }
 
         [Fact]

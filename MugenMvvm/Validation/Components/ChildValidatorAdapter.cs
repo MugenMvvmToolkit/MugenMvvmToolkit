@@ -68,7 +68,11 @@ namespace MugenMvvm.Validation.Components
             return true;
         }
 
-        public void Dispose(IValidator owner, IReadOnlyMetadataContext? metadata)
+        public void OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        public void OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata)
         {
             if (!DisposeChildValidators)
                 return;

@@ -18,7 +18,7 @@ using MugenMvvm.Models;
 namespace MugenMvvm.ViewModels
 {
     public abstract class ViewModelBase : NotifyPropertyChangedBase, IViewModelBase, IHasService<IBusyManager>, IHasService<IViewModelManager>, IHasService<IMessenger>,
-        IBusyManagerListener, IHasDisposeCallback, IValueHolder<IServiceProvider>, IServiceProvider
+        IBusyManagerListener, IHasDisposeCallback, IHasDisposeState, IValueHolder<IServiceProvider>, IServiceProvider
     {
         private readonly IViewModelManager? _viewModelManager;
         private IBusyManager? _busyManager;
@@ -62,7 +62,7 @@ namespace MugenMvvm.ViewModels
         public virtual IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext? metadata = null) =>
             ViewModelManager.GetViewModel(viewModelType, metadata.WithValue(ViewModelMetadata.ParentViewModel, this));
 
-        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T)GetViewModel(typeof(T), metadata);
+        public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
 
         public void RegisterDisposeToken(IDisposable disposable) => RegisterDisposeToken(ActionToken.FromDisposable(disposable));
 

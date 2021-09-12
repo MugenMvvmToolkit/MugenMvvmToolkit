@@ -28,6 +28,7 @@ namespace MugenMvvm.Collections.Components
         private bool _isInBatchSource;
         private List<object?>? _sourceSnapshot;
         private bool _isInBatch;
+        private bool _isDisposed;
         private bool _isInitialized;
 
         [Preserve]
@@ -311,7 +312,7 @@ namespace MugenMvvm.Collections.Components
 
         private IEnumerable<object?> GetSource(IReadOnlyObservableCollection collection, bool force)
         {
-            if (_isInBatchSource)
+            if (_isInBatchSource && !_isDisposed)
             {
                 if (force)
                 {
@@ -319,7 +320,7 @@ namespace MugenMvvm.Collections.Components
                     InitializeSnapshot(collection);
                 }
 
-                return _sourceSnapshot ?? (IEnumerable<object?>)Array.Empty<object?>();
+                return _sourceSnapshot ?? Default.EmptyEnumerable<object?>();
             }
 
             return collection.AsEnumerable();
@@ -373,7 +374,8 @@ namespace MugenMvvm.Collections.Components
             if (_isDirty)
             {
                 _isDirty = false;
-                Reset(null, true, false);
+                if (!_isDisposed)
+                    Reset(null, true, false);
             }
         }
 
@@ -398,13 +400,24 @@ namespace MugenMvvm.Collections.Components
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Reset(component, false, false);
 
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => Reset(component, false, true);
-
-        void IDisposableComponent<IReadOnlyObservableCollection>.Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
+            if (!_isDisposed)
+                Reset(component, false, true);
+        }
+
+        void IDisposableComponent<IReadOnlyObservableCollection>.OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        {
+            _isDisposed = true;
+            _isInBatchSource = true;
             owner.RemoveComponents<IDecoratedCollectionChangedListener>(metadata);
-            owner.RemoveComponents<ICollectionDecoratorManagerComponent>(metadata);
-            owner.ClearComponents(metadata);
+        }
+
+        void IDisposableComponent<IReadOnlyObservableCollection>.OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        {
+            var decorators = owner.GetComponents<ICollectionDecorator>();
+            for (var i = decorators.Count - 1; i >= 0; i--)
+                owner.Components.Remove(decorators[i], metadata);
         }
 
         [StructLayout(LayoutKind.Auto)]

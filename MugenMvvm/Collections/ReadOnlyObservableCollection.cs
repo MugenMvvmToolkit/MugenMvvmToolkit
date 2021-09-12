@@ -36,6 +36,8 @@ namespace MugenMvvm.Collections
             source.AddComponent(_decorator);
         }
 
+        public bool IsDisposed => _decorator == null;
+
         public int Count => _decorator == null ? 0 : _source.Count;
 
         public ILocker Locker => _source.Locker;
@@ -52,9 +54,11 @@ namespace MugenMvvm.Collections
             if (_decorator == null)
                 return;
 
+            var components = GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>();
+            components.OnDisposing(this, null);
             _decorator = null;
             _source.RemoveComponent(decorator);
-            GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>().Dispose(this, null);
+            components.OnDisposed(this, null);
             this.ClearComponents();
             if (_disposeSource)
                 _source.Dispose();
@@ -135,7 +139,11 @@ namespace MugenMvvm.Collections
 
             public void OnDetached(object owner, IReadOnlyMetadataContext? metadata) => TryGetTarget((IReadOnlyObservableCollection) owner)?.Dispose();
 
-            public void Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
+            public void OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+            {
+            }
+
+            public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
 
             private ReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {

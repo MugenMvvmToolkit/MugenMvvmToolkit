@@ -50,6 +50,8 @@ namespace MugenMvvm.Collections
             }
         }
 
+        public bool IsDisposed => _decorator == null;
+
         public int Count
         {
             get => _count;
@@ -74,9 +76,11 @@ namespace MugenMvvm.Collections
             if (_decorator == null)
                 return;
 
+            var components = GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>();
+            components.OnDisposing(this, null);
             _decorator = null;
             _source.RemoveComponent(decorator);
-            GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>().Dispose(this, null);
+            components.OnDisposed(this, null);
             this.ClearComponents();
             Count = 0;
             if (_disposeSource)
@@ -161,7 +165,7 @@ namespace MugenMvvm.Collections
                 if (target != null)
                 {
                     ++target.Count;
-                    target.GetComponents<ICollectionChangedListener<T>>().OnAdded(target, (T)item!, index);
+                    target.GetComponents<ICollectionChangedListener<T>>().OnAdded(target, (T) item!, index);
                 }
 
                 return true;
@@ -170,14 +174,14 @@ namespace MugenMvvm.Collections
             public bool OnReplaced(IReadOnlyObservableCollection collection, ref object? oldItem, ref object? newItem, ref int index)
             {
                 var target = TryGetTarget(collection);
-                target?.GetComponents<ICollectionChangedListener<T>>().OnReplaced(target, (T)oldItem!, (T)newItem!, index);
+                target?.GetComponents<ICollectionChangedListener<T>>().OnReplaced(target, (T) oldItem!, (T) newItem!, index);
                 return true;
             }
 
             public bool OnMoved(IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex, ref int newIndex)
             {
                 var target = TryGetTarget(collection);
-                target?.GetComponents<ICollectionChangedListener<T>>().OnMoved(target, (T)item!, oldIndex, newIndex);
+                target?.GetComponents<ICollectionChangedListener<T>>().OnMoved(target, (T) item!, oldIndex, newIndex);
                 return true;
             }
 
@@ -187,7 +191,7 @@ namespace MugenMvvm.Collections
                 if (target != null)
                 {
                     --target.Count;
-                    target.GetComponents<ICollectionChangedListener<T>>().OnRemoved(target, (T)item!, index);
+                    target.GetComponents<ICollectionChangedListener<T>>().OnRemoved(target, (T) item!, index);
                 }
 
                 return true;
@@ -217,13 +221,17 @@ namespace MugenMvvm.Collections
             {
             }
 
-            public void OnDetached(object owner, IReadOnlyMetadataContext? metadata) => TryGetTarget((IReadOnlyObservableCollection)owner)?.Dispose();
+            public void OnDetached(object owner, IReadOnlyMetadataContext? metadata) => TryGetTarget((IReadOnlyObservableCollection) owner)?.Dispose();
 
-            public void Dispose(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
+            public void OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+            {
+            }
+
+            public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
 
             private DecoratedReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {
-                var target = (DecoratedReadOnlyObservableCollection<T>?)_targetRef.Target;
+                var target = (DecoratedReadOnlyObservableCollection<T>?) _targetRef.Target;
                 if (target == null)
                 {
                     source.RemoveComponent(this);

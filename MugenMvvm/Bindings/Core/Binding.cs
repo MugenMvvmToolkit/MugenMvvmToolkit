@@ -304,12 +304,13 @@ namespace MugenMvvm.Bindings.Core
 
         protected virtual void OnDispose()
         {
+            InternalComponentExtensions.OnDisposing<IBinding>(_components, this, null);
             MugenService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed);
             if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
             if (CheckFlag(HasSourceObserverListener))
                 BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            InternalComponentExtensions.Dispose<IBinding>(_components, this, null);
+            InternalComponentExtensions.OnDisposed<IBinding>(_components, this, null);
             Target.Dispose();
             BindingMugenExtensions.DisposeBindingSource(SourceRaw);
             Components.Clear();

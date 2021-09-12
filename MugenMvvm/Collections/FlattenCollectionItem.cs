@@ -26,7 +26,7 @@ namespace MugenMvvm.Collections
 
         public void OnReset(IReadOnlyObservableCollection<T> collection, IEnumerable<T>? items) => OnReset(collection, AsObjectEnumerable(items));
 
-        protected override IEnumerable<object?> GetItems() => Collection.AsEnumerable();
+        protected internal override IEnumerable<object?> GetItems() => Collection.AsEnumerable();
 
         private static IEnumerable<object?>? AsObjectEnumerable(IEnumerable<T>? items) => items == null ? null : items as IEnumerable<object?> ?? items.Cast<object>();
     }

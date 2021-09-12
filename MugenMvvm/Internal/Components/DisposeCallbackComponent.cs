@@ -59,7 +59,11 @@ namespace MugenMvvm.Internal.Components
         {
         }
 
-        void IDisposableComponent<T>.Dispose(T owner, IReadOnlyMetadataContext? metadata)
+        void IDisposableComponent<T>.OnDisposing(T owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<T>.OnDisposed(T owner, IReadOnlyMetadataContext? metadata)
         {
             if (IsDisposed)
                 return;

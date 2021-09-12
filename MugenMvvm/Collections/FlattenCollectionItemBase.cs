@@ -11,10 +11,12 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    internal abstract class FlattenCollectionItemBase : ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
+    internal abstract class FlattenCollectionItemBase : ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IHasPriority
     {
         public object Item = null!;
         public IEnumerable Collection = null!;
@@ -306,14 +308,28 @@ namespace MugenMvvm.Collections
                 decorator.OwnerOptional?.UpdateLocker(locker);
         }
 
-        protected abstract IEnumerable<object?> GetItems();
+        public void OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+                return;
+
+            Collection = Default.EmptyEnumerable<object?>();
+            Size = 0;
+            Reset(decoratorManager, decorator);
+        }
+
+        public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected internal abstract IEnumerable<object?> GetItems();
 
         protected bool TryGetDecoratorManager([NotNullWhen(true)] out ICollectionDecoratorManagerComponent? decoratorManager,
             [NotNullWhen(true)] out FlattenCollectionDecorator? decorator)
         {
             if (_decorator == null)
             {
-                decorator = (FlattenCollectionDecorator?)_decoratorRef!.Target;
+                decorator = (FlattenCollectionDecorator?) _decoratorRef!.Target;
                 if (decorator == null)
                 {
                     if (Collection is IReadOnlyObservableCollection owner)

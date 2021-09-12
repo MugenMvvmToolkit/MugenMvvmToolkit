@@ -232,23 +232,40 @@ namespace MugenMvvm.Extensions.Components
                 listener.OnChanged(owner, locker, metadata);
         }
 
-        public static void Dispose<T>(object? components, T owner, IReadOnlyMetadataContext? metadata) where T : class
+        public static void OnDisposing<T>(object? components, T owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (components is object[] c)
             {
                 foreach (var t in c)
-                    (t as IDisposableComponent<T>)?.Dispose(owner, metadata);
+                    (t as IDisposableComponent<T>)?.OnDisposing(owner, metadata);
             }
             else
-                (components as IDisposableComponent<T>)?.Dispose(owner, metadata);
+                (components as IDisposableComponent<T>)?.OnDisposing(owner, metadata);
         }
-        
-        public static void Dispose<T>(this ItemOrArray<IDisposableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata) where T : class
+
+        public static void OnDisposed<T>(object? components, T owner, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            if (components is object[] c)
+            {
+                foreach (var t in c)
+                    (t as IDisposableComponent<T>)?.OnDisposed(owner, metadata);
+            }
+            else
+                (components as IDisposableComponent<T>)?.OnDisposed(owner, metadata);
+        }
+
+        public static void OnDisposing<T>(this ItemOrArray<IDisposableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             foreach (var c in components)
-                c.Dispose(owner, metadata);
+                c.OnDisposing(owner, metadata);
         }
-        
+
+        public static void OnDisposed<T>(this ItemOrArray<IDisposableComponent<T>> components, T owner, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            foreach (var c in components)
+                c.OnDisposed(owner, metadata);
+        }
+
         public static void Invalidate<T>(this ItemOrArray<IHasCacheComponent<T>> components, T owner, object? state, IReadOnlyMetadataContext? metadata) where T : class
         {
             Should.NotBeNull(owner, nameof(owner));

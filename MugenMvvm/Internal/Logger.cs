@@ -40,7 +40,12 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static MugenExtensions.LoggerWithLevel? Fatal(IReadOnlyMetadataContext? metadata = null) => MugenService.Optional<ILogger>().Fatal(metadata);
 
-        public void Dispose() => GetComponents<IDisposableComponent<ILogger>>().Dispose(this, null);
+        public void Dispose()
+        {
+            var components = GetComponents<IDisposableComponent<ILogger>>();
+            components.OnDisposing(this, null);
+            components.OnDisposed(this, null);
+        }
 
         public ILogger? TryGetLogger(object request, IReadOnlyMetadataContext? metadata = null) => GetComponents<ILoggerProviderComponent>().TryGetLogger(this, request, metadata);
 

@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface ICompositeCommand : IComponentOwner<ICompositeCommand>, IMetadataOwner<IMetadataContext>, ICommand, IDisposable, ISuspendable
+    public interface ICompositeCommand : IComponentOwner<ICompositeCommand>, IMetadataOwner<IMetadataContext>, ICommand, IHasDisposeState, ISuspendable
     {
         bool IsExecuting(IReadOnlyMetadataContext? metadata = null);
 

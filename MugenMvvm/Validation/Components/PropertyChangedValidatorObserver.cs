@@ -33,7 +33,11 @@ namespace MugenMvvm.Validation.Components
                 owner.ValidateAsync(e.PropertyName).LogException(UnhandledExceptionType.Validation);
         }
 
-        void IDisposableComponent<IValidator>.Dispose(IValidator owner, IReadOnlyMetadataContext? metadata) => _target.PropertyChanged -= OnPropertyChanged;
+        void IDisposableComponent<IValidator>.OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<IValidator>.OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata) => _target.PropertyChanged -= OnPropertyChanged;
 
         void IValidatorErrorsChangedListener.OnErrorsChanged(IValidator validator, ItemOrIReadOnlyList<string> members, IReadOnlyMetadataContext? metadata)
         {

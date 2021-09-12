@@ -275,16 +275,22 @@ namespace MugenMvvm.UnitTests.Commands
         [InlineData(10, false)]
         public void DisposeShouldBeHandledByComponents(int componentCount, bool canDispose)
         {
-            var count = 0;
+            var countDisposed = 0;
+            var countDisposing = 0;
             Command.IsDisposable = canDispose;
             for (var i = 0; i < componentCount; i++)
             {
                 Command.AddComponent(new TestDisposableComponent<ICompositeCommand>
                 {
-                    Dispose = (o, _) =>
+                    OnDisposing = (o, _) =>
                     {
                         o.ShouldEqual(Command);
-                        ++count;
+                        ++countDisposing;
+                    },
+                    OnDisposed = (o, _) =>
+                    {
+                        o.ShouldEqual(Command);
+                        ++countDisposed;
                     }
                 });
             }
@@ -295,14 +301,16 @@ namespace MugenMvvm.UnitTests.Commands
             if (canDispose)
             {
                 Command.IsDisposed.ShouldBeTrue();
-                count.ShouldEqual(componentCount);
+                countDisposing.ShouldEqual(componentCount);
+                countDisposed.ShouldEqual(componentCount);
                 Command.Components.Count.ShouldEqual(0);
                 Command.Metadata.Count.ShouldEqual(0);
             }
             else
             {
                 Command.IsDisposed.ShouldBeFalse();
-                count.ShouldEqual(0);
+                countDisposing.ShouldEqual(0);
+                countDisposed.ShouldEqual(0);
                 Command.Components.Count.ShouldEqual(componentCount);
             }
         }

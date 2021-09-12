@@ -493,12 +493,14 @@ namespace MugenMvvm.Extensions
             return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnReset, null, out removeToken);
         }
 
-        public static void ApplyChangesTo<T>(this CollectionGroupChangedAction action, IList<T> items, IReadOnlyCollection<T> groupItems, T? item, object? args)
+        public static void ApplyChangesTo<T>(this CollectionGroupChangedAction action, IList<T> items, IEnumerable<T> groupItems, T? item, object? args,
+            bool checkDisposable = true)
         {
             switch (action)
             {
                 case CollectionGroupChangedAction.GroupRemoved:
-                    items.Clear();
+                    if (!checkDisposable || items is not IHasDisposeState {IsDisposed: true})
+                        items.Clear();
                     break;
                 case CollectionGroupChangedAction.ItemAdded:
                     items.Add(item!);

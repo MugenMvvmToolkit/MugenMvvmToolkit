@@ -25,13 +25,13 @@ namespace MugenMvvm.Collections.Components
         {
         }
 
-        protected override bool IsLazy => false;
-
         public int BatchThreshold
         {
             get => _batchThreshold.GetValueOrDefault(CollectionMetadata.FlattenCollectionDecoratorBatchThreshold);
             set => _batchThreshold = value;
         }
+
+        protected override bool IsLazy => false;
 
         internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
 
@@ -151,24 +151,33 @@ namespace MugenMvvm.Collections.Components
 
         internal sealed override IEnumerable<object?> Decorate(IEnumerable<object?> items)
         {
-            foreach (var item in items)
-            {
-                if (item is T itemT)
-                {
-                    var flattenItemInfo = _getNestedCollection(itemT);
-                    if (!flattenItemInfo.IsEmpty)
-                    {
-                        foreach (var nestedItem in flattenItemInfo.GetItems())
-                            yield return nestedItem;
-                        continue;
-                    }
-                }
-
-                yield return item;
-            }
+            if (_collectionItems.Size == 0)
+                return items;
+            return DecorateImpl(items);
         }
 
         internal sealed override int GetIndex(int originalIndex) => GetIndex(originalIndex, _collectionItems.BinarySearch(originalIndex));
+
+        private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items)
+        {
+            var index = 0;
+            var itemIndex = 0;
+            foreach (var item in items)
+            {
+                if (itemIndex < _collectionItems.Size && _collectionItems.Indexes[itemIndex].Index == index)
+                {
+                    foreach (var nestedItem in _collectionItems.Indexes[itemIndex].Value.GetItems())
+                        yield return nestedItem;
+                    ++itemIndex;
+                    ++index;
+                }
+                else
+                {
+                    ++index;
+                    yield return item;
+                }
+            }
+        }
 
         private bool Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? oldItem, object? newItem, ref int index)
         {

@@ -1,6 +1,8 @@
-﻿namespace MugenMvvm.Interfaces.Components
+﻿using MugenMvvm.Interfaces.Internal;
+
+namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwner
+    public interface IComponentOwner : IMugenService
     {
         bool HasComponents { get; }
 
