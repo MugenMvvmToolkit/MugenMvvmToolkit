@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
@@ -11,16 +12,18 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class FirstTrackerCollectionDecoratorTest : CollectionDecoratorTestBase
     {
+        private readonly Func<int, bool>? _condition;
         private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
-        private object? _item;
+        private int _item;
 
-        public FirstTrackerCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
+        public FirstTrackerCollectionDecoratorTest(Func<int, bool>? condition = null, ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
+            _condition = condition;
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            var decorator = new FirstLastTrackerCollectionDecorator(0, o => _item = o, true);
+            var decorator = new FirstLastTrackerCollectionDecorator<int>(0, true, o => _item = o, condition);
             _collection.AddComponent(decorator);
             _tracker.Changed += Assert;
         }
@@ -30,7 +33,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
         protected override void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
-            _item.ShouldEqual(_collection.FirstOrDefault());
+            _item.ShouldEqual(_collection.OfType<int>().FirstOrDefault(_condition ?? (_ => true)));
+        }
+    }
+
+    public class FirstTrackerCollectionDecoratorConditionTest : FirstTrackerCollectionDecoratorTest
+    {
+        public FirstTrackerCollectionDecoratorConditionTest(ITestOutputHelper? outputHelper = null) : base(i => i > 10 && i < 20, outputHelper)
+        {
         }
     }
 }

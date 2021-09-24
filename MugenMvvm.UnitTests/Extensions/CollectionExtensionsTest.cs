@@ -718,15 +718,13 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void FirstOrDefaultShouldBeValid(bool hasCondition, bool currentCollection)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void FirstOrDefaultShouldBeValid(bool hasCondition)
         {
             int value = 0;
             Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
-            _collection.ConfigureDecorators<int>().FirstOrDefault(i => value = i, predicate, currentCollection, out var token);
+            _collection.ConfigureDecorators<int>().FirstOrDefault(i => value = i, predicate, out var token);
 
             void Assert()
             {
@@ -752,15 +750,13 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void LastOrDefaultShouldBeValid(bool hasCondition, bool currentCollection)
+        [InlineData(true)]
+        [InlineData(false)]
+        public void LastOrDefaultShouldBeValid(bool hasCondition)
         {
             int value = 0;
             Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
-            _collection.ConfigureDecorators<int>().LastOrDefault(i => value = i, predicate, currentCollection, out var token);
+            _collection.ConfigureDecorators<int>().LastOrDefault(i => value = i, predicate, out var token);
 
             void Assert()
             {

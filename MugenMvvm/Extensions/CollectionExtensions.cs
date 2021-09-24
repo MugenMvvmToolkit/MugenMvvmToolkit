@@ -687,43 +687,17 @@ namespace MugenMvvm.Extensions
             return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnReset, null, out removeToken);
         }
 
-        public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate = null,
-            bool useCurrentCollection = false) => configuration.FirstOrLast(setter, predicate, true, useCurrentCollection, out _);
+        public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate = null) =>
+            configuration.FirstOrDefault(setter, predicate, out _);
 
         public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate,
-            bool useCurrentCollection, out ActionToken removeToken) => configuration.FirstOrLast(setter, predicate, true, useCurrentCollection, out removeToken);
+            out ActionToken removeToken) => configuration.Add(new FirstLastTrackerCollectionDecorator<T>(configuration.Priority, true, setter, predicate), null, out removeToken);
 
-        public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate = null,
-            bool useCurrentCollection = false) => configuration.FirstOrLast(setter, predicate, false, useCurrentCollection, out _);
+        public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate = null) =>
+            configuration.LastOrDefault(setter, predicate, out _);
 
         public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate,
-            bool useCurrentCollection, out ActionToken removeToken) => configuration.FirstOrLast(setter, predicate, false, useCurrentCollection, out removeToken);
-
-        private static DecoratorsConfiguration<T> FirstOrLast<T>(this DecoratorsConfiguration<T> configuration, Action<T?> setter, Func<T, bool>? predicate, bool isFirst,
-            bool useCurrentCollection, out ActionToken removeToken)
-        {
-            if (typeof(T) == typeof(object) && predicate == null)
-            {
-                var decorator = new FirstLastTrackerCollectionDecorator(configuration.Priority, (Action<object?>) (object) setter, isFirst);
-                return configuration.Add(decorator, null, out removeToken);
-            }
-
-            if (useCurrentCollection)
-            {
-                configuration = configuration.For<object?>().Where(predicate == null ? o => o is T : predicate.FirstLastPredicate, false, out var filter);
-                var tracker = new FirstLastTrackerCollectionDecorator(configuration.Priority, setter.FirstLastSetter, isFirst);
-                removeToken = ActionToken.FromHandler(tracker, configuration.Collection, filter);
-                return configuration.Add(tracker);
-            }
-
-            var childConfig = configuration.For<object?>()
-                                           .Bind(false, false)
-                                           .ConfigureDecorators(0)
-                                           .Where(predicate == null ? o => o is T : predicate.FirstLastPredicate);
-            childConfig.Add(new FirstLastTrackerCollectionDecorator(childConfig.Priority, setter.FirstLastSetter, isFirst));
-            removeToken = ActionToken.FromDisposable(childConfig.Collection);
-            return configuration;
-        }
+            out ActionToken removeToken) => configuration.Add(new FirstLastTrackerCollectionDecorator<T>(configuration.Priority, false, setter, predicate), null, out removeToken);
 
         public static void ApplyChangesTo<T>(this CollectionGroupChangedAction action, IList<T> items, IEnumerable<T> groupItems, T? item, object? args,
             bool checkDisposable = true)
@@ -1013,30 +987,6 @@ namespace MugenMvvm.Extensions
         }
 
         internal static int CountEx<T>(this IEnumerable<T>? enumerable) => enumerable.TryGetCount(out var count) ? count : enumerable.Count();
-
-        internal static T? FirstOrDefaultEx<T>(this IEnumerable<T> items)
-        {
-            if (items is IReadOnlyList<T> list)
-            {
-                if (list.Count == 0)
-                    return default;
-                return list[0];
-            }
-
-            return Enumerable.FirstOrDefault(items);
-        }
-
-        internal static T? LastOrDefaultEx<T>(this IEnumerable<T> items)
-        {
-            if (items is IReadOnlyList<T> list)
-            {
-                if (list.Count == 0)
-                    return default;
-                return list[list.Count - 1];
-            }
-
-            return items.LastOrDefault();
-        }
 
         internal static bool TryGetCount<T>([NoEnumeration] [NotNullWhen(false)] this IEnumerable<T>? enumerable, out int count)
         {
