@@ -89,7 +89,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.NewIntent, intent)) {
             super.onNewIntent(intent);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.NewIntent, intent);
-        }
+        } else
+            super.onNewIntent(intent);
     }
 
     @Override
@@ -97,7 +98,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.ConfigurationChanged, newConfig)) {
             super.onConfigurationChanged(newConfig);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.ConfigurationChanged, newConfig);
-        }
+        } else
+            super.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -110,7 +112,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
             int viewId = getViewId();
             if (viewId != 0)
                 setContentView(viewId);
-        }
+        } else
+            super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -144,7 +147,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
             if (_state != null)
                 _state = null;
-        }
+        } else
+            super.onDestroy();
     }
 
     @Override
@@ -152,7 +156,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
             super.onPause();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
-        }
+        } else
+            super.onPause();
     }
 
     @Override
@@ -160,7 +165,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Restart, null)) {
             super.onRestart();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Restart, null);
-        }
+        } else
+            super.onRestart();
     }
 
     @Override
@@ -168,7 +174,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
             super.onResume();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
-        }
+        } else
+            super.onResume();
     }
 
     @Override
@@ -176,7 +183,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
             super.onSaveInstanceState(outState);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
-        }
+        } else
+            super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -204,7 +212,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
             super.onStart();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
-        }
+        } else
+            super.onStart();
     }
 
     @Override
@@ -212,7 +221,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
             super.onStop();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
-        }
+        } else
+            super.onStop();
     }
 
     @Override
@@ -220,6 +230,7 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.PostCreate, savedInstanceState)) {
             super.onPostCreate(savedInstanceState);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
-        }
+        } else
+            super.onPostCreate(savedInstanceState);
     }
 }

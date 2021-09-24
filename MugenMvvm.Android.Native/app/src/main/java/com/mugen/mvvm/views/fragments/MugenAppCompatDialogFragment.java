@@ -57,7 +57,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
             super.onCreate(savedInstanceState);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
-        }
+        } else
+            super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -91,7 +92,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
             if (_state != null)
                 _state = null;
-        }
+        } else
+            super.onDestroy();
     }
 
     @Override
@@ -99,7 +101,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
             super.onPause();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
-        }
+        } else
+            super.onPause();
     }
 
     @Override
@@ -107,7 +110,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
             super.onResume();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
-        }
+        } else
+            super.onResume();
     }
 
     @Override
@@ -115,7 +119,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
             super.onSaveInstanceState(outState);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
-        }
+        } else
+            super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -123,7 +128,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu)) {
             super.onCreateOptionsMenu(menu, inflater);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.CreateOptionsMenu, menu);
-        }
+        } else
+            super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -141,7 +147,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
             super.onStart();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
-        }
+        } else
+            super.onStart();
     }
 
     @Override
@@ -149,7 +156,8 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
         if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
             super.onStop();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
-        }
+        } else
+            super.onStop();
     }
 
     @Override
