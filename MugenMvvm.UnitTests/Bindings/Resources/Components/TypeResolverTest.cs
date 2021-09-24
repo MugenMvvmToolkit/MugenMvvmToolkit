@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
         public void TryGetResourceValueAddRemoveResource()
         {
             string alias = "aa";
-            var resource = typeof(string);
+            var resource = typeof(TypeResolverTest);
 
             _resolver.Types.Clear();
 
@@ -38,6 +38,7 @@ namespace MugenMvvm.UnitTests.Bindings.Resources.Components
             _resolver.Types.Remove(resource.Name);
             _resolver.Types.Remove(resource.FullName!);
             _resolver.Types.Remove(alias);
+            ResourceManager.TryGetType(resource.AssemblyQualifiedName!, this, Metadata).ShouldEqual(resource);
             ResourceManager.TryGetType(resource.FullName!, this, Metadata).ShouldBeNull();
             ResourceManager.TryGetType(resource.Name, this, Metadata).ShouldBeNull();
             ResourceManager.TryGetType(alias, this, Metadata).ShouldBeNull();

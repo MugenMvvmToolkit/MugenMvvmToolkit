@@ -58,15 +58,15 @@ namespace MugenMvvm.Bindings.Core.Components
             _memberExpressionVisitor.Flags = flags;
 
             var metadata = context.GetMetadataOrDefault();
-            var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
-                BindingParameterNameConstant.Converter, false, metadata);
-            var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
-                BindingParameterNameConstant.ConverterParameter, true, metadata);
-            var fallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
-                BindingParameterNameConstant.Fallback, false, metadata);
-            var targetNullValue = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
-                BindingParameterNameConstant.TargetNullValue, false, metadata);
-            if (!converter.IsEmpty || !converterParameter.IsEmpty || !fallback.IsEmpty || !targetNullValue.IsEmpty)
+            var hasConverter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.Converter, false, metadata, out var converter);
+            var hasConverterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.ConverterParameter, true, metadata, out var converterParameter);
+            var hasFallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.Fallback, false, metadata, out var fallback);
+            var hasTargetNullValue = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor,
+                BindingParameterNameConstant.TargetNullValue, false, metadata, out var targetNullValue);
+            if (hasConverter || hasConverterParameter || hasFallback || hasTargetNullValue)
             {
                 var state = (converter, converterParameter, fallback, targetNullValue);
                 var provider =

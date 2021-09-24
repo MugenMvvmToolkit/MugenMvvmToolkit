@@ -561,7 +561,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
 
             try
             {
-                ExpressionCallBuffer[0] = targetData.Expression;
+                ExpressionCallBuffer[0] = targetData.Expression.ConvertIfNeed(typeof(object), false);
                 ExpressionCallBuffer[1] = Expression.Constant(methodName);
                 ExpressionCallBuffer[2] = ToItemOrList(arrayArgs);
                 ExpressionCallBuffer[3] = Expression.Constant(typeArgs.GetRawValue());

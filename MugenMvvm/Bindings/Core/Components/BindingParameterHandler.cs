@@ -75,6 +75,10 @@ namespace MugenMvvm.Bindings.Core.Components
             return value;
         }
 
-        void IDisposableComponent<IBinding>.Dispose(IBinding owner, IReadOnlyMetadataContext? metadata) => Dispose();
+        void IDisposableComponent<IBinding>.OnDisposing(IBinding owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDisposableComponent<IBinding>.OnDisposed(IBinding owner, IReadOnlyMetadataContext? metadata) => Dispose();
     }
 }

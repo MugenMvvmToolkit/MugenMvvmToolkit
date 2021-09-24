@@ -25,7 +25,15 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path)
         {
-            path = string.IsNullOrEmpty(Path) ? MemberPath.Empty : Request(metadata).Path;
+            if (string.IsNullOrEmpty(Path))
+            {
+                path = MemberPath.Empty;
+                if (Instance is IConstantExpressionNode constantExpressionNode)
+                    return constantExpressionNode.Value;
+            }
+            else
+                path = Request(metadata).Path;
+
             return Instance;
         }
 

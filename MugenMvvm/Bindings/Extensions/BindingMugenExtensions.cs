@@ -41,7 +41,7 @@ namespace MugenMvvm.Bindings.Extensions
         internal const char DotChar = '.';
 
 #if !SPAN_API
-        internal static readonly char[] CommaSeparator = { CommaChar };
+        internal static readonly char[] CommaSeparator = {CommaChar};
 #endif
         internal static readonly char[] DotSeparator = {DotChar};
         private static readonly int[] ArraySize = new int[1];
@@ -293,27 +293,38 @@ namespace MugenMvvm.Bindings.Extensions
             context.ParameterExpressions = parameters.ToItemOrList();
         }
 
-        public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler,
+        public static bool TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler,
             BindingMemberExpressionVisitor memberExpressionVisitor, BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor,
-            string parameterName, bool dynamicParameter, IReadOnlyMetadataContext? metadata)
+            string parameterName, bool dynamicParameter, IReadOnlyMetadataContext? metadata, out BindingParameterExpression parameterExpression)
         {
             Should.NotBeNull(context, nameof(context));
             var expression = context.TryGetParameterValue<IExpressionNode>(parameterName);
             if (expression == null)
-                return default;
+            {
+                parameterExpression = default;
+                return false;
+            }
 
             expression = memberExpressionVisitor.Visit(expression, false, metadata);
             if (expression is IConstantExpressionNode constant)
-                return new BindingParameterExpression(constant.Value, null);
+            {
+                parameterExpression = new BindingParameterExpression(constant.Value, null);
+                return true;
+            }
 
             if (expression is IBindingMemberExpressionNode)
-                return new BindingParameterExpression(expression, null);
+            {
+                parameterExpression = new BindingParameterExpression(expression, null);
+                return true;
+            }
 
             var collect = memberExpressionCollectorVisitor.Collect(ref expression, metadata);
             var compiledExpression = compiler.DefaultIfNull().Compile(expression, metadata);
             if (!dynamicParameter && collect.IsEmpty)
-                return new BindingParameterExpression(compiledExpression.Invoke(default, metadata), null);
-            return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
+                parameterExpression = new BindingParameterExpression(compiledExpression.Invoke(default, metadata), null);
+            else
+                parameterExpression = new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
+            return true;
         }
 
         public static void ApplyFlags(this IBindingExpressionInitializerContext context, string parameterName, EnumFlags<BindingMemberExpressionFlags> flag,

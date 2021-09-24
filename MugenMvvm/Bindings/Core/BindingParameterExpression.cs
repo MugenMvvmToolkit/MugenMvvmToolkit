@@ -14,7 +14,7 @@ namespace MugenMvvm.Bindings.Core
     {
         private readonly ICompiledExpression? _compiledExpression;
         private readonly object? _value;
-        
+
         public BindingParameterExpression(object? value, ICompiledExpression? compiledExpression)
         {
             if (value is IBindingMemberExpressionNode[])
@@ -22,9 +22,6 @@ namespace MugenMvvm.Bindings.Core
             _value = value;
             _compiledExpression = compiledExpression;
         }
-
-        [MemberNotNullWhen(false, nameof(_value), nameof(_compiledExpression))]
-        public bool IsEmpty => _value == null && _compiledExpression == null;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindingParameterValue ToBindingParameter(object target, object? source, IReadOnlyMetadataContext? metadata) =>

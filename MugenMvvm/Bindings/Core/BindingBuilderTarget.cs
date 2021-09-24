@@ -15,11 +15,15 @@ namespace MugenMvvm.Bindings.Core
         where TTarget : class
         where TSource : class
     {
+        public BindableMembersDescriptor<TTarget> TargetMembers => default;
+
+        public BindableMembersDescriptor<TSource> SourceMembers => default;
+
         [BindingMacros(MacrosConstant.Target)]
-        public BindableMembersTargetDescriptor<TTarget> TargetMembers => default;
+        public BindableMembersTargetDescriptor<TTarget> TargetBindable => default;
 
         [BindingMacros(MacrosConstant.Source)]
-        public BindableMembersTargetDescriptor<TSource> SourceMembers => default;
+        public BindableMembersTargetDescriptor<TSource> SourceBindable => default;
 
         public BindingBuilderFrom<TTarget, TSource> For(string path) => new(path);
 

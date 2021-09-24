@@ -29,7 +29,10 @@ namespace MugenMvvm.Bindings.Core
             return this;
         }
 
-        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) =>
-            new(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.ToItemOrList());
+        public BindingExpressionRequest ToBindingExpression() => new(_fromBuilder.PathOrExpression, _pathOrExpression, _parameters.ToItemOrList());
+
+        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder) => builder.ToBindingExpression();
+
+        public static implicit operator ItemOrArray<BindingExpressionRequest>(BindingBuilderTo<TTarget, TSource> builder) => builder.ToBindingExpression();
     }
 }

@@ -12,7 +12,8 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
 
         public IExpressionNode Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata) =>
             expression is IConstantExpressionNode constant
-                ? new BindingInstanceMemberExpressionNode(constant.Value, "", -1, default, MemberFlags.Static, null, expression, expression.Metadata)
+                ? new BindingInstanceMemberExpressionNode(constant.Value == null && constant.Type != typeof(object) ? constant : constant.Value, "", -1, default,
+                    MemberFlags.Static, null, expression, expression.Metadata)
                 : expression;
     }
 }

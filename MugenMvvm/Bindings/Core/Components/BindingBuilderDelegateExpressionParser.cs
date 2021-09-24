@@ -7,7 +7,6 @@ using MugenMvvm.Bindings.Delegates;
 using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
-using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
@@ -32,7 +31,7 @@ namespace MugenMvvm.Bindings.Core.Components
         }
 
         [Preserve(Conditional = true)]
-        public static BindingExpressionRequest GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class => buildDelegate(default);
+        public static object? GetRequest<T1, T2>(BindingBuilderDelegate<T1, T2> buildDelegate) where T1 : class where T2 : class => buildDelegate(default).GetRawValue();
 
         public ItemOrIReadOnlyList<IBindingBuilder> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {

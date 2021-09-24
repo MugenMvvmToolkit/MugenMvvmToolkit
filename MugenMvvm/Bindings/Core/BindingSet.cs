@@ -32,7 +32,7 @@ namespace MugenMvvm.Bindings.Core
 
         private IBindingManager BindingManager => _bindingManager ??= _bindingManager.DefaultIfNull();
 
-        private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalEqualityComparer.ValueTupleReference);
+        private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalEqualityComparer.ValueTupleReference!);
 
         public void Dispose() => Build(includeResult: false);
 
