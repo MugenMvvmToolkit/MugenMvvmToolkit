@@ -275,6 +275,46 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
+        public static ActionToken SynchronizeLockerWith<T>(this T source, T target) where T : class, IComponentOwner<T>, ISynchronizable
+        {
+            Should.NotBeNull(source, nameof(source));
+            Should.NotBeNull(target, nameof(target));
+            if (ReferenceEquals(source, target))
+                return default;
+
+            ActionToken t1 = default;
+            ActionToken t2 = default;
+            try
+            {
+                while (true)
+                {
+                    if (!source.TryLock(10, out t1))
+                        continue;
+                    if (!target.TryLock(10, out t2))
+                    {
+                        t1.Dispose();
+                        continue;
+                    }
+
+                    foreach (var component in source.Components.GetComponents<LockerSynchronizer<T>>())
+                    {
+                        if (component.IsSynchronized(source, target))
+                            return ActionToken.FromHandler(component, source, target);
+                    }
+
+                    var synchronizer = new LockerSynchronizer<T>(source, target);
+                    source.Components.Add(synchronizer);
+                    target.Components.Add(synchronizer);
+                    return ActionToken.FromHandler(synchronizer, source, target);
+                }
+            }
+            finally
+            {
+                t1.Dispose();
+                t2.Dispose();
+            }
+        }
+
         public static T RegisterDisposeToken<T>(this IComponentOwner<T> owner, IDisposable? token) where T : class, IDisposable
         {
             if (token == null)
@@ -426,7 +466,7 @@ namespace MugenMvvm.Extensions
         {
 #if !NET5_0
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+                return ((Func<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
 #endif
             return (TTo) (object) value!;
         }
@@ -464,10 +504,10 @@ namespace MugenMvvm.Extensions
 
         internal static ActionToken Lock(object? target) => target is ISynchronizable synchronizable ? synchronizable.Lock() : default;
 
-        internal static bool TryLock(object? target, out ActionToken lockToken)
+        internal static bool TryLock(object? target, int timeout, out ActionToken lockToken)
         {
             if (target is ISynchronizable synchronizable)
-                return synchronizable.TryLock(out lockToken);
+                return synchronizable.TryLock(timeout, out lockToken);
 
             lockToken = default;
             return true;

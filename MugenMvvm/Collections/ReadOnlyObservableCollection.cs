@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
@@ -25,14 +26,14 @@ namespace MugenMvvm.Collections
         private readonly bool _disposeSource;
         private Listener? _decorator;
 
-        public ReadOnlyObservableCollection(IReadOnlyObservableCollection<T> source, int priority, bool disposeSource,
+        public ReadOnlyObservableCollection(IReadOnlyObservableCollection<T> source, int priority, bool disposeSource, bool isWeak,
             IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager, source)
         {
             Should.NotBeNull(source, nameof(source));
             _source = source;
             _disposeSource = disposeSource;
-            _decorator = new Listener(this, priority);
+            _decorator = new Listener(this, isWeak, priority);
             source.AddComponent(_decorator);
         }
 
@@ -70,19 +71,19 @@ namespace MugenMvvm.Collections
 
         public ActionToken Lock() => _source.Lock();
 
-        public bool TryLock(out ActionToken lockToken) => _source.TryLock(out lockToken);
+        public bool TryLock(int timeout, out ActionToken lockToken) => _source.TryLock(timeout, out lockToken);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         private sealed class Listener : ICollectionChangedListener<T>, ICollectionBatchUpdateListener, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent,
-            IHasPriority
+            ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
         {
-            private readonly IWeakReference _targetRef;
+            private readonly object _target;
 
-            public Listener(ReadOnlyObservableCollection<T> target, int priority)
+            public Listener(ReadOnlyObservableCollection<T> target, bool isWeak, int priority)
             {
                 Priority = priority;
-                _targetRef = target.ToWeakReference();
+                _target = isWeak ? target.ToWeakReference() : target;
             }
 
             public int Priority { get; }
@@ -145,9 +146,17 @@ namespace MugenMvvm.Collections
 
             public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
 
+            public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
+            {
+                var target = TryGetTarget(owner);
+                target?.GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(target, locker, metadata);
+            }
+
             private ReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {
-                var target = (ReadOnlyObservableCollection<T>?) _targetRef.Target;
+                if (_target is ReadOnlyObservableCollection<T> t)
+                    return t;
+                var target = (ReadOnlyObservableCollection<T>?) ((IWeakReference) _target).Target;
                 if (target == null)
                 {
                     source.RemoveComponent(this);

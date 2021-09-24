@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -16,13 +17,18 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    internal abstract class FlattenCollectionItemBase : ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IHasPriority
+    internal abstract class FlattenCollectionItemBase : IndexMapAware, ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>,
+        IHasPriority
     {
         public object Item = null!;
         public IEnumerable Collection = null!;
+        public int Size;
 
         private FlattenCollectionDecorator? _decorator;
         private IWeakReference? _decoratorRef;
+        private bool _initialized;
+        private bool _isInBatch;
+        private bool _isDirty;
 
         protected FlattenCollectionItemBase(object item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
@@ -33,11 +39,57 @@ namespace MugenMvvm.Collections
         {
         }
 
-        public int Size { get; private set; }
-
-        public int Index { get; set; }
-
         public int Priority => CollectionComponentPriority.BindableAdapter;
+
+        public virtual void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (!_initialized)
+                _isInBatch = true;
+            if (TryGetDecoratorManager(out _, out _, out var owner))
+                owner.GetBatchUpdateManager().BeginBatchUpdate(owner, BatchUpdateType.Decorators);
+        }
+
+        public virtual void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+                return;
+
+            ActionToken token = default;
+            try
+            {
+                if (!owner.TryLock(0, out token)) //possible deadlock
+                {
+                    Task.Run(() =>
+                    {
+                        using (collection.Lock())
+                        {
+                            OnEndBatchUpdate(collection, batchUpdateType);
+                        }
+                    });
+                    return;
+                }
+
+                if (_isInBatch)
+                {
+                    _isInBatch = false;
+                    if (_isDirty)
+                    {
+                        _isDirty = false;
+                        Size = GetItems().CountEx();
+                        using (owner.Lock())
+                        {
+                            Reset(decoratorManager, decorator, owner);
+                        }
+                    }
+                }
+
+                owner.GetBatchUpdateManager().EndBatchUpdate(owner, BatchUpdateType.Decorators);
+            }
+            finally
+            {
+                token.Dispose();
+            }
+        }
 
         public FlattenCollectionItemBase Initialize(object item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
@@ -56,24 +108,6 @@ namespace MugenMvvm.Collections
                 synchronizable.UpdateLocker(locker);
         }
 
-        public void FindAllIndexOf(FlattenCollectionDecorator decorator, object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
-        {
-            var index = 0;
-            int? originalIndex = null;
-            using var _ = MugenExtensions.Lock(Collection);
-            foreach (var value in GetItems())
-            {
-                if (Equals(item, value))
-                {
-                    indexes.Add((originalIndex ??= decorator.GetIndex(Index)) + index);
-                    if (ignoreDuplicates)
-                        return;
-                }
-
-                ++index;
-            }
-        }
-
         public void OnAdded(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int index,
             bool notify, bool isRecycled, out bool isReset, object? replaceItem = null, bool isReplace = false)
         {
@@ -83,7 +117,7 @@ namespace MugenMvvm.Collections
             {
                 foreach (var item in GetItems())
                 {
-                    if (Size <= decorator.BatchThreshold)
+                    if (Size++ <= decorator.BatchThreshold)
                     {
                         if (isReplace)
                         {
@@ -93,14 +127,12 @@ namespace MugenMvvm.Collections
                         else
                             decoratorManager.OnAdded(source, decorator, item, index++);
                     }
-
-                    ++Size;
                 }
 
                 if (Size > decorator.BatchThreshold)
                 {
                     isReset = true;
-                    Reset(decoratorManager, decorator);
+                    Reset(decoratorManager, decorator, source);
                 }
                 else if (isReplace)
                     decoratorManager.OnRemoved(source, decorator, replaceItem, index);
@@ -119,22 +151,27 @@ namespace MugenMvvm.Collections
             using var __ = MugenExtensions.Lock(Collection);
             oldItem.Detach();
             Index = oldItem.Index;
+            var oldSize = oldItem.Size;
             if (oldItem.Size > decorator.BatchThreshold)
             {
                 Size = GetItems().CountEx();
-                Reset(decoratorManager, decorator);
+                Reset(decoratorManager, decorator, source);
             }
             else
             {
+                int count = 0;
                 using (var oldEnumerator = oldItem.GetItems().GetEnumerator())
                 using (var newEnumerator = GetItems().GetEnumerator())
                 {
                     while (true)
                     {
-                        var oldHasNext = oldEnumerator.MoveNext();
+                        var oldHasNext = oldSize > count && oldEnumerator.MoveNext();
                         var newHasNext = newEnumerator.MoveNext();
                         if (!newHasNext && !oldHasNext)
                             break;
+
+                        if (newHasNext)
+                            ++Size;
 
                         if (Size <= decorator.BatchThreshold)
                         {
@@ -148,13 +185,12 @@ namespace MugenMvvm.Collections
                         else if (!newHasNext)
                             break;
 
-                        if (newHasNext)
-                            ++Size;
+                        ++count;
                     }
                 }
 
                 if (Size > decorator.BatchThreshold)
-                    Reset(decoratorManager, decorator);
+                    Reset(decoratorManager, decorator, source);
             }
 
             Attach(source);
@@ -167,7 +203,7 @@ namespace MugenMvvm.Collections
             if (Size > decorator.BatchThreshold)
             {
                 isReset = true;
-                Reset(decoratorManager, decorator);
+                Reset(decoratorManager, decorator, source);
             }
             else
             {
@@ -210,7 +246,7 @@ namespace MugenMvvm.Collections
             using var _ = MugenExtensions.Lock(Collection);
             if (Size > decorator.BatchThreshold)
             {
-                Reset(decoratorManager, decorator);
+                Reset(decoratorManager, decorator, source);
                 return;
             }
 
@@ -240,92 +276,101 @@ namespace MugenMvvm.Collections
 
         public void OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (_isInBatch || !TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+            {
+                _isDirty = true;
                 return;
+            }
 
-            decoratorManager.OnChanged(decorator.Owner, decorator, item, decorator.GetIndex(Index) + index, args);
+            decoratorManager.OnChanged(owner, decorator, item, decorator.GetIndex(Index) + index, args);
         }
 
         public void OnAdded(IReadOnlyObservableCollection collection, object? item, int index)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (_isInBatch || !TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+            {
+                _isDirty = true;
                 return;
+            }
 
             ++Size;
-            decoratorManager.OnAdded(decorator.Owner, decorator, item, decorator.GetIndex(Index) + index);
+            decoratorManager.OnAdded(owner, decorator, item, decorator.GetIndex(Index) + index);
         }
 
         public void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (_isInBatch || !TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+            {
+                _isDirty = true;
                 return;
+            }
 
-            decoratorManager.OnReplaced(decorator.Owner, decorator, oldItem, newItem, decorator.GetIndex(Index) + index);
+            decoratorManager.OnReplaced(owner, decorator, oldItem, newItem, decorator.GetIndex(Index) + index);
         }
 
         public void OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (_isInBatch || !TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+            {
+                _isDirty = true;
                 return;
+            }
 
             var originalIndex = decorator.GetIndex(Index);
-            decoratorManager.OnMoved(decorator.Owner, decorator, item, originalIndex + oldIndex, originalIndex + newIndex);
+            decoratorManager.OnMoved(owner, decorator, item, originalIndex + oldIndex, originalIndex + newIndex);
         }
 
         public void OnRemoved(IReadOnlyObservableCollection collection, object? item, int index)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (_isInBatch || !TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+            {
+                _isDirty = true;
                 return;
+            }
 
             --Size;
-            decoratorManager.OnRemoved(decorator.Owner, decorator, item, decorator.GetIndex(Index) + index);
+            decoratorManager.OnRemoved(owner, decorator, item, decorator.GetIndex(Index) + index);
         }
 
         public void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (_isInBatch || !TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
+            {
+                _isDirty = true;
                 return;
+            }
 
             Size = items.CountEx();
-            Reset(decoratorManager, decorator);
-        }
-
-        public void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
-        {
-            if (TryGetDecoratorManager(out _, out var decorator))
-                decorator.Owner.GetBatchUpdateManager().BeginBatchUpdate(decorator.Owner, BatchUpdateType.Decorators);
-        }
-
-        public void OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
-        {
-            if (TryGetDecoratorManager(out _, out var decorator))
-                decorator.Owner.GetBatchUpdateManager().EndBatchUpdate(decorator.Owner, BatchUpdateType.Decorators);
-        }
-
-        public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
-        {
-            if (TryGetDecoratorManager(out _, out var decorator))
-                decorator.OwnerOptional?.UpdateLocker(locker);
+            Reset(decoratorManager, decorator, owner);
         }
 
         public void OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
-            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator))
+            if (!TryGetDecoratorManager(out var decoratorManager, out var decorator, out var decoratorOwner))
                 return;
 
             Collection = Default.EmptyEnumerable<object?>();
             Size = 0;
-            Reset(decoratorManager, decorator);
+            Reset(decoratorManager, decorator, decoratorOwner);
         }
 
         public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
         }
 
+        public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
+        {
+            if (TryGetDecoratorManager(out _, out _, out var decoratorOwner))
+                decoratorOwner.UpdateLocker(locker);
+        }
+
         protected internal abstract IEnumerable<object?> GetItems();
 
+        protected static void Reset(ICollectionDecoratorManagerComponent decoratorManager, FlattenCollectionDecorator decorator, IReadOnlyObservableCollection owner) =>
+            decoratorManager.OnReset(owner, decorator, decorator.Decorate(decoratorManager.Decorate(owner, decorator)));
+
         protected bool TryGetDecoratorManager([NotNullWhen(true)] out ICollectionDecoratorManagerComponent? decoratorManager,
-            [NotNullWhen(true)] out FlattenCollectionDecorator? decorator)
+            [NotNullWhen(true)] out FlattenCollectionDecorator? decorator, [NotNullWhen(true)] out IReadOnlyObservableCollection? decoratorOwner)
         {
             if (_decorator == null)
             {
@@ -334,6 +379,7 @@ namespace MugenMvvm.Collections
                 {
                     if (Collection is IReadOnlyObservableCollection owner)
                         owner.Components.Remove(this);
+                    decoratorOwner = null;
                     decoratorManager = null;
                     return false;
                 }
@@ -342,11 +388,9 @@ namespace MugenMvvm.Collections
                 decorator = _decorator;
 
             decoratorManager = decorator.DecoratorManager;
-            return decoratorManager != null;
+            decoratorOwner = decorator.OwnerOptional;
+            return decoratorManager != null && decoratorOwner != null;
         }
-
-        private static void Reset(ICollectionDecoratorManagerComponent decoratorManager, FlattenCollectionDecorator decorator) =>
-            decoratorManager.OnReset(decorator.Owner, decorator, decorator.Decorate(decoratorManager.Decorate(decorator.Owner, decorator)));
 
         private void Attach(IReadOnlyObservableCollection source)
         {
@@ -358,6 +402,8 @@ namespace MugenMvvm.Collections
                 collectionSynchronizable.UpdateLocker(source.Locker);
                 source.UpdateLocker(collectionSynchronizable.Locker);
             }
+
+            _initialized = true;
         }
     }
 }

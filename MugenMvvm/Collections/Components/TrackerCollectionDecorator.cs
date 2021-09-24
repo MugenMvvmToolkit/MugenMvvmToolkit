@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class TrackerCollectionDecorator<T, TState> : CollectionDecoratorBase, IListenerCollectionDecorator where T : notnull
+    public sealed class TrackerCollectionDecorator<T, TState> : CollectionDecoratorBase, IListenerCollectionDecorator where T : notnull
     {
         private readonly Dictionary<T, (TState state, int count)> _items;
         private readonly Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> _onAdded;
@@ -17,11 +17,11 @@ namespace MugenMvvm.Collections.Components
         private readonly Action<IReadOnlyDictionary<T, (TState state, int count)>>? _onReset;
         private Dictionary<T, int>? _resetItems;
 
-        public TrackerCollectionDecorator(Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> onAdded,
+        public TrackerCollectionDecorator(int priority, Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> onAdded,
             Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, TState> onRemoved,
             Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, object?, TState>? onChanged,
             Action<IReadOnlyDictionary<T, (TState state, int count)>>? onReset,
-            IEqualityComparer<T>? comparer = null, int priority = CollectionComponentPriority.TrackerDecorator) : base(priority)
+            IEqualityComparer<T>? comparer = null) : base(priority)
         {
             Should.NotBeNull(onAdded, nameof(onAdded));
             Should.NotBeNull(onRemoved, nameof(onRemoved));
@@ -31,6 +31,8 @@ namespace MugenMvvm.Collections.Components
             _onReset = onReset;
             _items = new Dictionary<T, (TState, int)>(comparer ?? EqualityComparer<T>.Default);
         }
+
+        public IReadOnlyDictionary<T, (TState state, int count)> Items => _items;
 
         protected override bool IsLazy => false;
 
@@ -99,7 +101,7 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
-            if (items == null)
+            if (items.IsNullOrEmpty())
                 Clear();
             else
             {

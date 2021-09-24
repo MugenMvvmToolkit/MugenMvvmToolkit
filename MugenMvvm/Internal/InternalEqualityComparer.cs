@@ -7,14 +7,14 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object, object?)>, IEqualityComparer<object?>, IEqualityComparer<Type?>,
+    internal sealed class InternalEqualityComparer : IEqualityComparer<MemberInfo?>, IEqualityComparer<(object?, object?)>, IEqualityComparer<Type?>,
         IEqualityComparer<KeyValuePair<Type, MethodInfo>>, IEqualityComparer<KeyValuePair<Type, MemberInfo>>, IEqualityComparer<KeyValuePair<Type, Type>>,
         IEqualityComparer<IMetadataContextKey?>
     {
         private static readonly InternalEqualityComparer Comparer = new();
         public static readonly IEqualityComparer<MemberInfo> MemberInfo = Comparer;
-        public static readonly IEqualityComparer<(object, object?)> ValueTupleReference = Comparer;
-        public static readonly IEqualityComparer<object> Reference = Comparer;
+        public static readonly IEqualityComparer<(object?, object?)> ValueTupleReference = Comparer;
+        public static readonly IEqualityComparer<object?> Reference = new ReferenceComparer();
         public static readonly IEqualityComparer<Type> Type = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, MethodInfo>> TypeMethod = Comparer;
         public static readonly IEqualityComparer<KeyValuePair<Type, MemberInfo>> TypeMember = Comparer;
@@ -25,6 +25,8 @@ namespace MugenMvvm.Internal
         private InternalEqualityComparer()
         {
         }
+
+        public static IEqualityComparer<T> GetReferenceComparer<T>() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>) Reference;
 
         public static bool Equals(Type[] x, Type[] y)
         {
@@ -55,10 +57,13 @@ namespace MugenMvvm.Internal
             return x.Item == y.Item;
         }
 
-        bool IEqualityComparer<(object, object?)>.Equals((object, object?) x, (object, object?) y) => x.Item1 == y.Item1 && x.Item2 == y.Item2;
+        bool IEqualityComparer<(object?, object?)>.Equals((object?, object?) x, (object?, object?) y) => x.Item1 == y.Item1 && x.Item2 == y.Item2;
 
-        int IEqualityComparer<(object, object?)>.GetHashCode((object, object?) key)
+        int IEqualityComparer<(object?, object?)>.GetHashCode((object?, object?) key)
         {
+            if (key.Item1 == null)
+                return key.Item2 == null ? 0 : RuntimeHelpers.GetHashCode(key.Item2);
+
             if (key.Item2 == null)
                 return RuntimeHelpers.GetHashCode(key.Item1);
             return HashCode.Combine(RuntimeHelpers.GetHashCode(key.Item1), RuntimeHelpers.GetHashCode(key.Item2));
@@ -84,12 +89,15 @@ namespace MugenMvvm.Internal
 
         int IEqualityComparer<MemberInfo?>.GetHashCode(MemberInfo? obj) => obj!.GetHashCode();
 
-        bool IEqualityComparer<object?>.Equals(object? x, object? y) => x == y;
-
-        int IEqualityComparer<object?>.GetHashCode(object? obj) => obj == null ? 0 : obj.GetHashCode();
-
         bool IEqualityComparer<Type?>.Equals(Type? x, Type? y) => x == y;
 
         int IEqualityComparer<Type?>.GetHashCode(Type? obj) => obj!.GetHashCode();
+
+        private sealed class ReferenceComparer : IEqualityComparer<object?>
+        {
+            bool IEqualityComparer<object?>.Equals(object? x, object? y) => x == y;
+
+            int IEqualityComparer<object?>.GetHashCode(object? obj) => obj == null ? 0 : RuntimeHelpers.GetHashCode(obj);
+        }
     }
 }

@@ -41,9 +41,9 @@ namespace MugenMvvm.Collections
         private List<CollectionChangedEvent>? _eventsCache;
         private ThreadExecutionMode _executionMode;
         private int _suspendCount;
-        private bool? _initializeAsync;
         private int? _batchThreshold;
         private int? _batchDelay;
+        private int? _lockTimeout;
 
         public BindableCollectionAdapter(IList<object?>? source = null, IThreadDispatcher? threadDispatcher = null)
             : base(source ?? new List<object?>())
@@ -92,10 +92,10 @@ namespace MugenMvvm.Collections
         }
 
         [Preserve]
-        public bool InitializeAsync
+        public int LockTimeout
         {
-            get => _initializeAsync.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterInitializeAsync);
-            set => _initializeAsync = value;
+            get => _lockTimeout.GetValueOrDefault(CollectionMetadata.BindableCollectionAdapterLockTimeout);
+            set => _lockTimeout = value;
         }
 
         protected virtual bool IsAlive => true;
@@ -143,16 +143,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version) => Items[index] = newItem;
 
-        protected virtual void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
-        {
-            if (Items is ObservableCollection<object?> observableCollection)
-                observableCollection.Move(oldIndex, newIndex);
-            else
-            {
-                Items.RemoveAt(oldIndex);
-                Items.Insert(newIndex, item);
-            }
-        }
+        protected virtual void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version) => Items.Move(oldIndex, newIndex);
 
         protected virtual void OnRemoved(object? item, int index, bool batchUpdate, int version) => Items.RemoveAt(index);
 
@@ -426,21 +417,17 @@ namespace MugenMvvm.Collections
             ActionToken newLock = default;
             try
             {
-                if (InitializeAsync)
+                if (oldValue != null)
                 {
-                    if (!MugenExtensions.TryLock(oldValue, out oldLock) || !MugenExtensions.TryLock(newValue, out newLock))
-                    {
-                        oldLock.Dispose();
-                        newLock.Dispose();
-
+                    if (!MugenExtensions.TryLock(oldValue, LockTimeout, out oldLock))
                         await ThreadDispatcher.SwitchToBackgroundAsync();
-                        oldLock = MugenExtensions.Lock(oldValue);
-                        newLock = MugenExtensions.Lock(newValue);
-                    }
+                    RemoveCollectionListener(oldValue);
+                    oldLock.Dispose();
                 }
-                else
+
+                if (!MugenExtensions.TryLock(newValue, LockTimeout, out newLock))
                 {
-                    oldLock = MugenExtensions.Lock(oldValue);
+                    await ThreadDispatcher.SwitchToBackgroundAsync();
                     newLock = MugenExtensions.Lock(newValue);
                 }
 
@@ -448,12 +435,6 @@ namespace MugenMvvm.Collections
                 {
                     version = ++Version;
                     _suspendCount = 1;
-                    if (oldValue != null)
-                    {
-                        RemoveCollectionListener(oldValue);
-                        oldLock.Dispose();
-                    }
-
                     _pendingEvents.Clear();
                     _pendingChangedEvents.Clear();
                     _collection = newValue;
@@ -605,8 +586,7 @@ namespace MugenMvvm.Collections
                         source.Insert(NewIndex, NewItem);
                         break;
                     case CollectionChangedAction.Move:
-                        source.RemoveAt(OldIndex);
-                        source.Insert(NewIndex, NewItem);
+                        source.Move(OldIndex, NewIndex);
                         break;
                     case CollectionChangedAction.Remove:
                         source.RemoveAt(OldIndex);
@@ -640,8 +620,7 @@ namespace MugenMvvm.Collections
                         break;
                     case CollectionChangedAction.Move:
                         callback.DispatchLastEvent();
-                        source.RemoveAt(OldIndex);
-                        source.Insert(NewIndex, NewItem);
+                        source.Move(OldIndex, NewIndex);
                         callback.OnMoved(OldIndex, NewIndex, OldIndex, NewIndex);
                         break;
                     case CollectionChangedAction.Remove:

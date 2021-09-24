@@ -3,19 +3,21 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class FilterCollectionDecorator<T> : CollectionDecoratorBase, IReadOnlyCollection<object?>
+    public sealed class FilterCollectionDecorator<T> : CollectionDecoratorBase, IReadOnlyList<object?>, IHasCache
     {
-        private Func<T, bool>? _filter;
+        private Func<T, int, bool>? _filter;
         private IndexMapList<object?> _list;
 
-        public FilterCollectionDecorator(Func<T, bool>? filter = null, int priority = CollectionComponentPriority.FilterDecorator) : base(priority)
+        public FilterCollectionDecorator(int priority, Func<T, int, bool>? filter = null) : base(priority)
         {
             _filter = filter;
             _list = IndexMapList<object?>.Get();
@@ -23,9 +25,7 @@ namespace MugenMvvm.Collections.Components
             NullItemResult = true;
         }
 
-        protected override bool HasAdditionalItems => false;
-
-        public Func<T, bool>? Filter
+        public Func<T, int, bool>? Filter
         {
             get => _filter;
             set
@@ -37,18 +37,22 @@ namespace MugenMvvm.Collections.Components
 
         public bool NullItemResult { get; set; }
 
+        protected override bool HasAdditionalItems => false;
+
         [MemberNotNullWhen(true, nameof(_filter))]
         private bool HasFilter => _filter != null;
 
         int IReadOnlyCollection<object?>.Count => _list.Size;
 
-        public void Invalidate() => UpdateFilterInternal(_filter);
+        object? IReadOnlyList<object?>.this[int index] => _list.Indexes[index].Value;
 
         public IEnumerator<object?> GetEnumerator()
         {
             for (var i = 0; i < _list.Size; i++)
                 yield return _list.Indexes[i].Value;
         }
+
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => UpdateFilterInternal(_filter);
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -66,7 +70,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var filterIndex = _list.BinarySearch(index);
-            if (FilterInternal(item))
+            if (FilterInternal(item, index, args))
             {
                 if (filterIndex < 0)
                 {
@@ -94,7 +98,7 @@ namespace MugenMvvm.Collections.Components
 
             var binarySearchIndex = _list.BinarySearch(index);
             _list.UpdateIndexesBinary(binarySearchIndex, 1);
-            if (!FilterInternal(item))
+            if (!FilterInternal(item, index))
                 return false;
 
             index = _list.Add(index, item, binarySearchIndex);
@@ -110,13 +114,13 @@ namespace MugenMvvm.Collections.Components
             var filterIndex = _list.BinarySearch(index);
             if (filterIndex < 0)
             {
-                if (FilterInternal(newItem))
+                if (FilterInternal(newItem, index))
                     decoratorManager.OnAdded(collection, this, newItem, _list.Add(index, newItem, filterIndex));
 
                 return false;
             }
 
-            if (FilterInternal(newItem))
+            if (FilterInternal(newItem, index))
             {
                 oldItem = _list.Indexes[filterIndex].Value;
                 _list.Indexes[filterIndex].Value = newItem;
@@ -163,42 +167,54 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private void UpdateFilterInternal(Func<T, bool>? filter)
+        private void UpdateFilterInternal(Func<T, int, bool>? filter)
         {
-            if (DecoratorManager == null)
+            var decoratorManager = DecoratorManager;
+            var owner = OwnerOptional;
+            if (decoratorManager == null || owner == null)
             {
                 _filter = filter;
                 return;
             }
 
-            using var _ = Owner.Lock();
+            using var _ = owner.Lock();
             _filter = filter;
+            if (DecoratorManager == null)
+                return;
+
             _list.Clear();
             if (HasFilter)
-                UpdateItems(DecoratorManager.Decorate(Owner, this));
-            DecoratorManager.OnReset(Owner, this, this);
+                UpdateItems(decoratorManager.Decorate(owner, this));
+            decoratorManager.OnReset(owner, this, this);
         }
 
         private void UpdateItems(IEnumerable<object?> items)
         {
-            if (items is IReadOnlyCollection<object?> c)
-                _list.EnsureCapacity(c.Count);
+            if (items.TryGetCount(out var count))
+            {
+                if (count == 0)
+                    return;
+                _list.EnsureCapacity(count);
+            }
 
             var index = 0;
             foreach (var item in items)
             {
-                if (FilterInternal(item))
+                if (FilterInternal(item, index))
                     _list.AddRaw(index, item);
                 ++index;
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool FilterInternal(object? value)
+        private bool FilterInternal(object? value, int index, object? args = null)
         {
+            if (ReferenceEquals(args, CollectionMetadata.TrueFilterArgs))
+                return true;
+            if (ReferenceEquals(args, CollectionMetadata.FalseFilterArgs))
+                return false;
             if (value == null)
                 return NullItemResult;
-            return value is not T v || _filter!(v);
+            return value is not T v || _filter!(v, index);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

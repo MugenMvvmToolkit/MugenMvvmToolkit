@@ -1,37 +1,42 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class SortCollectionDecorator : CollectionDecoratorBase, IReadOnlyCollection<object?>, IComparer<SortCollectionDecorator.OrderedItem>
+    public sealed class SortCollectionDecorator<TState> : CollectionDecoratorBase, IReadOnlyList<object?>, IComparer<SortCollectionDecorator<TState>.OrderedItem>, IHasCache
     {
+        private readonly Func<object?, TState?> _getState;
         private ListInternal<OrderedItem> _items;
-        private IComparer<object?>? _comparer;
+        private IComparer<TState?>? _comparer;
 
-        public SortCollectionDecorator(IComparer<object?>? comparer = null, int priority = CollectionComponentPriority.SortingDecorator) : base(priority)
+        public SortCollectionDecorator(int priority, Func<object?, TState?> getState, IComparer<TState?>? comparer = null) : base(priority)
         {
+            Should.NotBeNull(getState, nameof(getState));
+            _getState = getState;
             _comparer = comparer;
             _items = new ListInternal<OrderedItem>(8);
             Priority = priority;
         }
 
-        protected override bool HasAdditionalItems => false;
-
-        public IComparer<object?>? Comparer
+        public IComparer<TState?>? Comparer
         {
             get => _comparer;
             set => ReorderInternal(value, true);
         }
 
+        protected override bool HasAdditionalItems => false;
+
         int IReadOnlyCollection<object?>.Count => _items.Count;
 
-        public void Reorder() => ReorderInternal(null, false);
+        object? IReadOnlyList<object?>.this[int index] => _items.Items[index].Item;
 
         public IEnumerator<object?> GetEnumerator()
         {
@@ -40,6 +45,8 @@ namespace MugenMvvm.Collections.Components
             for (var i = 0; i < count; i++)
                 yield return items[i].Item;
         }
+
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => ReorderInternal(null, false);
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -56,10 +63,11 @@ namespace MugenMvvm.Collections.Components
             if (Comparer == null)
                 return true;
 
-            if (IsChanged(item, index, out var oldIndex))
+            var state = _getState(item);
+            if (IsChanged(item, index, state, out var oldIndex))
             {
                 _items.RemoveAt(oldIndex);
-                var newIndex = _items.AddOrdered(new OrderedItem(index, item), this);
+                var newIndex = _items.AddOrdered(new OrderedItem(index, item, state), this);
                 if (oldIndex == newIndex)
                     index = oldIndex;
                 else
@@ -80,7 +88,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             UpdateIndexes(index, 1);
-            index = _items.AddOrdered(new OrderedItem(index, item), this);
+            index = _items.AddOrdered(new OrderedItem(index, item, _getState(item)), this);
             return true;
         }
 
@@ -90,16 +98,18 @@ namespace MugenMvvm.Collections.Components
             if (Comparer == null)
                 return true;
 
-            var oldIndex = GetIndexByOriginalIndex(oldItem, index);
-            if (Comparer.Compare(oldItem, newItem) != 0)
+            var oldIndex = GetIndexByOriginalIndex(oldItem, index, _getState(oldItem));
+            var oldState = _items.Items[oldIndex].State;
+            var newState = _getState(newItem);
+            if (Comparer.Compare(oldState, newState) != 0)
             {
                 _items.RemoveAt(oldIndex);
                 decoratorManager.OnRemoved(collection, this, oldItem, oldIndex);
-                decoratorManager.OnAdded(collection, this, newItem, _items.AddOrdered(new OrderedItem(index, newItem), this));
+                decoratorManager.OnAdded(collection, this, newItem, _items.AddOrdered(new OrderedItem(index, newItem, newState), this));
                 return false;
             }
 
-            _items.Items[oldIndex] = new OrderedItem(index, newItem);
+            _items.Items[oldIndex] = new OrderedItem(index, newItem, newState);
             return true;
         }
 
@@ -109,7 +119,7 @@ namespace MugenMvvm.Collections.Components
             if (Comparer == null)
                 return true;
 
-            var index = GetIndexByOriginalIndex(item, oldIndex);
+            var index = GetIndexByOriginalIndex(item, oldIndex, _getState(item));
             UpdateIndexesMove(oldIndex, newIndex);
 
             if (index != -1)
@@ -123,7 +133,7 @@ namespace MugenMvvm.Collections.Components
             if (Comparer == null)
                 return true;
 
-            var indexToRemove = GetIndexByOriginalIndex(item, index);
+            var indexToRemove = GetIndexByOriginalIndex(item, index, _getState(item));
             UpdateIndexes(index, -1);
             if (indexToRemove == -1)
                 return false;
@@ -138,9 +148,8 @@ namespace MugenMvvm.Collections.Components
             if (Comparer == null)
                 return true;
 
-            if (items == null)
-                _items.Clear();
-            else
+            _items.Clear();
+            if (items != null)
             {
                 Reset(items);
                 items = this;
@@ -149,10 +158,16 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private bool IsChanged(object? item, int originalIndex, out int oldIndex)
+        private bool IsChanged(object? item, int originalIndex, TState? state, out int oldIndex)
         {
-            var currentItem = new OrderedItem(originalIndex, item);
-            oldIndex = GetIndexByOriginalIndex(item, originalIndex);
+            var currentItem = new OrderedItem(originalIndex, item, state);
+            oldIndex = _items.BinarySearch(currentItem, this);
+            if (oldIndex < 0)
+            {
+                oldIndex = GetIndexByOriginalIndexFallback(originalIndex);
+                return true;
+            }
+
             if (oldIndex != 0 && Compare(_items.Items[oldIndex - 1], currentItem) > 0)
                 return true;
             if (oldIndex < _items.Count - 1 && Compare(_items.Items[oldIndex + 1], currentItem) < 0)
@@ -160,46 +175,54 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        private void ReorderInternal(IComparer<object?>? comparer, bool setComparer)
+        private void ReorderInternal(IComparer<TState>? comparer, bool setComparer)
         {
-            if (DecoratorManager == null)
+            var decoratorManager = DecoratorManager;
+            var owner = OwnerOptional;
+            if (decoratorManager == null || owner == null)
             {
                 if (setComparer)
                     _comparer = comparer!;
                 return;
             }
 
-            using var _ = Owner.Lock();
+            using var _ = owner.Lock();
             if (setComparer)
                 _comparer = comparer!;
+            if (DecoratorManager == null)
+                return;
+
             if (Comparer == null)
             {
                 _items.Clear();
-                DecoratorManager.OnReset(Owner, this, DecoratorManager.Decorate(Owner, this));
+                decoratorManager.OnReset(owner, this);
             }
             else
             {
-                Reset(DecoratorManager.Decorate(Owner, this));
-                DecoratorManager.OnReset(Owner, this, this);
+                _items.Clear();
+                Reset(decoratorManager.Decorate(owner, this));
+                decoratorManager.OnReset(owner, this, this);
             }
         }
 
         private void Reset(IEnumerable<object?> items)
         {
-            if (items is IReadOnlyCollection<object?> c)
-                _items.EnsureCapacity(c.Count);
+            if (items.TryGetCount(out var count))
+            {
+                if (count == 0)
+                    return;
+                _items.EnsureCapacity(count);
+            }
 
-            _items.Clear();
             var index = 0;
             foreach (var item in items)
-                _items.Add(new OrderedItem(index++, item));
+                _items.Add(new OrderedItem(index++, item, _getState(item)));
             _items.Sort(this);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int GetIndexByOriginalIndex(object? item, int index)
+        private int GetIndexByOriginalIndex(object? item, int index, TState? state)
         {
-            var binarySearchIndex = _items.BinarySearch(new OrderedItem(index, item), this);
+            var binarySearchIndex = _items.BinarySearch(new OrderedItem(index, item, state), this);
             if (binarySearchIndex < 0)
                 return GetIndexByOriginalIndexFallback(index);
             return binarySearchIndex;
@@ -225,7 +248,7 @@ namespace MugenMvvm.Collections.Components
             if (oldIndex < newIndex)
             {
                 var countToUpdate = newIndex - oldIndex;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     var originalIndex = items[i].OriginalIndex;
                     if (originalIndex > oldIndex && originalIndex <= newIndex)
@@ -239,7 +262,7 @@ namespace MugenMvvm.Collections.Components
             else
             {
                 var countToUpdate = oldIndex - newIndex;
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     var originalIndex = items[i].OriginalIndex;
                     if (originalIndex >= newIndex && originalIndex < oldIndex)
@@ -283,7 +306,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (Comparer == null)
                 return 0;
-            var result = Comparer.Compare(x.Item, y.Item);
+            var result = Comparer.Compare(x.State, y.State);
             if (result == 0)
                 return x.OriginalIndex.CompareTo(y.OriginalIndex);
             return result;
@@ -297,13 +320,15 @@ namespace MugenMvvm.Collections.Components
         private struct OrderedItem
         {
             public readonly object? Item;
+            public readonly TState? State;
             public int OriginalIndex;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public OrderedItem(int originalIndex, object? item)
+            public OrderedItem(int originalIndex, object? item, TState? state)
             {
                 OriginalIndex = originalIndex;
                 Item = item;
+                State = state;
             }
         }
     }

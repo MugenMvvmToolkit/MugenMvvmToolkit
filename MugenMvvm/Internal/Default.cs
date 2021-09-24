@@ -27,6 +27,8 @@ namespace MugenMvvm.Internal
         private static readonly Dictionary<Type, Array> EmptyArrayCache = new(InternalEqualityComparer.Type);
         private static int _counter;
 
+        public static IEqualityComparer<object?> ReferenceEqualityComparer => InternalEqualityComparer.Reference;
+
         public static Array Array(Type type)
         {
             Should.NotBeNull(type, nameof(type));

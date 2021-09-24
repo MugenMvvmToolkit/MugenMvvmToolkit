@@ -191,6 +191,10 @@ namespace MugenMvvm
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowDuplicateEnum(object oldValue, object newValue) => throw new InvalidOperationException(DuplicateEnumFormat2.Format(oldValue, newValue));
 
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowSealedDecorators() => throw new InvalidOperationException(SealedDecorators);
+
 #if ANDROID || IOS
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]

@@ -4,14 +4,16 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Threading;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using Should;
 
 namespace MugenMvvm.UnitTests.Collections.Internal
 {
-    public class DecoratedCollectionChangeTracker<T> : IDecoratedCollectionChangedListener, ICollectionBatchUpdateListener
+    public class DecoratedCollectionChangeTracker<T> : AttachableComponentBase<IReadOnlyObservableCollection>, IDecoratedCollectionChangedListener, ICollectionBatchUpdateListener
     {
         private bool _hasPendingEvents;
         private bool _countRaised;
@@ -25,6 +27,8 @@ namespace MugenMvvm.UnitTests.Collections.Internal
         }
 
         public event Action? Changed;
+
+        public event Action? PendingChanged;
 
         public int ItemChangedCount { get; set; }
 
@@ -53,7 +57,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                     CheckPropertyChanged(false);
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    OnReset(items, (IEnumerable<T>)sender);
+                    items.Reset((IEnumerable<T>) sender);
                     CheckPropertyChanged(true);
                     break;
                 default:
@@ -87,31 +91,31 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
         public void OnAdded(IReadOnlyObservableCollection collection, object? item, int index)
         {
-            OnAddEvent(ChangedItems, new[] { item }, index);
+            OnAddEvent(ChangedItems, new[] {item}, index);
             RaiseChanged();
         }
 
         public void OnReplaced(IReadOnlyObservableCollection collection, object? oldItem, object? newItem, int index)
         {
-            OnReplaceEvent(ChangedItems, new[] { oldItem }, new[] { newItem }, index);
+            OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
             RaiseChanged();
         }
 
         public void OnMoved(IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
         {
-            OnMoveEvent(ChangedItems, new[] { item }, oldIndex, newIndex);
+            OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
             RaiseChanged();
         }
 
         public void OnRemoved(IReadOnlyObservableCollection collection, object? item, int index)
         {
-            OnRemoveEvent(ChangedItems, new[] { item }, index);
+            OnRemoveEvent(ChangedItems, new[] {item}, index);
             RaiseChanged();
         }
 
         public void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items)
         {
-            OnReset(ChangedItems, items?.Cast<T>());
+            ChangedItems.Reset(items?.Cast<T>());
             RaiseChanged();
         }
 
@@ -140,7 +144,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
 
             items[oldIndex]!.ShouldEqual(oldItems[0]);
             items.RemoveAt(oldIndex);
-            items.Insert(newIndex, (T)oldItems[0]!);
+            items.Insert(newIndex, (T) oldItems[0]!);
         }
 
         private static void OnReplaceEvent(List<T> items, IList? oldItems, IList? newItems, int index)
@@ -148,7 +152,7 @@ namespace MugenMvvm.UnitTests.Collections.Internal
             if (oldItems == null || newItems == null || oldItems.Count > 1 || newItems.Count > 1)
                 throw new NotSupportedException();
             items[index]!.ShouldEqual(oldItems[0]);
-            items[index] = (T)newItems[0]!;
+            items[index] = (T) newItems[0]!;
         }
 
         private void RaiseChanged(bool fromBatch = false)
@@ -160,7 +164,11 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 _hasPendingEvents = false;
             }
             else
+            {
+                PendingChanged?.Invoke();
+                OwnerOptional?.DecoratedItems().ShouldEqual(ChangedItems.Cast<object?>());
                 _hasPendingEvents = true;
+            }
         }
 
         private void CheckPropertyChanged(bool countChanged)
@@ -170,13 +178,6 @@ namespace MugenMvvm.UnitTests.Collections.Internal
                 _countRaised.ShouldBeTrue();
             _indexerRaised = false;
             _countRaised = false;
-        }
-
-        private void OnReset(List<T> items, IEnumerable<T>? resetItems)
-        {
-            items.Clear();
-            if (resetItems != null)
-                items.AddRange(resetItems);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace MugenMvvm.UnitTests.Collections
     [Collection(SharedContext)]
     public class DecoratedReadOnlyObservableCollectionTest : ReadOnlyObservableCollectionTestBase
     {
-        protected override IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource) =>
-            new DecoratedReadOnlyObservableCollection<T>(source, 0, disposeSource, ComponentCollectionManager);
+        protected override IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource, bool isWeak = true) =>
+            new DecoratedReadOnlyObservableCollection<T>(source, 0, disposeSource, isWeak, false, ComponentCollectionManager);
     }
 }

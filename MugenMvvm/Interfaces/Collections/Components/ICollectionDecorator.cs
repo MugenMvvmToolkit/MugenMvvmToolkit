@@ -8,6 +8,8 @@ namespace MugenMvvm.Interfaces.Collections.Components
     {
         bool IsLazy(IReadOnlyObservableCollection collection);
 
+        bool IsCacheRequired(IReadOnlyObservableCollection collection);
+        
         bool HasAdditionalItems(IReadOnlyObservableCollection collection);
 
         bool TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes);

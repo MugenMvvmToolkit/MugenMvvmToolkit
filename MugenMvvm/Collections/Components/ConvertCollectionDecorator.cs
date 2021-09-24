@@ -11,7 +11,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class ConvertCollectionDecorator<T, TTo> : CollectionDecoratorBase
+    public sealed class ConvertCollectionDecorator<T, TTo> : CollectionDecoratorBase
         where T : notnull
         where TTo : class?
     {
@@ -20,8 +20,7 @@ namespace MugenMvvm.Collections.Components
         private IndexMapList<(T from, TTo? to)> _items;
         private Dictionary<T, TTo?>? _resetCache;
 
-        public ConvertCollectionDecorator(Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null,
-            int priority = CollectionComponentPriority.ConverterDecorator) : base(priority)
+        public ConvertCollectionDecorator(int priority, Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null) : base(priority)
         {
             Should.NotBeNull(converter, nameof(converter));
             _items = IndexMapList<(T, TTo?)>.Get();
@@ -132,11 +131,11 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
-            if (items == null)
+            if (items.IsNullOrEmpty())
                 Clear();
             else
             {
-                _resetCache ??= new Dictionary<T, TTo?>(_items.Size, GetComparer());
+                _resetCache ??= new Dictionary<T, TTo?>(_items.Size, InternalEqualityComparer.GetReferenceComparer<T>());
                 for (var i = 0; i < _items.Size; i++)
                 {
                     var item = _items.Indexes[i].Value;
@@ -171,8 +170,6 @@ namespace MugenMvvm.Collections.Components
 
             return true;
         }
-
-        private static IEqualityComparer<T> GetComparer() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>) InternalEqualityComparer.Reference;
 
         private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items)
         {

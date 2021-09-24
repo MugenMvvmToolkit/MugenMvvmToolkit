@@ -6,6 +6,6 @@
         ItemChanged = 2,
         ItemRemoved = 3,
         Reset = 4,
-        GroupRemoved = 5
+        Clear = 5
     }
 }

@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class TrackerCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly Dictionary<int, int> _items;
         private int _sum;
         private int _resetCount;
@@ -23,11 +23,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public TrackerCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _items = new Dictionary<int, int>();
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             var tracker = new DecoratedCollectionChangeTracker<object>();
             tracker.Changed += Assert;
             _collection.AddComponent(tracker);
-            _collection.AddComponent(new TrackerCollectionDecorator<int, int>((items, item, state, count, isReset) =>
+            _collection.AddComponent(new TrackerCollectionDecorator<int, int>(0, (items, item, state, count, isReset) =>
             {
                 if (_isReset.HasValue)
                     _isReset.Value.ShouldEqual(isReset);
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collection = new SynchronizedObservableCollection<ChangeModel>(ComponentCollectionManager);
             var tracker = new DecoratedCollectionChangeTracker<object>();
             collection.AddComponent(tracker);
-            collection.AddComponent(new TrackerCollectionDecorator<ChangeModel, int>((items, item, state, count, isReset) =>
+            collection.AddComponent(new TrackerCollectionDecorator<ChangeModel, int>(0, (items, item, state, count, isReset) =>
             {
                 isReset.ShouldBeFalse();
                 AssertItems(trackedItems, items, item, false, false);
@@ -108,7 +108,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < DefaultCount; i++)
             {
-                var changeModel = new ChangeModel { Value = i };
+                var changeModel = new ChangeModel {Value = i};
                 for (var j = 0; j < duplicateCount; j++)
                 {
                     collection.Add(changeModel);
@@ -131,15 +131,15 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _isReset = true;
             _resetCount = 0;
 
-            _collection.Reset(new object[] { 1, 2, 2, 3, 3, 3, 4, 4, 4, 4 });
+            _collection.Reset(new object[] {1, 2, 2, 3, 3, 3, 4, 4, 4, 4});
             Assert();
             _resetCount.ShouldEqual(1);
 
-            _collection.Reset(new object[] { 1, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5 });
+            _collection.Reset(new object[] {1, 1, 1, 2, 3, 3, 4, 4, 4, 5, 5, 5});
             Assert();
             _resetCount.ShouldEqual(2);
 
-            _collection.Reset(new object[] { 1, 3, 4, 5, 5, 5, 5 });
+            _collection.Reset(new object[] {1, 3, 4, 5, 5, 5, 5});
             Assert();
             _resetCount.ShouldEqual(3);
 
@@ -160,7 +160,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _items.Count.ShouldEqual(0);
         }
 
-        protected override IObservableCollection<object> GetCollection() => _collection;
+        protected override IObservableCollection<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

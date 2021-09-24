@@ -14,7 +14,7 @@ namespace MugenMvvm.Collections
         private TResult _seed;
 
         public AccumulateClosure(TResult seed, Func<T, TResult> selector, Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Action<TResult> onChanged,
-            Func<T, bool>? predicate = null)
+            Func<T, bool>? predicate)
         {
             _seed = seed;
             _selector = selector;

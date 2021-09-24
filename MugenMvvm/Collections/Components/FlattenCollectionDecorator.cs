@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -33,6 +31,8 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool IsLazy => false;
 
+        protected override bool IsCacheRequired => true;
+
         internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
 
         internal abstract int GetIndex(int originalIndex);
@@ -40,21 +40,19 @@ namespace MugenMvvm.Collections.Components
         internal abstract IEnumerable<object?> Decorate(IEnumerable<object?> items);
     }
 
-    public class FlattenCollectionDecorator<T> : FlattenCollectionDecorator, ILockerChangedListener<IReadOnlyObservableCollection>,
-        IPreInitializerCollectionComponent<object>
+    public sealed class FlattenCollectionDecorator<T> : FlattenCollectionDecorator, ILockerChangedListener<IReadOnlyObservableCollection>
         where T : class
     {
         private readonly Func<T, FlattenItemInfo> _getNestedCollection;
-        private IndexMapList<FlattenCollectionItemBase> _collectionItems;
+        private IndexMapAwareList<FlattenCollectionItemBase> _collectionItems;
         private Dictionary<object, object?>? _resetCache;
 
-        public FlattenCollectionDecorator(Func<T, FlattenItemInfo> getNestedCollection, int priority = CollectionComponentPriority.FlattenCollectionDecorator)
+        public FlattenCollectionDecorator(int priority, Func<T, FlattenItemInfo> getNestedCollection)
             : base(priority)
         {
             Should.NotBeNull(getNestedCollection, nameof(getNestedCollection));
             _getNestedCollection = getNestedCollection;
-            Priority = priority;
-            _collectionItems = IndexMapList<FlattenCollectionItemBase>.Get();
+            _collectionItems = IndexMapAwareList<FlattenCollectionItemBase>.Get();
         }
 
         protected override bool HasAdditionalItems => _collectionItems.Size > 0;
@@ -68,14 +66,6 @@ namespace MugenMvvm.Collections.Components
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items) => Decorate(items);
 
-        protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
-            object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
-        {
-            for (var i = 0; i < _collectionItems.Size; i++)
-                _collectionItems.Indexes[i].Value.FindAllIndexOf(this, item, ignoreDuplicates, ref indexes);
-            return true;
-        }
-
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
@@ -86,8 +76,22 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnAdded(decoratorManager, collection, item, ref index, true, out _);
+        protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            var originalIndex = index;
+            index = UpdateIndexes(index, 1, out var binarySearchIndex);
+            if (item is not T itemT)
+                return true;
+
+            var flattenItemInfo = _getNestedCollection(itemT);
+            if (flattenItemInfo.IsEmpty)
+                return true;
+
+            var flattenCollectionItem = flattenItemInfo.GetCollectionItem(itemT, this);
+            _collectionItems.Add(originalIndex, flattenCollectionItem, binarySearchIndex);
+            flattenCollectionItem.OnAdded(this, decoratorManager, collection, index, true, false, out _);
+            return false;
+        }
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index) =>
@@ -104,12 +108,21 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index) =>
-            OnRemoved(decoratorManager, collection, ref index, out _);
+        protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
+        {
+            index = UpdateIndexes(index, -1, out var binarySearchIndex);
+            if (binarySearchIndex < 0)
+                return true;
+
+            var flattenCollectionItemBase = _collectionItems.Indexes[binarySearchIndex].Value;
+            _collectionItems.RemoveAt(binarySearchIndex);
+            flattenCollectionItemBase.OnRemoved(this, decoratorManager, collection, index, out _);
+            return false;
+        }
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
-            if (items == null)
+            if (items.IsNullOrEmpty())
                 Clear();
             else
             {
@@ -149,14 +162,14 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        internal sealed override IEnumerable<object?> Decorate(IEnumerable<object?> items)
+        internal override IEnumerable<object?> Decorate(IEnumerable<object?> items)
         {
             if (_collectionItems.Size == 0)
                 return items;
             return DecorateImpl(items);
         }
 
-        internal sealed override int GetIndex(int originalIndex) => GetIndex(originalIndex, _collectionItems.BinarySearch(originalIndex));
+        internal override int GetIndex(int originalIndex) => GetIndex(originalIndex, _collectionItems.BinarySearch(originalIndex));
 
         private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items)
         {
@@ -166,8 +179,15 @@ namespace MugenMvvm.Collections.Components
             {
                 if (itemIndex < _collectionItems.Size && _collectionItems.Indexes[itemIndex].Index == index)
                 {
-                    foreach (var nestedItem in _collectionItems.Indexes[itemIndex].Value.GetItems())
-                        yield return nestedItem;
+                    int count = 0;
+                    var flattenItem = _collectionItems.Indexes[itemIndex].Value;
+                    foreach (var nestedItem in flattenItem.GetItems())
+                    {
+                        if (count < flattenItem.Size)
+                            yield return nestedItem;
+                        ++count;
+                    }
+
                     ++itemIndex;
                     ++index;
                 }
@@ -306,84 +326,10 @@ namespace MugenMvvm.Collections.Components
             flattenItem.OnAdded(this, decoratorManager, source, index, false, isRecycled, out _);
         }
 
-        private bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, object? item, ref int index, bool notify,
-            out bool isReset)
-        {
-            var originalIndex = index;
-            index = UpdateIndexes(index, 1, out var binarySearchIndex);
-            if (item is not T itemT)
-            {
-                isReset = false;
-                return true;
-            }
-
-            var flattenItemInfo = _getNestedCollection(itemT);
-            if (flattenItemInfo.IsEmpty)
-            {
-                isReset = false;
-                return true;
-            }
-
-            var flattenCollectionItem = flattenItemInfo.GetCollectionItem(itemT, this);
-            _collectionItems.Add(originalIndex, flattenCollectionItem, binarySearchIndex);
-            flattenCollectionItem.OnAdded(this, decoratorManager, source, index, notify, false, out isReset);
-            return false;
-        }
-
-        private bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref int index, out bool isReset)
-        {
-            index = UpdateIndexes(index, -1, out var binarySearchIndex);
-            if (binarySearchIndex < 0)
-            {
-                isReset = false;
-                return true;
-            }
-
-            var flattenCollectionItemBase = _collectionItems.Indexes[binarySearchIndex].Value;
-            _collectionItems.RemoveAt(binarySearchIndex);
-            flattenCollectionItemBase.OnRemoved(this, decoratorManager, collection, index, out isReset);
-            return false;
-        }
-
         void ILockerChangedListener<IReadOnlyObservableCollection>.OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < _collectionItems.Size; i++)
                 _collectionItems.Indexes[i].Value.UpdateLocker(locker);
-        }
-
-        void IPreInitializerCollectionComponent<object>.Initialize(IReadOnlyObservableCollection<object> collection, object item)
-        {
-            if (item is not T itemT)
-                return;
-
-            var flattenItemInfo = _getNestedCollection(itemT);
-            if (flattenItemInfo.IsEmpty || flattenItemInfo.Items is not ISynchronizable synchronizable)
-                return;
-
-            var spinWait = new SpinWait();
-            ActionToken t1 = default;
-            ActionToken t2 = default;
-            try
-            {
-                while (true)
-                {
-                    if (collection.TryLock(out t1) && synchronizable.TryLock(out t2))
-                    {
-                        collection.UpdateLocker(synchronizable.Locker);
-                        synchronizable.UpdateLocker(collection.Locker);
-                        break;
-                    }
-
-                    t1.Dispose();
-                    t2.Dispose();
-                    spinWait.SpinOnce();
-                }
-            }
-            finally
-            {
-                t1.Dispose();
-                t2.Dispose();
-            }
         }
     }
 }

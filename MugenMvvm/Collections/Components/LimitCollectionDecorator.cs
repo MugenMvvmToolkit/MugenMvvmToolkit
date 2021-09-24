@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -11,21 +11,21 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Components
 {
-    public class LimitCollectionDecorator<T> : CollectionDecoratorBase where T : notnull
+    public sealed class LimitCollectionDecorator<T> : CollectionDecoratorBase where T : notnull
     {
         private IndexMapList<object?> _items;
         private Func<T, bool>? _condition;
         private int? _limit;
+        private bool _isAdding;
+        private bool _isRemoving;
 
-        public LimitCollectionDecorator(int? limit = null, Func<T, bool>? condition = null, int priority = CollectionComponentPriority.LimitDecorator) : base(priority)
+        public LimitCollectionDecorator(int priority, int? limit = null, Func<T, bool>? condition = null) : base(priority)
         {
             _items = IndexMapList<object?>.Get();
             _condition = condition;
             _limit = limit;
             Priority = priority;
         }
-
-        protected override bool HasAdditionalItems => false;
 
         public Func<T, bool>? Condition
         {
@@ -49,6 +49,8 @@ namespace MugenMvvm.Collections.Components
 
         public int Count => _items.Size;
 
+        protected override bool HasAdditionalItems => false;
+
         [MemberNotNullWhen(true, nameof(Limit))]
         private bool HasLimit => Limit != null && Limit.Value != int.MaxValue;
 
@@ -64,14 +66,12 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (!HasLimit)
+            if (!HasLimit || item is not T)
                 return true;
 
             var currentIndex = _items.BinarySearch(index);
             var oldSatisfied = currentIndex >= 0;
-            var newSatisfied = IsSatisfied(item);
-
-            if (oldSatisfied == newSatisfied)
+            if (oldSatisfied == IsSatisfied(item))
             {
                 if (oldSatisfied && currentIndex >= Limit)
                     return false;
@@ -80,7 +80,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
             }
 
-            Replace(decoratorManager, collection, oldSatisfied, newSatisfied, item, item, index);
+            Replace(decoratorManager, collection, oldSatisfied, item, item, index, currentIndex);
             return false;
         }
 
@@ -92,13 +92,13 @@ namespace MugenMvvm.Collections.Components
             int? currentIndex;
             if (IsSatisfied(item))
             {
-                if (!Add(decoratorManager, item, index, out currentIndex))
+                if (!Add(decoratorManager, collection, item, index, out currentIndex))
                     return false;
             }
             else
             {
-                currentIndex = null;
-                _items.UpdateIndexes(index, 1);
+                currentIndex = _items.BinarySearch(index);
+                _items.UpdateIndexesBinary(currentIndex.Value, 1);
             }
 
             index = GetIndex(index, currentIndex);
@@ -111,27 +111,22 @@ namespace MugenMvvm.Collections.Components
             if (!HasLimit)
                 return true;
 
-            var oldSatisfied = IsSatisfied(oldItem);
-            var newSatisfied = IsSatisfied(newItem);
-
-            if (oldSatisfied == newSatisfied)
+            var oldBinaryIndex = _items.BinarySearch(index);
+            var oldSatisfied = oldBinaryIndex >= 0;
+            if (oldSatisfied == IsSatisfied(newItem))
             {
-                int? currentIndex;
                 if (oldSatisfied)
                 {
-                    currentIndex = _items.BinarySearch(index);
-                    _items.Indexes[currentIndex.Value].Value = newItem;
-                    if (currentIndex.Value >= Limit.Value)
+                    _items.Indexes[oldBinaryIndex].Value = newItem;
+                    if (oldBinaryIndex >= Limit.Value)
                         return false;
                 }
-                else
-                    currentIndex = null;
 
-                index = GetIndex(index, currentIndex);
+                index = GetIndex(index, oldBinaryIndex);
                 return true;
             }
 
-            Replace(decoratorManager, collection, oldSatisfied, newSatisfied, oldItem, newItem, index);
+            Replace(decoratorManager, collection, oldSatisfied, oldItem, newItem, index, oldBinaryIndex);
             return false;
         }
 
@@ -142,29 +137,45 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var limit = Limit.Value;
-            int? oldBinaryIndex = null;
-            if (oldIndex < limit && newIndex < limit || !IsSatisfied(item) || _items.Size <= limit)
+            int? oldBinaryIndex = _items.BinarySearch(oldIndex);
+            int? newBinaryIndex = null;
+            if (oldIndex < limit && newIndex < limit || oldBinaryIndex.Value < 0 || _items.Size <= limit)
             {
-                int? newBinaryIndex = null;
                 _items.Move(oldIndex, newIndex, out _, ref oldBinaryIndex, ref newBinaryIndex);
                 oldIndex = GetIndex(oldIndex, oldBinaryIndex, oldIndex > newIndex);
                 newIndex = GetIndex(newIndex, null);
                 return oldIndex != newIndex;
             }
 
-            if (oldIndex > limit && newIndex > limit)
+            newBinaryIndex = _items.BinarySearch(newIndex);
+            _items.Move(oldIndex, newIndex, out _, ref oldBinaryIndex, ref newBinaryIndex);
+
+            if (limit == 0 || GetIndex(oldBinaryIndex.Value) >= limit && GetIndex(newBinaryIndex.Value) >= limit)
+                return false;
+
+            if (GetIndex(oldBinaryIndex.Value) < limit && GetIndex(newBinaryIndex.Value) < limit)
             {
-                oldBinaryIndex = _items.BinarySearch(oldIndex);
-                int? newBinaryIndex = _items.BinarySearch(newIndex);
-                if (oldBinaryIndex.Value > limit && newBinaryIndex.Value > limit)
-                {
-                    _items.Move(oldIndex, newIndex, out _, ref oldBinaryIndex, ref newBinaryIndex);
-                    return false;
-                }
+                oldIndex = GetIndex(oldIndex, oldBinaryIndex, oldIndex > newIndex);
+                newIndex = GetIndex(newIndex, null);
+                return oldIndex != newIndex;
             }
 
-            Remove(decoratorManager, item, oldIndex, ref oldBinaryIndex);
-            Add(decoratorManager, item, newIndex, out _);
+            if (oldIndex > newIndex)
+            {
+                _isAdding = true;
+                decoratorManager.OnAdded(collection, this, item, newIndex);
+                _isAdding = false;
+                decoratorManager.OnRemoved(collection, this, _items.Indexes[limit].Value, _items.Indexes[limit].Index);
+            }
+            else
+            {
+                limit -= 1;
+                _isRemoving = true;
+                decoratorManager.OnRemoved(collection, this, item, oldIndex);
+                _isRemoving = false;
+                decoratorManager.OnAdded(collection, this, _items.Indexes[limit].Value, _items.Indexes[limit].Index);
+            }
+
             return false;
         }
 
@@ -173,14 +184,14 @@ namespace MugenMvvm.Collections.Components
             if (!HasLimit)
                 return true;
 
-            int? currentIndex = null;
-            if (IsSatisfied(item))
+            int? currentIndex = _items.BinarySearch(index);
+            if (currentIndex.Value >= 0)
             {
-                if (!Remove(decoratorManager, item, index, ref currentIndex))
+                if (!Remove(decoratorManager, collection, item, index, ref currentIndex))
                     return false;
             }
             else
-                _items.UpdateIndexes(index, -1);
+                _items.UpdateIndexesBinary(currentIndex.Value, -1);
 
             index = GetIndex(index, currentIndex);
             return true;
@@ -201,77 +212,10 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private void Update(Func<T, bool>? condition, int? limit)
-        {
-            if (DecoratorManager == null)
-            {
-                _condition = condition;
-                _limit = limit;
-                return;
-            }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static int GetIndex(int binarySearchIndex) => binarySearchIndex < 0 ? ~binarySearchIndex : binarySearchIndex;
 
-            using var _ = Owner.Lock();
-            _condition = condition;
-            _limit = limit;
-            _items.Clear();
-
-            var items = DecoratorManager.Decorate(Owner, this);
-            if (HasLimit)
-            {
-                UpdateItems(items);
-                items = Decorate(items);
-            }
-
-            DecoratorManager.OnReset(Owner, this, items);
-        }
-
-        private void Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, bool oldSatisfied, bool newSatisfied, object? oldItem,
-            object? newItem, int index)
-        {
-            int? currentIndex = null;
-            if (!oldSatisfied || Remove(decoratorManager, oldItem, index, ref currentIndex))
-            {
-                if (!oldSatisfied)
-                    _items.UpdateIndexes(index, -1);
-                decoratorManager.OnRemoved(collection, this, oldItem, GetIndex(index, currentIndex));
-                currentIndex = null;
-            }
-
-            if (!newSatisfied || Add(decoratorManager, newItem, index, out currentIndex))
-            {
-                if (!newSatisfied)
-                    _items.UpdateIndexes(index, 1);
-                decoratorManager.OnAdded(collection, this, newItem, GetIndex(index, currentIndex));
-            }
-        }
-
-        private IEnumerable<object?> Decorate(IEnumerable<object?> items)
-        {
-            var count = 0;
-            foreach (var item in items)
-            {
-                if (IsSatisfied(item) && ++count > Limit)
-                    continue;
-
-                yield return item;
-            }
-        }
-
-        private void UpdateItems(IEnumerable<object?> items)
-        {
-            if (items is IReadOnlyCollection<object?> c)
-                _items.EnsureCapacity(c.Count);
-
-            var index = 0;
-            foreach (var item in items)
-            {
-                if (IsSatisfied(item))
-                    _items.AddRaw(index, item);
-                ++index;
-            }
-        }
-
-        private bool Add(ICollectionDecoratorManagerComponent decoratorManager, object? item, int index, out int? binarySearchIndex)
+        private bool Add(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? item, int index, out int? binarySearchIndex)
         {
             binarySearchIndex = _items.BinarySearch(index);
             _items.UpdateIndexesBinary(binarySearchIndex.Value, 1);
@@ -287,16 +231,19 @@ namespace MugenMvvm.Collections.Components
             var oldItem = _items.Indexes[limit].Value;
             if (index == oldIndex - 1)
             {
-                decoratorManager.OnReplaced(Owner, this, oldItem, item, GetIndex(index, binarySearchIndex));
+                decoratorManager.OnReplaced(collection, this, oldItem, item, GetIndex(index, binarySearchIndex));
                 return false;
             }
 
-            decoratorManager.OnAdded(Owner, this, item, GetIndex(index, binarySearchIndex));
-            decoratorManager.OnRemoved(Owner, this, oldItem, GetIndex(oldIndex, limit));
+            _isAdding = true;
+            decoratorManager.OnAdded(collection, this, item, GetIndex(index, binarySearchIndex));
+            _isAdding = false;
+            decoratorManager.OnRemoved(collection, this, oldItem, GetIndex(oldIndex, limit));
             return false;
         }
 
-        private bool Remove(ICollectionDecoratorManagerComponent decoratorManager, object? item, int index, [NotNull] ref int? removedIndex)
+        private bool Remove(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? item, int index,
+            [NotNull] ref int? removedIndex)
         {
             removedIndex ??= _items.BinarySearch(index);
             _items.UpdateIndexesBinary(removedIndex.Value, -1);
@@ -312,14 +259,133 @@ namespace MugenMvvm.Collections.Components
             var oldItem = _items.Indexes[limit - 1].Value;
             if (index == oldIndex)
             {
-                decoratorManager.OnReplaced(Owner, this, item, oldItem, GetIndex(index, removedIndex));
+                decoratorManager.OnReplaced(collection, this, item, oldItem, GetIndex(index, removedIndex));
                 return false;
             }
 
-            decoratorManager.OnRemoved(Owner, this, item, GetIndex(index, removedIndex));
-            decoratorManager.OnAdded(Owner, this, oldItem, GetIndex(oldIndex, limit - 1));
+            _isRemoving = true;
+            decoratorManager.OnRemoved(collection, this, item, GetIndex(index, removedIndex));
+            _isRemoving = false;
+            decoratorManager.OnAdded(collection, this, oldItem, GetIndex(oldIndex, limit - 1));
 
             return false;
+        }
+
+        private void Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, bool oldSatisfied, object? oldItem, object? newItem,
+            int index, int binaryIndex)
+        {
+            var limit = Limit!.Value;
+            if (oldSatisfied)
+            {
+                _items.RemoveAt(binaryIndex);
+                if (binaryIndex < limit)
+                {
+                    _isRemoving = true;
+                    decoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
+                    _isRemoving = false;
+                    if (_items.Size >= limit)
+                        decoratorManager.OnAdded(collection, this, _items.Indexes[limit - 1].Value, _items.Indexes[limit - 1].Index);
+                    return;
+                }
+
+                decoratorManager.OnAdded(collection, this, newItem, GetIndex(index, binaryIndex));
+                return;
+            }
+
+            if (_items.Add(index, newItem, binaryIndex) >= limit)
+            {
+                decoratorManager.OnRemoved(collection, this, oldItem, GetIndex(index, binaryIndex));
+                return;
+            }
+
+            _isAdding = true;
+            decoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
+            _isAdding = false;
+            if (_items.Size > limit)
+                decoratorManager.OnRemoved(collection, this, _items.Indexes[limit].Value, _items.Indexes[limit].Index);
+        }
+
+        private void Update(Func<T, bool>? condition, int? limit)
+        {
+            var decoratorManager = DecoratorManager;
+            var owner = OwnerOptional;
+            if (decoratorManager == null || owner == null)
+            {
+                _condition = condition;
+                _limit = limit;
+                return;
+            }
+
+            using var _ = owner.Lock();
+            _condition = condition;
+            _limit = limit;
+            if (DecoratorManager == null)
+                return;
+
+            _items.Clear();
+            var items = decoratorManager.Decorate(owner, this);
+            if (HasLimit)
+            {
+                UpdateItems(items);
+                items = Decorate(items);
+            }
+
+            decoratorManager.OnReset(owner, this, items);
+        }
+
+        private IEnumerable<object?> Decorate(IEnumerable<object?> items)
+        {
+            if (_items.Size == 0 || Limit == null)
+                return items;
+            return DecorateImpl(items, Limit.Value);
+        }
+
+        private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items, int limit)
+        {
+            if (_isAdding)
+                ++limit;
+            else if (_isRemoving)
+                --limit;
+            var count = 0;
+            var index = 0;
+            var itemIndex = 0;
+            foreach (var item in items)
+            {
+                if (itemIndex < _items.Size)
+                {
+                    var entry = _items.Indexes[itemIndex];
+                    if (entry.Index == index)
+                    {
+                        ++count;
+                        ++index;
+                        ++itemIndex;
+                        if (count <= limit)
+                            yield return item;
+                        continue;
+                    }
+                }
+
+                ++index;
+                yield return item;
+            }
+        }
+
+        private void UpdateItems(IEnumerable<object?> items)
+        {
+            if (items.TryGetCount(out var count))
+            {
+                if (count == 0)
+                    return;
+                _items.EnsureCapacity(count);
+            }
+
+            var index = 0;
+            foreach (var item in items)
+            {
+                if (IsSatisfied(item))
+                    _items.AddRaw(index, item);
+                ++index;
+            }
         }
 
         private int GetIndex(int index, int? binaryIndex, bool isMove = false)

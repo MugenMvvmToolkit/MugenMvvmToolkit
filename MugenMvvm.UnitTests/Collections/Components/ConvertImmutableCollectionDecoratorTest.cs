@@ -14,16 +14,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class ConvertImmutableCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private ConvertImmutableCollectionDecorator<object, object> _decorator;
 
         public ConvertImmutableCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ConvertImmutableCollectionDecorator<object, object>(o => "Item: " + o);
+            _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, o => "Item: " + o);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -49,13 +49,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void IndexOfShouldBeValid()
         {
             _collection.RemoveComponent(_decorator);
-            _decorator = new ConvertImmutableCollectionDecorator<object, object>(o =>
+            _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, o =>
             {
                 if (o is int)
                     return "Item: " + o;
                 return o;
             });
-            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(o => "Item: " + o);
+            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(0, o => "Item: " + o);
             _collection.AddComponent(decorator);
             _collection.Add("Test1");
             _collection.Add(1);
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             indexes[1].ShouldEqual(3);
         }
 
-        protected override IObservableCollection<object> GetCollection() => _collection;
+        protected override IObservableCollection<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {
@@ -89,6 +89,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.ChangedItems.ShouldEqual(Decorate().ToArray());
         }
 
-        private IEnumerable<object?> Decorate() => _collection.Select(_decorator.Converter);
+        private IEnumerable<object?> Decorate() => _collection.Select(_decorator.Converter!);
     }
 }

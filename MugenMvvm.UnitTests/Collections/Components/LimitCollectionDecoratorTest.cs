@@ -11,14 +11,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class LimitCollectionDecoratorTest : UnitTestBase
     {
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly LimitCollectionDecorator<int> _decorator;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public LimitCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _decorator = new LimitCollectionDecorator<int>(null, i => i % 2 == 0);
+            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _decorator = new LimitCollectionDecorator<int>(0, null, i => i % 2 == 0);
             _collection.AddComponent(_decorator);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
@@ -55,11 +55,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
             for (var i = 0; i < _collection.Count; i++)
             {
                 ignoreIds.Add(i);
-                _collection.RaiseItemChanged(_collection[i], null);
+                _collection.RaiseItemChanged(_collection[i]);
                 Assert();
 
                 ignoreIds.Remove(i);
-                _collection.RaiseItemChanged(_collection[i], null);
+                _collection.RaiseItemChanged(_collection[i]);
                 Assert();
 
                 if (limit == null)
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 else
                     ++count;
 
-                _collection.RaiseItemChanged(_collection[i], null);
+                _collection.RaiseItemChanged(_collection[i]);
                 Assert();
                 _tracker.ItemChangedCount.ShouldEqual(count + countLimit);
             }
@@ -252,34 +252,34 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         public static IEnumerable<object?[]> GetData() => new[]
         {
-            new object?[] { 0, true },
-            new object?[] { 1, true },
-            new object?[] { 2, true },
-            new object?[] { 3, true },
-            new object?[] { 10, true },
-            new object?[] { 100, true },
-            new object?[] { int.MaxValue - 1, true },
-            new object?[] { null, true },
-            new object?[] { 0, false },
-            new object?[] { 1, false },
-            new object?[] { 2, false },
-            new object?[] { 3, false },
-            new object?[] { 10, false },
-            new object?[] { 100, false },
-            new object?[] { int.MaxValue - 1, false },
-            new object?[] { null, false },
+            new object?[] {0, true},
+            new object?[] {1, true},
+            new object?[] {2, true},
+            new object?[] {3, true},
+            new object?[] {10, true},
+            new object?[] {100, true},
+            new object?[] {int.MaxValue - 1, true},
+            new object?[] {null, true},
+            new object?[] {0, false},
+            new object?[] {1, false},
+            new object?[] {2, false},
+            new object?[] {3, false},
+            new object?[] {10, false},
+            new object?[] {100, false},
+            new object?[] {int.MaxValue - 1, false},
+            new object?[] {null, false},
         };
 
         public static IEnumerable<object?[]> GetDataDefaultCondition() => new[]
         {
-            new object?[] { 0 },
-            new object?[] { 1 },
-            new object?[] { 2 },
-            new object?[] { 3 },
-            new object?[] { 10 },
-            new object?[] { 100 },
-            new object?[] { int.MaxValue - 1 },
-            new object?[] { null },
+            new object?[] {0},
+            new object?[] {1},
+            new object?[] {2},
+            new object?[] {3},
+            new object?[] {10},
+            new object?[] {100},
+            new object?[] {int.MaxValue - 1},
+            new object?[] {null},
         };
 
         private void Assert()

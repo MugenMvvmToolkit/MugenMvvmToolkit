@@ -12,7 +12,6 @@ namespace MugenMvvm.Interfaces.Internal
         [MustUseReturnValue]
         ActionToken Lock();
         
-        [Pure]
-        bool TryLock(out ActionToken lockToken);
+        bool TryLock(int timeout, out ActionToken lockToken);
     }
 }

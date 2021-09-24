@@ -13,23 +13,23 @@ namespace MugenMvvm.ViewModels.Components
 {
     public sealed class InheritParentViewModelServiceProvider : IViewModelServiceProviderComponent, IHasPriority
     {
-        public readonly Dictionary<Type, Func<IViewModelBase, object?>> ServiceMapping;
+        public readonly Dictionary<Type, Func<IViewModelBase, IViewModelBase, IReadOnlyMetadataContext?, object?>> ServiceMapping;
 
         public InheritParentViewModelServiceProvider()
         {
-            ServiceMapping = new Dictionary<Type, Func<IViewModelBase, object?>>(3, InternalEqualityComparer.Type);
+            ServiceMapping = new Dictionary<Type, Func<IViewModelBase, IViewModelBase, IReadOnlyMetadataContext?, object?>>(3, InternalEqualityComparer.Type);
         }
 
         public int Priority { get; init; } = ViewModelComponentPriority.InheritParentServiceResolver;
-        
-        public static object? GetService<T>(object vm) where T : class => (vm as IHasService<T>)?.GetService(false);
+
+        public static object? GetService<T>(object child, object parent, IReadOnlyMetadataContext? metadata) where T : class => (parent as IHasService<T>)?.GetService(false);
 
         public object? TryGetService(IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
             if (request is not Type t || !ServiceMapping.TryGetValue(t, out var handler) || !viewModel.Metadata.TryGet(ViewModelMetadata.ParentViewModel, out var parent) &&
                 !metadata.DefaultIfNull().TryGet(ViewModelMetadata.ParentViewModel, out parent) || parent == null)
                 return null;
-            return handler(parent);
+            return handler(viewModel, parent, metadata);
         }
     }
 }

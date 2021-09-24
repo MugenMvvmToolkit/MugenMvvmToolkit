@@ -156,7 +156,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnReset(collection, items);
         }
 
-        public static void OnChanged(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int index, object? args)
+        public static void OnChanged(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int index,
+            object? args)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
@@ -178,7 +179,8 @@ namespace MugenMvvm.Extensions.Components
                 c.OnReplaced(collection, oldItem, newItem, index);
         }
 
-        public static void OnMoved(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int oldIndex, int newIndex)
+        public static void OnMoved(this ItemOrArray<IDecoratedCollectionChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, int oldIndex,
+            int newIndex)
         {
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
@@ -197,13 +199,6 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(collection, nameof(collection));
             foreach (var c in listeners)
                 c.OnReset(collection, items);
-        }
-
-        public static void Initialize<T>(this ItemOrArray<IPreInitializerCollectionComponent<T>> components, IReadOnlyObservableCollection<T> collection, T item)
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            foreach (var c in components)
-                c.Initialize(collection, item);
         }
     }
 }

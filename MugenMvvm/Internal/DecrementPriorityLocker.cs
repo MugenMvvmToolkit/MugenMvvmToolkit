@@ -20,7 +20,13 @@ namespace MugenMvvm.Internal
 
         public void Enter(ref bool lockTaken) => Monitor.Enter(this, ref lockTaken);
 
-        public void TryEnter(ref bool lockTaken) => Monitor.TryEnter(this, ref lockTaken);
+        public void TryEnter(int timeout, ref bool lockTaken)
+        {
+            if (timeout == 0)
+                Monitor.TryEnter(this, ref lockTaken);
+            else
+                Monitor.TryEnter(this, timeout, ref lockTaken);
+        }
 
         public void Exit() => Monitor.Exit(this);
     }

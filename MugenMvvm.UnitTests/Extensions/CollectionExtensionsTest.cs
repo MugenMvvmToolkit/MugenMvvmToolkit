@@ -4,6 +4,10 @@ using System.ComponentModel;
 using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using MugenMvvm.Tests.Collections;
@@ -14,7 +18,7 @@ using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Extensions
 {
-    [Category(SharedContext)]
+    [Collection(SharedContext)]
     public class CollectionExtensionsTest : UnitTestBase
     {
         private readonly Random _random;
@@ -45,10 +49,10 @@ namespace MugenMvvm.UnitTests.Extensions
             for (var i = 0; i < count; i++)
                 _collection.Add(new TestObservable());
 
-            _collection.ConfigureDecorators().AutoRefreshOnObservable<TestObservable, object>(observable => observable, this);
+            _collection.ConfigureDecorators<TestObservable>().AutoRefreshOnObservable(observable => observable, this);
             for (var i = 0; i < count; i++)
             {
-                var testObservable = (TestObservable)_collection[i];
+                var testObservable = (TestObservable) _collection[i];
                 testObservable.Count.ShouldEqual(1);
                 testObservable[0].OnNext(null!);
             }
@@ -62,7 +66,7 @@ namespace MugenMvvm.UnitTests.Extensions
 
             for (var i = 0; i < count; i++)
             {
-                var changedModel = (TestObservable)oldItems[i];
+                var changedModel = (TestObservable) oldItems[i];
                 changedModel.Count.ShouldEqual(0);
             }
         }
@@ -84,11 +88,11 @@ namespace MugenMvvm.UnitTests.Extensions
             for (var i = 0; i < count; i++)
                 _collection.Add(new TestNotifyPropertyChangedModel());
 
-            _collection.ConfigureDecorators().AutoRefreshOnPropertyChanged<TestNotifyPropertyChangedModel>(nameof(TestNotifyPropertyChangedModel.Property), this);
+            _collection.ConfigureDecorators<TestNotifyPropertyChangedModel>().AutoRefreshOnPropertyChanged(nameof(TestNotifyPropertyChangedModel.Property), this);
             for (var i = 0; i < count; i++)
             {
-                ((TestNotifyPropertyChangedModel)_collection[i]).OnPropertyChanged(nameof(TestNotifyPropertyChangedModel.Property));
-                ((TestNotifyPropertyChangedModel)_collection[i]).OnPropertyChanged("Test");
+                ((TestNotifyPropertyChangedModel) _collection[i]).OnPropertyChanged(nameof(TestNotifyPropertyChangedModel.Property));
+                ((TestNotifyPropertyChangedModel) _collection[i]).OnPropertyChanged("Test");
             }
 
             changedEvents.Count.ShouldEqual(count);
@@ -100,7 +104,7 @@ namespace MugenMvvm.UnitTests.Extensions
 
             for (var i = 0; i < count; i++)
             {
-                var changedModel = (TestNotifyPropertyChangedModel)oldItems[i];
+                var changedModel = (TestNotifyPropertyChangedModel) oldItems[i];
                 changedModel.HasSubscribers.ShouldBeFalse();
             }
         }
@@ -110,7 +114,7 @@ namespace MugenMvvm.UnitTests.Extensions
         [InlineData(false)]
         public void BindToSourceShouldCreateReadOnlyObservableCollection(bool disposeSource)
         {
-            var readOnlyObservableCollection = (ReadOnlyObservableCollection<object>)_collection.BindToSource(disposeSource);
+            var readOnlyObservableCollection = (ReadOnlyObservableCollection<object>) _collection.BindToSource(disposeSource);
             readOnlyObservableCollection.Dispose();
             _collection.IsDisposed.ShouldEqual(disposeSource);
         }
@@ -121,7 +125,7 @@ namespace MugenMvvm.UnitTests.Extensions
         [InlineData(false)]
         public void BindShouldCreateReadOnlyObservableCollection(bool disposeSource)
         {
-            var readOnlyObservableCollection = (DecoratedReadOnlyObservableCollection<object>)_collection.Bind(disposeSource);
+            var readOnlyObservableCollection = (DecoratedReadOnlyObservableCollection<object>) _collection.Bind(disposeSource);
             readOnlyObservableCollection.Dispose();
             _collection.IsDisposed.ShouldEqual(disposeSource);
         }
@@ -136,7 +140,7 @@ namespace MugenMvvm.UnitTests.Extensions
 
             _collection.ConfigureDecorators().Priority.ShouldEqual(0);
 
-            _collection.AddComponent(new TestCollectionDecorator { Priority = 0 });
+            _collection.AddComponent(new TestCollectionDecorator {Priority = 0});
             _collection.ConfigureDecorators(step: step).Priority.ShouldEqual(-step);
         }
 
@@ -150,7 +154,7 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -10000;
-            _collection.ConfigureDecorators().Count(i => countValue = i, condition);
+            _collection.ConfigureDecorators<IntValue>().Count(i => countValue = i, condition);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () => countValue.ShouldEqual(_collection.OfType<IntValue>().Count(condition!));
@@ -161,7 +165,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 if (i % 5 == 0)
                     _collection.RemoveAt(0);
                 else
-                    _collection.Add(new IntValue { Value = next });
+                    _collection.Add(new IntValue {Value = next});
 
                 assert();
             }
@@ -173,10 +177,10 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue { Value = _random.Next() }));
+            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = _random.Next()}));
             for (var i = 0; i < count / 2; i++)
             {
-                var o = (IntValue)_collection[i];
+                var o = (IntValue) _collection[i];
                 o.Value = _random.Next();
                 values.Insert(i, o);
             }
@@ -198,22 +202,22 @@ namespace MugenMvvm.UnitTests.Extensions
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void GroupByShouldBeValid(bool flatten)
+        public void GroupByShouldBeValid1(bool flatten)
         {
             var group1Cleanup = 0;
             var group1 = new Group(0, () =>
             {
                 ++group1Cleanup;
                 return true;
-            });
+            }, ComponentCollectionManager);
             var group2Cleanup = 0;
             var group2 = new Group(1, () =>
             {
                 ++group2Cleanup;
                 return false;
-            });
-            _collection.ConfigureDecorators()
-                       .GroupBy<int, Group>(i => i % 2 == 0 ? group1 : group2, SortingComparer<Group>.Descending(group => group.Value).Build(), null, flatten);
+            }, ComponentCollectionManager);
+            _collection.ConfigureDecorators<int>()
+                       .GroupBy(i => i % 2 == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -221,7 +225,115 @@ namespace MugenMvvm.UnitTests.Extensions
             group1.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 == 0));
             group2.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 != 0));
 
-            _collection.DecoratedItems().ShouldEqual(flatten ? group2.Items.Concat(group1.Items).OfType<object>() : new[] { group2, group1 });
+            _collection.DecoratedItems().ShouldEqual(flatten ? group2.Items.Concat(group1.Items).OfType<object>() : new[] {group2, group1});
+
+            _collection.Clear();
+            group1Cleanup.ShouldEqual(1);
+            group1.Items.ShouldNotBeEmpty();
+
+            group2Cleanup.ShouldEqual(1);
+            group2.Items.ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GroupByShouldBeValid2(bool flatten)
+        {
+            var group1Cleanup = 0;
+            var group1 = new Group(0, () =>
+            {
+                ++group1Cleanup;
+                return true;
+            }, ComponentCollectionManager);
+            var group2Cleanup = 0;
+            var group2 = new Group(1, () =>
+            {
+                ++group2Cleanup;
+                return false;
+            }, ComponentCollectionManager);
+            _collection.ConfigureDecorators<int>()
+                       .GroupBy(i => i % 2 == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, flatten);
+
+            for (var i = 0; i < 10; i++)
+                _collection.Add(i);
+
+            group1.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 == 0));
+            group2.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 != 0));
+
+            _collection.DecoratedItems().ShouldEqual(flatten ? group2.Items.Concat(group1.Items).OfType<object>() : new[] {group2, group1});
+
+            _collection.Clear();
+            group1Cleanup.ShouldEqual(1);
+            group1.Items.ShouldNotBeEmpty();
+
+            group2Cleanup.ShouldEqual(1);
+            group2.Items.ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GroupByShouldBeValid3(bool flatten)
+        {
+            var group1Cleanup = 0;
+            var group1 = new Group(0, () =>
+            {
+                ++group1Cleanup;
+                return true;
+            }, ComponentCollectionManager);
+            var group2Cleanup = 0;
+            var group2 = new Group(1, () =>
+            {
+                ++group2Cleanup;
+                return false;
+            }, ComponentCollectionManager);
+            _collection.ConfigureDecorators<int>()
+                       .GroupBy(i => i % 2 == 0 ? group1 : group2, group => group.Value, flatten: flatten);
+
+            for (var i = 0; i < 10; i++)
+                _collection.Add(i);
+
+            group1.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 == 0));
+            group2.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 != 0));
+
+            _collection.DecoratedItems().ShouldEqual(flatten ? group1.Items.Concat(group2.Items).OfType<object>() : new[] {group1, group2});
+
+            _collection.Clear();
+            group1Cleanup.ShouldEqual(1);
+            group1.Items.ShouldNotBeEmpty();
+
+            group2Cleanup.ShouldEqual(1);
+            group2.Items.ShouldBeEmpty();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void GroupByShouldBeValid4(bool flatten)
+        {
+            var group1Cleanup = 0;
+            var group1 = new Group(0, () =>
+            {
+                ++group1Cleanup;
+                return true;
+            }, ComponentCollectionManager);
+            var group2Cleanup = 0;
+            var group2 = new Group(1, () =>
+            {
+                ++group2Cleanup;
+                return false;
+            }, ComponentCollectionManager);
+            _collection.ConfigureDecorators<int>()
+                       .GroupBy(i => i % 2 == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, flatten);
+
+            for (var i = 0; i < 10; i++)
+                _collection.Add(i);
+
+            group1.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 == 0));
+            group2.Items.ShouldEqualUnordered(_collection.OfType<int>().Where(i => i % 2 != 0));
+
+            _collection.DecoratedItems().ShouldEqual(flatten ? group2.Items.Concat(group1.Items).OfType<object>() : new[] {group2, group1});
 
             _collection.Clear();
             group1Cleanup.ShouldEqual(1);
@@ -241,7 +353,7 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value < 10000;
-            _collection.ConfigureDecorators().Max(i => i.Value, i => maxValue = i, maxValue, condition);
+            _collection.ConfigureDecorators<IntValue>().Max(i => i.Value, i => maxValue = i, maxValue, condition);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () =>
@@ -256,7 +368,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 if (i % 5 == 0)
                     _collection.RemoveAt(0);
                 else
-                    _collection.Add(new IntValue { Value = next });
+                    _collection.Add(new IntValue {Value = next});
 
                 assert();
             }
@@ -268,10 +380,10 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue { Value = _random.Next() }));
+            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = _random.Next()}));
             for (var i = 0; i < count / 2; i++)
             {
-                var o = (IntValue)_collection[i];
+                var o = (IntValue) _collection[i];
                 o.Value = _random.Next();
                 values.Insert(i, o);
             }
@@ -300,7 +412,7 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -10000;
-            _collection.ConfigureDecorators().Min(i => i.Value, i => minValue = i, minValue, condition);
+            _collection.ConfigureDecorators<IntValue>().Min(i => i.Value, i => minValue = i, minValue, condition);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () =>
@@ -315,7 +427,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 if (i % 5 == 0)
                     _collection.RemoveAt(0);
                 else
-                    _collection.Add(new IntValue { Value = next });
+                    _collection.Add(new IntValue {Value = next});
 
                 assert();
             }
@@ -327,10 +439,10 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue { Value = _random.Next() }));
+            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = _random.Next()}));
             for (var i = 0; i < count / 2; i++)
             {
-                var o = (IntValue)_collection[i];
+                var o = (IntValue) _collection[i];
                 o.Value = _random.Next();
                 values.Insert(i, o);
             }
@@ -359,7 +471,7 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -1000;
-            _collection.ConfigureDecorators().Sum(arg => arg.Value, i => sum = i, condition);
+            _collection.ConfigureDecorators<IntValue>().Sum(arg => arg.Value, i => sum = i, condition);
             if (!withCondition)
                 condition = _ => true;
 
@@ -375,7 +487,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 if (i % 5 == 0)
                     _collection.RemoveAt(0);
                 else
-                    _collection.Add(new IntValue { Value = next });
+                    _collection.Add(new IntValue {Value = next});
 
                 assert();
             }
@@ -387,10 +499,10 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue { Value = Next() }));
+            var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = Next()}));
             for (var i = 0; i < count / 2; i++)
             {
-                var o = (IntValue)_collection[i];
+                var o = (IntValue) _collection[i];
                 o.Value = Next();
                 values.Insert(i, o);
             }
@@ -419,13 +531,13 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<DecimalValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -1000;
-            _collection.ConfigureDecorators().Sum(arg => arg.Value, i => sum = i, condition);
+            _collection.ConfigureDecorators<DecimalValue>().Sum(arg => arg.Value, i => sum = i, condition);
             if (!withCondition)
                 condition = _ => true;
 
             decimal Next()
             {
-                return (decimal)(_random.NextDouble() * _random.Next(-10000, 10000));
+                return (decimal) (_random.NextDouble() * _random.Next(-10000, 10000));
             }
 
             Action assert = () => sum.ShouldEqual(_collection.OfType<DecimalValue>().Where(condition!).Sum(value => value.Value));
@@ -435,7 +547,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 if (i % 5 == 0)
                     _collection.RemoveAt(0);
                 else
-                    _collection.Add(new DecimalValue { Value = next });
+                    _collection.Add(new DecimalValue {Value = next});
 
                 assert();
             }
@@ -447,10 +559,10 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            var values = new List<DecimalValue>(Enumerable.Range(0, count / 2).Select(_ => new DecimalValue { Value = Next() }));
+            var values = new List<DecimalValue>(Enumerable.Range(0, count / 2).Select(_ => new DecimalValue {Value = Next()}));
             for (var i = 0; i < count / 2; i++)
             {
-                var o = (DecimalValue)_collection[i];
+                var o = (DecimalValue) _collection[i];
                 o.Value = Next();
                 values.Insert(i, o);
             }
@@ -478,7 +590,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 if (!ints.Any())
                     return int.MaxValue;
                 i.ShouldEqual(selectedItem);
-                return ints.Max(j => (int)j);
+                return ints.Max(j => (int) j);
             });
 
             _collection.Add(1);
@@ -499,6 +611,242 @@ namespace MugenMvvm.UnitTests.Extensions
 
             _collection.Clear();
             selectedItem.ShouldEqual(int.MaxValue);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AllShouldBeValid(bool hasCondition)
+        {
+            Func<IntValue, bool> predicate = v => !hasCondition || v.Value < 1000;
+            Func<IntValue, bool> selector = v => v.Value > 0;
+            var value = false;
+
+            void Assert()
+            {
+                _collection.OfType<IntValue>().Where(predicate).All(selector).ShouldEqual(value);
+            }
+
+            _collection.ConfigureDecorators<IntValue>().All(selector, b => value = b, predicate);
+
+            _collection.Add(new IntValue {Value = -1});
+            Assert();
+
+            _collection.Add(new IntValue {Value = 1});
+            Assert();
+
+            _collection.RemoveAt(0);
+            Assert();
+
+            _collection.Clear();
+            Assert();
+
+            _collection.Add(new IntValue {Value = int.MaxValue});
+            Assert();
+
+            _collection.Add(new IntValue {Value = 1});
+            Assert();
+
+            ((IntValue) _collection[0]).Value = -1;
+            ((IntValue) _collection[1]).Value = -1;
+            _collection.RaiseItemChanged(_collection[0]);
+            _collection.RaiseItemChanged(_collection[1]);
+            Assert();
+
+            ((IntValue) _collection[1]).Value = 1;
+            _collection.RaiseItemChanged(_collection[1]);
+            Assert();
+
+            ((IntValue) _collection[0]).Value = 1;
+            _collection.RaiseItemChanged(_collection[0]);
+            Assert();
+
+            _collection.Clear();
+            Assert();
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void AnyShouldBeValid(bool hasCondition)
+        {
+            Func<IntValue, bool> predicate = v => !hasCondition || v.Value < 1000;
+            Func<IntValue, bool> selector = v => v.Value > 0;
+            var value = false;
+
+            void Assert()
+            {
+                _collection.OfType<IntValue>().Where(predicate).Any(selector).ShouldEqual(value);
+            }
+
+            _collection.ConfigureDecorators<IntValue>().Any(selector, b => value = b, predicate);
+
+            _collection.Add(new IntValue {Value = -1});
+            Assert();
+
+            _collection.Add(new IntValue {Value = 1});
+            Assert();
+
+            _collection.RemoveAt(_collection.Count - 1);
+            Assert();
+
+            _collection.Clear();
+            Assert();
+
+            _collection.Add(new IntValue {Value = int.MaxValue});
+            Assert();
+
+            _collection.Add(new IntValue {Value = 1});
+            Assert();
+
+            ((IntValue) _collection[0]).Value = -1;
+            ((IntValue) _collection[1]).Value = -1;
+            _collection.RaiseItemChanged(_collection[0]);
+            _collection.RaiseItemChanged(_collection[1]);
+            Assert();
+
+            ((IntValue) _collection[1]).Value = 1;
+            _collection.RaiseItemChanged(_collection[1]);
+            Assert();
+
+            ((IntValue) _collection[0]).Value = 1;
+            _collection.RaiseItemChanged(_collection[0]);
+            Assert();
+
+            _collection.Clear();
+            Assert();
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void FirstOrDefaultShouldBeValid(bool hasCondition, bool currentCollection)
+        {
+            int value = 0;
+            Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
+            _collection.ConfigureDecorators<int>().FirstOrDefault(i => value = i, predicate, currentCollection, out var token);
+
+            void Assert()
+            {
+                _collection.DecoratedItems().OfType<int>().Where(predicate ?? (_ => true)).FirstOrDefault().ShouldEqual(value);
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                Assert();
+                _collection.Insert(0, i.ToString());
+                Assert();
+                _collection.Insert(0, i);
+                Assert();
+            }
+
+            _collection.Clear();
+            Assert();
+
+            token.Dispose();
+            _collection.Add(1);
+            value.ShouldEqual(0);
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void LastOrDefaultShouldBeValid(bool hasCondition, bool currentCollection)
+        {
+            int value = 0;
+            Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
+            _collection.ConfigureDecorators<int>().LastOrDefault(i => value = i, predicate, currentCollection, out var token);
+
+            void Assert()
+            {
+                _collection.DecoratedItems().OfType<int>().Where(predicate ?? (_ => true)).LastOrDefault().ShouldEqual(value);
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                _collection.Add(i);
+                Assert();
+                _collection.Add(i.ToString());
+                Assert();
+                _collection.Add(i);
+                Assert();
+            }
+
+            _collection.Clear();
+            Assert();
+
+            token.Dispose();
+            _collection.Add(1);
+            value.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void SealedShouldThrowOnDecoratorChanged()
+        {
+            _collection.ConfigureDecorators().Sealed(out var token);
+            ShouldThrow<InvalidOperationException>(() => _collection.AddComponent(new TestCollectionDecorator()));
+            _collection.AddComponent(new ListenerDecorator());
+            token.Dispose();
+            _collection.AddComponent(new TestCollectionDecorator());
+        }
+
+        [Fact]
+        public void SynchronizeLockerShouldSynchronizeCollectionLockers()
+        {
+            IReadOnlyObservableCollection target = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            IReadOnlyObservableCollection source = _collection;
+            target.Locker.ShouldNotEqual(source.Locker);
+            _collection.ConfigureDecorators().SynchronizeLocker(target, out var token);
+            target.Locker.ShouldEqual(source.Locker);
+
+            var locker1 = new TestLocker {Priority = 1};
+            var locker2 = new TestLocker {Priority = 2};
+            var locker3 = new TestLocker {Priority = 3};
+            var locker4 = new TestLocker {Priority = 3};
+            target.UpdateLocker(locker1);
+            target.Locker.ShouldEqual(locker1);
+            source.Locker.ShouldEqual(locker1);
+
+            source.UpdateLocker(locker2);
+            target.Locker.ShouldEqual(locker2);
+            source.Locker.ShouldEqual(locker2);
+
+            token.Dispose();
+            target.UpdateLocker(locker3);
+            target.Locker.ShouldEqual(locker3);
+            source.Locker.ShouldEqual(locker2);
+
+            source.UpdateLocker(locker4);
+            target.Locker.ShouldEqual(locker3);
+            source.Locker.ShouldEqual(locker4);
+        }
+
+        private sealed class TestLocker : ILocker
+        {
+            public int Priority { get; set; }
+
+            public void Enter(ref bool lockTaken)
+            {
+                lockTaken = true;
+            }
+
+            public void TryEnter(int timeout, ref bool lockTaken)
+            {
+                lockTaken = true;
+            }
+
+            public void Exit()
+            {
+            }
+        }
+
+        private sealed class ListenerDecorator : TestCollectionDecorator, IListenerCollectionDecorator
+        {
         }
 
         private sealed class IntValue
@@ -524,11 +872,11 @@ namespace MugenMvvm.UnitTests.Extensions
         {
             private readonly Func<bool> _cleanup;
 
-            public Group(int value, Func<bool> cleanup)
+            public Group(int value, Func<bool> cleanup, IComponentCollectionManager collectionManager)
             {
                 Value = value;
                 _cleanup = cleanup;
-                Items = new List<int>();
+                Items = new SynchronizedObservableCollection<int>(collectionManager);
             }
 
             public int Value { get; }

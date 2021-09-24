@@ -5,20 +5,20 @@ using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Collections
 {
-    //note don't forget to sync with IndexMapAwareList
+    //note don't forget to sync with IndexMapList
     [StructLayout(LayoutKind.Auto)]
-    internal struct IndexMapList<T>
+    internal struct IndexMapAwareList<T> where T : IndexMapAware
     {
         public int Size;
         public Entry[] Indexes;
 
-        private IndexMapList(bool _)
+        private IndexMapAwareList(bool _)
         {
             Indexes = Array.Empty<Entry>();
             Size = 0;
         }
 
-        public static IndexMapList<T> Get() => new(true);
+        public static IndexMapAwareList<T> Get() => new(true);
 
         public readonly bool Move(int oldIndex, int newIndex, [NotNullWhen(true)] out T? value)
         {
@@ -80,9 +80,9 @@ namespace MugenMvvm.Collections
                 for (var i = oldIndex; i < newIndex; i++)
                     Indexes[i].Index -= 1;
 
-                if (newIndex >= Size || Indexes[newIndex].Index > originalNewIndex)
+                if (newIndex >= Size || Indexes[newIndex]._index > originalNewIndex)
                     --newIndex;
-                else if (Indexes[newIndex].Index == originalNewIndex)
+                else if (Indexes[newIndex]._index == originalNewIndex)
                     --Indexes[newIndex].Index;
 
                 if (hasItem)
@@ -97,7 +97,7 @@ namespace MugenMvvm.Collections
                 for (var i = newIndex; i < oldIndex; i++)
                     Indexes[i].Index += 1;
 
-                if (Indexes[newIndex].Index == originalNewIndex)
+                if (Indexes[newIndex]._index == originalNewIndex)
                     --Indexes[newIndex].Index;
 
                 if (hasItem)
@@ -151,7 +151,7 @@ namespace MugenMvvm.Collections
         {
             if (Size == 0)
                 return -1;
-            return Array.BinarySearch(Indexes, 0, Size, new Entry(key, default!));
+            return Array.BinarySearch(Indexes, 0, Size, new Entry(key));
         }
 
         public void RemoveAt(int index)
@@ -207,18 +207,38 @@ namespace MugenMvvm.Collections
         [StructLayout(LayoutKind.Auto)]
         public struct Entry : IComparable<Entry>
         {
-            public int Index;
+            public int _index;
             public T Value;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Entry(int index, T value)
             {
                 Value = value;
-                Index = index;
+                _index = index;
+                value.Index = index;
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public readonly int CompareTo(Entry other) => Index.CompareTo(other.Index);
+            public Entry(int index)
+            {
+                _index = index;
+                Value = null!;
+            }
+
+            public int Index
+            {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                readonly get => _index;
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                set
+                {
+                    _index = value;
+                    Value.Index = value;
+                }
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public readonly int CompareTo(Entry other) => _index.CompareTo(other._index);
 
 #if DEBUG
             public override readonly string ToString() => $"{Index} - {(Value == null ? "null" : Value.ToString())}";

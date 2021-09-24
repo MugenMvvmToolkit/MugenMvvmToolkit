@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Collections;
 using Xunit;
 using Xunit.Abstractions;
@@ -8,67 +9,88 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public abstract class CollectionDecoratorTestBase : UnitTestBase
     {
         public const int DefaultCount = 100;
+        private static readonly Func<int, object?> GetDataDefault = i => i == 0 ? null : i;
+        private static readonly Action<IList<object?>, int, Func<int, object?>> InitializeDefaultDataDelegate = InitializeDefaultDataImpl;
 
         protected CollectionDecoratorTestBase(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
         }
 
         [Fact]
-        public virtual void AddShouldTrackChanges() => AddShouldTrackChangesImpl(GetCollection(), Assert);
+        public virtual void AddShouldTrackChanges() => AddShouldTrackChangesImpl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void ClearShouldTrackChanges() => ClearShouldTrackChangesImpl(GetCollection(), Assert);
+        public virtual void ClearShouldTrackChanges() => ClearShouldTrackChangesImpl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void MoveShouldTrackChanges1() => MoveShouldTrackChanges1Impl(GetCollection(), Assert);
+        public virtual void MoveShouldTrackChanges1() => MoveShouldTrackChanges1Impl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void MoveShouldTrackChanges2() => MoveShouldTrackChanges2Impl(GetCollection(), Assert);
+        public virtual void MoveShouldTrackChanges2() => MoveShouldTrackChanges2Impl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void RemoveShouldTrackChanges() => RemoveShouldTrackChangesImpl(GetCollection(), Assert);
+        public virtual void RemoveShouldTrackChanges() => RemoveShouldTrackChangesImpl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void ReplaceShouldTrackChanges1() => ReplaceShouldTrackChanges1Impl(GetCollection(), Assert);
+        public virtual void ReplaceShouldTrackChanges1() => ReplaceShouldTrackChanges1Impl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void ReplaceShouldTrackChanges2() => ReplaceShouldTrackChanges2Impl(GetCollection(), Assert);
+        public virtual void ReplaceShouldTrackChanges2() => ReplaceShouldTrackChanges2Impl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void ResetShouldTrackChanges() => ResetShouldTrackChangesImpl(GetCollection(), Assert);
+        public virtual void ResetShouldTrackChanges() => ResetShouldTrackChangesImpl(GetCollection(), Assert, InitializeDefaultData, GetData);
 
         [Fact]
-        public virtual void ShouldTrackChanges() => ShouldTrackChangesImpl(GetCollection(), Assert);
+        public virtual void ShouldTrackChanges() => ShouldTrackChangesImpl(GetCollection(), Assert, GetData);
 
-        internal static void AddShouldTrackChangesImpl(IObservableCollection<object> collection, Action assert)
+        internal static void AddShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
+            getData ??= GetDataDefault;
             for (var i = 0; i < DefaultCount; i++)
             {
-                collection.Add(i);
+                collection.Add(getData(i));
                 assert();
             }
 
             for (var i = 0; i < 10; i++)
             {
-                collection.Insert(i, i);
+                collection.Insert(i, getData(i));
+                assert();
+            }
+
+            for (var i = 0; i < 10; i++)
+            {
+                collection.Add(getData(i));
+                assert();
+            }
+
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
+            assert();
+
+            for (var i = 0; i < DefaultCount; i++)
+            {
+                collection.Insert(0, getData(i));
                 assert();
             }
         }
 
-        internal static void ClearShouldTrackChangesImpl(IObservableCollection<object> collection, Action assert)
+        internal static void ClearShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
             assert();
 
             collection.Clear();
             assert();
         }
 
-        internal static void MoveShouldTrackChanges1Impl(IObservableCollection<object> collection, Action assert)
+        internal static void MoveShouldTrackChanges1Impl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
             assert();
 
             for (var i = 0; i < collection.Count - 1; i++)
@@ -90,10 +112,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
             assert();
         }
 
-        internal static void MoveShouldTrackChanges2Impl(IObservableCollection<object> collection, Action assert)
+        internal static void MoveShouldTrackChanges2Impl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
             assert();
 
             for (var i = 1; i < collection.Count - 1; i++)
@@ -109,15 +132,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void RemoveShouldTrackChangesImpl(IObservableCollection<object> collection, Action assert)
+        internal static void RemoveShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
             assert();
 
             for (var i = 0; i < 20; i++)
             {
-                collection.Remove(i);
+                var item = collection[i];
+                collection.Remove(item);
                 assert();
             }
 
@@ -127,31 +152,55 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 assert();
             }
 
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
+            assert();
+
             var count = collection.Count;
             for (var i = 0; i < count; i++)
             {
                 collection.RemoveAt(0);
                 assert();
             }
+
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
+            assert();
+
+            count = collection.Count;
+            for (var i = 0; i < count; i++)
+            {
+                collection.RemoveAt(collection.Count - 1);
+                assert();
+            }
+
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
+            assert();
+
+            var random = new Random();
+            while (collection.Count != 0)
+            {
+                collection.RemoveAt(random.Next(0, collection.Count - 1));
+            }
         }
 
-        internal static void ReplaceShouldTrackChanges1Impl(IObservableCollection<object> collection, Action assert)
+        internal static void ReplaceShouldTrackChanges1Impl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
             assert();
 
             for (var i = 0; i < collection.Count; i++)
             {
-                collection[i] = i + 101;
+                collection[i] = getData(i + 101);
                 assert();
             }
         }
 
-        internal static void ReplaceShouldTrackChanges2Impl(IObservableCollection<object> collection, Action assert)
+        internal static void ReplaceShouldTrackChanges2Impl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount / 2; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount / 2, getData);
             assert();
 
             for (var i = 0; i < collection.Count / 2; i++)
@@ -162,24 +211,33 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void ResetShouldTrackChangesImpl(IObservableCollection<object> collection, Action assert)
+        internal static void ResetShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+            Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
-            for (var i = 0; i < DefaultCount; i++)
-                collection.Add(i);
+            getData ??= GetDataDefault;
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(collection, DefaultCount, getData);
             assert();
 
-            collection.Reset(new object[] { 1, 2, 3, 4, 5 });
+            var list = new List<object?>();
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(list, DefaultCount, getData);
+            (initializeDefault ?? InitializeDefaultDataDelegate).Invoke(list, DefaultCount, getData);
+            collection.Reset(list);
+            assert();
+
+            collection.Reset(new[] {getData(1), getData(2), getData(3), getData(4), getData(5),});
             assert();
         }
 
-        internal static void ShouldTrackChangesImpl(IObservableCollection<object> collection, Action assert)
+        internal static void ShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert, Func<int, object?>? getData = null)
         {
+            getData ??= GetDataDefault;
             for (var i = 0; i < 4; i++)
             {
-                collection.Add(1);
+                collection.Add(getData(1));
                 assert();
 
-                collection.Insert(1, 2);
+                var data2 = getData(2);
+                collection.Insert(1, getData(2));
                 assert();
 
                 collection.Move(0, 1);
@@ -188,19 +246,19 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 collection.Move(1, 0);
                 assert();
 
-                collection.Remove(2);
+                collection.Remove(data2);
                 assert();
 
                 collection.RemoveAt(0);
                 assert();
 
-                collection.Reset(new object[] { 1, 2, 3, 4, 5, i });
+                collection.Reset(new[] {getData(1), getData(2), getData(3), getData(4), getData(5), getData(i)});
                 assert();
 
-                collection[0] = 200;
+                collection[0] = getData(200);
                 assert();
 
-                collection[3] = 3;
+                collection[3] = getData(3);
                 assert();
 
                 collection.Move(0, collection.Count - 1);
@@ -209,7 +267,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 collection.Move(0, collection.Count - 2);
                 assert();
 
-                collection[i] = i;
+                collection[i] = getData(i);
                 assert();
             }
 
@@ -217,7 +275,21 @@ namespace MugenMvvm.UnitTests.Collections.Components
             assert();
         }
 
-        protected abstract IObservableCollection<object> GetCollection();
+        private static void InitializeDefaultDataImpl(IList<object?> collection, int minCount, Func<int, object?> getData)
+        {
+            for (var i = 0; i < minCount; i++)
+            {
+                collection.Add(getData(i));
+                collection.Add(i.ToString());
+            }
+        }
+
+        protected virtual object? GetData(int index) => GetDataDefault(index);
+
+        protected virtual void InitializeDefaultData(IList<object?> collection, int minCount, Func<int, object?> getData) =>
+            InitializeDefaultDataImpl(collection, minCount, getData);
+
+        protected abstract IObservableCollection<object?> GetCollection();
 
         protected abstract void Assert();
     }

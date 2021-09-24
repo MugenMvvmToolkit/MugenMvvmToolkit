@@ -15,16 +15,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class ConvertCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private ConvertCollectionDecorator<object, object> _decorator;
 
         public ConvertCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ConvertCollectionDecorator<object, object>((o, c) => "Item: " + o);
+            _decorator = new ConvertCollectionDecorator<object, object>(0, (o, c) => "Item: " + o);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collectionTracker.Changed += assert;
             collection.AddComponent(collectionTracker);
 
-            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>(0, (s, reuseItem) =>
             {
                 if (ignoreItems.Contains(s))
                     return s;
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
-            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>(0, (s, reuseItem) =>
             {
                 if (dictionary.TryGetValue(s, out var item))
                     reuseItem.ShouldEqual(item);
@@ -194,13 +194,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void IndexOfShouldBeValid()
         {
             _collection.RemoveComponent(_decorator);
-            _decorator = new ConvertCollectionDecorator<object, object>((o, c) =>
+            _decorator = new ConvertCollectionDecorator<object, object>(0, (o, c) =>
             {
                 if (o is int)
                     return "Item: " + o;
                 return o;
             });
-            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(o => "Item: " + o);
+            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(0, o => "Item: " + o);
             _collection.AddComponent(decorator);
             _collection.Add("Test1");
             _collection.Add(1);
@@ -239,7 +239,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
-            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>(0, (s, reuseItem) =>
             {
                 if (dictionary.TryGetValue(s, out var item))
                     reuseItem.ShouldEqual(item);
@@ -289,7 +289,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
-            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>(0, (s, reuseItem) =>
             {
                 if (dictionary.TryGetValue(s, out var item))
                     reuseItem.ShouldEqual(item);
@@ -327,7 +327,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
-            collection.AddComponent(new ConvertCollectionDecorator<string, object>((s, reuseItem) =>
+            collection.AddComponent(new ConvertCollectionDecorator<string, object>(0, (s, reuseItem) =>
             {
                 if (dictionary.TryGetValue(s, out var item))
                     reuseItem.ShouldEqual(item);
@@ -348,12 +348,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.Add(item2);
             collection.Add(item3);
 
-            collection.Reset(new[] { item1, item2 });
+            collection.Reset(new[] {item1, item2});
             cleanupItems.Count.ShouldEqual(1);
             cleanupItems.ShouldContain(item3);
         }
 
-        protected override IObservableCollection<object> GetCollection() => _collection;
+        protected override IObservableCollection<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {
@@ -361,6 +361,6 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.ChangedItems.ShouldEqual(Decorate().ToArray());
         }
 
-        private IEnumerable<object?> Decorate() => _collection.Select(o => _decorator.Converter(o, null));
+        private IEnumerable<object?> Decorate() => _collection.Select(o => o == null ? null : _decorator.Converter(o, null));
     }
 }

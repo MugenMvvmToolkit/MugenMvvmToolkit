@@ -100,7 +100,6 @@ namespace MugenMvvm.Collections
             }
             set
             {
-                GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, value);
                 using (Lock())
                 {
                     EnsureNotDisposed();
@@ -168,7 +167,6 @@ namespace MugenMvvm.Collections
 
         public void Add(T item)
         {
-            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, item);
             using (Lock())
             {
                 InsertInternal(_size, item, true);
@@ -212,7 +210,6 @@ namespace MugenMvvm.Collections
 
         public void Insert(int index, T item)
         {
-            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, item);
             using (Lock())
             {
                 if ((uint) index > (uint) _size)
@@ -226,15 +223,6 @@ namespace MugenMvvm.Collections
         {
             if (ReferenceEquals(items, this))
                 return;
-            if (items != null)
-            {
-                var preInitializers = GetComponents<IPreInitializerCollectionComponent<T>>();
-                if (preInitializers.Count != 0)
-                {
-                    foreach (var item in items)
-                        preInitializers.Initialize(this, item);
-                }
-            }
 
             using (Lock())
             {
@@ -246,7 +234,7 @@ namespace MugenMvvm.Collections
                 ClearRaw();
                 if (items != null)
                     InsertRangeRaw(_size, items);
-                GetComponents<ICollectionChangedListener<T>>().OnReset(this, items);
+                GetComponents<ICollectionChangedListener<T>>().OnReset(this, _size == 0 ? null : items);
             }
         }
 
@@ -268,8 +256,11 @@ namespace MugenMvvm.Collections
                     return;
 
                 GetComponents<ICollectionChangingListener<T>>().OnMoving(this, obj, oldIndex, newIndex);
-                RemoveAtRaw(oldIndex);
-                InsertRaw(newIndex, obj);
+                if (newIndex < oldIndex)
+                    Array.Copy(_items, newIndex, _items, newIndex + 1, oldIndex - newIndex);
+                else
+                    Array.Copy(_items, oldIndex + 1, _items, oldIndex, newIndex - oldIndex);
+                _items[newIndex] = obj;
                 GetComponents<ICollectionChangedListener<T>>().OnMoved(this, obj, oldIndex, newIndex);
             }
         }
@@ -449,7 +440,6 @@ namespace MugenMvvm.Collections
 
         int IList.Add(object? value)
         {
-            GetComponents<IPreInitializerCollectionComponent<T>>().Initialize(this, (T) value!);
             using (Lock())
             {
                 InsertInternal(_size, (T) value!, true);

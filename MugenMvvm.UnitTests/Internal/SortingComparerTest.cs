@@ -19,11 +19,11 @@ namespace MugenMvvm.UnitTests.Internal
             for (var i = 0; i < count; i++)
                 ints.Add(random.Next());
 
-            var comparer = SortingComparer<int>
-                           .Ascending(i => i)
-                           .ThenByDescending(i => i % 2 == 0)
-                           .ThenBy(i => i % 3 == 0)
-                           .Build();
+            var comparer = SortingComparerBuilder.Get<int>()
+                                                 .Ascending(i => i)
+                                                 .ThenByDescending(i => i % 2 == 0)
+                                                 .ThenBy(i => i % 3 == 0)
+                                                 .Build();
             var list = ints.ToList();
             list.Sort(comparer);
 
@@ -40,11 +40,11 @@ namespace MugenMvvm.UnitTests.Internal
             for (var i = 0; i < count; i++)
                 ints.Add(random.Next());
 
-            var comparer = SortingComparer<int>
-                           .Compare((x1, x2) => x1.CompareTo(x2))
-                           .ThenByDescending(i => i % 2 == 0)
-                           .ThenBy(i => i % 3 == 0)
-                           .Build();
+            var comparer = SortingComparerBuilder.Get<int>()
+                                                 .Compare((x1, x2) => x1.CompareTo(x2))
+                                                 .ThenByDescending(i => i % 2 == 0)
+                                                 .ThenBy(i => i % 3 == 0)
+                                                 .Build();
             var list = ints.ToList();
             list.Sort(comparer);
 
@@ -61,11 +61,11 @@ namespace MugenMvvm.UnitTests.Internal
             for (var i = 0; i < count; i++)
                 ints.Add(random.Next());
 
-            var comparer = SortingComparer<int>
-                           .Compare((x1, x2) => x2.CompareTo(x1))
-                           .ThenByDescending(i => i % 2 == 0)
-                           .ThenBy(i => i % 3 == 0)
-                           .Build();
+            var comparer = SortingComparerBuilder.Get<int>()
+                                                 .Compare((x1, x2) => x2.CompareTo(x1))
+                                                 .ThenByDescending(i => i % 2 == 0)
+                                                 .ThenBy(i => i % 3 == 0)
+                                                 .Build();
             var list = ints.ToList();
             list.Sort(comparer);
 
@@ -82,11 +82,11 @@ namespace MugenMvvm.UnitTests.Internal
             for (var i = 0; i < count; i++)
                 ints.Add(random.Next());
 
-            var comparer = SortingComparer<int>
-                           .Descending(i => i)
-                           .ThenByDescending(i => i % 2 == 0)
-                           .ThenBy(i => i % 3 == 0)
-                           .Build();
+            var comparer = SortingComparerBuilder.Get<int>()
+                                                 .Descending(i => i)
+                                                 .ThenByDescending(i => i % 2 == 0)
+                                                 .ThenBy(i => i % 3 == 0)
+                                                 .Build();
             var list = ints.ToList();
             list.Sort(comparer);
 
@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTests.Internal
                     return false;
                 return null;
             };
-            var comparer = SortingComparer<int>.PinHeaderFooter(condition).ThenBy(i => i).Build();
+            var comparer = SortingComparerBuilder.Get<int>().PinHeaderFooter(condition).ThenBy(i => i).Build();
 
             var list = ints.ToList();
             list.Sort(comparer);
@@ -147,7 +147,7 @@ namespace MugenMvvm.UnitTests.Internal
                     items.Insert(0, i.ToString());
             }
 
-            var comparer = SortingComparer<object>.PinHeaderFooter(o =>
+            var comparer = SortingComparerBuilder.Get<object>().PinHeaderFooter(o =>
             {
                 if (o is int i)
                     return condition(i);

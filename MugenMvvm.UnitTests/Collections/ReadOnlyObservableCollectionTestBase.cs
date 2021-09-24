@@ -344,15 +344,17 @@ namespace MugenMvvm.UnitTests.Collections
         }
 
 
-        [Fact(Skip = ReleaseTest)]
-        public void ShouldBeWeak()
+        [Theory(Skip = ReleaseTest)]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldBeWeak(bool isWeak)
         {
-            var weakReference = WeakTest(_source);
+            var weakReference = WeakTest(_source, isWeak);
             GcCollect();
             GcCollect();
             GcCollect();
             _source.Add(NewId());
-            weakReference.IsAlive.ShouldBeFalse();
+            weakReference.IsAlive.ShouldEqual(!isWeak);
         }
 
         [Theory]
@@ -507,11 +509,11 @@ namespace MugenMvvm.UnitTests.Collections
             sourceDisposingCount.ShouldEqual(dispose ? 1 : 0);
         }
 
-        protected abstract IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource);
+        protected abstract IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource, bool isWeak = true);
 
-        private WeakReference WeakTest(SynchronizedObservableCollection<object> source)
+        private WeakReference WeakTest(SynchronizedObservableCollection<object> source, bool isWeak)
         {
-            var collection = GetCollection(source, false);
+            var collection = GetCollection(source, false, isWeak);
             source.Add(NewId());
             collection.ShouldEqual(source);
             return new WeakReference(collection);

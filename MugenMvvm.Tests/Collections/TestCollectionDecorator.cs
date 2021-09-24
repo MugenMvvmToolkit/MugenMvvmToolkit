@@ -29,6 +29,8 @@ namespace MugenMvvm.Tests.Collections
 
         public bool IsLazy { get; set; }
 
+        public bool IsCacheRequired { get; set; }
+
         public bool HasAdditionalItems { get; set; } = true;
 
         public int Priority { get; set; }
@@ -40,6 +42,8 @@ namespace MugenMvvm.Tests.Collections
         }
 
         bool ICollectionDecorator.IsLazy(IReadOnlyObservableCollection collection) => IsLazy;
+
+        bool ICollectionDecorator.IsCacheRequired(IReadOnlyObservableCollection collection) => IsCacheRequired;
 
         bool ICollectionDecorator.HasAdditionalItems(IReadOnlyObservableCollection collection) => HasAdditionalItems;
 

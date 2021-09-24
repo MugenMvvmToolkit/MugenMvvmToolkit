@@ -63,7 +63,7 @@ namespace MugenMvvm.Components
             }
         }
 
-        public bool TryLock(out ActionToken lockToken)
+        public bool TryLock(int timeout, out ActionToken lockToken)
         {
             var lockTaken = false;
             ILocker? locker = null;
@@ -72,7 +72,7 @@ namespace MugenMvvm.Components
                 while (true)
                 {
                     locker = _lastTakenLocker ?? _locker;
-                    locker.TryEnter(ref lockTaken);
+                    locker.TryEnter(timeout, ref lockTaken);
                     if (!lockTaken)
                     {
                         lockToken = default;

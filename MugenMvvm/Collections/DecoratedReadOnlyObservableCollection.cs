@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
@@ -30,14 +31,13 @@ namespace MugenMvvm.Collections
         private bool _hasCount;
         private int _count;
 
-        public DecoratedReadOnlyObservableCollection(IReadOnlyObservableCollection source, int priority, bool disposeSource,
-            IComponentCollectionManager? componentCollectionManager = null)
-            : base(componentCollectionManager, source)
+        public DecoratedReadOnlyObservableCollection(IReadOnlyObservableCollection source, int priority, bool disposeSource, bool isWeak, bool materialize,
+            IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager, source)
         {
             Should.NotBeNull(source, nameof(source));
             _source = source;
             _disposeSource = disposeSource;
-            _decorator = new DecoratorListener(this, priority);
+            _decorator = new DecoratorListener(this, isWeak, materialize, priority);
             using (source.Lock())
             {
                 source.AddComponent(_decorator);
@@ -99,7 +99,7 @@ namespace MugenMvvm.Collections
 
         public ActionToken Lock() => _source.Lock();
 
-        public bool TryLock(out ActionToken lockToken) => _source.TryLock(out lockToken);
+        public bool TryLock(int timeout, out ActionToken lockToken) => _source.TryLock(timeout, out lockToken);
 
         private IEnumerable<T> GetEnumerable(ICollectionDecorator decorator)
         {
@@ -115,15 +115,17 @@ namespace MugenMvvm.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        private sealed class DecoratorListener : IListenerCollectionDecorator, ICollectionBatchUpdateListener, IDisposableComponent<IReadOnlyObservableCollection>,
-            IDetachableComponent, IHasPriority
+        private sealed class DecoratorListener : IListenerCollectionDecorator, ICollectionBatchUpdateListener, ILockerChangedListener<IReadOnlyObservableCollection>,
+            IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
         {
-            private readonly IWeakReference _targetRef;
+            private readonly bool _materialize;
+            private readonly object _target;
 
-            public DecoratorListener(DecoratedReadOnlyObservableCollection<T> target, int priority)
+            public DecoratorListener(DecoratedReadOnlyObservableCollection<T> target, bool isWeak, bool materialize, int priority)
             {
+                _materialize = materialize;
                 Priority = priority;
-                _targetRef = target.ToWeakReference();
+                _target = isWeak ? target.ToWeakReference() : target;
             }
 
             public int Priority { get; }
@@ -145,6 +147,8 @@ namespace MugenMvvm.Collections
             }
 
             public bool IsLazy(IReadOnlyObservableCollection collection) => false;
+
+            public bool IsCacheRequired(IReadOnlyObservableCollection collection) => _materialize;
 
             public bool HasAdditionalItems(IReadOnlyObservableCollection collection) => false;
 
@@ -229,9 +233,17 @@ namespace MugenMvvm.Collections
 
             public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
 
+            public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
+            {
+                var target = TryGetTarget(owner);
+                target?.GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(target, locker, metadata);
+            }
+
             private DecoratedReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {
-                var target = (DecoratedReadOnlyObservableCollection<T>?) _targetRef.Target;
+                if (_target is DecoratedReadOnlyObservableCollection<T> t)
+                    return t;
+                var target = (DecoratedReadOnlyObservableCollection<T>?) ((IWeakReference) _target).Target;
                 if (target == null)
                 {
                     source.RemoveComponent(this);

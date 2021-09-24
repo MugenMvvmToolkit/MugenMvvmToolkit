@@ -24,6 +24,8 @@ namespace MugenMvvm.Collections.Components
 
         protected virtual bool IsLazy => true;
 
+        protected virtual bool IsCacheRequired => false;
+
         protected abstract IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
             IEnumerable<object?> items);
 
@@ -66,6 +68,8 @@ namespace MugenMvvm.Collections.Components
         }
 
         bool ICollectionDecorator.IsLazy(IReadOnlyObservableCollection collection) => IsLazy;
+
+        bool ICollectionDecorator.IsCacheRequired(IReadOnlyObservableCollection collection) => IsCacheRequired;
 
         bool ICollectionDecorator.HasAdditionalItems(IReadOnlyObservableCollection collection) => HasAdditionalItems;
 

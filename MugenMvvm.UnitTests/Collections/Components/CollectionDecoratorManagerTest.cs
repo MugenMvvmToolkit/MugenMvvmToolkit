@@ -157,8 +157,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int) o!, (int) o1!))
                 : Comparer<object?>.Create((i, i1) => ((int) i1!).CompareTo((int) i!));
             var collection = CreateCollection<int>();
-            var decorator1 = new SortCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
-            var decorator2 = new FilterCollectionDecorator<int>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i % 2 == 0};
+            var decorator1 = new SortCollectionDecorator<object>(filterFirst ? 0 : int.MaxValue, o => o, comparer);
+            var decorator2 = new FilterCollectionDecorator<int>(filterFirst ? int.MaxValue : 0) {Filter = (i, _) => i % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
@@ -236,8 +236,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 return collectionItem.Id.CompareTo(item.Id);
             });
             var collection = CreateCollection<TestCollectionItem>();
-            var decorator1 = new SortCollectionDecorator(comparer, filterFirst ? 0 : int.MaxValue);
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(null, filterFirst ? int.MaxValue : 0) {Filter = i => i.Id % 2 == 0};
+            var decorator1 = new SortCollectionDecorator<object>(filterFirst ? 0 : int.MaxValue, o => o, comparer);
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(filterFirst ? int.MaxValue : 0) {Filter = (i, _) => i.Id % 2 == 0};
             collection.AddComponent(decorator1);
             collection.AddComponent(decorator2);
 
@@ -673,15 +673,16 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.Changed += assert;
             target.AddComponent(tracker);
 
-            var decorator1 = new SortCollectionDecorator(comparer) {Priority = int.MaxValue};
-            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
+            target.AddComponent(new DistinctCollectionDecorator<TestCollectionItem, int>(101, item => item.Id));
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(100) {Filter = (i, _) => i.Id % 2 == 0};
+            var decorator1 = new SortCollectionDecorator<object>(99, o => o, comparer) {Priority = int.MaxValue};
             target.AddComponent(decorator1);
             target.AddComponent(decorator2);
-            target.AddComponent(new HeaderFooterCollectionDecorator {Header = "Header", Footer = "Footer"});
-            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(o => o!.StableId % 2, null, null, -1));
-            target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(o => new FlattenItemInfo(o.Items, true)));
-            target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(10));
-            target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>((item, _) => item));
+            target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(98, 10));
+            target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>(97, (item, _) => item));
+            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(96, o => o.StableId % 2));
+            target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(95, o => new FlattenItemInfo(o.Items, true)));
+            target.AddComponent(new HeaderFooterCollectionDecorator(94) {Header = "Header", Footer = "Footer"});
 
             source.Add(new TestCollectionItem {Id = 1});
             assert();
@@ -714,7 +715,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < count; i++)
             {
-                source.Add(new TestCollectionItem {Id = Guid.NewGuid().GetHashCode()});
+                var hashCode = Guid.NewGuid().GetHashCode();
+                source.Add(new TestCollectionItem {Id = hashCode});
+                source.Add(new TestCollectionItem {Id = hashCode});
                 assert();
             }
 

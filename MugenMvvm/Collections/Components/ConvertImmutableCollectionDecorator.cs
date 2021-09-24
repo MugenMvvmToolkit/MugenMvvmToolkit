@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
@@ -12,7 +11,7 @@ namespace MugenMvvm.Collections.Components
     {
         private readonly Func<object?, object?> _converter;
 
-        public ConvertImmutableCollectionDecorator(Func<T, TTo> converter, int priority = CollectionComponentPriority.ConverterDecorator)
+        public ConvertImmutableCollectionDecorator(int priority, Func<T, TTo> converter)
         {
             Should.NotBeNull(converter, nameof(converter));
             Converter = converter;
@@ -25,6 +24,8 @@ namespace MugenMvvm.Collections.Components
         public int Priority { get; set; }
 
         public bool IsLazy(IReadOnlyObservableCollection collection) => true;
+
+        public bool IsCacheRequired(IReadOnlyObservableCollection collection) => false;
 
         public bool HasAdditionalItems(IReadOnlyObservableCollection collection) => true;
 

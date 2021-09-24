@@ -12,14 +12,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class HeaderFooterCollectionDecoratorTest : UnitTestBase
     {
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly HeaderFooterCollectionDecorator _decorator;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public HeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _decorator = new HeaderFooterCollectionDecorator();
+            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _decorator = new HeaderFooterCollectionDecorator(0);
             _collection.AddComponent(_decorator);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             for (var i = 0; i < _collection.Count; i++)
             {
-                _collection.RaiseItemChanged(_collection[i], null);
+                _collection.RaiseItemChanged(_collection[i]);
                 Assert();
                 _tracker.ItemChangedCount.ShouldEqual(i + 1);
             }
@@ -261,7 +261,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
 
-        private IEnumerable<object> Decorate(ItemOrIReadOnlyList<object> header, ItemOrIReadOnlyList<object> footer)
+        private IEnumerable<object?> Decorate(ItemOrIReadOnlyList<object> header, ItemOrIReadOnlyList<object> footer)
         {
             if (!header.IsEmpty)
             {
