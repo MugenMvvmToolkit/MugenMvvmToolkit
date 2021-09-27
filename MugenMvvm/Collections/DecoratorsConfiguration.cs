@@ -32,18 +32,18 @@ namespace MugenMvvm.Collections
         public DecoratorsConfiguration<T> Add(IComponent<IReadOnlyObservableCollection> decorator, int? priority, out ActionToken removeToken)
         {
             if (Collection == null)
-                ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration<>));
+                ExceptionManager.ThrowObjectNotInitialized(typeof(DecoratorsConfiguration<T>));
             removeToken = Collection.AddComponent(decorator);
             return UpdatePriority(priority);
         }
 
-        public DecoratorsConfiguration<T> UpdatePriority(int? priority = null) => new(Collection!, priority ?? Priority - Step, Step);
+        public DecoratorsConfiguration<T> UpdatePriority(int? priority = null) => new(Collection, priority ?? Priority - Step, Step);
 
         public static implicit operator SynchronizedObservableCollection<T>(DecoratorsConfiguration<T> configuration) =>
             (SynchronizedObservableCollection<T>) configuration.Collection;
 
-        public static implicit operator DecoratorsConfiguration<T>(DecoratorsConfiguration<object?> configuration) => configuration.For<T>();
+        public static implicit operator DecoratorsConfiguration<T>(DecoratorsConfiguration<object> configuration) => configuration.For<T>();
 
-        public static implicit operator DecoratorsConfiguration<object?>(DecoratorsConfiguration<T> configuration) => configuration.For<object?>();
+        public static implicit operator DecoratorsConfiguration<object>(DecoratorsConfiguration<T> configuration) => configuration.For<object>();
     }
 }

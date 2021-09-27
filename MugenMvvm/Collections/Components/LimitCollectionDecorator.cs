@@ -66,7 +66,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (!HasLimit || item is not T)
+            if (!HasLimit)
                 return true;
 
             var currentIndex = _items.BinarySearch(index);
@@ -372,12 +372,8 @@ namespace MugenMvvm.Collections.Components
 
         private void UpdateItems(IEnumerable<object?> items)
         {
-            if (items.TryGetCount(out var count))
-            {
-                if (count == 0)
-                    return;
-                _items.EnsureCapacity(count);
-            }
+            if (items.IsNullOrEmpty())
+                return;
 
             var index = 0;
             foreach (var item in items)

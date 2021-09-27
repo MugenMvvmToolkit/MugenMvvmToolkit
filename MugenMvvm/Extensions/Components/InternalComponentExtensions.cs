@@ -298,5 +298,11 @@ namespace MugenMvvm.Extensions.Components
                 tokens[i] = components[i].TrySuspend(owner, metadata);
             return ActionToken.FromTokens(tokens);
         }
+
+        public static void Raise(this ItemOrArray<IHasPendingNotifications> components, IReadOnlyMetadataContext? metadata)
+        {
+            foreach (var component in components)
+                component.Raise(metadata);
+        }
     }
 }

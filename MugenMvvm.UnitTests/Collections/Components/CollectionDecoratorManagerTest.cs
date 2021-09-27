@@ -673,6 +673,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             tracker.Changed += assert;
             target.AddComponent(tracker);
 
+            var headerFooterCollectionDecorator = new HeaderFooterCollectionDecorator(102) {Header = "Header1", Footer = "Footer1"};
+            target.AddComponent(headerFooterCollectionDecorator);
             target.AddComponent(new DistinctCollectionDecorator<TestCollectionItem, int>(101, item => item.Id));
             var decorator2 = new FilterCollectionDecorator<TestCollectionItem>(100) {Filter = (i, _) => i.Id % 2 == 0};
             var decorator1 = new SortCollectionDecorator<object>(99, o => o, comparer) {Priority = int.MaxValue};
@@ -680,7 +682,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             target.AddComponent(decorator2);
             target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(98, 10));
             target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>(97, (item, _) => item));
-            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, object>(96, o => o.StableId % 2));
+            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, int, object>(96, o => o.StableId % 2, i => i.ToString()));
             target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(95, o => new FlattenItemInfo(o.Items, true)));
             target.AddComponent(new HeaderFooterCollectionDecorator(94) {Header = "Header", Footer = "Footer"});
 
@@ -739,6 +741,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 source.RaiseItemChanged(source[i], null);
                 assert();
             }
+
+            headerFooterCollectionDecorator.Header = default;
+            headerFooterCollectionDecorator.Footer = default;
 
             for (var i = 0; i < count; i++)
             {

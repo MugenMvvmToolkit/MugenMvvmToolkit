@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Delegates;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -159,7 +160,7 @@ namespace MugenMvvm.Extensions
             return _boxMethods;
         }
 
-        public delegate object? BoxingDelegate<T>(T? value);
+        
 
         internal static class IntCache
         {

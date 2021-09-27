@@ -11,6 +11,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
+using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -278,65 +279,60 @@ namespace MugenMvvm.Extensions
             return configuration.Add(decorator);
         }
 
-        public static DecoratorsConfiguration<T> GroupBy<T, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
-            IComparer<TGroup>? comparer = null, IEqualityComparer<TGroup>? equalityComparer = null, bool flatten = true,
-            bool flattenDecoratedItems = true)
+        public static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey, Func<TKey, TGroup> getGroup,
+            IComparer<TGroup>? comparer = null, IEqualityComparer<TKey>? equalityComparer = null, bool flatten = true, bool flattenDecoratedItems = true)
             where TGroup : class
-            where T : notnull
         {
-            configuration = configuration.GroupBy(getGroup, equalityComparer);
+            configuration = configuration.GroupBy(getKey, getGroup, equalityComparer);
             if (comparer != null)
                 configuration = configuration.For<TGroup>().OrderBy(comparer).For<T>();
             return configuration.FlattenGroup<T, TGroup>(flatten, flattenDecoratedItems);
         }
 
-        public static DecoratorsConfiguration<T> GroupBy<T, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
-            SortingComparerBuilder.BuilderDelegate<TGroup>? getComparer, IEqualityComparer<TGroup>? equalityComparer = null, bool flatten = true,
-            bool flattenDecoratedItems = true)
+        public static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey, Func<TKey, TGroup> getGroup,
+            SortingComparerBuilder.BuilderDelegate<TGroup>? getComparer, IEqualityComparer<TKey>? equalityComparer = null, bool flatten = true, bool flattenDecoratedItems = true)
             where TGroup : class
-            where T : notnull
         {
-            configuration = configuration.GroupBy(getGroup, equalityComparer);
+            configuration = configuration.GroupBy(getKey, getGroup, equalityComparer);
             if (getComparer != null)
                 configuration = configuration.For<TGroup>().OrderBy(getComparer).For<T>();
             return configuration.FlattenGroup<T, TGroup>(flatten, flattenDecoratedItems);
         }
 
-        public static DecoratorsConfiguration<T> GroupBy<T, TGroup, TSortState>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
-            Func<TGroup, TSortState> getSortState, SortingComparerBuilder.BuilderDelegate<TSortState?> getComparer, IEqualityComparer<TGroup>? equalityComparer = null,
-            bool flatten = true, bool flattenDecoratedItems = true)
+        public static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup, TSortState>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey,
+            Func<TKey, TGroup> getGroup, Func<TGroup, TSortState> getSortState, SortingComparerBuilder.BuilderDelegate<TSortState?> getComparer,
+            IEqualityComparer<TKey>? equalityComparer = null, bool flatten = true, bool flattenDecoratedItems = true)
             where TGroup : class
-            where T : notnull
         {
-            return configuration.GroupBy(getGroup, equalityComparer)
+            return configuration.GroupBy(getKey, getGroup, equalityComparer)
                                 .For<TGroup>()
                                 .OrderBy(getSortState, getComparer)
                                 .For<T>()
                                 .FlattenGroup<T, TGroup>(flatten, flattenDecoratedItems);
         }
 
-        public static DecoratorsConfiguration<T> GroupBy<T, TGroup, TSortState>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
-            Func<TGroup, TSortState> getSortState, IComparer<TSortState?>? comparer = null, IEqualityComparer<TGroup>? equalityComparer = null,
+        public static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup, TSortState>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey,
+            Func<TKey, TGroup> getGroup, Func<TGroup, TSortState> getSortState, IComparer<TSortState?>? comparer = null, IEqualityComparer<TKey>? equalityComparer = null,
             bool flatten = true, bool flattenDecoratedItems = true)
             where TGroup : class
             where T : notnull
         {
-            return configuration.GroupBy(getGroup, equalityComparer)
+            return configuration.GroupBy(getKey, getGroup, equalityComparer)
                                 .For<TGroup>()
                                 .OrderBy(getSortState, comparer)
                                 .For<T>()
                                 .FlattenGroup<T, TGroup>(flatten, flattenDecoratedItems);
         }
 
-        public static DecoratorsConfiguration<T> GroupBy<T, TKey>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getGroup,
-            GroupCollectionDecorator<T, TKey>.UpdateGroupDelegate? updateGroup, IEqualityComparer<TKey>? equalityComparer = null)
-            where TKey : class => configuration.GroupBy(getGroup, updateGroup, equalityComparer, out _);
+        public static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey, Func<TKey, TGroup> getGroup,
+            UpdateGroupDelegate<T, TGroup>? updateGroup, IEqualityComparer<TKey>? equalityComparer = null)
+            where TGroup : class => configuration.GroupBy(getKey, getGroup, updateGroup, equalityComparer, out _);
 
-        public static DecoratorsConfiguration<T> GroupBy<T, TKey>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getGroup,
-            GroupCollectionDecorator<T, TKey>.UpdateGroupDelegate? updateGroup, IEqualityComparer<TKey>? equalityComparer, out GroupCollectionDecorator<T, TKey> decorator)
-            where TKey : class
+        public static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey, Func<TKey, TGroup> getGroup,
+            UpdateGroupDelegate<T, TGroup>? updateGroup, IEqualityComparer<TKey>? equalityComparer, out GroupCollectionDecorator<T, TKey, TGroup> decorator)
+            where TGroup : class
         {
-            decorator = new GroupCollectionDecorator<T, TKey>(configuration.Priority, getGroup, updateGroup, equalityComparer);
+            decorator = new GroupCollectionDecorator<T, TKey, TGroup>(configuration.Priority, getKey, getGroup, updateGroup, equalityComparer);
             return configuration.Add(decorator);
         }
 
@@ -381,7 +377,7 @@ namespace MugenMvvm.Extensions
 
         public static DecoratorsConfiguration<T> OfType<T>(this DecoratorsConfiguration<T> configuration, out ActionToken removeToken)
         {
-            configuration = configuration.For<object?>().Where((t, _) => t is T, false, out var decorator);
+            configuration = configuration.For<object>().Where((t, _) => t is T, false, out var decorator);
             removeToken = ActionToken.FromDelegate((coll, c) => ((IReadOnlyObservableCollection) coll!).RemoveComponent((IComponent<IReadOnlyObservableCollection>) c!),
                 configuration.Collection, decorator);
             return configuration;
@@ -418,7 +414,7 @@ namespace MugenMvvm.Extensions
         public static IReadOnlyObservableCollection<T> Bind<T>(this DecoratorsConfiguration<T> configuration, bool disposeSourceOnDispose = false, bool isWeak = true,
             bool materialize = false)
         {
-            configuration.Bind<T>(out var collection, disposeSourceOnDispose, isWeak, materialize);
+            configuration.Bind(out var collection, disposeSourceOnDispose, isWeak, materialize);
             return collection;
         }
 
@@ -460,7 +456,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members, object? args = null)
-            where T : class => configuration.AutoRefreshOnPropertyChanged<T>(members, args, out _);
+            where T : class => configuration.AutoRefreshOnPropertyChanged(members, args, out _);
 
         public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members,
             object? args, out ActionToken removeToken) where T : class
@@ -704,7 +700,7 @@ namespace MugenMvvm.Extensions
         {
             switch (action)
             {
-                case CollectionGroupChangedAction.Clear:
+                case CollectionGroupChangedAction.GroupRemoved:
                     if (!checkDisposable || items is not IHasDisposeState {IsDisposed: true})
                         items.Clear();
                     break;
@@ -1102,14 +1098,13 @@ namespace MugenMvvm.Extensions
                 manager, collection);
         }
 
-        private static DecoratorsConfiguration<T> GroupBy<T, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TGroup?> getGroup,
-            IEqualityComparer<TGroup>? equalityComparer)
+        private static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, TKey?> getKey, Func<TKey, TGroup> getGroup,
+            IEqualityComparer<TKey>? equalityComparer)
             where TGroup : class
-            where T : notnull
         {
-            return configuration.GroupBy(getGroup, (group, items, action, item, args) =>
+            return configuration.GroupBy(getKey, getGroup, (group, items, action, item, args) =>
                                 {
-                                    if (group is ICollectionGroup<T> g && (action != CollectionGroupChangedAction.Clear || !g.TryCleanup()))
+                                    if (group is ICollectionGroup<T> g && (action != CollectionGroupChangedAction.GroupRemoved || !g.TryCleanup()))
                                         action.ApplyChangesTo(g.Items, items, item, args);
                                 }, equalityComparer)
                                 .Where(_ => false);
@@ -1168,21 +1163,6 @@ namespace MugenMvvm.Extensions
                 : getDefault(count == 1 ? items.Keys.Prepend(newItem!) : items.Keys, selectedItem);
             if (!ReferenceEquals(selectedItem, item))
                 setSelectedItem(item);
-        }
-
-        private static void FirstLastSetter<T>(this Action<T?> setter, object? item)
-        {
-            if (item == null)
-                setter(default);
-            else
-                setter((T?) item);
-        }
-
-        private static bool FirstLastPredicate<T>(this Func<T, bool> predicate, object? item)
-        {
-            if (item is T tItem)
-                return predicate(tItem);
-            return false;
         }
 
         private static TState? GetStateOrderBy<T, TState>(this Func<T, TState?> getState, object? item)

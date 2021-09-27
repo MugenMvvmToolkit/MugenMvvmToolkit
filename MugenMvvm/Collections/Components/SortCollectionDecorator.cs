@@ -110,6 +110,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             _items.Items[oldIndex] = new OrderedItem(index, newItem, newState);
+            index = oldIndex;
             return true;
         }
 

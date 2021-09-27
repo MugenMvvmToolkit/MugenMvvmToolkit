@@ -12,7 +12,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(action, nameof(action));
             var closure = new TimerClosure<T>(targetReference ?? target.ToWeakReference(), action);
-            closure.Timer = new Timer(o => ((TimerClosure<T>)o!).Execute(), closure, Timeout.Infinite, Timeout.Infinite);
+            closure.Timer = new Timer(o => ((TimerClosure<T>) o!).Execute(), closure, Timeout.Infinite, Timeout.Infinite);
             return closure.Timer;
         }
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.Internal
 
             public void Execute()
             {
-                var target = (T?)_weakReference.Target;
+                var target = (T?) _weakReference.Target;
                 if (target == null)
                 {
                     Timer?.Dispose();

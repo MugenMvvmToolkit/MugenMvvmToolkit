@@ -5,7 +5,9 @@ using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.UnitTests.Collections.Internal;
+using MugenMvvm.UnitTests.Models.Internal;
 using Should;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace MugenMvvm.UnitTests.Collections.Components
@@ -26,6 +28,51 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var decorator = new FirstLastTrackerCollectionDecorator<int>(0, false, o => _item = o, condition);
             _collection.AddComponent(decorator);
             _tracker.Changed += Assert;
+        }
+
+        [Fact]
+        public void ShouldTrackChanges1()
+        {
+            TestCollectionItem? item = null;
+            Action assert = () => item.ShouldEqual(_collection.OfType<TestCollectionItem>().LastOrDefault(collectionItem => collectionItem.Id % 2 == 0));
+            _collection.RemoveComponent(_tracker);
+            _collection.AddComponent(new FirstLastTrackerCollectionDecorator<TestCollectionItem>(0, false, collectionItem =>
+            {
+                item = collectionItem;
+                assert();
+            }, collectionItem => collectionItem.Id % 2 == 0));
+
+            for (var i = 0; i < DefaultCount; i++)
+            {
+                _collection.Add(new TestCollectionItem
+                {
+                    Id = i
+                });
+                assert();
+
+                _collection.Add(i);
+                assert();
+            }
+
+            for (var i = 0; i < _collection.Count; i++)
+            {
+                if (_collection[i] is TestCollectionItem testCollectionItem)
+                {
+                    testCollectionItem.Id += 1;
+                    _collection.RaiseItemChanged(testCollectionItem);
+                    assert();
+                }
+            }
+
+            for (var i = _collection.Count - 1; i >= 0; i--)
+            {
+                if (_collection[i] is TestCollectionItem testCollectionItem)
+                {
+                    testCollectionItem.Id -= 1;
+                    _collection.RaiseItemChanged(testCollectionItem);
+                    assert();
+                }
+            }
         }
 
         protected override IObservableCollection<object?> GetCollection() => _collection;

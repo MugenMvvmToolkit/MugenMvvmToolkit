@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
+using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -26,7 +27,7 @@ namespace MugenMvvm.Views.Components
         public int Priority { get; init; } = ViewComponentPriority.MappingProvider;
 
         public IViewMapping AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null,
-            PostConditionDelegate? postCondition = null, IReadOnlyMetadataContext? metadata = null)
+            MappingPostConditionDelegate? postCondition = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, typeof(IViewModelBase), nameof(viewModelType));
             Should.NotBeNull(viewType, nameof(viewType));
@@ -35,7 +36,7 @@ namespace MugenMvvm.Views.Components
             return mapping;
         }
 
-        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null, PostConditionDelegate? postCondition = null)
+        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null, MappingPostConditionDelegate? postCondition = null)
         {
             Should.NotBeNull(mapping, nameof(mapping));
             var mappingInfo = new MappingInfo(mapping, exactlyEqual, name, postCondition);
@@ -97,17 +98,15 @@ namespace MugenMvvm.Views.Components
             return mappings.ToItemOrList();
         }
 
-        public delegate bool PostConditionDelegate(IViewMapping mapping, Type requestedType, bool isViewMapping, object? target, IReadOnlyMetadataContext? metadata);
-
         [StructLayout(LayoutKind.Auto)]
         private readonly struct MappingInfo
         {
             private readonly bool _exactlyEqual;
             private readonly string? _name;
-            private readonly PostConditionDelegate? _postCondition;
+            private readonly MappingPostConditionDelegate? _postCondition;
             public readonly IViewMapping Mapping;
 
-            public MappingInfo(IViewMapping mapping, bool exactlyEqual, string? name, PostConditionDelegate? postCondition)
+            public MappingInfo(IViewMapping mapping, bool exactlyEqual, string? name, MappingPostConditionDelegate? postCondition)
             {
                 _exactlyEqual = exactlyEqual;
                 _name = name;

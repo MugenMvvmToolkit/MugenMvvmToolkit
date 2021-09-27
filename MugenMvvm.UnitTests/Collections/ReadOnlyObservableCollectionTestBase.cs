@@ -522,9 +522,15 @@ namespace MugenMvvm.UnitTests.Collections
         private void Assert(IReadOnlyObservableCollection<object> target, bool hasListener)
         {
             if (hasListener)
+            {
                 _source.ShouldEqual(target);
+                _source.Count.ShouldEqual(target.Count);
+            }
             else
+            {
+                target.Count.ShouldEqual(0);
                 target.ShouldBeEmpty();
+            }
         }
     }
 }

@@ -9,13 +9,9 @@
 
         public static bool RaiseItemChangedCheckDuplicates { get; set; }
 
-        public static bool RaiseItemChangedAsync { get; set; }
-
-        public static int RaiseItemChangedLockTimeout { get; set; }
-
         public static int RaiseItemChangedDelay { get; set; } = 10;
 
-        public static int RaiseItemChangedResetThreshold { get; set; } = 30;
+        public static int RaiseItemChangedResetThreshold { get; set; } = 50;
 
         public static int DiffUtilAsyncThreshold { get; set; } = 300;
 

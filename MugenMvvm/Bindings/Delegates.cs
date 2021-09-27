@@ -1,13 +1,20 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using MugenMvvm.Bindings.Core;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Bindings.Delegates
 {
+    public delegate ItemOrArray<BindingExpressionRequest> BindingBuilderDelegate<TTarget, TSource>(BindingBuilderTarget<TTarget, TSource> target)
+        where TTarget : class
+        where TSource : class;
+
     public delegate ActionToken TryObserveDelegate<in TMember, in TTarget>(TMember member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         where TMember : class, IMemberInfo;
 

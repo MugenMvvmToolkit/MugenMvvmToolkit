@@ -115,8 +115,8 @@ namespace MugenMvvm.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        private sealed class DecoratorListener : IListenerCollectionDecorator, ICollectionBatchUpdateListener, ILockerChangedListener<IReadOnlyObservableCollection>,
-            IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
+        private sealed class DecoratorListener : IListenerCollectionDecorator, IFlattenCollectionListener, ICollectionBatchUpdateListener,
+            ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
         {
             private readonly bool _materialize;
             private readonly object _target;

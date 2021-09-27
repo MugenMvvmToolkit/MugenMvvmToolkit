@@ -7,7 +7,9 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Internal;
 using MugenMvvm.Models;
 using MugenMvvm.Tests.Collections;
@@ -94,6 +96,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 _itemCollection1.RaiseItemChanged(_itemCollection1[i]);
                 raiseCount += _itemCollection1[i] % 2 == 0 ? 1 : 0;
+                Assert();
                 _tracker.ItemChangedCount.ShouldEqual(raiseCount);
 
                 //ignore changes because we're listening source instead of decorators
@@ -1351,6 +1354,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         private void Assert()
         {
+            _targetCollection.Components.Get<IHasPendingNotifications>().Raise(null);
+            _itemCollection1.Components.Get<IHasPendingNotifications>().Raise(null);
+            _itemCollection2.Components.Get<IHasPendingNotifications>().Raise(null);
             _targetCollection.DecoratedItems().ShouldEqual(_tracker.ChangedItems);
             _tracker.ChangedItems.ShouldEqual(Decorate());
         }

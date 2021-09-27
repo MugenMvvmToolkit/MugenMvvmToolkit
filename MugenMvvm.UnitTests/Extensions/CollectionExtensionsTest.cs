@@ -217,7 +217,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2 == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null, flatten);
+                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -253,7 +253,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2 == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, flatten);
+                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -289,7 +289,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2 == 0 ? group1 : group2, group => group.Value, flatten: flatten);
+                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, group => group.Value, flatten: flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -325,7 +325,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2 == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, flatten);
+                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);

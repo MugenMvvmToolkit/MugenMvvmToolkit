@@ -101,7 +101,9 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
-            if (_footerIndex > NoFooterIndex)
+            if (FooterCount == 0)
+                _footerIndex = NoFooterIndex;
+            else
                 _footerIndex = items.CountEx() + HeaderCount;
             items = Decorate(items);
             return true;
