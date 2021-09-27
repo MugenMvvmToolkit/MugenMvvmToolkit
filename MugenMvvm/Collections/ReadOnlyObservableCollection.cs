@@ -78,11 +78,13 @@ namespace MugenMvvm.Collections
         private sealed class Listener : ICollectionChangedListener<T>, ICollectionBatchUpdateListener, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent,
             ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
         {
-            private readonly object _target;
+            private readonly bool _isWeak;
+            private object? _target;
 
             public Listener(ReadOnlyObservableCollection<T> target, bool isWeak, int priority)
             {
                 Priority = priority;
+                _isWeak = isWeak;
                 _target = isWeak ? target.ToWeakReference() : target;
             }
 
@@ -154,13 +156,14 @@ namespace MugenMvvm.Collections
 
             private ReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {
-                if (_target is ReadOnlyObservableCollection<T> t)
-                    return t;
-                var target = (ReadOnlyObservableCollection<T>?) ((IWeakReference) _target).Target;
-                if (target == null)
+                if (!_isWeak)
+                    return (ReadOnlyObservableCollection<T>?) _target;
+
+                var target = (ReadOnlyObservableCollection<T>?) ((IWeakReference?) _target)?.Target;
+                if (target == null && _target != null)
                 {
+                    _target = null;
                     source.RemoveComponent(this);
-                    return null;
                 }
 
                 return target;

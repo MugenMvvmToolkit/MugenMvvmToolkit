@@ -666,7 +666,7 @@ namespace MugenMvvm.Collections
         protected class WeakListener : ICollectionBatchUpdateListener, IDecoratedCollectionChangedListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
         {
             internal readonly IWeakReference Reference;
-            private readonly int _version;
+            private int _version;
 
             public WeakListener(BindableCollectionAdapter adapter, int version, WeakListener? oldListener, int priority = CollectionComponentPriority.BindableAdapter)
             {
@@ -717,13 +717,18 @@ namespace MugenMvvm.Collections
             public void OnReset(IReadOnlyObservableCollection collection, IEnumerable<object?>? items) =>
                 GetAdapter(collection)?.AddEvent(CollectionChangedEvent.Reset(items), _version);
 
-            protected BindableCollectionAdapter? GetAdapter(object? owner)
+            private BindableCollectionAdapter? GetAdapter(object? owner)
             {
                 var adapter = (BindableCollectionAdapter?) Reference.Target;
                 if (adapter != null && adapter.IsAlive)
                     return adapter;
 
-                (owner as IComponentOwner)?.Components.Remove(this);
+                if (_version != int.MinValue)
+                {
+                    _version = int.MinValue;
+                    (owner as IComponentOwner)?.Components.Remove(this);
+                }
+
                 return null;
             }
         }

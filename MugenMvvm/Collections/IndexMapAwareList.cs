@@ -151,6 +151,13 @@ namespace MugenMvvm.Collections
         {
             if (Size == 0)
                 return -1;
+            if (key == 0)
+            {
+                if (Indexes[0].Index == 0)
+                    return 0;
+                return -1;
+            }
+
             return Array.BinarySearch(Indexes, 0, Size, new Entry(key));
         }
 

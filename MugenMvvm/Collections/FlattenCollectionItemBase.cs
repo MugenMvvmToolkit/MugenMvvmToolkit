@@ -29,6 +29,7 @@ namespace MugenMvvm.Collections
         private bool _initialized;
         private bool _isInBatch;
         private bool _isDirty;
+        private bool _isCleared;
 
         protected FlattenCollectionItemBase(object item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
@@ -377,8 +378,13 @@ namespace MugenMvvm.Collections
                 decorator = (FlattenCollectionDecorator?) _decoratorRef!.Target;
                 if (decorator == null)
                 {
-                    if (Collection is IReadOnlyObservableCollection owner)
-                        owner.Components.Remove(this);
+                    if (!_isCleared)
+                    {
+                        _isCleared = true;
+                        if (Collection is IReadOnlyObservableCollection owner)
+                            owner.Components.Remove(this);
+                    }
+
                     decoratorOwner = null;
                     decoratorManager = null;
                     return false;

@@ -32,10 +32,13 @@ namespace MugenMvvm.Collections.Components
         public void BeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
             using var _ = collection.Lock();
-            if (!_counters.TryGetValue(batchUpdateType, out var value))
+            if (_counters.TryGetValue(batchUpdateType, out var value))
+                _counters[batchUpdateType] = value + 1;
+            else
+            {
+                _counters[batchUpdateType] = 1;
                 collection.GetComponents<ICollectionBatchUpdateListener>().OnBeginBatchUpdate(collection, batchUpdateType);
-
-            _counters[batchUpdateType] = value + 1;
+            }
         }
 
         public void EndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
@@ -67,11 +70,11 @@ namespace MugenMvvm.Collections.Components
             if (component is not ICollectionBatchUpdateListener batchUpdateListener)
                 return;
 
-            using var _ = ((IReadOnlyObservableCollection)collection.Owner).Lock();
+            using var _ = ((IReadOnlyObservableCollection) collection.Owner).Lock();
             if (_counters.Count == 0)
                 return;
             foreach (var counter in _counters)
-                batchUpdateListener.OnBeginBatchUpdate((IReadOnlyObservableCollection)collection.Owner, counter.Key);
+                batchUpdateListener.OnBeginBatchUpdate((IReadOnlyObservableCollection) collection.Owner, counter.Key);
         }
 
         void IComponentCollectionChangingListener.OnRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
@@ -79,13 +82,12 @@ namespace MugenMvvm.Collections.Components
             if (component is not ICollectionBatchUpdateListener batchUpdateListener)
                 return;
 
-            using var _ = ((IReadOnlyObservableCollection)collection.Owner).Lock();
+            using var _ = ((IReadOnlyObservableCollection) collection.Owner).Lock();
             if (_counters.Count == 0)
                 return;
             foreach (var counter in _counters)
-                batchUpdateListener.OnEndBatchUpdate((IReadOnlyObservableCollection)collection.Owner, counter.Key);
+                batchUpdateListener.OnEndBatchUpdate((IReadOnlyObservableCollection) collection.Owner, counter.Key);
         }
-
 
         void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {

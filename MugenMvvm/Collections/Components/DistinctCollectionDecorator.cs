@@ -65,7 +65,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             var binaryIndex = _indexMap.BinarySearch(index);
-            _indexMap.UpdateIndexesBinary(binaryIndex, 1);
+            UpdateIndexesBinary(binaryIndex, 1);
             if (item is not T itemT)
                 return true;
 
@@ -150,7 +150,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
             var binaryIndex = _indexMap.BinarySearch(index);
-            _indexMap.UpdateIndexesBinary(binaryIndex, -1);
+            UpdateIndexesBinary(binaryIndex, -1);
             if (binaryIndex < 0)
                 return true;
 
@@ -297,6 +297,20 @@ namespace MugenMvvm.Collections.Components
                 }
                 else
                     _keyMap[key] = distinctInfo.Add(newDistinctItem, null);
+            }
+        }
+
+        private void UpdateIndexesBinary(int binarySearchIndex, int value)
+        {
+            if (_indexMap.Size == 0)
+                return;
+            if (binarySearchIndex < 0)
+                binarySearchIndex = ~binarySearchIndex;
+            for (var i = binarySearchIndex; i < _indexMap.Size; i++)
+            {
+                ref var entry = ref _indexMap.Indexes[i];
+                entry._index += value;
+                entry.Value.Index += value;
             }
         }
 

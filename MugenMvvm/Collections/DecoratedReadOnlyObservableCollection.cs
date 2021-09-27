@@ -119,12 +119,14 @@ namespace MugenMvvm.Collections
             ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
         {
             private readonly bool _materialize;
-            private readonly object _target;
+            private readonly bool _isWeak;
+            private object? _target;
 
             public DecoratorListener(DecoratedReadOnlyObservableCollection<T> target, bool isWeak, bool materialize, int priority)
             {
                 _materialize = materialize;
                 Priority = priority;
+                _isWeak = isWeak;
                 _target = isWeak ? target.ToWeakReference() : target;
             }
 
@@ -241,13 +243,14 @@ namespace MugenMvvm.Collections
 
             private DecoratedReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)
             {
-                if (_target is DecoratedReadOnlyObservableCollection<T> t)
-                    return t;
-                var target = (DecoratedReadOnlyObservableCollection<T>?) ((IWeakReference) _target).Target;
-                if (target == null)
+                if (!_isWeak)
+                    return (DecoratedReadOnlyObservableCollection<T>?) _target;
+
+                var target = (DecoratedReadOnlyObservableCollection<T>?) ((IWeakReference?) _target)?.Target;
+                if (target == null && _target != null)
                 {
+                    _target = null;
                     source.RemoveComponent(this);
-                    return null;
                 }
 
                 return target;

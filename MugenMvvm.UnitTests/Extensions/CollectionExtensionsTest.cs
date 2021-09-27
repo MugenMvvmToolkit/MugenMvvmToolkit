@@ -782,13 +782,38 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Fact]
-        public void SealedShouldThrowOnDecoratorChanged()
+        public void SealedShouldThrowOnDecoratorChanged1()
         {
             _collection.ConfigureDecorators().Sealed(out var token);
             ShouldThrow<InvalidOperationException>(() => _collection.AddComponent(new TestCollectionDecorator()));
             _collection.AddComponent(new ListenerDecorator());
             token.Dispose();
             _collection.AddComponent(new TestCollectionDecorator());
+        }
+
+        [Fact]
+        public void SealedShouldThrowOnDecoratorChanged2()
+        {
+            var listener = new ListenerDecorator();
+            var decorator = new TestCollectionDecorator();
+            _collection.AddComponent(listener);
+            _collection.AddComponent(decorator);
+            _collection.ConfigureDecorators().Sealed(out var token);
+            ShouldThrow<InvalidOperationException>(() => _collection.RemoveComponent(decorator));
+            _collection.Remove(listener);
+            token.Dispose();
+            _collection.RemoveComponent(decorator);
+        }
+
+        [Fact]
+        public void SealedShouldThrowOnDecoratorChanged3()
+        {
+            var listener = new ListenerDecorator();
+            var decorator = new TestCollectionDecorator();
+            _collection.AddComponent(listener);
+            _collection.AddComponent(decorator);
+            _collection.ConfigureDecorators().Sealed(out _);
+            _collection.Dispose();
         }
 
         [Fact]

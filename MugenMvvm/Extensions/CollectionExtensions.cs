@@ -137,7 +137,9 @@ namespace MugenMvvm.Extensions
 
         public static DecoratorsConfiguration<T> Sealed<T>(this DecoratorsConfiguration<T> configuration, out ActionToken removeToken)
         {
-            removeToken = configuration.Collection.Components.AddComponent(SealedDecoratorGuard.Instance);
+            configuration.Collection.AddComponent(SealedDecoratorGuard.Instance);
+            configuration.Collection.Components.AddComponent(SealedDecoratorGuard.Instance);
+            removeToken = ActionToken.FromHandler(SealedDecoratorGuard.Instance, configuration.Collection);
             return configuration;
         }
 
