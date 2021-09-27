@@ -349,7 +349,7 @@ namespace MugenMvvm.Collections
             if (!TryGetDecoratorManager(out var decoratorManager, out var decorator, out var decoratorOwner))
                 return;
 
-            Collection = Default.EmptyEnumerable<object?>();
+            Collection = Default.Enumerable<object?>();
             Size = 0;
             Reset(decoratorManager, decorator, decoratorOwner);
         }

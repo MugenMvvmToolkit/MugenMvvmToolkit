@@ -91,7 +91,7 @@ namespace MugenMvvm.Collections
         {
             var decorator = _decorator;
             if (decorator == null)
-                return Default.EmptyEnumerator<T>();
+                return Default.Enumerator<T>();
             return GetEnumerable(decorator).GetEnumerator();
         }
 

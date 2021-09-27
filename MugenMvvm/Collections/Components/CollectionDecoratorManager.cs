@@ -489,7 +489,7 @@ namespace MugenMvvm.Collections.Components
                     InitializeSnapshot(collection);
                 }
 
-                return _sourceSnapshot ?? Default.EmptyEnumerable<object?>();
+                return _sourceSnapshot ?? Default.Enumerable<object?>();
             }
 
             return collection.AsEnumerable();

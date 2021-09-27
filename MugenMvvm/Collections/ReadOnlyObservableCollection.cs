@@ -65,7 +65,7 @@ namespace MugenMvvm.Collections
                 _source.Dispose();
         }
 
-        public IEnumerator<T> GetEnumerator() => _decorator == null ? Default.EmptyEnumerator<T>() : _source.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => _decorator == null ? Default.Enumerator<T>() : _source.GetEnumerator();
 
         public void UpdateLocker(ILocker locker) => _source.UpdateLocker(locker);
 

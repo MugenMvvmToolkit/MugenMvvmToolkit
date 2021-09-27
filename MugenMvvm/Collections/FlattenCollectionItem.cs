@@ -121,7 +121,7 @@ namespace MugenMvvm.Collections
         protected internal override IEnumerable<object?> GetItems()
         {
             if (_isInBatch)
-                return _sourceSnapshot ?? Default.EmptyEnumerable<object?>();
+                return _sourceSnapshot ?? Default.Enumerable<object?>();
             return Collection.AsEnumerable();
         }
 

@@ -1039,7 +1039,7 @@ namespace MugenMvvm.Extensions
         {
             if (enumerable == null)
                 return null;
-            return enumerable as IReadOnlyList<object> ?? enumerable.OfType<object>().ToList();
+            return enumerable as IReadOnlyList<object> ?? enumerable.AsEnumerable().ToList()!;
         }
 
         internal static bool Any(this IEnumerable? enumerable)

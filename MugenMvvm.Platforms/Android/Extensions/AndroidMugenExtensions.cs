@@ -392,7 +392,7 @@ namespace MugenMvvm.Android.Extensions
                                                                    return null;
                                                                }
 
-                                                               return itemsSource.OfType<object>().ElementAtOrDefault(selectedIndex);
+                                                               return itemsSource.AsEnumerable().ElementAtOrDefault(selectedIndex);
                                                            })
                                                            .CustomSetter((m, target, value, _) =>
                                                            {

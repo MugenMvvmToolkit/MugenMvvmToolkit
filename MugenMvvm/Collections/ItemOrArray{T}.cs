@@ -81,7 +81,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return List;
             if (Count == 0)
-                return Default.EmptyEnumerable<T>();
+                return Default.Enumerable<T>();
             return Default.SingleItemEnumerable(Item!);
         }
 
@@ -124,7 +124,7 @@ namespace MugenMvvm.Collections
             if (List != null)
                 return ((IEnumerable<T>)List).GetEnumerator();
             if (Count == 0)
-                return Default.EmptyEnumerator<T>();
+                return Default.Enumerator<T>();
             return Default.SingleItemEnumerator(Item!);
         }
 
