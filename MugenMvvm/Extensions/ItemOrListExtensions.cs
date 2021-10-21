@@ -10,19 +10,19 @@ namespace MugenMvvm.Extensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrArray<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIEnumerable<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyCollection<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrIReadOnlyList<T> itemOrList)
-            where T : class? => itemOrList.Item ?? (object?)itemOrList.List;
+            where T : class? => itemOrList.Item ?? (object?) itemOrList.List;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<T>(this ItemOrListEditor<T> editor)
@@ -62,10 +62,9 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrIEnumerable<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
-            comparer ??= EqualityComparer<T>.Default;
             foreach (var v in itemOrList)
             {
-                if (comparer.Equals(v, value))
+                if (comparer.EqualsOrDefault(v, value))
                     return true;
             }
 
@@ -74,10 +73,9 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
-            comparer ??= EqualityComparer<T>.Default;
             foreach (var v in itemOrList)
             {
-                if (comparer.Equals(v, value))
+                if (comparer.EqualsOrDefault(v, value))
                     return true;
             }
 
@@ -86,10 +84,9 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrIReadOnlyCollection<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
-            comparer ??= EqualityComparer<T>.Default;
             foreach (var v in itemOrList)
             {
-                if (comparer.Equals(v, value))
+                if (comparer.EqualsOrDefault(v, value))
                     return true;
             }
 
@@ -98,10 +95,9 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrArray<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
-            comparer ??= EqualityComparer<T>.Default;
             foreach (var v in itemOrList)
             {
-                if (comparer.Equals(v, value))
+                if (comparer.EqualsOrDefault(v, value))
                     return true;
             }
 
@@ -114,12 +110,12 @@ namespace MugenMvvm.Extensions
             if (item != null)
                 editor.Add(item);
         }
-        
+
         public static void SetAt<T>(this ref ItemOrArray<T> array, int index, T value)
         {
             if (array.List != null)
                 array.List[index] = value;
-            else if ((uint)index < (uint)array.Count)
+            else if ((uint) index < (uint) array.Count)
                 array = new ItemOrArray<T>(value);
             else
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));

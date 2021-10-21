@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
             _itemCollection1 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
-            _itemCollection1.AddComponent(new FilterCollectionDecorator<int>(0) {Filter = (i, _) => i % 2 == 0});
+            _itemCollection1.AddComponent(new FilterCollectionDecorator<int>(0, false) {Filter = (i, _) => i % 2 == 0});
             _itemCollection2 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
             _itemCollection2.AddComponent(new SortCollectionDecorator<object>(0, o => o, SortingComparerBuilder.Get<int>().Descending(i => i).Build().AsObjectComparer()));
 
@@ -762,7 +762,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     Thread.Sleep(10);
                     var item = items[index];
                     item.Items = new SynchronizedObservableCollection<object>(ComponentCollectionManager)
-                                 .ConfigureDecorators(0)
+                                 .ConfigureDecorators()
                                  .Count(i => item.IsVisible = i > 0)
                                  .CastCollectionToSynchronized();
                     item.Items.Add(index);

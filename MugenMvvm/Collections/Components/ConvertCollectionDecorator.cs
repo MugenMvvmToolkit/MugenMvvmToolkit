@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Constants;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -12,24 +12,28 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections.Components
 {
     public sealed class ConvertCollectionDecorator<T, TTo> : CollectionDecoratorBase
-        where T : notnull
         where TTo : class?
     {
+        private readonly bool _allowNull;
         private readonly Action<T, TTo>? _cleanup;
-        private readonly IEqualityComparer<TTo?> _comparer;
-        private IndexMapList<(T from, TTo? to)> _items;
+        private readonly IEqualityComparer<TTo?>? _comparer;
+        private IndexMapList<(T? from, TTo? to)> _items;
+#pragma warning disable 8714
         private Dictionary<T, TTo?>? _resetCache;
+#pragma warning restore 8714
 
-        public ConvertCollectionDecorator(int priority, Func<T, TTo?, TTo?> converter, Action<T, TTo>? cleanup = null, IEqualityComparer<TTo?>? comparer = null) : base(priority)
+        public ConvertCollectionDecorator(int priority, bool allowNull, Func<T, TTo?, Optional<TTo>> converter, Action<T, TTo>? cleanup = null,
+            IEqualityComparer<TTo?>? comparer = null) : base(priority)
         {
             Should.NotBeNull(converter, nameof(converter));
-            _items = IndexMapList<(T, TTo?)>.Get();
+            _items = IndexMapList<(T?, TTo?)>.Get();
             Converter = converter;
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _cleanup = cleanup;
-            _comparer = comparer ?? EqualityComparer<TTo?>.Default;
+            _comparer = comparer;
         }
 
-        public Func<T, TTo?, TTo?> Converter { get; }
+        public Func<T, TTo?, Optional<TTo>> Converter { get; }
 
         protected override bool HasAdditionalItems => _items.Size != 0;
 
@@ -42,11 +46,11 @@ namespace MugenMvvm.Collections.Components
         protected override bool TryGetIndexes(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, IEnumerable<object?> items,
             object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
-            if (item is TTo toItem)
+            if (item.TryCastNullable<TTo>(out var toItem))
             {
                 for (var i = 0; i < _items.Size; i++)
                 {
-                    if (_comparer.Equals(toItem, _items.Indexes[i].Value.to))
+                    if (_comparer.EqualsOrDefault(toItem, _items.Indexes[i].Value.to))
                     {
                         indexes.Add(_items.Indexes[i].Index);
                         if (ignoreDuplicates)
@@ -69,47 +73,68 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (item is not T itemT)
+            if (!item.TryCast<T>(_allowNull, out var itemT))
                 return true;
 
             var oldIndex = _items.BinarySearch(index);
-            var oldItem = _items.Indexes[oldIndex].Value.to;
-            var newItem = Converter(itemT, oldItem);
-            if (!_comparer.Equals(oldItem, newItem))
+            if (oldIndex < 0)
             {
-                _cleanup?.Invoke(itemT, oldItem!);
-                _items.Indexes[oldIndex].Value = (itemT, newItem);
-                decoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
-                return false;
+                if (TryConvert(itemT, null, out var converted))
+                {
+                    _items.Add(index, (itemT, converted), oldIndex);
+                    decoratorManager.OnReplaced(collection, this, item, converted, index);
+                    return false;
+                }
+            }
+            else
+            {
+                var oldItem = _items.Indexes[oldIndex].Value.to;
+                var hasNewItem = TryConvert(itemT, oldItem, out var newItem);
+                if (!hasNewItem || !_comparer.EqualsOrDefault(oldItem, newItem))
+                {
+                    _cleanup?.Invoke(itemT!, oldItem!);
+                    if (hasNewItem)
+                    {
+                        _items.Indexes[oldIndex].Value = (itemT, newItem);
+                        decoratorManager.OnReplaced(collection, this, oldItem, newItem, index);
+                    }
+                    else
+                    {
+                        _items.RemoveAt(oldIndex);
+                        decoratorManager.OnReplaced(collection, this, oldItem, item, index);
+                    }
+
+                    return false;
+                }
+
+                item = oldItem;
             }
 
-            item = oldItem;
             return true;
         }
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            item = TryAdd(item, index, null, true, false);
+            item = TryAdd(item, index, null, true);
             return true;
         }
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var oldIndex = oldItem is T ? _items.BinarySearch(index) : -1;
-            if (oldIndex == -1)
-                newItem = TryAdd(newItem, index, null, false, false);
+            int? oldIndex = oldItem.TryCheckCast<T>(_allowNull) ? _items.BinarySearch(index) : null;
+            if (oldIndex.GetValueOrDefault(-1) < 0)
+                newItem = TryAdd(newItem, index, null, false, oldIndex);
             else
             {
-                if (newItem is T newItemT)
+                if (newItem.TryCast<T>(_allowNull, out var newItemT) && TryConvert(newItemT, null, out var value))
                 {
-                    oldItem = RemoveRaw(oldIndex, false);
-                    var value = Converter(newItemT, null);
-                    _items.Indexes[oldIndex].Value = (newItemT, value);
+                    oldItem = RemoveRaw(oldIndex!.Value, false);
+                    _items.Indexes[oldIndex.Value].Value = (newItemT, value);
                     newItem = value;
                 }
                 else
-                    oldItem = RemoveRaw(oldIndex, true);
+                    oldItem = RemoveRaw(oldIndex!.Value, true);
             }
 
             return true;
@@ -135,11 +160,21 @@ namespace MugenMvvm.Collections.Components
                 Clear();
             else
             {
+#pragma warning disable 8714
                 _resetCache ??= new Dictionary<T, TTo?>(_items.Size, InternalEqualityComparer.GetReferenceComparer<T>());
+#pragma warning restore 8714
+                TTo? nullValue = default;
+                var hasNullValue = false;
                 for (var i = 0; i < _items.Size; i++)
                 {
                     var item = _items.Indexes[i].Value;
-                    _resetCache[item.from] = item.to;
+                    if (item.from == null)
+                    {
+                        nullValue = item.to;
+                        hasNullValue = true;
+                    }
+                    else
+                        _resetCache[item.from] = item.to;
                 }
 
                 _items.Clear();
@@ -147,12 +182,26 @@ namespace MugenMvvm.Collections.Components
                 var index = 0;
                 foreach (var item in items)
                 {
-                    if (item is T itemT)
+                    if (item.TryCast<T>(_allowNull, out var itemT))
                     {
-                        _resetCache.Remove(itemT, out var oldValue);
-                        var added = TryAdd(item, index, oldValue, false, true);
-                        if (oldValue != null && !_comparer.Equals(oldValue, added as TTo))
-                            _cleanup?.Invoke(itemT, oldValue);
+                        bool hasOldValue;
+                        TTo? oldValue;
+                        if (itemT == null)
+                        {
+                            hasOldValue = hasNullValue;
+                            oldValue = nullValue;
+                            nullValue = default;
+                            hasNullValue = false;
+                        }
+                        else
+                            hasOldValue = _resetCache.Remove(itemT, out oldValue);
+
+                        if (TryConvert(itemT, oldValue, out var value))
+                        {
+                            _items.AddRaw(index, (itemT, value));
+                            if (hasOldValue && !_comparer.EqualsOrDefault(oldValue, value))
+                                _cleanup?.Invoke(itemT!, oldValue!);
+                        }
                     }
 
                     ++index;
@@ -194,30 +243,21 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private object? TryAdd(object? item, int index, TTo? convertItem, bool updateIndexes, bool addRaw)
+        private object? TryAdd(object? item, int index, TTo? convertItem, bool updateIndexes, int? binarySearchIndex = null)
         {
-            int binarySearchIndex;
             if (updateIndexes)
             {
-                binarySearchIndex = _items.BinarySearch(index);
-                _items.UpdateIndexesBinary(binarySearchIndex, 1);
+                binarySearchIndex ??= _items.BinarySearch(index);
+                _items.UpdateIndexesBinary(binarySearchIndex.Value, 1);
             }
-            else
-                binarySearchIndex = -1;
 
-            if (item is not T itemT)
+            if (!item.TryCast<T>(_allowNull, out var itemT) || !TryConvert(itemT, convertItem, out var value))
                 return item;
 
-            var value = Converter(itemT, convertItem);
-            if (addRaw)
-                _items.AddRaw(index, (itemT, value));
+            if (binarySearchIndex == null)
+                _items.Add(index, (itemT, value));
             else
-            {
-                if (updateIndexes)
-                    _items.Add(index, (itemT, value), binarySearchIndex);
-                else
-                    _items.Add(index, (itemT, value));
-            }
+                _items.Add(index, (itemT, value), binarySearchIndex.Value);
 
             return value;
         }
@@ -236,7 +276,7 @@ namespace MugenMvvm.Collections.Components
             var value = _items.Indexes[index].Value;
             if (removeFromCollection)
                 _items.RemoveAt(index);
-            _cleanup?.Invoke(value.from, value.to!);
+            _cleanup?.Invoke(value.from!, value.to!);
             return value.to;
         }
 
@@ -247,11 +287,19 @@ namespace MugenMvvm.Collections.Components
                 for (var i = 0; i < _items.Size; i++)
                 {
                     var item = _items.Indexes[i].Value;
-                    _cleanup(item.from, item.to!);
+                    _cleanup(item.from!, item.to!);
                 }
             }
 
             _items.Clear();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool TryConvert(T? item, TTo? convertItem, out TTo? convertedResult)
+        {
+            var r = Converter(item!, convertItem);
+            convertedResult = r.GetValueOrDefault();
+            return r.HasValue;
         }
     }
 }

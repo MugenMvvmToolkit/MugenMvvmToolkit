@@ -1,22 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
     public sealed class ConvertImmutableCollectionDecorator<T, TTo> : ICollectionDecorator, IHasPriority where TTo : class?
     {
+        private readonly bool _allowNull;
         private readonly Func<object?, object?> _converter;
 
-        public ConvertImmutableCollectionDecorator(int priority, Func<T, TTo> converter)
+        public ConvertImmutableCollectionDecorator(int priority, bool allowNull, Func<T, TTo> converter)
         {
             Should.NotBeNull(converter, nameof(converter));
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             Converter = converter;
             Priority = priority;
-            _converter = converter as Func<object?, object?> ?? Convert;
+            _converter = Convert;
         }
 
         public Func<T, TTo> Converter { get; }
@@ -31,23 +35,20 @@ namespace MugenMvvm.Collections.Components
 
         private object? Convert(object? arg)
         {
-            if (arg is T t)
-                return Converter(t);
+            if (arg.TryCast<T>(_allowNull, out var itemT))
+                return Converter(itemT!);
             return arg;
         }
 
         bool ICollectionDecorator.TryGetIndexes(IReadOnlyObservableCollection collection, IEnumerable<object?> items, object? item, bool ignoreDuplicates,
             ref ItemOrListEditor<int> indexes)
         {
-            if (typeof(TTo) == typeof(object))
-                return false;
-
-            if (item is TTo itemTo)
+            if (item.TryCastNullable<TTo>(out var itemTo))
             {
                 var index = 0;
                 foreach (var v in items)
                 {
-                    if (v is T t && EqualityComparer<TTo>.Default.Equals(Converter(t), itemTo))
+                    if (v.TryCast<T>(_allowNull, out var t) && EqualityComparer<TTo?>.Default.Equals(Converter(t!), itemTo))
                     {
                         indexes.Add(index);
                         if (ignoreDuplicates)

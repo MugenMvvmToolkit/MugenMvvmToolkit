@@ -125,6 +125,7 @@ namespace MugenMvvm.Collections.Components
 
         public void RaiseItemChanged(IReadOnlyObservableCollection collection, object? item, object? args)
         {
+            collection.GetComponents<ICollectionItemChangedListener>().OnChanged(collection, item, args);
             ActionToken token = default;
             try
             {

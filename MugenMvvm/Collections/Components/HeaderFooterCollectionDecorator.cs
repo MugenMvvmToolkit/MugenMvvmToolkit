@@ -174,13 +174,13 @@ namespace MugenMvvm.Collections.Components
             }
 
             using var _ = owner.Lock();
-            using var __ = owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
             if (DecoratorManager == null)
             {
                 SetValue(value, isFooter);
                 return;
             }
 
+            using var __ = owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
             if (!value.IsEmpty)
             {
                 if (isFooter)

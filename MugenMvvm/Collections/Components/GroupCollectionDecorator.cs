@@ -7,6 +7,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 #pragma warning disable 8714
 
@@ -15,11 +16,13 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Collections.Components
 {
     public sealed class GroupCollectionDecorator<T, TKey, TGroup> : CollectionDecoratorBase
+        where TKey : notnull
         where TGroup : class
     {
-        private readonly Func<T, TKey?> _getKey;
+        private readonly bool _allowNull;
+        private readonly Func<T, Optional<TKey>> _getKey;
         private readonly Func<TKey, TGroup> _getGroup;
-        private readonly UpdateGroupDelegate<T, TGroup>? _updateGroup;
+        private readonly UpdateGroupDelegate<T, TKey, TGroup>? _updateGroup;
         private readonly Dictionary<TKey, (TGroup group, HashSetEx<T> items)> _groups;
         private IndexMapList<TKey> _keyMap;
         private ListInternal<(TKey key, TGroup group)> _groupList;
@@ -27,15 +30,16 @@ namespace MugenMvvm.Collections.Components
         private List<TKey>? _oldKeys;
 #endif
 
-        public GroupCollectionDecorator(int priority, Func<T, TKey?> getKey, Func<TKey, TGroup> getGroup, UpdateGroupDelegate<T, TGroup>? updateGroup = null,
-            IEqualityComparer<TKey>? comparer = null) : base(priority)
+        public GroupCollectionDecorator(int priority, bool allowNull, Func<T, Optional<TKey>> getKey, Func<TKey, TGroup> getGroup,
+            UpdateGroupDelegate<T, TKey, TGroup>? updateGroup = null, IEqualityComparer<TKey>? comparer = null) : base(priority)
         {
             Should.NotBeNull(getKey, nameof(getKey));
             Should.NotBeNull(getGroup, nameof(getGroup));
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _getKey = getKey;
             _getGroup = getGroup;
             _updateGroup = updateGroup;
-            _groups = new Dictionary<TKey, (TGroup, HashSetEx<T>)>(comparer ?? EqualityComparer<TKey>.Default);
+            _groups = new Dictionary<TKey, (TGroup group, HashSetEx<T> items)>(comparer);
             _groupList = new ListInternal<(TKey key, TGroup group)>(0);
             _keyMap = IndexMapList<TKey>.Get();
             Priority = priority;
@@ -86,15 +90,15 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (item is T t)
+            if (item.TryCast<T>(_allowNull, out var t))
             {
                 var binaryIndex = _keyMap.BinarySearch(index);
                 var oldKey = binaryIndex < 0 ? default : _keyMap.Indexes[binaryIndex].Value;
-                var newKey = _getKey(t);
-                if (!_groups.Comparer.Equals(oldKey!, newKey!))
-                    Replace(decoratorManager, collection, index, binaryIndex, newKey, item, t);
-                else if (_updateGroup != null && oldKey != null && _groups.TryGetValue(oldKey, out var oldGroupInfo))
-                    _updateGroup.Invoke(oldGroupInfo.group, oldGroupInfo.items, CollectionGroupChangedAction.ItemChanged, t, args);
+                var newKey = _getKey(t!);
+                if (binaryIndex >= 0 != newKey.HasNonNullValue || !_groups.Comparer.Equals(oldKey!, newKey.GetValueOrDefault()!))
+                    Replace(decoratorManager, collection, index, binaryIndex, newKey, item, t!);
+                else if (_updateGroup != null && binaryIndex >= 0 && _groups.TryGetValue(oldKey!, out var oldGroupInfo))
+                    _updateGroup.Invoke(oldKey!, oldGroupInfo.group, oldGroupInfo.items, CollectionGroupChangedAction.ItemChanged, t, args);
             }
 
             index += _groups.Count;
@@ -105,14 +109,14 @@ namespace MugenMvvm.Collections.Components
         {
             var binaryIndex = _keyMap.BinarySearch(index);
             _keyMap.UpdateIndexesBinary(binaryIndex, 1);
-            if (item is T t)
+            if (item.TryCast<T>(_allowNull, out var t))
             {
-                var key = _getKey(t);
-                if (key != null)
+                var key = _getKey(t!);
+                if (key.HasNonNullValue)
                 {
-                    _keyMap.Add(index, key, binaryIndex);
+                    _keyMap.Add(index, key.Value, binaryIndex);
                     decoratorManager.OnAdded(collection, this, item, index + _groups.Count);
-                    AddGroupIfNeed(decoratorManager, collection, key, t);
+                    AddGroupIfNeed(decoratorManager, collection, key.Value, t!);
                     return false;
                 }
             }
@@ -124,17 +128,24 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            var binaryIndex = _keyMap.BinarySearch(index);
-            if (newItem is not T newItemT)
+            if (oldItem.TryCheckCast<T>(_allowNull) || newItem.TryCheckCast<T>(_allowNull))
             {
+                var binaryIndex = _keyMap.BinarySearch(index);
+                if (newItem.TryCast<T>(_allowNull, out var newItemT))
+                {
+                    decoratorManager.OnReplaced(collection, this, oldItem, newItem, index + _groups.Count);
+                    Replace(decoratorManager, collection, index, binaryIndex, _getKey(newItemT!), oldItem, newItemT!);
+                    return false;
+                }
+
                 if (binaryIndex >= 0)
                 {
+                    decoratorManager.OnReplaced(collection, this, oldItem, newItem, index + _groups.Count);
                     _keyMap.RemoveAt(binaryIndex);
                     RemoveGroupIfNeed(decoratorManager, collection, _keyMap.Indexes[binaryIndex].Value, (T) oldItem!);
+                    return false;
                 }
             }
-            else
-                Replace(decoratorManager, collection, index, binaryIndex, _getKey(newItemT), oldItem, newItemT);
 
             index += _groups.Count;
             return true;
@@ -180,34 +191,34 @@ namespace MugenMvvm.Collections.Components
                 var index = 0;
                 foreach (var item in items)
                 {
-                    if (item is not T t)
+                    if (!item.TryCast<T>(_allowNull, out var t))
                     {
                         ++index;
                         continue;
                     }
 
-                    var key = _getKey(t);
-                    if (key == null)
+                    var key = _getKey(t!);
+                    if (!key.HasNonNullValue)
                     {
                         ++index;
                         continue;
                     }
 
-                    if (_groups.TryGetValue(key, out var value))
+                    if (_groups.TryGetValue(key.Value, out var value))
                     {
                         if (value.items.Count == 0)
-                            _groupList.Add((key, value.group));
+                            _groupList.Add((key.Value, value.group));
                     }
                     else
                     {
-                        var group = _getGroup(key);
+                        var group = _getGroup(key.Value);
                         value = (group, new HashSetEx<T>());
-                        _groups[key] = value;
-                        _groupList.Add((key, group));
+                        _groups[key.Value] = value;
+                        _groupList.Add((key.Value, group));
                     }
 
-                    _keyMap.AddRaw(index, key);
-                    value.items.Add(t);
+                    _keyMap.AddRaw(index, key.Value);
+                    value.items.Add(t!);
                     ++index;
                 }
 
@@ -219,11 +230,11 @@ namespace MugenMvvm.Collections.Components
                 {
                     if (group.Value.items.Count != 0)
                     {
-                        _updateGroup?.Invoke(group.Value.group, group.Value.items, CollectionGroupChangedAction.Reset, default, null);
+                        _updateGroup?.Invoke(group.Key, group.Value.group, group.Value.items, CollectionGroupChangedAction.Reset, default, null);
                         continue;
                     }
 
-                    _updateGroup?.Invoke(group.Value.group, group.Value.items, CollectionGroupChangedAction.GroupRemoved, default, null);
+                    _updateGroup?.Invoke(group.Key, group.Value.group, group.Value.items, CollectionGroupChangedAction.GroupRemoved, default, null);
 #if NET5_0
                     _groups.Remove(group.Key);
 #else
@@ -246,44 +257,44 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private void Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, int index, int binaryIndex, TKey? newKey,
+        private void Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, int index, int binaryIndex, Optional<TKey> newKey,
             object? oldItem, T newItemT)
         {
-            if (newKey == null)
-            {
-                if (binaryIndex >= 0)
-                {
-                    var oldGroup = _keyMap.Indexes[binaryIndex].Value;
-                    _keyMap.RemoveAt(binaryIndex);
-                    RemoveGroupIfNeed(decoratorManager, collection, oldGroup, (T) oldItem!);
-                }
-            }
-            else
+            if (newKey.HasNonNullValue)
             {
                 if (binaryIndex < 0)
                 {
-                    _keyMap.Add(index, newKey, binaryIndex);
-                    AddGroupIfNeed(decoratorManager, collection, newKey, newItemT);
+                    _keyMap.Add(index, newKey.Value, binaryIndex);
+                    AddGroupIfNeed(decoratorManager, collection, newKey.Value, newItemT);
                 }
                 else
                 {
                     var oldKey = _keyMap.Indexes[binaryIndex].Value;
-                    if (_groups.Comparer.Equals(oldKey, newKey) && _groups.TryGetValue(oldKey, out var oldGroupInfo))
+                    if (_groups.Comparer.Equals(oldKey, newKey.Value) && _groups.TryGetValue(oldKey, out var oldGroupInfo))
                     {
                         var oldItemT = (T) oldItem!;
                         oldGroupInfo.items.Remove(oldItemT);
-                        _updateGroup?.Invoke(oldGroupInfo.group, oldGroupInfo.items, CollectionGroupChangedAction.ItemRemoved, oldItemT, null);
+                        _updateGroup?.Invoke(oldKey, oldGroupInfo.group, oldGroupInfo.items, CollectionGroupChangedAction.ItemRemoved, oldItemT, null);
 
                         oldGroupInfo.items.Add(newItemT);
-                        _updateGroup?.Invoke(oldGroupInfo.group, oldGroupInfo.items, CollectionGroupChangedAction.ItemAdded, newItemT, null);
+                        _updateGroup?.Invoke(oldKey, oldGroupInfo.group, oldGroupInfo.items, CollectionGroupChangedAction.ItemAdded, newItemT, null);
                     }
                     else
                     {
-                        _keyMap.Indexes[binaryIndex].Value = newKey;
+                        _keyMap.Indexes[binaryIndex].Value = newKey.Value;
                         RemoveGroupIfNeed(decoratorManager, collection, oldKey, (T) oldItem!);
-                        AddGroupIfNeed(decoratorManager, collection, newKey, newItemT);
+                        AddGroupIfNeed(decoratorManager, collection, newKey.Value, newItemT);
                     }
                 }
+
+                return;
+            }
+
+            if (binaryIndex >= 0)
+            {
+                var oldGroup = _keyMap.Indexes[binaryIndex].Value;
+                _keyMap.RemoveAt(binaryIndex);
+                RemoveGroupIfNeed(decoratorManager, collection, oldGroup, (T) oldItem!);
             }
         }
 
@@ -292,7 +303,7 @@ namespace MugenMvvm.Collections.Components
             if (_updateGroup != null)
             {
                 foreach (var group in _groups)
-                    _updateGroup(group.Value.group, group.Value.items, CollectionGroupChangedAction.GroupRemoved, default, null);
+                    _updateGroup(group.Key, group.Value.group, group.Value.items, CollectionGroupChangedAction.GroupRemoved, default, null);
             }
 
             _groupList.Clear();
@@ -312,7 +323,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             groupInfo.items.Add(item);
-            _updateGroup?.Invoke(groupInfo.group, groupInfo.items, CollectionGroupChangedAction.ItemAdded, item, null);
+            _updateGroup?.Invoke(key, groupInfo.group, groupInfo.items, CollectionGroupChangedAction.ItemAdded, item, null);
         }
 
         private void RemoveGroupIfNeed(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, TKey key, T item)
@@ -323,7 +334,7 @@ namespace MugenMvvm.Collections.Components
             if (groupInfo.items.Count != 1)
             {
                 if (groupInfo.items.Remove(item))
-                    _updateGroup?.Invoke(groupInfo.group, groupInfo.items, CollectionGroupChangedAction.ItemRemoved, item, null);
+                    _updateGroup?.Invoke(key, groupInfo.group, groupInfo.items, CollectionGroupChangedAction.ItemRemoved, item, null);
                 return;
             }
 
@@ -332,7 +343,7 @@ namespace MugenMvvm.Collections.Components
             _groupList.RemoveAt(oldIndex);
 
             decoratorManager.OnRemoved(collection, this, groupInfo.group, oldIndex);
-            _updateGroup?.Invoke(groupInfo.group, groupInfo.items, CollectionGroupChangedAction.GroupRemoved, item, null);
+            _updateGroup?.Invoke(key, groupInfo.group, groupInfo.items, CollectionGroupChangedAction.GroupRemoved, item, null);
         }
 
         private IEnumerable<object?> Decorate(IEnumerable<object?> items)

@@ -18,6 +18,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private readonly SynchronizedObservableCollection<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private int _item;
+        private bool _hasItem;
 
         public LastTrackerCollectionDecoratorTest(Func<int, bool>? condition = null, ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
@@ -25,7 +26,11 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            var decorator = new FirstLastTrackerCollectionDecorator<int>(0, false, o => _item = o, condition);
+            var decorator = new FirstLastTrackerCollectionDecorator<int>(0, false, false, (o, hv) =>
+            {
+                _item = o;
+                _hasItem = hv;
+            }, condition);
             _collection.AddComponent(decorator);
             _tracker.Changed += Assert;
         }
@@ -34,11 +39,18 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ShouldTrackChanges1()
         {
             TestCollectionItem? item = null;
-            Action assert = () => item.ShouldEqual(_collection.OfType<TestCollectionItem>().LastOrDefault(collectionItem => collectionItem.Id % 2 == 0));
+            bool hasItem = false;
+            Action assert = () =>
+            {
+                var items = _collection.OfType<TestCollectionItem>().Where(collectionItem => collectionItem.Id % 2 == 0);
+                item.ShouldEqual(items.LastOrDefault());
+                hasItem.ShouldEqual(items.Any());
+            };
             _collection.RemoveComponent(_tracker);
-            _collection.AddComponent(new FirstLastTrackerCollectionDecorator<TestCollectionItem>(0, false, collectionItem =>
+            _collection.AddComponent(new FirstLastTrackerCollectionDecorator<TestCollectionItem>(0, false, false, (collectionItem, hv) =>
             {
                 item = collectionItem;
+                hasItem = hv;
                 assert();
             }, collectionItem => collectionItem.Id % 2 == 0));
 
@@ -80,7 +92,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
         protected override void Assert()
         {
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
-            _item.ShouldEqual(_collection.OfType<int>().LastOrDefault(_condition ?? (_ => true)));
+            var items = _collection.OfType<int>().Where(_condition ?? (_ => true));
+            _item.ShouldEqual(items.LastOrDefault());
+            _hasItem.ShouldEqual(items.Any());
         }
     }
 

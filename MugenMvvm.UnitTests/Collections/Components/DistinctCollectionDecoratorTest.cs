@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            var decorator = new DistinctCollectionDecorator<DistinctItem, int>(0, i => i.Index);
+            var decorator = new DistinctCollectionDecorator<DistinctItem?, int>(0, true, i => i?.Index ?? int.MaxValue);
             _collection.AddComponent(decorator);
             _tracker.Changed += Assert;
             _tracker.PendingChanged += AssertPending;

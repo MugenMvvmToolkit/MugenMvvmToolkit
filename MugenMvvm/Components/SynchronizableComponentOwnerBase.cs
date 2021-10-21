@@ -14,12 +14,12 @@ namespace MugenMvvm.Components
 
         protected SynchronizableComponentOwnerBase(IComponentCollectionManager? componentCollectionManager) : base(componentCollectionManager)
         {
-            _locker = new DecrementPriorityLocker();
+            _locker = PriorityLocker.GetLocker(this);
         }
 
         protected SynchronizableComponentOwnerBase(IComponentCollectionManager? componentCollectionManager, IComponentOwner<T>? owner) : base(componentCollectionManager, owner)
         {
-            _locker = new DecrementPriorityLocker();
+            _locker = PriorityLocker.GetLocker(this);
         }
 
         ILocker ISynchronizable.Locker => _locker;

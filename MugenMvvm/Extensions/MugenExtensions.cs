@@ -543,6 +543,52 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool EqualsOrDefault<T>(this IEqualityComparer<T>? comparer, T x1, T x2)
+        {
+            if (comparer == null)
+                return EqualityComparer<T>.Default.Equals(x1, x2);
+            return comparer.Equals(x1, x2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static int CompareOrDefault<T>(this IComparer<T>? comparer, T x1, T x2)
+        {
+            if (comparer == null)
+                return Comparer<T>.Default.Compare(x1, x2);
+            return comparer.Compare(x1, x2);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool TryCastNullable<T>(this object? item, out T? itemT) => item.TryCast(TypeChecker.IsNullable<T>(), out itemT);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool TryCast<T>(this object? item, bool allowNull, out T? itemT)
+        {
+            if (item == null)
+            {
+                itemT = default;
+                return allowNull;
+            }
+
+            if (item is T t)
+            {
+                itemT = t;
+                return true;
+            }
+
+            itemT = default;
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool TryCheckCast<T>(this object? item, bool allowNull)
+        {
+            if (item == null)
+                return allowNull;
+            return item is T;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object? ToString<T>(T? item)
         {
             if (TypeChecker.IsValueType<T>())

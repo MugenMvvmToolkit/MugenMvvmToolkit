@@ -30,7 +30,7 @@ namespace MugenMvvm.Components
         [MemberNotNullWhen(true, nameof(OwnerOptional))]
         protected bool IsAttached => _owner != null;
 
-        public virtual void OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is not T o)
                 return;
@@ -40,19 +40,19 @@ namespace MugenMvvm.Components
             OnAttaching(o, metadata);
         }
 
-        public virtual void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
                 OnAttached(o, metadata);
         }
 
-        public virtual void OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
                 OnDetaching(o, metadata);
         }
 
-        public virtual void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
             {
@@ -76,5 +76,13 @@ namespace MugenMvvm.Components
         protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
         }
+
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata) => OnAttaching(owner, metadata);
+
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => OnAttached(owner, metadata);
+
+        void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata) => OnDetaching(owner, metadata);
+
+        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata) => OnDetached(owner, metadata);
     }
 }

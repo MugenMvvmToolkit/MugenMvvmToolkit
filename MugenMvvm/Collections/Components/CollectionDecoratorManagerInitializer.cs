@@ -18,7 +18,7 @@ namespace MugenMvvm.Collections.Components
 
         bool IConditionComponentCollectionComponent.CanAdd(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is ICollectionDecorator or IDecoratedCollectionChangedListener)
+            if (component is ICollectionDecorator or IDecoratedCollectionChangedListener or ICollectionItemChangedListener)
             {
                 collection.RemoveComponent(this, metadata);
                 var itemType = ((IReadOnlyObservableCollection)collection.Owner).ItemType;

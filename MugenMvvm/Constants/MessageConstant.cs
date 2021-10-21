@@ -30,5 +30,7 @@
         public const string ActionDisposeNotCalledFormat3 = "Dispose method for action wasn't called, action thread id: {0}, target: {1}, {2}";
         public const string BindableMemberNotSupportedFormat1 = "The {0} member can be used only from binding expression";
         public const string SealedDecorators = "Сannot modify decorators because the collection has been marked as sealed";
+        public const string CollectionWasModifiedFormat1 = "Collection {0} was modified, operation may not execute";
+        public const string OptionalNoValue = "Optional object must have a value.'";
     }
 }

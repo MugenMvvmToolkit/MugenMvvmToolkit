@@ -131,11 +131,13 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(10)]
-        [InlineData(2)]
-        public void ConfigureDecoratorsShouldUseLatestPriority(int step)
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        [InlineData(2, true)]
+        public void ConfigureDecoratorsShouldUseLatestPriorityAllowNull(int step, bool allowNull)
         {
-            _collection.ConfigureDecorators(10).Priority.ShouldEqual(10);
+            _collection.ConfigureDecorators(allowNull, 10).Priority.ShouldEqual(10);
+            _collection.ConfigureDecorators(allowNull).AllowNull.ShouldEqual(allowNull);
             _collection.ConfigureDecorators(step: step).Step.ShouldEqual(step);
 
             _collection.ConfigureDecorators().Priority.ShouldEqual(0);
@@ -145,16 +147,18 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void CountShouldBeValid(bool withCondition)
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void CountShouldBeValid(bool withCondition, bool immutable)
         {
             const int count = 1000;
             var countValue = 0;
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -10000;
-            _collection.ConfigureDecorators<IntValue>().Count(i => countValue = i, condition);
+            _collection.ConfigureDecorators<IntValue>().Count(i => countValue = i, condition, immutable);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () => countValue.ShouldEqual(_collection.OfType<IntValue>().Count(condition!));
@@ -170,11 +174,20 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            foreach (var value in _collection.OfType<IntValue>())
+            for (int i = 0; i < count / 2; i++)
             {
-                value.Value = _random.Next(int.MinValue, int.MaxValue);
-                _collection.RaiseItemChanged(value);
+                _collection[i] = new IntValue {Value = _random.Next(int.MinValue, int.MaxValue)};
                 assert();
+            }
+
+            if (!immutable)
+            {
+                foreach (var value in _collection.OfType<IntValue>())
+                {
+                    value.Value = _random.Next(int.MinValue, int.MaxValue);
+                    _collection.RaiseItemChanged(value);
+                    assert();
+                }
             }
 
             var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = _random.Next()}));
@@ -217,7 +230,8 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null, flatten);
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null,
+                           flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -253,7 +267,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, flatten);
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -289,7 +303,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, group => group.Value, flatten: flatten);
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, group => group.Value, flatten: flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -325,7 +339,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => i % 2, i => i == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, flatten);
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -344,22 +358,37 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void MaxShouldBeValid(bool withCondition)
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void MaxShouldBeValid(bool withCondition, bool immutable)
         {
             const int count = 1000;
+            IntValue? maxValueItem = null;
             var maxValue = int.MinValue;
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value < 10000;
-            _collection.ConfigureDecorators<IntValue>().Max(i => i.Value, i => maxValue = i, maxValue, condition);
+            _collection.ConfigureDecorators<IntValue>().Max((i, v) =>
+            {
+                maxValueItem = i;
+                maxValue = v;
+            }, i => i.Value, maxValue, condition, null, immutable);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () =>
             {
-                var ints = _collection.OfType<IntValue>().Where(condition!).Select(value => value.Value);
-                maxValue.ShouldEqual(ints.Any() ? ints.Max() : int.MinValue);
+                var ints = _collection.OfType<IntValue>().Where(condition!);
+                if (!ints.Any())
+                {
+                    maxValueItem.ShouldBeNull();
+                    maxValue.ShouldEqual(int.MinValue);
+                    return;
+                }
+
+                ints.Max(value => value.Value).ShouldEqual(maxValue);
+                ints.First(value => value.Value == maxValue).ShouldEqual(maxValueItem);
             };
 
             for (var i = 1; i < count; i++)
@@ -373,11 +402,20 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            foreach (var value in _collection.OfType<IntValue>())
+            for (int i = 0; i < count / 2; i++)
             {
-                value.Value = _random.Next(int.MinValue, int.MaxValue);
-                _collection.RaiseItemChanged(value);
+                _collection[i] = new IntValue {Value = _random.Next(int.MinValue, int.MaxValue)};
                 assert();
+            }
+
+            if (!immutable)
+            {
+                foreach (var value in _collection.OfType<IntValue>())
+                {
+                    value.Value = _random.Next(int.MinValue, int.MaxValue);
+                    _collection.RaiseItemChanged(value);
+                    assert();
+                }
             }
 
             var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = _random.Next()}));
@@ -403,22 +441,37 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void MinShouldBeValid(bool withCondition)
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void MinShouldBeValid(bool withCondition, bool immutable)
         {
             const int count = 1000;
             var minValue = int.MaxValue;
+            IntValue? minValueItem = null;
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -10000;
-            _collection.ConfigureDecorators<IntValue>().Min(i => i.Value, i => minValue = i, minValue, condition);
+            _collection.ConfigureDecorators<IntValue>().Min((i, v) =>
+            {
+                minValueItem = i;
+                minValue = v;
+            }, i => i.Value, minValue, condition, null, immutable);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () =>
             {
-                var ints = _collection.OfType<IntValue>().Where(condition!).Select(value => value.Value);
-                minValue.ShouldEqual(ints.Any() ? ints.Min() : int.MaxValue);
+                var ints = _collection.OfType<IntValue>().Where(condition!);
+                if (!ints.Any())
+                {
+                    minValueItem.ShouldBeNull();
+                    minValue.ShouldEqual(int.MaxValue);
+                    return;
+                }
+
+                ints.Min(value => value.Value).ShouldEqual(minValue);
+                ints.First(value => value.Value == minValue).ShouldEqual(minValueItem);
             };
 
             for (var i = 1; i < count; i++)
@@ -432,11 +485,20 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            foreach (var value in _collection.OfType<IntValue>())
+            for (int i = 0; i < count / 2; i++)
             {
-                value.Value = _random.Next(int.MinValue, int.MaxValue);
-                _collection.RaiseItemChanged(value);
+                _collection[i] = new IntValue {Value = _random.Next(int.MinValue, int.MaxValue)};
                 assert();
+            }
+
+            if (!immutable)
+            {
+                foreach (var value in _collection.OfType<IntValue>())
+                {
+                    value.Value = _random.Next(int.MinValue, int.MaxValue);
+                    _collection.RaiseItemChanged(value);
+                    assert();
+                }
             }
 
             var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = _random.Next()}));
@@ -462,16 +524,18 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SumShouldBeValid1(bool withCondition)
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void SumShouldBeValid1(bool withCondition, bool immutable)
         {
             const int count = 1000;
             var sum = 0;
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -1000;
-            _collection.ConfigureDecorators<IntValue>().Sum(arg => arg.Value, i => sum = i, condition);
+            _collection.ConfigureDecorators<IntValue>().Sum(i => sum = i, arg => arg.Value, condition, immutable);
             if (!withCondition)
                 condition = _ => true;
 
@@ -492,11 +556,20 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            foreach (var value in _collection.OfType<IntValue>())
+            for (int i = 0; i < count / 2; i++)
             {
-                value.Value = Next();
-                _collection.RaiseItemChanged(value);
+                _collection[i] = new IntValue {Value = Next()};
                 assert();
+            }
+
+            if (!immutable)
+            {
+                foreach (var value in _collection.OfType<IntValue>())
+                {
+                    value.Value = Next();
+                    _collection.RaiseItemChanged(value);
+                    assert();
+                }
             }
 
             var values = new List<IntValue>(Enumerable.Range(0, count / 2).Select(_ => new IntValue {Value = Next()}));
@@ -522,16 +595,18 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void SumShouldBeValid2(bool withCondition)
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void SumShouldBeValid2(bool withCondition, bool immutable)
         {
             const int count = 1000;
             decimal sum = 0;
             Func<DecimalValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -1000;
-            _collection.ConfigureDecorators<DecimalValue>().Sum(arg => arg.Value, i => sum = i, condition);
+            _collection.ConfigureDecorators<DecimalValue>().Sum(i => sum = i, arg => arg.Value, condition, immutable);
             if (!withCondition)
                 condition = _ => true;
 
@@ -552,11 +627,20 @@ namespace MugenMvvm.UnitTests.Extensions
                 assert();
             }
 
-            foreach (var value in _collection.OfType<DecimalValue>())
+            for (int i = 0; i < count / 2; i++)
             {
-                value.Value = Next();
-                _collection.RaiseItemChanged(value);
+                _collection[i] = new DecimalValue {Value = Next()};
                 assert();
+            }
+
+            if (!immutable)
+            {
+                foreach (var value in _collection.OfType<DecimalValue>())
+                {
+                    value.Value = Next();
+                    _collection.RaiseItemChanged(value);
+                    assert();
+                }
             }
 
             var values = new List<DecimalValue>(Enumerable.Range(0, count / 2).Select(_ => new DecimalValue {Value = Next()}));
@@ -614,9 +698,11 @@ namespace MugenMvvm.UnitTests.Extensions
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void AllShouldBeValid(bool hasCondition)
+        [InlineData(true, false)]
+        [InlineData(true, true)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void AllShouldBeValid(bool hasCondition, bool immutable)
         {
             Func<IntValue, bool> predicate = v => !hasCondition || v.Value < 1000;
             Func<IntValue, bool> selector = v => v.Value > 0;
@@ -627,7 +713,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 _collection.OfType<IntValue>().Where(predicate).All(selector).ShouldEqual(value);
             }
 
-            _collection.ConfigureDecorators<IntValue>().All(selector, b => value = b, predicate);
+            _collection.ConfigureDecorators<IntValue>().All(b => value = b, selector, hasCondition ? predicate : null, immutable);
 
             _collection.Add(new IntValue {Value = -1});
             Assert();
@@ -647,19 +733,22 @@ namespace MugenMvvm.UnitTests.Extensions
             _collection.Add(new IntValue {Value = 1});
             Assert();
 
-            ((IntValue) _collection[0]).Value = -1;
-            ((IntValue) _collection[1]).Value = -1;
-            _collection.RaiseItemChanged(_collection[0]);
-            _collection.RaiseItemChanged(_collection[1]);
-            Assert();
+            if (!immutable)
+            {
+                ((IntValue) _collection[0]).Value = -1;
+                ((IntValue) _collection[1]).Value = -1;
+                _collection.RaiseItemChanged(_collection[0]);
+                _collection.RaiseItemChanged(_collection[1]);
+                Assert();
 
-            ((IntValue) _collection[1]).Value = 1;
-            _collection.RaiseItemChanged(_collection[1]);
-            Assert();
+                ((IntValue) _collection[1]).Value = 1;
+                _collection.RaiseItemChanged(_collection[1]);
+                Assert();
 
-            ((IntValue) _collection[0]).Value = 1;
-            _collection.RaiseItemChanged(_collection[0]);
-            Assert();
+                ((IntValue) _collection[0]).Value = 1;
+                _collection.RaiseItemChanged(_collection[0]);
+                Assert();
+            }
 
             _collection.Clear();
             Assert();
@@ -668,18 +757,17 @@ namespace MugenMvvm.UnitTests.Extensions
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void AnyShouldBeValid(bool hasCondition)
+        public void AnyShouldBeValid(bool hasSelector)
         {
-            Func<IntValue, bool> predicate = v => !hasCondition || v.Value < 1000;
-            Func<IntValue, bool> selector = v => v.Value > 0;
+            Func<IntValue, bool> selector = v => !hasSelector || v.Value > 0;
             var value = false;
 
             void Assert()
             {
-                _collection.OfType<IntValue>().Where(predicate).Any(selector).ShouldEqual(value);
+                _collection.OfType<IntValue>().Any(selector).ShouldEqual(value);
             }
 
-            _collection.ConfigureDecorators<IntValue>().Any(selector, b => value = b, predicate);
+            _collection.ConfigureDecorators<IntValue>().Any(b => value = b, hasSelector ? selector : null);
 
             _collection.Add(new IntValue {Value = -1});
             Assert();
@@ -723,12 +811,19 @@ namespace MugenMvvm.UnitTests.Extensions
         public void FirstOrDefaultShouldBeValid(bool hasCondition)
         {
             int value = 0;
+            bool hasValue = false;
             Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
-            _collection.ConfigureDecorators<int>().FirstOrDefault(i => value = i, predicate, out var token);
+            _collection.ConfigureDecorators<int>().FirstOrDefault((i, hv) =>
+            {
+                value = i;
+                hasValue = hv;
+            }, predicate, out var token);
 
             void Assert()
             {
-                _collection.DecoratedItems().OfType<int>().Where(predicate ?? (_ => true)).FirstOrDefault().ShouldEqual(value);
+                var ints = _collection.DecoratedItems().OfType<int>().Where(predicate ?? (_ => true));
+                ints.FirstOrDefault().ShouldEqual(value);
+                hasValue.ShouldEqual(ints.Any());
             }
 
             for (int i = 0; i < 100; i++)
@@ -755,12 +850,19 @@ namespace MugenMvvm.UnitTests.Extensions
         public void LastOrDefaultShouldBeValid(bool hasCondition)
         {
             int value = 0;
+            bool hasValue = false;
             Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
-            _collection.ConfigureDecorators<int>().LastOrDefault(i => value = i, predicate, out var token);
+            _collection.ConfigureDecorators<int>().LastOrDefault((i, hv) =>
+            {
+                value = i;
+                hasValue = hv;
+            }, predicate, out var token);
 
             void Assert()
             {
-                _collection.DecoratedItems().OfType<int>().Where(predicate ?? (_ => true)).LastOrDefault().ShouldEqual(value);
+                var ints = _collection.DecoratedItems().OfType<int>().Where(predicate ?? (_ => true));
+                ints.LastOrDefault().ShouldEqual(value);
+                hasValue.ShouldEqual(ints.Any());
             }
 
             for (int i = 0; i < 100; i++)

@@ -278,7 +278,7 @@ namespace MugenMvvm.Collections.Components
                 binarySearchIndex = -1;
                 return index;
             }
-            
+
             binarySearchIndex = _collectionItems.BinarySearch(index);
             var collectionIndex = binarySearchIndex < 0 ? ~binarySearchIndex : binarySearchIndex;
             for (var i = collectionIndex; i < _collectionItems.Size; i++)
@@ -287,21 +287,10 @@ namespace MugenMvvm.Collections.Components
                 entry._index += value;
                 entry.Value.Index += value;
             }
-            
+
             for (var i = 0; i < collectionIndex; i++)
                 index += _collectionItems.Indexes[i].Value.Size - 1;
             return index;
-
-            /*binarySearchIndex = _collectionItems.BinarySearch(index);
-            _collectionItems.UpdateIndexesBinary(binarySearchIndex, value);
-            int endIndex;
-            if (binarySearchIndex < 0)
-                endIndex = ~binarySearchIndex;
-            else
-                endIndex = binarySearchIndex;
-            for (var i = 0; i < endIndex; i++)
-                index += _collectionItems.Indexes[i].Value.Size - 1;
-            return index;*/
         }
 
         private void Clear()

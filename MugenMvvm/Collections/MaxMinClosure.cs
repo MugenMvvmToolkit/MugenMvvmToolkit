@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections.Components;
+using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Collections
 {
@@ -7,17 +9,17 @@ namespace MugenMvvm.Collections
     {
         private readonly TResult? _defaultValue;
         private readonly Func<T, TResult?> _selector;
-        private readonly Action<TResult?> _onChanged;
+        private readonly Action<T?, TResult?> _onChanged;
         private readonly IComparer<TResult?>? _comparer;
         private readonly bool _isMax;
         private readonly Func<T, bool>? _predicate;
         private bool _isDirty;
         private bool _isPendingReset;
         private bool _hasValue;
+        private T? _item;
         private TResult? _value;
 
-        public MaxMinClosure(TResult? defaultValue, Func<T, TResult?> selector, Action<TResult?> onChanged, IComparer<TResult?>? comparer, bool isMax,
-            Func<T, bool>? predicate = null)
+        public MaxMinClosure(TResult? defaultValue, Func<T, TResult?> selector, Action<T?, TResult?> onChanged, IComparer<TResult?>? comparer, bool isMax, Func<T, bool>? predicate)
         {
             _defaultValue = defaultValue;
             _selector = selector;
@@ -27,71 +29,69 @@ namespace MugenMvvm.Collections
             _predicate = predicate;
         }
 
-        public (TResult?, bool) OnAdded(IReadOnlyDictionary<T, ((TResult? value, bool hasValue) state, int count)> items, T item, (TResult? value, bool hasValue) state,
-            int count, bool isReset)
+        public (TResult?, bool) OnAdded(TrackerCollectionDecorator<T, (TResult? value, bool hasValue)> items, T item, (TResult? value, bool hasValue) state, int count)
         {
             if (count == 1)
-                state = GetValue(item);
-            else if (isReset)
-                return OnChanged(items, item, state, count, true, null);
+                state = Get(item);
+            else if (items.IsReset)
+                return OnChanged(items, item, state, count, null);
 
-            if (state.hasValue && CheckValue(_value, state.value))
-                SetValue(state.value!, isReset, true);
+            if (state.hasValue && Check(_value, state.value))
+                Set(item, state.value!, items.IsBatchUpdate, true);
             return state;
         }
 
-        public (TResult?, bool) OnRemoved(IReadOnlyDictionary<T, ((TResult? value, bool hasValue) state, int count)> items, T item, (TResult? value, bool hasValue) state,
-            int count, bool isReset)
+        public (TResult?, bool) OnRemoved(TrackerCollectionDecorator<T, (TResult? value, bool hasValue)> items, T item, (TResult? value, bool hasValue) state, int count)
         {
             if (count == 0)
             {
-                if (state.hasValue && Compare(_value, state.value) == 0)
-                    Reset(items, isReset);
+                if (state.hasValue && _comparer.CompareOrDefault(_value, state.value) == 0)
+                    Invalidate(items);
             }
-            else if (isReset)
-                return OnChanged(items, item, state, count, true, null);
+            else if (items.IsReset)
+                return OnChanged(items, item, state, count, null);
 
             return state;
         }
 
-        public (TResult?, bool) OnChanged(IReadOnlyDictionary<T, ((TResult? value, bool hasValue) state, int count)> items, T item, (TResult? value, bool hasValue) state,
-            int count, bool isReset, object? args)
+        public (TResult?, bool) OnChanged(TrackerCollectionDecorator<T, (TResult? value, bool hasValue)> items, T item, (TResult? value, bool hasValue) state, int count,
+            object? args)
         {
-            var newValue = GetValue(item);
+            var newValue = Get(item);
             if (newValue.hasValue == state.hasValue)
             {
-                if (Compare(state.value, newValue.value) == 0)
+                if (_comparer.CompareOrDefault(state.value, newValue.value) == 0)
                     return newValue;
 
-                if (Compare(_value, state.value) == 0)
+                if (_comparer.CompareOrDefault(_value, state.value) == 0)
                 {
-                    if (CheckValue(_value, newValue.value))
-                        SetValue(newValue.value, false, true);
+                    if (Check(_value, newValue.value))
+                        Set(item, newValue.value, false, true);
                     else
-                        Reset(items, isReset, true, item, newValue);
+                        Invalidate(items, true, item, newValue);
                 }
-                else if (CheckValue(_value, newValue.value))
-                    SetValue(newValue.value, false, true);
+                else if (Check(_value, newValue.value))
+                    Set(item, newValue.value, false, true);
 
                 return newValue;
             }
 
             if (state.hasValue)
             {
-                if (Compare(_value, state.value) == 0)
-                    Reset(items, isReset, true, item, newValue);
+                if (_comparer.CompareOrDefault(_value, state.value) == 0)
+                    Invalidate(items, true, item, newValue);
             }
 
             if (newValue.hasValue)
             {
-                if (CheckValue(_value, newValue.value))
-                    SetValue(newValue.value, false, true);
+                if (Check(_value, newValue.value))
+                    Set(item, newValue.value, false, true);
             }
 
             return newValue;
         }
 
-        public void OnReset(IReadOnlyDictionary<T, ((TResult? value, bool hasValue) state, int count)> items)
+        public void OnEndBatchUpdate(TrackerCollectionDecorator<T, (TResult? value, bool hasValue)> items)
         {
             if (_isDirty)
             {
@@ -99,61 +99,61 @@ namespace MugenMvvm.Collections
                 if (_isPendingReset)
                 {
                     _isPendingReset = false;
-                    Reset(items, false);
+                    Invalidate(items);
                 }
                 else
-                    _onChanged(_value);
+                    _onChanged(_item, _value);
             }
         }
 
-        private void SetValue(TResult? value, bool isReset, bool hasValue, bool force = false)
-        {
-            if (!force && _hasValue == hasValue && EqualityComparer<TResult?>.Default.Equals(_value, value))
-                return;
-            _hasValue = hasValue;
-            _value = value;
-            if (isReset)
-                _isDirty = true;
-            else
-                _onChanged(value);
-        }
-
-        private int Compare(TResult? current, TResult? value) => _comparer == null ? Comparer<TResult?>.Default.Compare(current, value) : _comparer.Compare(current, value);
-
-        private bool CheckValue(TResult? current, TResult? value)
+        private bool Check(TResult? current, TResult? value)
         {
             if (!_hasValue)
                 return true;
-            var compare = Compare(current, value);
+            var compare = _comparer.CompareOrDefault(current, value);
             if (_isMax)
                 return compare < 0;
             return compare > 0;
         }
 
-        private (TResult? value, bool hasValue) GetValue(T item)
+        private (TResult? value, bool hasValue) Get(T item)
         {
             if (_predicate == null || _predicate(item))
                 return (_selector(item), true);
             return default;
         }
+        
+        private void Set(T? item, TResult? value, bool isBatch, bool hasValue, bool force = false)
+        {
+            if (!force && _hasValue == hasValue && EqualityComparer<TResult?>.Default.Equals(_value, value) && EqualityComparer<T?>.Default.Equals(item, _item))
+                return;
+            _hasValue = hasValue;
+            _item = item;
+            _value = value;
+            if (isBatch)
+                _isDirty = true;
+            else
+                _onChanged(item, value);
+        }
 
-        private void Reset(IReadOnlyDictionary<T, ((TResult? value, bool hasValue) state, int count)> items, bool isReset, bool hasCurrentItem = false, T? currentItem = default,
+        private void Invalidate(TrackerCollectionDecorator<T, (TResult? value, bool hasValue)> items, bool hasCurrentItem = false, T? currentItem = default,
             (TResult? value, bool hasValue) currentValue = default)
         {
-            if (isReset)
+            if (items.IsBatchUpdate)
             {
                 _isDirty = true;
                 _isPendingReset = true;
                 return;
             }
 
-            if (items.Count == 0)
-                SetValue(_defaultValue, false, false, true);
+            if (items.ItemsRaw.Count == 0)
+                Set(default, _defaultValue, false, false, true);
             else
             {
                 var hasValue = false;
+                T? item = default;
                 var value = _defaultValue;
-                foreach (var pair in items)
+                foreach (var pair in items.ItemsRaw)
                 {
                     if (!pair.Value.state.hasValue)
                         continue;
@@ -170,16 +170,20 @@ namespace MugenMvvm.Collections
 
                     if (!hasValue)
                     {
+                        item = pair.Key;
                         value = itemValue;
                         hasValue = true;
                         continue;
                     }
 
-                    if (CheckValue(value, itemValue))
+                    if (Check(value, itemValue))
+                    {
+                        item = pair.Key;
                         value = itemValue;
+                    }
                 }
 
-                SetValue(value, false, hasValue, true);
+                Set(item, value, false, hasValue, true);
             }
         }
     }

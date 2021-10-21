@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public LimitCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
-            _decorator = new LimitCollectionDecorator<int>(0, null, i => i % 2 == 0);
+            _decorator = new LimitCollectionDecorator<int>(0, false, null, i => i % 2 == 0);
             _collection.AddComponent(_decorator);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);

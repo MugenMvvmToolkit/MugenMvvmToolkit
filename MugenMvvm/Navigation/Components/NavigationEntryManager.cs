@@ -30,7 +30,7 @@ namespace MugenMvvm.Navigation.Components
             _navigationListener = new NavigationEntryListener(this);
         }
 
-        public override void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is INavigationDispatcher navigationDispatcher)
             {
@@ -42,7 +42,7 @@ namespace MugenMvvm.Navigation.Components
             base.OnAttached(owner, metadata);
         }
 
-        public override void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is INavigationDispatcher navigationDispatcher)
             {

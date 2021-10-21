@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using static MugenMvvm.Constants.MessageConstant;
@@ -195,6 +196,14 @@ namespace MugenMvvm
         [MethodImpl(MethodImplOptions.NoInlining)]
         public static void ThrowSealedDecorators() => throw new InvalidOperationException(SealedDecorators);
 
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowCollectionWasModified(IReadOnlyObservableCollection c) => throw new InvalidOperationException(CollectionWasModifiedFormat1.Format(c));
+        
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public static void ThrowOptionalNoValue() => throw new InvalidOperationException(OptionalNoValue);
+        
 #if ANDROID || IOS
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]

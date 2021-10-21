@@ -1,42 +1,87 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using MugenMvvm.Constants;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class TrackerCollectionDecorator<T, TState> : CollectionDecoratorBase, IListenerCollectionDecorator where T : notnull
+    public sealed class TrackerCollectionDecorator<T, TState> : CollectionDecoratorBase, IListenerCollectionDecorator, ICollectionBatchUpdateListener, IReadOnlyCollection<T>,
+        IEqualityComparer<NullableKey<T>>
     {
-        private readonly Dictionary<T, (TState state, int count)> _items;
-        private readonly Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> _onAdded;
-        private readonly Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, TState> _onRemoved;
-        private readonly Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, object?, TState>? _onChanged;
-        private readonly Action<IReadOnlyDictionary<T, (TState state, int count)>>? _onReset;
-        private Dictionary<T, int>? _resetItems;
+        internal readonly Dictionary<NullableKey<T>, (TState state, int count)> ItemsRaw;
+        private readonly bool _allowNull;
+        private readonly Func<TrackerCollectionDecorator<T, TState>, T, TState?, int, TState> _onAdded;
+        private readonly Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> _onRemoved;
+        private readonly Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? _onChanged;
+        private readonly Action<TrackerCollectionDecorator<T, TState>>? _onEndBatchUpdate;
+        private readonly Func<T, bool>? _condition;
+        private readonly IEqualityComparer<T>? _comparer;
+        private Dictionary<NullableKey<T>, int>? _resetItems;
+        private bool _isBatchUpdate;
 
-        public TrackerCollectionDecorator(int priority, Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState?, int, bool, TState> onAdded,
-            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, TState> onRemoved,
-            Func<IReadOnlyDictionary<T, (TState state, int count)>, T, TState, int, bool, object?, TState>? onChanged,
-            Action<IReadOnlyDictionary<T, (TState state, int count)>>? onReset,
+        private bool _hasItem;
+        private T? _item;
+
+        public TrackerCollectionDecorator(int priority, bool allowNull, Func<TrackerCollectionDecorator<T, TState>, T, TState?, int, TState> onAdded,
+            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> onRemoved,
+            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged,
+            Action<TrackerCollectionDecorator<T, TState>>? onEndBatchUpdate, Func<T, bool>? immutableCondition = null,
             IEqualityComparer<T>? comparer = null) : base(priority)
         {
             Should.NotBeNull(onAdded, nameof(onAdded));
             Should.NotBeNull(onRemoved, nameof(onRemoved));
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _onAdded = onAdded;
             _onRemoved = onRemoved;
             _onChanged = onChanged;
-            _onReset = onReset;
-            _items = new Dictionary<T, (TState, int)>(comparer ?? EqualityComparer<T>.Default);
+            _onEndBatchUpdate = onEndBatchUpdate;
+            _condition = immutableCondition;
+            _comparer = comparer;
+            ItemsRaw = comparer == null ? new Dictionary<NullableKey<T>, (TState state, int count)>() : new Dictionary<NullableKey<T>, (TState state, int count)>(this);
         }
 
-        public IReadOnlyDictionary<T, (TState state, int count)> Items => _items;
+        public IReadOnlyDictionary<NullableKey<T>, (TState state, int count)> Items => ItemsRaw;
+
+        public bool IsBatchUpdate => IsReset || _isBatchUpdate;
+
+        public bool IsReset { get; private set; }
+
+        public int Count
+        {
+            get
+            {
+                if (_hasItem)
+                    return ItemsRaw.Count + 1;
+                return ItemsRaw.Count;
+            }
+        }
 
         protected override bool IsLazy => false;
 
         protected override bool HasAdditionalItems => false;
+
+        public bool Contains(NullableKey<T> item) => _hasItem && ItemsRaw.Comparer.Equals(_item, item) || ItemsRaw.ContainsKey(item);
+
+        public T? FirstOrDefault()
+        {
+            if (_hasItem)
+                return _item;
+            return ItemsRaw.FirstOrDefault().Key.Value;
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            if (ItemsRaw.Count == 0)
+                return _hasItem ? Default.SingleItemEnumerator(_item!) : Default.Enumerator<T>();
+            return Enumerate();
+        }
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -50,11 +95,13 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (_onChanged != null && item is T itemT && _items.TryGetValue(itemT, out var state))
+            if (_onChanged != null && IsSatisfied(item, out var itemT) && ItemsRaw.TryGetValue(itemT, out var state))
             {
-                var newState = _onChanged(_items, itemT, state.state, state.count, false, args);
+                if (IsReset)
+                    ExceptionManager.ThrowCollectionWasModified(collection);
+                var newState = _onChanged(this, itemT, state.state, state.count, args);
                 if (!EqualityComparer<TState>.Default.Equals(newState, state.state))
-                    _items[itemT] = (newState, state.count);
+                    ItemsRaw[itemT] = (newState, state.count);
             }
 
             return true;
@@ -62,29 +109,40 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            if (item is T itemT)
-                Add(itemT, false);
+            if (IsSatisfied(item, out var itemT))
+            {
+                if (IsReset)
+                    ExceptionManager.ThrowCollectionWasModified(collection);
+                Add(itemT);
+            }
+
             return true;
         }
 
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            if (oldItem is T oldItemT)
+            if (IsSatisfied(oldItem, out var oldItemT))
             {
-                if (newItem is T newItemT)
+                if (IsReset)
+                    ExceptionManager.ThrowCollectionWasModified(collection);
+                if (IsSatisfied(newItem, out var newItemT))
                 {
-                    if (_items.Comparer.Equals(oldItemT, newItemT))
+                    if (ItemsRaw.Comparer.Equals(oldItemT, newItemT))
                         return true;
-                    Add(newItemT, false);
+                    Add(newItemT);
                 }
 
                 Remove(oldItemT);
                 return true;
             }
 
-            if (newItem is T nT)
-                Add(nT, false);
+            if (IsSatisfied(newItem, out var nT))
+            {
+                if (IsReset)
+                    ExceptionManager.ThrowCollectionWasModified(collection);
+                Add(nT);
+            }
 
             return true;
         }
@@ -94,35 +152,50 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnRemoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            if (item is T itemT)
+            if (IsSatisfied(item, out var itemT))
+            {
+                if (IsReset)
+                    ExceptionManager.ThrowCollectionWasModified(collection);
                 Remove(itemT);
+            }
+
             return true;
         }
 
         protected override bool OnReset(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref IEnumerable<object?>? items)
         {
+            if (IsReset)
+                ExceptionManager.ThrowCollectionWasModified(collection);
+            IsReset = true;
+            Reset(ref items);
+            IsReset = false;
+            return true;
+        }
+
+        private void Reset(ref IEnumerable<object?>? items)
+        {
             if (items.IsNullOrEmpty())
                 Clear();
             else
             {
-                if (_items.Count == 0)
+                if (ItemsRaw.Count == 0)
                 {
                     foreach (var item in items)
                     {
-                        if (item is T itemT)
-                            Add(itemT, true);
+                        if (IsSatisfied(item, out var itemT))
+                            Add(itemT);
                     }
                 }
                 else
                 {
                     if (_resetItems == null)
-                        _resetItems = new Dictionary<T, int>(_items.Count, _items.Comparer);
+                        _resetItems = new Dictionary<NullableKey<T>, int>(ItemsRaw.Count, ItemsRaw.Comparer);
                     else
                         _resetItems.Clear();
 
                     foreach (var item in items)
                     {
-                        if (item is not T itemT)
+                        if (!IsSatisfied(item, out var itemT))
                             continue;
                         _resetItems.TryGetValue(itemT, out var c);
                         _resetItems[itemT] = c + 1;
@@ -130,26 +203,25 @@ namespace MugenMvvm.Collections.Components
 
                     foreach (var newItem in _resetItems)
                     {
-                        if (_items.TryGetValue(newItem.Key, out var state))
+                        if (ItemsRaw.TryGetValue(newItem.Key, out var state))
                         {
                             if (state.count > newItem.Value)
-                                _items[newItem.Key] = (Remove(newItem.Key, state.state, state.count, state.count - newItem.Value), newItem.Value);
+                                Remove(newItem.Key, state.state, state.count, state.count - newItem.Value);
                             else if (state.count < newItem.Value)
-                                _items[newItem.Key] = (Add(newItem.Key, state.state, state.count, newItem.Value - state.count), newItem.Value);
+                                Add(newItem.Key, state.state, state.count, newItem.Value - state.count);
                             else if (_onChanged != null)
-                                _items[newItem.Key] = (_onChanged(_items, newItem.Key, state.state, state.count, true, null), state.count);
+                                ItemsRaw[newItem.Key] = (_onChanged(this, newItem.Key.Value!, state.state, state.count, null), state.count);
                         }
                         else
-                            _items[newItem.Key] = (Add(newItem.Key, default, 0, newItem.Value), newItem.Value);
+                            Add(newItem.Key, default, 0, newItem.Value);
                     }
 
-                    foreach (var item in _items)
+                    foreach (var item in ItemsRaw)
                     {
                         if (_resetItems.ContainsKey(item.Key))
                             continue;
 
 #if NET5_0
-                        _items.Remove(item.Key);
                         Remove(item.Key, item.Value.state, item.Value.count, item.Value.count);
 #else
                         _resetItems[item.Key] = -1;
@@ -159,77 +231,122 @@ namespace MugenMvvm.Collections.Components
 #if !NET5_0
                     foreach (var item in _resetItems)
                     {
-                        if (item.Value == -1 && _items.Remove(item.Key, out var state))
+                        if (item.Value == -1 && ItemsRaw.TryGetValue(item.Key, out var state))
                             Remove(item.Key, state.state, state.count, state.count);
                     }
 #endif
                     _resetItems.Clear();
                 }
 
-                _onReset?.Invoke(_items);
+                if (!_isBatchUpdate)
+                    _onEndBatchUpdate?.Invoke(this);
             }
-
-            return true;
-        }
-
-        private void Add(T item, bool isReset)
-        {
-            _items.TryGetValue(item, out var state);
-            _items[item] = (_onAdded(_items, item, state.state, state.count + 1, isReset), state.count + 1);
-        }
-
-        private void Remove(T item)
-        {
-            var state = _items[item];
-            var count = state.count - 1;
-            if (count == 0)
-            {
-                _items.Remove(item);
-                _onRemoved(_items, item, state.state, 0, false);
-            }
-            else
-                _items[item] = (_onRemoved(_items, item, state.state, count, false), count);
         }
 
         private void Clear()
         {
-            if (_items.Count == 0)
+            if (ItemsRaw.Count == 0)
                 return;
 
 #if NET5_0
-            foreach (var item in _items)
-            {
-                _items.Remove(item.Key);
+            foreach (var item in ItemsRaw)
                 Remove(item.Key, item.Value.state, item.Value.count, item.Value.count);
-            }
 #else
-            _resetItems ??= new Dictionary<T, int>(_items.Count, _items.Comparer);
-            foreach (var item in _items)
+            _resetItems ??= new Dictionary<NullableKey<T>, int>(ItemsRaw.Count, ItemsRaw.Comparer);
+            foreach (var item in ItemsRaw)
                 _resetItems[item.Key] = 0;
 
             foreach (var item in _resetItems)
             {
-                if (_items.Remove(item.Key, out var state))
+                if (ItemsRaw.TryGetValue(item.Key, out var state))
                     Remove(item.Key, state.state, state.count, state.count);
             }
 
             _resetItems.Clear();
 #endif
-            _onReset?.Invoke(_items);
+            if (!_isBatchUpdate)
+                _onEndBatchUpdate?.Invoke(this);
         }
 
-        private TState Add(T item, TState? state, int count, int addCount)
+        private void Add(NullableKey<T> item, TState? state, int count, int addCount)
         {
             for (var i = 0; i < addCount; i++)
-                state = _onAdded(_items, item, state, count + i + 1, true);
-            return state!;
+            {
+                var currentCount = count + i + 1;
+                _hasItem = currentCount == 1;
+                _item = item.Value!;
+                state = _onAdded(this, _item, state, currentCount);
+                ItemsRaw[item] = (state, currentCount);
+                _hasItem = false;
+                _item = default;
+            }
         }
 
-        private TState Remove(T item, TState state, int count, int removeCount)
+        private void Add(T item)
+        {
+            _hasItem = !ItemsRaw.TryGetValue(item, out var state);
+            _item = item;
+            ItemsRaw[item] = (_onAdded(this, item, state.state, state.count + 1), state.count + 1);
+            _hasItem = false;
+            _item = default;
+        }
+
+        private void Remove(T item)
+        {
+            var state = ItemsRaw[item];
+            var count = state.count - 1;
+            if (count == 0)
+            {
+                ItemsRaw.Remove(item);
+                _onRemoved(this, item, state.state, 0);
+            }
+            else
+                ItemsRaw[item] = (_onRemoved(this, item, state.state, count), count);
+        }
+
+        private void Remove(NullableKey<T> item, TState state, int count, int removeCount)
         {
             for (var i = 0; i < removeCount; i++)
-                state = _onRemoved(_items, item, state, count - i - 1, true);
-            return state;
+            {
+                var currentCount = count - i - 1;
+                if (currentCount == 0)
+                    ItemsRaw.Remove(item);
+                state = _onRemoved(this, item.Value!, state, currentCount);
+                if (currentCount != 0)
+                    ItemsRaw[item] = (state, currentCount);
+            }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsSatisfied(object? item, [NotNullWhen(true)] out T? result) => item.TryCast(_allowNull, out result!) && (_condition == null || _condition(result));
+
+        private IEnumerator<T> Enumerate()
+        {
+            if (_hasItem)
+                yield return _item!;
+            foreach (var item in ItemsRaw)
+                yield return item.Key.Value!;
+        }
+
+        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (batchUpdateType == BatchUpdateType.Decorators)
+                _isBatchUpdate = true;
+        }
+
+        void ICollectionBatchUpdateListener.OnEndBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
+        {
+            if (batchUpdateType == BatchUpdateType.Decorators && _isBatchUpdate)
+            {
+                _isBatchUpdate = false;
+                _onEndBatchUpdate?.Invoke(this);
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        bool IEqualityComparer<NullableKey<T>>.Equals(NullableKey<T> x, NullableKey<T> y) => _comparer!.Equals(x.Value!, y.Value!);
+
+        int IEqualityComparer<NullableKey<T>>.GetHashCode(NullableKey<T> obj) => _comparer!.GetHashCode(obj.Value!);
     }
 }

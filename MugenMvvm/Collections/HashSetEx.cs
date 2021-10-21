@@ -4,8 +4,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    internal sealed class HashSetEx<T> : Dictionary<T, int>, IReadOnlyCollection<T> where T : notnull
+#pragma warning disable 8714
+    internal sealed class HashSetEx<T> : Dictionary<T, int>, IReadOnlyCollection<T>
+#pragma warning restore 8714
     {
+        private int _nullCount;
+
         public HashSetEx() : base(InternalEqualityComparer.GetReferenceComparer<T>())
         {
         }
@@ -16,13 +20,29 @@ namespace MugenMvvm.Collections
 
         public void Add(T item)
         {
-            TryGetValue(item, out var i);
-            this[item] = i + 1;
+            if (item == null)
+                _nullCount++;
+            else
+            {
+                TryGetValue(item, out var i);
+                this[item] = i + 1;
+            }
+
             ++Count;
         }
 
         public new bool Remove(T item)
         {
+            if (item == null)
+            {
+                if (_nullCount == 0)
+                    return false;
+
+                --_nullCount;
+                --Count;
+                return true;
+            }
+
             if (!TryGetValue(item, out var i))
                 return false;
             if (i == 1)
@@ -37,9 +57,15 @@ namespace MugenMvvm.Collections
         {
             base.Clear();
             Count = 0;
+            _nullCount = 0;
         }
 
-        public bool Contains(T item) => ContainsKey(item);
+        public bool Contains(T item)
+        {
+            if (item == null)
+                return _nullCount > 0;
+            return ContainsKey(item);
+        }
 
         private IEnumerator<T> GetEnumeratorInternal()
         {
@@ -48,6 +74,9 @@ namespace MugenMvvm.Collections
                 for (var i = 0; i < pair.Value; i++)
                     yield return pair.Key;
             }
+
+            for (int i = 0; i < _nullCount; i++)
+                yield return default!;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumeratorInternal();

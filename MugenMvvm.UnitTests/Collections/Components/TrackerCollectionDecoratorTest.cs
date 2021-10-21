@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTests.Collections.Internal;
 using Should;
 using Xunit;
@@ -27,30 +28,37 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var tracker = new DecoratedCollectionChangeTracker<object>();
             tracker.Changed += Assert;
             _collection.AddComponent(tracker);
-            _collection.AddComponent(new TrackerCollectionDecorator<int, int>(0, (items, item, state, count, isReset) =>
+            _collection.AddComponent(new TrackerCollectionDecorator<int, int>(0, false, (items, item, state, count) =>
             {
                 if (_isReset.HasValue)
-                    _isReset.Value.ShouldEqual(isReset);
-                AssertItems(_items, items, item, false, false);
+                    _isReset.Value.ShouldEqual(items.IsReset);
+                AssertItems(_items, items.Items, item, false, false);
                 state.ShouldEqual(count - 1);
                 _sum += item;
                 _items[item] = count;
+                items.ShouldEqualUnordered(_items.Keys);
                 return count;
-            }, (items, item, state, count, isReset) =>
+            }, (items, item, state, count) =>
             {
                 if (_isReset.HasValue)
-                    _isReset.Value.ShouldEqual(isReset);
-                AssertItems(_items, items, item, count == 0, false);
+                    _isReset.Value.ShouldEqual(items.IsReset);
+                AssertItems(_items, items.Items, item, count == 0, false);
                 state.ShouldEqual(count + 1);
                 _sum -= item;
                 if (count == 0)
                     _items.Remove(item);
                 else
                     _items[item] = count;
+                items.ShouldEqualUnordered(_items.Keys);
                 return count;
-            }, null, items =>
+            }, (items, _, _, count, _) =>
             {
-                AssertItems(_items, items);
+                items.ShouldEqualUnordered(_items.Keys);
+                return count;
+            }, items =>
+            {
+                AssertItems(_items, items.Items);
+                items.ShouldEqualUnordered(_items.Keys);
                 ++_resetCount;
             }));
         }
@@ -65,30 +73,30 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var collection = new SynchronizedObservableCollection<ChangeModel>(ComponentCollectionManager);
             var tracker = new DecoratedCollectionChangeTracker<object>();
             collection.AddComponent(tracker);
-            collection.AddComponent(new TrackerCollectionDecorator<ChangeModel, int>(0, (items, item, state, count, isReset) =>
+            collection.AddComponent(new TrackerCollectionDecorator<ChangeModel, int>(0, false, (items, item, state, count) =>
             {
-                isReset.ShouldBeFalse();
-                AssertItems(trackedItems, items, item, false, false);
+                items.IsReset.ShouldBeFalse();
+                AssertItems(trackedItems, items.Items, item, false, false);
                 var value = count == 1 ? item.Value : state;
                 _sum += value;
                 trackedItems[item] = count;
                 return value;
-            }, (items, item, state, count, isReset) =>
+            }, (items, item, state, count) =>
             {
-                isReset.ShouldBeFalse();
-                AssertItems(trackedItems, items, item, count == 0, false);
+                items.IsReset.ShouldBeFalse();
+                AssertItems(trackedItems, items.Items, item, count == 0, false);
                 _sum -= state;
                 if (count == 0)
                     trackedItems.Remove(item);
                 else
                     trackedItems[item] = count;
                 return state;
-            }, (items, item, state, count, isReset, args) =>
+            }, (items, item, state, count, args) =>
             {
-                isReset.ShouldBeFalse();
-                AssertItems(trackedItems, items, item, false, true);
+                items.IsReset.ShouldBeFalse();
+                AssertItems(trackedItems, items.Items, item, false, true);
                 args.ShouldEqual(this);
-                count.ShouldEqual(items[item].count);
+                count.ShouldEqual(items.Items[item].count);
                 var value = item.Value;
                 if (state != value)
                 {
@@ -175,7 +183,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _items.Count.ShouldEqual(count);
         }
 
-        private static void AssertItems<T>(Dictionary<T, int> currentItems, IReadOnlyDictionary<T, (int, int count)> items, T current, bool isRemove, bool isChange)
+        private static void AssertItems<T>(Dictionary<T, int> currentItems, IReadOnlyDictionary<NullableKey<T>, (int, int count)> items, T current, bool isRemove, bool isChange)
             where T : notnull
         {
             if (isRemove)
@@ -191,7 +199,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        private static void AssertItems<T>(Dictionary<T, int> currentItems, IReadOnlyDictionary<T, (int, int count)> items) where T : notnull
+        private static void AssertItems<T>(Dictionary<T, int> currentItems, IReadOnlyDictionary<NullableKey<T>, (int, int count)> items) where T : notnull
         {
             currentItems.Count.ShouldEqual(items.Count);
             foreach (var item in currentItems)

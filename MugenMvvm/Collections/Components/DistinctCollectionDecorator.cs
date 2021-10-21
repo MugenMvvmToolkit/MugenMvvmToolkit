@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 // ReSharper disable PossibleMultipleEnumeration
@@ -14,21 +16,26 @@ namespace MugenMvvm.Collections.Components
 {
     public sealed class DistinctCollectionDecorator<T, TKey> : CollectionDecoratorBase where TKey : notnull
     {
-        private readonly Func<T, TKey> _getKey;
+        private readonly bool _allowNull;
+        private readonly Func<T, Optional<TKey>> _getKey;
         private readonly Dictionary<TKey, DistinctGroup> _keyMap;
         private readonly ICollectionDecorator _filterDecorator;
         private IndexMapAwareList<DistinctItem> _indexMap;
+        private int? _addingIndex;
+        private int? _replacingIndex;
+        private object? _replacingItem;
 #if !NET5_0
         private List<TKey>? _resetCache;
 #endif
 
-        public DistinctCollectionDecorator(int priority, Func<T, TKey> getKey, IEqualityComparer<TKey>? comparer = null) : base(priority)
+        public DistinctCollectionDecorator(int priority, bool allowNull, Func<T, Optional<TKey>> getKey, IEqualityComparer<TKey>? comparer = null) : base(priority)
         {
             Should.NotBeNull(getKey, nameof(getKey));
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _getKey = getKey;
             _indexMap = IndexMapAwareList<DistinctItem>.Get();
             _keyMap = comparer == null ? new Dictionary<TKey, DistinctGroup>() : new Dictionary<TKey, DistinctGroup>(comparer);
-            _filterDecorator = new FilterCollectionDecorator<T>(priority - 1, Filter);
+            _filterDecorator = new FilterCollectionDecorator<T>(priority - 1, allowNull, Filter);
         }
 
         protected override bool HasAdditionalItems => false;
@@ -46,18 +53,19 @@ namespace MugenMvvm.Collections.Components
         }
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
-            IEnumerable<object?> items) => items;
+            IEnumerable<object?> items) => _addingIndex == null && _replacingIndex == null ? items : DecorateImpl(items);
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (item is not T itemT)
+            if (!IsSatisfied(item, out var itemT))
                 return true;
 
-            var key = _getKey(itemT);
             var binaryIndex = _indexMap.BinarySearch(index);
-            if (!_keyMap.Comparer.Equals(_indexMap.Indexes[binaryIndex].Value.Key, key))
-                Replace(decoratorManager, collection, item, index, binaryIndex, true, key);
+            var oldKey = binaryIndex < 0 ? default : _indexMap.Indexes[binaryIndex].Value.Key;
+            var newKey = _getKey(itemT);
+            if (binaryIndex >= 0 != newKey.HasNonNullValue || !_keyMap.Comparer.Equals(oldKey!, newKey.GetValueOrDefault()!))
+                Replace(decoratorManager, collection, item, index, binaryIndex, true, newKey);
 
             return true;
         }
@@ -66,25 +74,30 @@ namespace MugenMvvm.Collections.Components
         {
             var binaryIndex = _indexMap.BinarySearch(index);
             UpdateIndexesBinary(binaryIndex, 1);
-            if (item is not T itemT)
+            if (!IsSatisfied(item, out var itemT))
                 return true;
 
             var key = _getKey(itemT);
-            var newDistinctItem = new DistinctItem(item, key);
+            if (!key.HasNonNullValue)
+                return true;
+
+            var newDistinctItem = new DistinctItem(item, key.Value);
             _indexMap.Add(index, newDistinctItem, binaryIndex);
-            if (!_keyMap.TryGetValue(key, out var distinctInfo))
+            if (!_keyMap.TryGetValue(key.Value, out var distinctInfo))
             {
-                _keyMap[key] = new DistinctGroup(newDistinctItem, newDistinctItem);
+                _keyMap[key.Value] = new DistinctGroup(newDistinctItem, newDistinctItem);
                 return true;
             }
 
             if (index <= distinctInfo.Current.Index)
             {
-                _keyMap[key] = distinctInfo.Add(newDistinctItem, newDistinctItem);
+                _addingIndex = index;
+                _keyMap[key.Value] = distinctInfo.Add(newDistinctItem, newDistinctItem);
                 decoratorManager.OnChanged(collection, this, distinctInfo.Current.Item, distinctInfo.Current.Index - 1, CollectionMetadata.FalseFilterArgs);
+                _addingIndex = null;
             }
             else
-                _keyMap[key] = distinctInfo.Add(newDistinctItem, null);
+                _keyMap[key.Value] = distinctInfo.Add(newDistinctItem, null);
 
             return true;
         }
@@ -92,21 +105,17 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnReplaced(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? oldItem,
             ref object? newItem, ref int index)
         {
-            bool hasNewItemT;
-            var hasOldItemT = oldItem is T;
-
-            if (newItem is T newItemT)
-                hasNewItemT = true;
-            else
-            {
-                newItemT = default!;
-                hasNewItemT = false;
-            }
+            var hasOldItemT = IsSatisfied(oldItem, out _);
+            var hasNewItemT = IsSatisfied(newItem, out var newItemT);
 
             if (!hasOldItemT && !hasNewItemT)
                 return true;
 
-            Replace(decoratorManager, collection, newItem, index, _indexMap.BinarySearch(index), hasNewItemT, hasNewItemT ? _getKey(newItemT) : default!);
+            _replacingIndex = index;
+            _replacingItem = oldItem;
+            Replace(decoratorManager, collection, newItem, index, _indexMap.BinarySearch(index), hasNewItemT, hasNewItemT ? _getKey(newItemT!) : default);
+            _replacingIndex = null;
+            _replacingItem = null;
             return true;
         }
 
@@ -207,20 +216,23 @@ namespace MugenMvvm.Collections.Components
                 var index = 0;
                 foreach (var item in items)
                 {
-                    if (item is T itemT)
+                    if (IsSatisfied(item, out var itemT))
                     {
                         var key = _getKey(itemT);
-                        var distinctItem = new DistinctItem(item, key);
-                        _indexMap.AddRaw(index, distinctItem);
-                        if (_keyMap.TryGetValue(key, out var group))
+                        if (key.HasNonNullValue)
                         {
-                            if (group.Count == 0)
-                                _keyMap[key] = group.Add(distinctItem, distinctItem);
+                            var distinctItem = new DistinctItem(item, key.Value);
+                            _indexMap.AddRaw(index, distinctItem);
+                            if (_keyMap.TryGetValue(key.Value, out var group))
+                            {
+                                if (group.Count == 0)
+                                    _keyMap[key.Value] = group.Add(distinctItem, distinctItem);
+                                else
+                                    _keyMap[key.Value] = group.Add(distinctItem, null);
+                            }
                             else
-                                _keyMap[key] = group.Add(distinctItem, null);
+                                _keyMap[key.Value] = new DistinctGroup(distinctItem, distinctItem);
                         }
-                        else
-                            _keyMap[key] = new DistinctGroup(distinctItem, distinctItem);
                     }
 
                     ++index;
@@ -255,7 +267,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         private void Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? newItem, int index, int binaryIndex,
-            bool hasNewItemT, TKey key)
+            bool hasNewItemT, Optional<TKey> key)
         {
             if (binaryIndex >= 0)
             {
@@ -277,28 +289,48 @@ namespace MugenMvvm.Collections.Components
                 }
             }
 
-            if (hasNewItemT)
+            if (hasNewItemT && key.HasNonNullValue)
             {
-                var newDistinctItem = new DistinctItem(newItem, key);
+                var newDistinctItem = new DistinctItem(newItem, key.Value);
                 if (binaryIndex >= 0)
                     _indexMap.Indexes[binaryIndex] = new IndexMapAwareList<DistinctItem>.Entry(index, newDistinctItem);
                 else
                     _indexMap.Add(index, newDistinctItem, binaryIndex);
-                if (!_keyMap.TryGetValue(key, out var distinctInfo))
+                if (!_keyMap.TryGetValue(key.Value, out var distinctInfo))
                 {
-                    _keyMap[key] = new DistinctGroup(newDistinctItem, newDistinctItem);
+                    _keyMap[key.Value] = new DistinctGroup(newDistinctItem, newDistinctItem);
                     return;
                 }
 
                 if (index <= distinctInfo.Current.Index)
                 {
-                    _keyMap[key] = distinctInfo.Add(newDistinctItem, newDistinctItem);
+                    _keyMap[key.Value] = distinctInfo.Add(newDistinctItem, newDistinctItem);
                     decoratorManager.OnChanged(collection, this, distinctInfo.Current.Item, distinctInfo.Current.Index, CollectionMetadata.FalseFilterArgs);
                 }
                 else
-                    _keyMap[key] = distinctInfo.Add(newDistinctItem, null);
+                    _keyMap[key.Value] = distinctInfo.Add(newDistinctItem, null);
             }
         }
+
+        private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items)
+        {
+            int index = 0;
+            foreach (var item in items)
+            {
+                if (index != _addingIndex)
+                {
+                    if (index == _replacingIndex)
+                        yield return _replacingItem;
+                    else
+                        yield return item;
+                }
+
+                ++index;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool IsSatisfied(object? item, [NotNullWhen(true)] out T? itemT) => item.TryCast(_allowNull, out itemT);
 
         private void UpdateIndexesBinary(int binarySearchIndex, int value)
         {

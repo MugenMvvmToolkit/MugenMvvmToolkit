@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Collections.Components;
 
 namespace MugenMvvm.Collections
 {
@@ -24,32 +25,30 @@ namespace MugenMvvm.Collections
             _predicate = predicate;
         }
 
-        public (TResult, bool) OnAdded(IReadOnlyDictionary<T, ((TResult value, bool hasValue) state, int count)> items, T item, (TResult? value, bool hasValue) state,
-            int count, bool isReset)
+        public (TResult, bool) OnAdded(TrackerCollectionDecorator<T, (TResult value, bool hasValue)> items, T item, (TResult? value, bool hasValue) state, int count)
         {
             if (count == 1)
                 state = GetValue(item);
-            else if (isReset)
-                state = OnChanged(items, item, state!, count - 1, true, null);
+            else if (items.IsReset)
+                state = OnChanged(items, item, state!, count - 1, null);
 
             if (state.hasValue)
-                SetValue(_add(_seed, state.value!), isReset);
+                Set(_add(_seed, state.value!), items.IsBatchUpdate);
             return state!;
         }
 
-        public (TResult, bool) OnRemoved(IReadOnlyDictionary<T, ((TResult value, bool hasValue) state, int count)> items, T item, (TResult value, bool hasValue) state, int count,
-            bool isReset)
+        public (TResult, bool) OnRemoved(TrackerCollectionDecorator<T, (TResult value, bool hasValue)> items, T item, (TResult value, bool hasValue) state, int count)
         {
-            if (count != 0 && isReset)
-                state = OnChanged(items, item, state, count + 1, isReset, null);
+            if (count != 0 && items.IsReset)
+                state = OnChanged(items, item, state, count + 1, null);
 
             if (state.hasValue)
-                SetValue(_remove(_seed, state.value), isReset);
+                Set(_remove(_seed, state.value), items.IsBatchUpdate);
             return state;
         }
 
-        public (TResult, bool) OnChanged(IReadOnlyDictionary<T, ((TResult value, bool hasValue) state, int count)> items, T item, (TResult value, bool hasValue) state,
-            int count, bool isReset, object? args)
+        public (TResult, bool) OnChanged(TrackerCollectionDecorator<T, (TResult value, bool hasValue)> items, T item, (TResult value, bool hasValue) state, int count,
+            object? args)
         {
             var newValue = GetValue(item);
             if (newValue.hasValue != state.hasValue || !EqualityComparer<TResult>.Default.Equals(newValue.value, state.value))
@@ -63,13 +62,13 @@ namespace MugenMvvm.Collections
                         seed = _add(seed, newValue.value);
                 }
 
-                SetValue(seed, isReset);
+                Set(seed, items.IsBatchUpdate);
             }
 
             return newValue;
         }
 
-        public void OnReset(IReadOnlyDictionary<T, ((TResult value, bool hasValue) state, int count)> items)
+        public void OnEndBatchUpdate(TrackerCollectionDecorator<T, (TResult value, bool hasValue)> items)
         {
             if (_isDirty)
             {
@@ -78,12 +77,12 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private void SetValue(TResult value, bool isReset)
+        private void Set(TResult value, bool isBatch)
         {
             if (EqualityComparer<TResult>.Default.Equals(_seed, value))
                 return;
             _seed = value;
-            if (isReset)
+            if (isBatch)
                 _isDirty = true;
             else
                 _onChanged(value);

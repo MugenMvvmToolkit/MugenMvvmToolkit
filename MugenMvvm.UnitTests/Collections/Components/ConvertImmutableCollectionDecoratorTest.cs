@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, o => "Item: " + o);
+            _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, true, o => "Item: " + o);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -49,13 +49,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void IndexOfShouldBeValid()
         {
             _collection.RemoveComponent(_decorator);
-            _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, o =>
+            _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, true, o =>
             {
                 if (o is int)
                     return "Item: " + o;
                 return o;
             });
-            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(0, o => "Item: " + o);
+            ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(0, false, o => "Item: " + o);
             _collection.AddComponent(decorator);
             _collection.Add("Test1");
             _collection.Add(1);

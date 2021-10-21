@@ -24,6 +24,13 @@ namespace MugenMvvm.Extensions.Components
                 c.OnEndBatchUpdate(collection, batchUpdateType);
         }
 
+        public static void OnChanged(this ItemOrArray<ICollectionItemChangedListener> listeners, IReadOnlyObservableCollection collection, object? item, object? args)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            foreach (var c in listeners)
+                c.OnChanged(collection, item, args);
+        }
+
         public static bool CanAdd<T>(this ItemOrArray<IConditionCollectionComponent<T>> components, IReadOnlyObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(collection, nameof(collection));

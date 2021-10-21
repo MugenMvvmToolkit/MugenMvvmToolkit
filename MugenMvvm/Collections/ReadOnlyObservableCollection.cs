@@ -75,8 +75,8 @@ namespace MugenMvvm.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        private sealed class Listener : ICollectionChangedListener<T>, ICollectionBatchUpdateListener, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent,
-            ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
+        private sealed class Listener : ICollectionChangedListener<T>, ICollectionItemChangedListener, ICollectionBatchUpdateListener,
+            IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
         {
             private readonly bool _isWeak;
             private object? _target;
@@ -105,6 +105,8 @@ namespace MugenMvvm.Collections
                 var target = TryGetTarget(collection);
                 target?.GetBatchUpdateManager().EndBatchUpdate(target, batchUpdateType);
             }
+
+            public void OnChanged(IReadOnlyObservableCollection collection, object? item, object? args) => TryGetTarget(collection)?.RaiseItemChanged(item, args);
 
             public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index)
             {

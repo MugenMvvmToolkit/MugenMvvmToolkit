@@ -6,22 +6,25 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class LimitCollectionDecorator<T> : CollectionDecoratorBase where T : notnull
+    public sealed class LimitCollectionDecorator<T> : CollectionDecoratorBase
     {
         private IndexMapList<object?> _items;
+        private readonly bool _allowNull;
         private Func<T, bool>? _condition;
         private int? _limit;
         private bool _isAdding;
         private bool _isRemoving;
 
-        public LimitCollectionDecorator(int priority, int? limit = null, Func<T, bool>? condition = null) : base(priority)
+        public LimitCollectionDecorator(int priority, bool allowNull, int? limit = null, Func<T, bool>? condition = null) : base(priority)
         {
             _items = IndexMapList<object?>.Get();
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _condition = condition;
             _limit = limit;
             Priority = priority;
@@ -400,11 +403,6 @@ namespace MugenMvvm.Collections.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsSatisfied(object? item)
-        {
-            if (_condition == null)
-                return item is T;
-            return item is T t && _condition(t);
-        }
+        private bool IsSatisfied(object? item) => item.TryCast<T>(_allowNull, out var itemT) && (_condition == null || _condition(itemT!));
     }
 }
