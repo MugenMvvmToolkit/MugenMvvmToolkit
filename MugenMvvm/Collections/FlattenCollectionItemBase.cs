@@ -42,6 +42,8 @@ namespace MugenMvvm.Collections
 
         public int Priority => CollectionComponentPriority.BindableAdapter;
 
+        public FlattenItemInfo ToFlattenItemInfo() => new(Collection, this is FlattenDecoratedCollectionItem);
+
         public virtual void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
             if (!_initialized)

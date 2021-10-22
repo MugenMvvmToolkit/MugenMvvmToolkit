@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct FlattenItemInfo
+    public readonly struct FlattenItemInfo : IEquatable<FlattenItemInfo>
     {
-        internal readonly IEnumerable? Items;
-        internal readonly bool DecoratedItems;
+        public readonly IEnumerable? Items;
+        public readonly bool DecoratedItems;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FlattenItemInfo(IEnumerable? items, bool decoratedItems)
@@ -24,10 +22,7 @@ namespace MugenMvvm.Collections
         }
 
         [MemberNotNullWhen(false, nameof(Items))]
-        internal bool IsEmpty => Items == null;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal IEnumerable<object?> GetItems() => DecoratedItems ? Items!.DecoratedItems() : Items!.AsEnumerable();
+        public bool IsEmpty => Items == null;
 
         internal FlattenCollectionItemBase GetCollectionItem(object? item, FlattenCollectionDecorator decorator)
         {
@@ -38,8 +33,29 @@ namespace MugenMvvm.Collections
             if (Items is not IReadOnlyObservableCollection observableCollection || !observableCollection.ItemType.IsValueType)
                 return new FlattenCollectionItem<object?>().Initialize(item, Items!, decorator, isWeak);
 
-            return ((FlattenCollectionItemBase)Activator
+            return ((FlattenCollectionItemBase) Activator
                 .CreateInstance(typeof(FlattenCollectionItem<>).MakeGenericType(observableCollection.ItemType))!).Initialize(item, Items!, decorator, isWeak);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(FlattenItemInfo other) => ReferenceEquals(Items, other.Items) && DecoratedItems == other.DecoratedItems;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object? obj) => obj is FlattenItemInfo other && Equals(other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((Items != null ? RuntimeHelpers.GetHashCode(Items) : 0) * 397) ^ DecoratedItems.GetHashCode();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(FlattenItemInfo left, FlattenItemInfo right) => left.Equals(right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(FlattenItemInfo left, FlattenItemInfo right) => !left.Equals(right);
     }
 }

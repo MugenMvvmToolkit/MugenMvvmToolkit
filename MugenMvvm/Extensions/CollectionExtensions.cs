@@ -279,11 +279,12 @@ namespace MugenMvvm.Extensions
             return configuration.SelectMany(decoratedItems ? selector.SelectManyDecorated : selector.SelectMany, cleanup, out decorator);
         }
 
-        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector,
+        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo, FlattenItemInfo> selector,
             Action<T, IEnumerable?>? cleanup = null) where T : class? =>
             configuration.SelectMany(selector, cleanup, out _);
 
-        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector, Action<T, IEnumerable?>? cleanup,
+        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo, FlattenItemInfo> selector,
+            Action<T, IEnumerable?>? cleanup,
             out FlattenCollectionDecorator<T> decorator) where T : class?
         {
             decorator = new FlattenCollectionDecorator<T>(configuration.Priority, configuration.AllowNull, selector, cleanup);
@@ -1158,28 +1159,28 @@ namespace MugenMvvm.Extensions
 
             return configuration.For<TGroup>()
                                 .SelectMany(flattenDecoratedItems
-                                    ? group => new FlattenItemInfo((group as ICollectionGroup<T>)?.Items, true)
-                                    : group => new FlattenItemInfo((group as ICollectionGroup<T>)?.Items, false))
+                                    ? (group, _) => new FlattenItemInfo((group as ICollectionGroup<T>)?.Items, true)
+                                    : (group, _) => new FlattenItemInfo((group as ICollectionGroup<T>)?.Items, false))
                                 .For<T>();
         }
 
-        private static FlattenItemInfo FlattenDecorated(this IEnumerable enumerable, IEnumerable value)
+        private static FlattenItemInfo FlattenDecorated(this IEnumerable enumerable, IEnumerable value, FlattenItemInfo itemInfo)
         {
             if (ReferenceEquals(enumerable, value))
                 return new FlattenItemInfo(enumerable, true);
             return default;
         }
 
-        private static FlattenItemInfo Flatten(this IEnumerable enumerable, IEnumerable value)
+        private static FlattenItemInfo Flatten(this IEnumerable enumerable, IEnumerable value, FlattenItemInfo itemInfo)
         {
             if (ReferenceEquals(enumerable, value))
                 return new FlattenItemInfo(enumerable, false);
             return default;
         }
 
-        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable?> selector, T item) => new(selector(item), true);
+        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo itemInfo) => new(selector(item), true);
 
-        private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable?> selector, T item) => new(selector(item), false);
+        private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo itemInfo) => new(selector(item), false);
 
         private static (int total, int count) AllSelector<T>(this Func<T, bool> selector, T item) => (1, selector(item) ? 1 : 0);
 
