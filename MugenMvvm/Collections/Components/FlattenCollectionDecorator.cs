@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Extensions;
@@ -37,21 +38,27 @@ namespace MugenMvvm.Collections.Components
 
         internal abstract int GetIndex(int originalIndex);
 
+        internal abstract void OnDetached(FlattenCollectionItemBase item);
+
         internal abstract IEnumerable<object?> Decorate(IEnumerable<object?> items);
     }
 
     public sealed class FlattenCollectionDecorator<T> : FlattenCollectionDecorator, ILockerChangedListener<IReadOnlyObservableCollection>
-        where T : class
+        where T : class?
     {
         private readonly Func<T, FlattenItemInfo> _getNestedCollection;
+        private readonly Action<T, IEnumerable?>? _cleanup;
         private IndexMapAwareList<FlattenCollectionItemBase> _collectionItems;
         private Dictionary<object, object?>? _resetCache;
+        private readonly bool _allowNull;
 
-        public FlattenCollectionDecorator(int priority, Func<T, FlattenItemInfo> getNestedCollection)
+        public FlattenCollectionDecorator(int priority, bool allowNull, Func<T, FlattenItemInfo> getNestedCollection, Action<T, IEnumerable?>? cleanup)
             : base(priority)
         {
             Should.NotBeNull(getNestedCollection, nameof(getNestedCollection));
+            _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _getNestedCollection = getNestedCollection;
+            _cleanup = cleanup;
             _collectionItems = IndexMapAwareList<FlattenCollectionItemBase>.Get();
         }
 
@@ -69,7 +76,7 @@ namespace MugenMvvm.Collections.Components
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)
         {
-            if (item is T)
+            if (item.TryCheckCast<T>(_allowNull))
                 return Replace(decoratorManager, collection, item, item, ref index);
 
             index = GetIndex(index);
@@ -80,10 +87,10 @@ namespace MugenMvvm.Collections.Components
         {
             var originalIndex = index;
             index = UpdateIndexes(index, 1, out var binarySearchIndex);
-            if (item is not T itemT)
+            if (!item.TryCast<T>(_allowNull, out var itemT))
                 return true;
 
-            var flattenItemInfo = _getNestedCollection(itemT);
+            var flattenItemInfo = _getNestedCollection(itemT!);
             if (flattenItemInfo.IsEmpty)
                 return true;
 
@@ -133,14 +140,15 @@ namespace MugenMvvm.Collections.Components
                 for (var i = 0; i < _collectionItems.Size; i++)
                 {
                     var value = _collectionItems.Indexes[i].Value;
-                    if (_resetCache.TryGetValue(value.Item, out var v))
+                    var item = value.Item ?? _resetCache;
+                    if (_resetCache.TryGetValue(item, out var v))
                     {
                         var rawValue = ItemOrListEditor<FlattenCollectionItemBase>.FromRawValue(v);
                         rawValue.Add(value);
-                        _resetCache[value.Item] = rawValue.GetRawValueInternal();
+                        _resetCache[item] = rawValue.GetRawValueInternal();
                     }
                     else
-                        _resetCache[value.Item] = value;
+                        _resetCache[item] = value;
                 }
 
                 _collectionItems.Clear();
@@ -153,7 +161,8 @@ namespace MugenMvvm.Collections.Components
 
                 foreach (var item in _resetCache)
                 foreach (var collectionItemBase in ItemOrIReadOnlyList.FromRawValue<FlattenCollectionItemBase>(item.Value))
-                    collectionItemBase.Detach();
+                    collectionItemBase.Detach(this);
+
                 _resetCache.Clear();
 
                 items = Decorate(items);
@@ -170,6 +179,8 @@ namespace MugenMvvm.Collections.Components
         }
 
         internal override int GetIndex(int originalIndex) => GetIndex(originalIndex, _collectionItems.BinarySearch(originalIndex));
+
+        internal override void OnDetached(FlattenCollectionItemBase item) => _cleanup?.Invoke((item.Item as T)!, item.Collection);
 
         private IEnumerable<object?> DecorateImpl(IEnumerable<object?> items)
         {
@@ -202,7 +213,7 @@ namespace MugenMvvm.Collections.Components
         private bool Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? oldItem, object? newItem, ref int index)
         {
             var oldIndex = _collectionItems.BinarySearch(index);
-            var flattenItemInfo = newItem is T newItemT ? _getNestedCollection(newItemT) : default;
+            var flattenItemInfo = newItem.TryCast<T>(_allowNull, out var newItemT) ? _getNestedCollection(newItemT!) : default;
 
             if (oldIndex < 0)
             {
@@ -231,7 +242,12 @@ namespace MugenMvvm.Collections.Components
 
             if (ReferenceEquals(flattenItemInfo.Items, currentFlattenItem.Collection))
             {
-                currentFlattenItem.Item = newItem!;
+                if (!ReferenceEquals(newItem, currentFlattenItem.Item))
+                {
+                    OnDetached(currentFlattenItem);
+                    currentFlattenItem.Item = newItem!;
+                }
+
                 return false;
             }
 
@@ -296,34 +312,35 @@ namespace MugenMvvm.Collections.Components
         private void Clear()
         {
             for (var i = 0; i < _collectionItems.Size; i++)
-                _collectionItems.Indexes[i].Value.Detach();
+                _collectionItems.Indexes[i].Value.Detach(this);
             _collectionItems.Clear();
         }
 
         private void OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, object? item, int index,
             Dictionary<object, object?> cache)
         {
-            if (item is not T itemT)
+            if (!item.TryCast<T>(_allowNull, out var itemT))
                 return;
 
             var isRecycled = false;
             FlattenCollectionItemBase? flattenItem = null;
-            if (cache.TryGetValue(itemT, out var items))
+            var cacheKey = item ?? cache;
+            if (cache.TryGetValue(cacheKey, out var items))
             {
                 var editor = ItemOrListEditor<FlattenCollectionItemBase>.FromRawValue(items);
                 flattenItem = editor[editor.Count - 1];
                 if (editor.Count == 1)
-                    cache.Remove(itemT);
+                    cache.Remove(cacheKey);
                 else
                 {
                     editor.Remove(flattenItem);
-                    cache[itemT] = editor.GetRawValueInternal();
+                    cache[cacheKey] = editor.GetRawValueInternal();
                 }
             }
 
             if (flattenItem == null)
             {
-                var flattenItemInfo = _getNestedCollection(itemT);
+                var flattenItemInfo = _getNestedCollection(itemT!);
                 if (flattenItemInfo.IsEmpty)
                     return;
 

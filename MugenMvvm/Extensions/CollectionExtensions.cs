@@ -258,33 +258,35 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration<TCollection> SelectMany<T, TCollection>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable<TCollection>?> selector,
-            bool decoratedItems = true)
-            where T : class => configuration.SelectMany(selector, decoratedItems, out _).For<TCollection>();
+            bool decoratedItems = true, Action<T, IEnumerable?>? cleanup = null)
+            where T : class? => configuration.SelectMany(selector, decoratedItems, cleanup, out _).For<TCollection>();
 
         public static DecoratorsConfiguration<TCollection> SelectMany<T, TCollection>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable<TCollection>?> selector,
-            bool decoratedItems, out FlattenCollectionDecorator<T> decorator) where T : class
+            bool decoratedItems, Action<T, IEnumerable?>? cleanup, out FlattenCollectionDecorator<T> decorator) where T : class?
         {
             Should.NotBeNull(selector, nameof(selector));
-            return configuration.SelectMany((Func<T, IEnumerable?>) selector, decoratedItems, out decorator).For<TCollection>();
+            return configuration.SelectMany((Func<T, IEnumerable?>) selector, decoratedItems, cleanup, out decorator).For<TCollection>();
         }
 
-        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable?> selector, bool decoratedItems = true)
-            where T : class => configuration.SelectMany(selector, decoratedItems, out _);
+        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable?> selector, bool decoratedItems = true,
+            Action<T, IEnumerable?>? cleanup = null)
+            where T : class? => configuration.SelectMany(selector, decoratedItems, cleanup, out _);
 
         public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable?> selector, bool decoratedItems,
-            out FlattenCollectionDecorator<T> decorator) where T : class
+            Action<T, IEnumerable?>? cleanup, out FlattenCollectionDecorator<T> decorator) where T : class?
         {
             Should.NotBeNull(selector, nameof(selector));
-            return configuration.SelectMany(decoratedItems ? selector.SelectManyDecorated : selector.SelectMany, out decorator);
+            return configuration.SelectMany(decoratedItems ? selector.SelectManyDecorated : selector.SelectMany, cleanup, out decorator);
         }
 
-        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector) where T : class =>
-            configuration.SelectMany(selector, out _);
-
         public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector,
-            out FlattenCollectionDecorator<T> decorator) where T : class
+            Action<T, IEnumerable?>? cleanup = null) where T : class? =>
+            configuration.SelectMany(selector, cleanup, out _);
+
+        public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo> selector, Action<T, IEnumerable?>? cleanup,
+            out FlattenCollectionDecorator<T> decorator) where T : class?
         {
-            decorator = new FlattenCollectionDecorator<T>(configuration.Priority, selector);
+            decorator = new FlattenCollectionDecorator<T>(configuration.Priority, configuration.AllowNull, selector, cleanup);
             return configuration.Add(decorator);
         }
 

@@ -8,7 +8,7 @@ namespace MugenMvvm.Collections
 {
     internal sealed class FlattenDecoratedCollectionItem : FlattenCollectionItemBase, IDecoratedCollectionChangedListener, IFlattenCollectionListener, ICollectionBatchUpdateListener
     {
-        public FlattenDecoratedCollectionItem(object item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak) : base(item, collection, decorator, isWeak)
+        public FlattenDecoratedCollectionItem(object? item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak) : base(item, collection, decorator, isWeak)
         {
         }
 

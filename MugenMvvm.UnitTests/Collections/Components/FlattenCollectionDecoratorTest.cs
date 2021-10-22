@@ -22,6 +22,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
     [Collection(SharedContext)]
     public class FlattenCollectionDecoratorTest : UnitTestBase
     {
+        private static readonly int[] NullValue = {int.MaxValue, int.MinValue};
+
         private readonly SynchronizedObservableCollection<int> _itemCollection1;
         private readonly SynchronizedObservableCollection<int> _itemCollection2;
         private readonly SynchronizedObservableCollection<object> _targetCollection;
@@ -36,12 +38,26 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _itemCollection2.AddComponent(new SortCollectionDecorator<object>(0, o => o, SortingComparerBuilder.Get<int>().Descending(i => i).Build().AsObjectComparer()));
 
             _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable>(0, o => new FlattenItemInfo(o is string ? null : o, o != _itemCollection2)));
+            _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable?>(0, true,
+                o =>
+                {
+                    if (o == null)
+                        return new FlattenItemInfo(NullValue, false);
+                    return new FlattenItemInfo(o is string ? null : o, o != _itemCollection2);
+                },
+                (item, items) =>
+                {
+                    if (item == null)
+                        items.ShouldEqual(NullValue, Default.ReferenceEqualityComparer);
+                    else
+                        item.ShouldEqual(items, Default.ReferenceEqualityComparer);
+                }));
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _tracker.Changed += Assert;
             _targetCollection.AddComponent(_tracker);
             _targetCollection.Add(_itemCollection1);
             _targetCollection.Add(_itemCollection2);
+            _targetCollection.Add(null!);
         }
 
         [Fact]
@@ -111,7 +127,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ChangeShouldTrackUnstableItems1()
         {
             var collection = new SynchronizedObservableCollection<UnstableCollection>(ComponentCollectionManager);
-            collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(0, c => new FlattenItemInfo(c.Items, true)));
+            collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(0, false, c => new FlattenItemInfo(c.Items, true), null));
             var tracker = new DecoratedCollectionChangeTracker<object>();
             var assert = new Action(() =>
             {
@@ -206,7 +222,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ChangeShouldTrackUnstableItems2(bool decoratedItems)
         {
             var collection = new SynchronizedObservableCollection<UnstableCollection>(ComponentCollectionManager);
-            collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(0, c => new FlattenItemInfo(c.Items, decoratedItems)));
+            collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(0, false, c => new FlattenItemInfo(c.Items, decoratedItems), null));
             var tracker = new DecoratedCollectionChangeTracker<object>();
             var assert = new Action(() =>
             {
@@ -462,17 +478,17 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             var cts = new CancellationTokenSource();
             var root = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            root.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, o => new FlattenItemInfo(o, true)));
+            root.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, o => new FlattenItemInfo(o, true), null));
 
             var tracker = new DecoratedCollectionChangeTracker<object>();
             tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.DecoratedItems());
             root.AddComponent(tracker);
 
             var child1 = new SynchronizedObservableCollection<IReadOnlyObservableCollection>(ComponentCollectionManager);
-            child1.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, o => new FlattenItemInfo(o, true)));
+            child1.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, o => new FlattenItemInfo(o, true), null));
 
             var child2 = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
-            child2.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, o => new FlattenItemInfo(o, true)));
+            child2.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, o => new FlattenItemInfo(o, true), null));
 
             var nestedChild = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
             child1.Add(nestedChild);
@@ -553,7 +569,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                         }
                     });
 
-                    child.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, o => new FlattenItemInfo(o, true)));
+                    child.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, o => new FlattenItemInfo(o, true), null));
                     child.Add(nestedChild1);
 
                     if (index % 2 == 0)
@@ -1344,7 +1360,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         private WeakReference WeakTest(SynchronizedObservableCollection<object> target)
         {
             var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            collection.AddComponent(new FlattenCollectionDecorator<SynchronizedObservableCollection<object>>(0, objects => new FlattenItemInfo(objects, true)));
+            collection.AddComponent(new FlattenCollectionDecorator<SynchronizedObservableCollection<object>>(0, false, objects => new FlattenItemInfo(objects, true), null));
             collection.Add(target);
 
             target.Add(NewId());
@@ -1376,6 +1392,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             foreach (var item in _targetCollection)
             {
                 var enumerable = item is string ? null : item as IEnumerable;
+                if (enumerable == null && item == null)
+                    enumerable = NullValue;
                 if (enumerable != null)
                 {
                     if (!ReferenceEquals(enumerable, _itemCollection2))

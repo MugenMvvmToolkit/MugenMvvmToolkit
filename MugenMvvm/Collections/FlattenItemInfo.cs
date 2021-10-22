@@ -29,7 +29,7 @@ namespace MugenMvvm.Collections
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal IEnumerable<object?> GetItems() => DecoratedItems ? Items!.DecoratedItems() : Items!.AsEnumerable();
 
-        internal FlattenCollectionItemBase GetCollectionItem(object item, FlattenCollectionDecorator decorator)
+        internal FlattenCollectionItemBase GetCollectionItem(object? item, FlattenCollectionDecorator decorator)
         {
             var isWeak = Items is IReadOnlyObservableCollection;
             if (DecoratedItems)

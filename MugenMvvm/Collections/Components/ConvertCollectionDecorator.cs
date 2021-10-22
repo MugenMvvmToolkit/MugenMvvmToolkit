@@ -194,7 +194,11 @@ namespace MugenMvvm.Collections.Components
                             hasNullValue = false;
                         }
                         else
+                        {
+#pragma warning disable 8714
                             hasOldValue = _resetCache.Remove(itemT, out oldValue);
+#pragma warning restore 8714
+                        }
 
                         if (TryConvert(itemT, oldValue, out var value))
                         {

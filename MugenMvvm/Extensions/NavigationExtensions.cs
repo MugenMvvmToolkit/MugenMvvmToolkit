@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
@@ -20,15 +21,25 @@ namespace MugenMvvm.Extensions
         public static async ValueTask<TResult?> NavigateAsync<TState, TResult>(this INavigationDispatcher navigationDispatcher, object? target,
             INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, TState state,
             Func<TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<TResult>> handler, TResult? defaultResult = default,
-            NavigationMode? navigationMode = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+            NavigationMode? navigationMode = null, bool registerCallbacks = false, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(handler, nameof(handler));
             var context = navigationDispatcher.GetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode ?? NavigationMode.New, metadata);
             try
             {
+                if (registerCallbacks && target != null)
+                {
+                    var components = navigationDispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
+                    components.TryAddNavigationCallback(navigationDispatcher, NavigationCallbackType.Show, navigationId, navigationType, target, metadata);
+                    components.TryAddNavigationCallback(navigationDispatcher, NavigationCallbackType.Close, navigationId, navigationType, target, metadata);
+                }
+
                 if (!await navigationDispatcher.OnNavigatingAsync(context, cancellationToken).ConfigureAwait(false))
+                {
+                    navigationDispatcher.OnNavigationCanceled(context, cancellationToken);
                     return defaultResult;
+                }
 
                 var task = handler(state, cancellationToken, metadata);
                 navigationDispatcher.OnNavigated(context);
@@ -90,7 +101,7 @@ namespace MugenMvvm.Extensions
                 if (navigationEntry.NavigationType != navigationType || navigationEntry.Target == null || Equals(navigationEntry.Target, navigationTarget))
                     continue;
 
-                closeMetadata ??= new MetadataContext(metadata) { { NavigationMetadata.ForceClose, true }, { NavigationMetadata.NavigationType, navigationType } };
+                closeMetadata ??= new MetadataContext(metadata) {{NavigationMetadata.ForceClose, true}, {NavigationMetadata.NavigationType, navigationType}};
                 foreach (var result in presenter.DefaultIfNull(navigationEntry.Target).TryClose(navigationEntry.Target, cancellationToken, closeMetadata))
                 foreach (var navigationCallback in navigationDispatcher.GetNavigationCallbacks(result, metadata))
                 {

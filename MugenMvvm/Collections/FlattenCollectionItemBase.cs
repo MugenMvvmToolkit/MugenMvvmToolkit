@@ -20,7 +20,7 @@ namespace MugenMvvm.Collections
     internal abstract class FlattenCollectionItemBase : IndexMapAware, ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>,
         IHasPriority
     {
-        public object Item = null!;
+        public object? Item;
         public IEnumerable Collection = null!;
         public int Size;
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.Collections
         private bool _isDirty;
         private bool _isCleared;
 
-        protected FlattenCollectionItemBase(object item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
+        protected FlattenCollectionItemBase(object? item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
             Initialize(item, collection, decorator, isWeak);
         }
@@ -92,7 +92,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public FlattenCollectionItemBase Initialize(object item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
+        public FlattenCollectionItemBase Initialize(object? item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
             Item = item;
             Collection = collection;
@@ -150,7 +150,7 @@ namespace MugenMvvm.Collections
         {
             using var _ = MugenExtensions.Lock(oldItem.Collection);
             using var __ = MugenExtensions.Lock(Collection);
-            oldItem.Detach();
+            oldItem.Detach(null);
             Index = oldItem.Index;
             var oldSize = oldItem.Size;
             if (oldItem.Size > decorator.BatchThreshold)
@@ -194,6 +194,7 @@ namespace MugenMvvm.Collections
                     Reset(decoratorManager, decorator, source);
             }
 
+            decorator.OnDetached(oldItem);
             Attach(source);
         }
 
@@ -238,7 +239,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            Detach();
+            Detach(decorator);
         }
 
         public void OnMoved(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int oldIndex,
@@ -269,10 +270,11 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public void Detach()
+        public void Detach(FlattenCollectionDecorator? decorator)
         {
             if (Collection is IReadOnlyObservableCollection owner)
                 owner.Components.Remove(this);
+            decorator?.OnDetached(this);
         }
 
         public void OnChanged(IReadOnlyObservableCollection collection, object? item, int index, object? args)
