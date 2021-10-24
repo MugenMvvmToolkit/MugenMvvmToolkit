@@ -48,7 +48,9 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
                 GetBinary(ExpressionType.Or, BinaryTokenType.LogicalOr),
                 GetBinary(ExpressionType.AndAlso, BinaryTokenType.ConditionalAnd, true, false),
                 GetBinary(ExpressionType.OrElse, BinaryTokenType.ConditionalOr, true, false),
-                GetBinary(ExpressionType.Coalesce, BinaryTokenType.NullCoalescing, null!, "")
+                GetBinary(ExpressionType.Coalesce, BinaryTokenType.NullCoalescing, null!, ""),
+                GetTypeIs(),
+                GetTypeAs()
             };
 
         private static object[] GetBinary(ExpressionType expressionType, BinaryTokenType binaryTokenType) => GetBinary(expressionType, binaryTokenType, 1, 2);
@@ -61,7 +63,25 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Components.Converters
             var result = new BinaryExpressionNode(binaryTokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
             context.SetExpression(left, result.Left);
             context.SetExpression(right, result.Right);
-            return new object[] { context, Expression.MakeBinary(expressionType, left, right), result };
+            return new object[] {context, Expression.MakeBinary(expressionType, left, right), result};
+        }
+
+        private static object[] GetTypeIs()
+        {
+            var context = new ExpressionConverterContext<Expression>();
+            var target = Expression.Constant("");
+            var result = new BinaryExpressionNode(BinaryTokenType.TypeIs, ConstantExpressionNode.EmptyString, ConstantExpressionNode.Get(typeof(int)));
+            context.SetExpression(target, result.Left);
+            return new object[] {context, Expression.TypeIs(target, typeof(int)), result};
+        }
+
+        private static object[] GetTypeAs()
+        {
+            var context = new ExpressionConverterContext<Expression>();
+            var target = Expression.Constant("");
+            var result = new BinaryExpressionNode(BinaryTokenType.TypeAs, ConstantExpressionNode.EmptyString, ConstantExpressionNode.Get(typeof(BinaryExpressionConverterTest)));
+            context.SetExpression(target, result.Left);
+            return new object[] {context, Expression.TypeAs(target, typeof(BinaryExpressionConverterTest)), result};
         }
     }
 }

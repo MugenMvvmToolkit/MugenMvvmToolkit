@@ -12,6 +12,8 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>
     {
+        public static readonly BinaryTokenType TypeIs = new("is", 1000);
+        public static readonly BinaryTokenType TypeAs = new("as", 1000);
         public static readonly BinaryTokenType Multiplication = new("*", 990);
         public static readonly BinaryTokenType Division = new("/", 990);
         public static readonly BinaryTokenType Remainder = new("%", 990, "mod");

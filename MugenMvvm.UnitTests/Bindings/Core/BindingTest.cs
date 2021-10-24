@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Enums;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Bindings.Metadata;
@@ -1552,17 +1553,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Type = typeof(object),
                 GetValue = (o, context) =>
                 {
-                    ++targetGet;
                     o.ShouldEqual(targetObj);
                     context.ShouldEqual(binding);
+                    ++targetGet;
                     return targetValue;
                 },
                 SetValue = (o, v, context) =>
                 {
-                    ++targetSet;
                     o.ShouldEqual(targetObj);
-                    v.ShouldEqual(sourceValue);
+                    v.ShouldEqual(sourceValue.IsUnsetValue() ? null : sourceValue);
                     context.ShouldEqual(binding);
+                    ++targetSet;
                 }
             };
             var sourceMember = new TestAccessorMemberInfo
@@ -1570,17 +1571,17 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 Type = typeof(object),
                 GetValue = (o, context) =>
                 {
-                    ++sourceGet;
                     o.ShouldEqual(sourceObj);
                     context.ShouldEqual(binding);
+                    ++sourceGet;
                     return sourceValue;
                 },
                 SetValue = (o, v, context) =>
                 {
-                    ++sourceSet;
                     o.ShouldEqual(sourceObj);
-                    v.ShouldEqual(targetValue);
+                    v.ShouldEqual(targetValue.IsUnsetValue() ? null : targetValue);
                     context.ShouldEqual(binding);
+                    ++sourceSet;
                 }
             };
             var target = new TestMemberPathObserver
@@ -1624,7 +1625,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             sourceValue = BindingMetadata.UnsetValue;
             binding.UpdateTarget();
             targetGet.ShouldEqual(0);
-            targetSet.ShouldEqual(0);
+            targetSet.ShouldEqual(1);
             sourceGet.ShouldEqual(1);
             sourceSet.ShouldEqual(0);
 
@@ -1651,7 +1652,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
             targetGet.ShouldEqual(1);
             targetSet.ShouldEqual(0);
             sourceGet.ShouldEqual(0);
-            sourceSet.ShouldEqual(0);
+            sourceSet.ShouldEqual(1);
         }
 
         protected override IBindingManager GetBindingManager() => new BindingManager(ComponentCollectionManager);
