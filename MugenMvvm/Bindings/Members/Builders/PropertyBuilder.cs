@@ -34,6 +34,7 @@ namespace MugenMvvm.Bindings.Members.Builders
         internal MemberWrapperClosure? WrapperClosure;
         internal bool HasDefaultValueField;
         internal bool IsNonObservable;
+        internal IEqualityComparer<TValue>? EqualityComparerField;
 
         public PropertyBuilder(string name, Type declaringType, Type propertyType)
         {
@@ -53,6 +54,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             HasDefaultValueField = false;
             PropertyType = propertyType;
             UnderlyingMemberField = null;
+            EqualityComparerField = null;
         }
 
         public PropertyBuilder<TTarget, TValue> Static()
@@ -123,19 +125,26 @@ namespace MugenMvvm.Bindings.Members.Builders
             return this;
         }
 
+        public PropertyBuilder<TTarget, TValue> EqualityComparer(IEqualityComparer<TValue> equalityComparer)
+        {
+            Should.NotBeNull(equalityComparer, nameof(equalityComparer));
+            EqualityComparerField = equalityComparer;
+            return this;
+        }
+
         public IAccessorMemberInfo Build()
         {
             WrapperClosure?.SetFlags(IsStatic);
             var id = GenerateMemberId(true);
             if (IsInherits)
             {
-                return Property((id, AttachedHandlerField, PropertyChanged, DefaultValueField, GetDefaultValue),
+                return Property((id, AttachedHandlerField, PropertyChanged, DefaultValueField, GetDefaultValue, EqualityComparerField),
                     (member, target, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).Value,
                     (member, target, value, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).SetValue(target!, value, metadata),
                     (member, target, listener, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).Add(listener), null);
             }
 
-            return Property((id, AttachedHandlerField, PropertyChanged, DefaultValueField, GetDefaultValue),
+            return Property((id, AttachedHandlerField, PropertyChanged, DefaultValueField, GetDefaultValue, EqualityComparerField),
                 (member, target, metadata) => AutoProperty.GetOrAdd(target, member, metadata).Value,
                 (member, target, value, metadata) => AutoProperty.GetOrAdd(target, member, metadata).SetValue(member, target, value, metadata),
                 (member, target, listener, metadata) => AutoProperty.GetOrAdd(target, member, metadata).Add(listener), null);
@@ -207,7 +216,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                 Should.NotBeNull(target, nameof(target));
                 var attachedValues = target.AttachedValues(metadata);
                 if (attachedValues.TryGet(key, out var value))
-                    return (MemberWrapper)value!;
+                    return (MemberWrapper) value!;
 
                 return attachedValues.GetOrAdd(key, (wrapMemberName, flags, metadata), (o, s) =>
                 {
@@ -223,7 +232,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                 var member = _member;
                 if (member == null)
                     return _value;
-                return (TValue)member.GetValue(target, metadata)!;
+                return (TValue) member.GetValue(target, metadata)!;
             }
 
             public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
@@ -276,7 +285,7 @@ namespace MugenMvvm.Bindings.Members.Builders
 
             private readonly DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField,
                 ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>?
-                PropertyChanged, TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> _member;
+                PropertyChanged, TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue, IEqualityComparer<TValue>? Comparer)> _member;
 
             private readonly IWeakReference _targetRef;
             private IWeakReference? _parentRef;
@@ -286,11 +295,13 @@ namespace MugenMvvm.Bindings.Members.Builders
             private InheritedProperty(TTarget target,
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField,
                     ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
-                    TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
+                    TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue, IEqualityComparer<TValue>? Comparer)> member,
+                IReadOnlyMetadataContext? metadata)
             {
+                member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) member, target, metadata);
                 _targetRef = target.ToWeakReference();
                 _member = member;
-                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo)member, target);
+                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo) member, target);
                 InvalidateParent(target!, metadata);
             }
 
@@ -301,17 +312,14 @@ namespace MugenMvvm.Bindings.Members.Builders
             public static InheritedProperty GetOrAdd(TTarget target,
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField,
                     ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
-                    TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
+                    TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue, IEqualityComparer<TValue>? Comparer)> member,
+                IReadOnlyMetadataContext? metadata)
             {
 #pragma warning disable 8634
                 var attachedValues = target.AttachedValues(metadata);
                 if (attachedValues.TryGet(member.State.id, out var value))
-                    return (InheritedProperty)value!;
-                return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, state) =>
-                {
-                    state.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)state.member, (TTarget)t, state.metadata);
-                    return new InheritedProperty((TTarget)t, state.member, state.metadata);
-                });
+                    return (InheritedProperty) value!;
+                return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, state) => new InheritedProperty((TTarget) t, state.member, state.metadata));
 #pragma warning restore 8634
             }
 
@@ -325,7 +333,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                         _parentToken.Dispose();
                     if (_parentRef != null)
                     {
-                        TryUnsubscribe((TTarget)_parentRef?.Target!, metadata);
+                        TryUnsubscribe((TTarget) _parentRef?.Target!, metadata);
                         _parentRef = null;
                     }
                 }
@@ -334,10 +342,11 @@ namespace MugenMvvm.Bindings.Members.Builders
 
                 _state = state;
                 var oldValue = Value;
-                if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
+                if (_member.State.Comparer.EqualsOrDefault(oldValue, value))
                     return;
+
                 Value = value;
-                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo)_member, target, oldValue, value, metadata);
+                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo) _member, target, oldValue, value, metadata);
                 Raise(target, this, metadata);
             }
 
@@ -353,7 +362,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                     return;
                 }
 
-                TryUnsubscribe((TTarget)oldParent!, metadata);
+                TryUnsubscribe((TTarget) oldParent!, metadata);
                 if (member != null && _parentToken.IsEmpty)
                     _parentToken = member.TryObserve(target, this, metadata);
                 if (parent == null)
@@ -375,7 +384,7 @@ namespace MugenMvvm.Bindings.Members.Builders
                     SetValue(target, parentProperty.Value, ParentState, metadata);
                 else if (_state == ParentState)
                 {
-                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo)_member, target),
+                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo) _member, target),
                         DefaultState, metadata);
                 }
             }
@@ -390,7 +399,7 @@ namespace MugenMvvm.Bindings.Members.Builders
             {
                 try
                 {
-                    var target = (TTarget?)_targetRef.Target;
+                    var target = (TTarget?) _targetRef.Target;
                     if (target == null)
                         return false;
                     if (message is InheritedProperty inheritedProperty)
@@ -411,39 +420,41 @@ namespace MugenMvvm.Bindings.Members.Builders
         {
             public TValue Value;
 
-            private readonly ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? _propertyChanged;
+            private readonly DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField,
+                ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
+                TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue, IEqualityComparer<TValue>? Comparer)> _member;
 
-            private AutoProperty(ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? propertyChanged, TValue defaultValue)
+            private AutoProperty(object? target, DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField,
+                ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged, TValue DefaultValueField,
+                Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue, IEqualityComparer<TValue>? Comparer)> member, IReadOnlyMetadataContext? metadata)
             {
-                _propertyChanged = propertyChanged;
-                Value = defaultValue;
+                if (member.MemberFlags.HasFlag(MemberFlags.Static))
+                    target = null!;
+                member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) member, (TTarget) target!, metadata);
+                _member = member;
+                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo) member, (TTarget) target!);
             }
 
             public static AutoProperty GetOrAdd(TTarget target,
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField,
                     ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
-                    TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
+                    TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue, IEqualityComparer<TValue>? Comparer)> member,
+                IReadOnlyMetadataContext? metadata)
             {
                 var attachedValues = member.GetTarget(target).AttachedValues(metadata);
                 if (attachedValues.TryGet(member.State.id, out var value))
-                    return (AutoProperty)value!;
-                return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, s) =>
-                {
-                    if (s.member.MemberFlags.HasFlag(MemberFlags.Static))
-                        t = null!;
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, (TTarget)t, s.metadata);
-                    return new AutoProperty(s.member.State.PropertyChanged,
-                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, (TTarget)t));
-                });
+                    return (AutoProperty) value!;
+                return attachedValues.GetOrAdd(member.State.id, (member, metadata), (t, s) => new AutoProperty(t, s.member, s.metadata));
             }
 
             public void SetValue(IAccessorMemberInfo member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
             {
                 var oldValue = Value;
-                if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
+                if (_member.State.Comparer.EqualsOrDefault(oldValue, value))
                     return;
+
                 Value = value;
-                _propertyChanged?.Invoke(member, target, oldValue, value, metadata);
+                _member.State.PropertyChanged?.Invoke(member, target, oldValue, value, metadata);
                 Raise(target, metadata, metadata);
             }
         }
