@@ -129,7 +129,10 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
 
                 GetBinary(BinaryTokenType.NullCoalescing, null, "f", null ?? "f", false),
                 GetBinary(BinaryTokenType.NullCoalescing, "f", "t", "f" ?? "t", false),
-                GetBinary(BinaryTokenType.NullCoalescing, "f", 1, null, true)
+                GetBinary(BinaryTokenType.NullCoalescing, "f", 1, null, true),
+
+                GetTypeIs(),
+                GetTypeAs()
             };
 
         private static object?[] GetBinary(BinaryTokenType binaryToken, object? left, object? right, object? result, bool invalid, Type? leftType = null, Type? rightType = null,
@@ -144,6 +147,18 @@ namespace MugenMvvm.UnitTests.Bindings.Compiling.Components
                 invalid,
                 returnType
             };
+        }
+
+        private static object?[] GetTypeIs()
+        {
+            var node = new BinaryExpressionNode(BinaryTokenType.TypeIs, ConstantExpressionNode.EmptyString, ConstantExpressionNode.Get(typeof(int)));
+            return new object?[] {node, false, false, typeof(bool)};
+        }
+
+        private static object?[] GetTypeAs()
+        {
+            var node = new BinaryExpressionNode(BinaryTokenType.TypeAs, ConstantExpressionNode.EmptyString, ConstantExpressionNode.Get(typeof(BinaryExpressionBuilderTest)));
+            return new object?[] {node, null, false, typeof(BinaryExpressionBuilderTest)};
         }
     }
 }

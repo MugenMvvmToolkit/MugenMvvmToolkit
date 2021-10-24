@@ -18,7 +18,7 @@ namespace MugenMvvm.Bindings.Compiling.Components
     public sealed class BinaryExpressionBuilder : IExpressionBuilderComponent, IHasPriority
     {
         private static readonly MethodInfo StringConcatMethod =
-            typeof(string).GetMethodOrThrow(nameof(string.Concat), BindingFlagsEx.StaticPublic, new[] { typeof(object), typeof(object) });
+            typeof(string).GetMethodOrThrow(nameof(string.Concat), BindingFlagsEx.StaticPublic, new[] {typeof(object), typeof(object)});
 
         private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), BindingFlagsEx.StaticPublic);
 
@@ -44,7 +44,9 @@ namespace MugenMvvm.Bindings.Compiling.Components
                 [BinaryTokenType.LogicalOr] = (l, r) => l.GenerateExpression(r, Expression.Or),
                 [BinaryTokenType.ConditionalAnd] = (l, r) => l.GenerateExpression(r, Expression.AndAlso),
                 [BinaryTokenType.ConditionalOr] = (l, r) => l.GenerateExpression(r, Expression.OrElse),
-                [BinaryTokenType.NullCoalescing] = (l, r) => l.GenerateExpression(r, Expression.Coalesce)
+                [BinaryTokenType.NullCoalescing] = (l, r) => l.GenerateExpression(r, Expression.Coalesce),
+                [BinaryTokenType.TypeIs] = (l, r) => Expression.TypeIs(l, (Type) ((ConstantExpression) r).Value!),
+                [BinaryTokenType.TypeAs] = (l, r) => Expression.TypeAs(l, (Type) ((ConstantExpression) r).Value!)
             };
         }
 
