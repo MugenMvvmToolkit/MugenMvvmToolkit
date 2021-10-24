@@ -85,7 +85,7 @@ public class MugenFragmentPager2Adapter extends FragmentStateAdapter implements 
 
     @Override
     public void onItemChanged(int position) {
-        notifyItemChanged(position);
+        notifyItemChanged(position, Boolean.FALSE);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class MugenFragmentPager2Adapter extends FragmentStateAdapter implements 
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
-        notifyItemRangeChanged(positionStart, itemCount);
+        notifyItemRangeChanged(positionStart, itemCount, Boolean.FALSE);
     }
 
     @Override

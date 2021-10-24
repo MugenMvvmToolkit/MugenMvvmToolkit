@@ -45,13 +45,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(false)]
         public async Task ShouldCancelPreviousTokenForceExecute(bool bidirectional)
         {
-            var command1 = CompositeCommand.CreateFromTask(this, (c, _) =>
+            var command1 = CompositeCommand.Create(this, (c, _) =>
             {
                 var tcs = new TaskCompletionSource<object>();
                 c.Register(() => tcs.TrySetCanceled(c));
                 return tcs.Task;
             }, commandManager: CommandManager);
-            var command2 = CompositeCommand.CreateFromTask(this, (c, _) =>
+            var command2 = CompositeCommand.Create(this, (c, _) =>
             {
                 var tcs = new TaskCompletionSource<object>();
                 c.Register(() => tcs.TrySetCanceled(c));
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var executed1 = 0;
             var executed2 = 0;
             var tcs = new TaskCompletionSource<bool>();
-            var command1 = CompositeCommand.CreateFromTask(this, (c, m) =>
+            var command1 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
                 m.ShouldEqual(Metadata);

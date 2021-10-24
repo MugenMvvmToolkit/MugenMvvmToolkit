@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
@@ -14,6 +15,10 @@ namespace MugenMvvm.UnitTests.Messaging.Components
 {
     public class MessengerHandlerSubscriberTest : UnitTestBase
     {
+        private static readonly Dictionary<int, ThreadExecutionMode> ExecutionModes = ThreadExecutionMode.GetAll()
+                                                                                                         .Select((mode, i) => (i, mode))
+                                                                                                         .ToDictionary(tuple => tuple.i, tuple => tuple.mode);
+
         private readonly MessengerHandlerSubscriber _messengerHandlerComponent;
 
         public MessengerHandlerSubscriberTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
@@ -200,7 +205,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
             for (var i = 0; i < count; i++)
             {
                 var handler = new TestMessengerHandler();
-                ThreadExecutionMode.TryGet(i, out var mode);
+                ExecutionModes.TryGetValue(i, out var mode);
                 Messenger.TrySubscribe(handler, mode, Metadata).ShouldBeTrue();
 
                 var info = new MessengerSubscriberInfo(handler, mode);
@@ -232,7 +237,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
                 var handler = new TestMessengerHandler().ToWeakReference(WeakReferenceManager);
                 if (keepAlive)
                     list.Add(handler.Target!);
-                ThreadExecutionMode.TryGet(i, out var mode);
+                ExecutionModes.TryGetValue(i, out var mode);
                 Messenger.TrySubscribe(handler, mode, Metadata).ShouldBeTrue();
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
@@ -265,7 +270,7 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         public void TryUnsubscribeAllShouldRemoveAllSubscribers(int count)
         {
             for (var i = 0; i < count; i++)
-                Messenger.TrySubscribe(new TestMessengerHandler(), ThreadExecutionMode.TryGet(i % 4, ThreadExecutionMode.Background), Metadata).ShouldBeTrue();
+                Messenger.TrySubscribe(new TestMessengerHandler(), ExecutionModes[i % 4], Metadata).ShouldBeTrue();
 
             _messengerHandlerComponent.TryUnsubscribeAll(Messenger, Metadata);
             Messenger.GetSubscribers(Metadata).ShouldBeEmpty();

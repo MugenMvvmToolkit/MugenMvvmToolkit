@@ -29,6 +29,9 @@ namespace MugenMvvm.Enums
         }
 #pragma warning restore CS8618
 
+        // ReSharper disable once StaticMemberInGenericType
+        public static bool? ThrowOnDuplicate { get; set; }
+
         protected EnumBase(TValue value, string? name = null)
         {
             Value = value;
@@ -41,7 +44,7 @@ namespace MugenMvvm.Enums
                     EnumerationNamesField[Name] = (TEnum) this;
                     _values = null;
                 }
-                else if (EnumBase.ThrowOnDuplicate)
+                else if (ThrowOnDuplicate.GetValueOrDefault(EnumBase.ThrowOnDuplicate))
                     ExceptionManager.ThrowDuplicateEnum(_enumerations[value], this);
             }
         }

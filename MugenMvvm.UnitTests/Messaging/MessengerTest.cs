@@ -144,12 +144,12 @@ namespace MugenMvvm.UnitTests.Messaging
 
         [Theory]
         [InlineData(1, null)]
-        [InlineData(1, 1)]
+        [InlineData(1, nameof(ThreadExecutionMode.Main))]
         [InlineData(10, null)]
-        [InlineData(10, 1)]
-        public void SubscribeShouldBeHandledByComponents(int count, int? executionMode)
+        [InlineData(10, nameof(ThreadExecutionMode.Main))]
+        public void SubscribeShouldBeHandledByComponents(int count, string? executionMode)
         {
-            var threadMode = executionMode == null ? null : ThreadExecutionMode.Get(executionMode.Value);
+            var threadMode = executionMode == null ? null : ThreadExecutionMode.Get(executionMode);
             var invokeCount = 0;
             var result = false;
             for (var i = 0; i < count; i++)

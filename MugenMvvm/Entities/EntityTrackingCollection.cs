@@ -19,7 +19,7 @@ namespace MugenMvvm.Entities
         public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionManager? componentCollectionManager = null) : base(
             componentCollectionManager)
         {
-            _dictionary = new Dictionary<object, EntityState>(comparer ?? EqualityComparer<object>.Default);
+            _dictionary = comparer == null ? new Dictionary<object, EntityState>() : new Dictionary<object, EntityState>(comparer);
         }
 
         public IEqualityComparer<object> Comparer => _dictionary.Comparer;
@@ -119,7 +119,7 @@ namespace MugenMvvm.Entities
                 var index = 0;
                 foreach (var pair in _dictionary)
                     entities[index++] = new TrackingEntity(pair.Key, pair.Value);
-                return ((IEnumerable<TrackingEntity>)entities).GetEnumerator();
+                return ((IEnumerable<TrackingEntity>) entities).GetEnumerator();
             }
         }
 

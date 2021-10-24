@@ -56,7 +56,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
             var hash = comparer?.GetHashCode(this);
             if (hash.HasValue)
                 return hash.Value;
-            return GetHashCode((ExpressionType.Value * 397) ^ Metadata.Count, comparer);
+            return GetHashCode(ExpressionType.Value.GetHashCode() ^ Metadata.Count, comparer);
         }
 
         protected static bool Equals(IExpressionNode? x1, IExpressionNode? x2, IExpressionEqualityComparer? comparer)

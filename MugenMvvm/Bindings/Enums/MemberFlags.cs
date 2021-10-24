@@ -12,8 +12,8 @@ namespace MugenMvvm.Bindings.Enums
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
     public class MemberFlags : FlagsEnumBase<MemberFlags, ushort>, IHasPriority
     {
-        private const int AttachedPriority = 1000000;
-        private const int DefaultPriority = 100000;
+        private const int AttachedPriority = 10000;
+        private const int DefaultPriority = 1000;
         private const int ExtensionPriority = -1000;
         private const int DynamicPriority = -10000;
 

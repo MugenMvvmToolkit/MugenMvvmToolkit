@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Serialization
         [InlineData(10)]
         public void DeserializeShouldBeHandledByComponents(int count)
         {
-            var format = new DeserializationFormat<string, Stream?>(1, "Test");
+            var format = new DeserializationFormat<string, Stream?>("Test");
             var request = "test";
             var ctx = new SerializationContext<string, Stream>(format, request);
             var result = Stream.Null;
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Serialization
         [InlineData(10)]
         public void IsSupportedShouldBeHandledByComponents(int count)
         {
-            var format = new SerializationFormat<string, Stream?>(1, "Test");
+            var format = new SerializationFormat<string, Stream?>("Test");
             var request = "r";
             var executeCount = 0;
             for (var i = 0; i < count; i++)
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTests.Serialization
         [InlineData(10)]
         public void SerializeShouldBeHandledByComponents(int count)
         {
-            var format = new SerializationFormat<string, Stream?>(1, "Test");
+            var format = new SerializationFormat<string, Stream?>("Test");
             var request = "test";
             var ctx = new SerializationContext<string, Stream>(format, request);
             var result = Stream.Null;

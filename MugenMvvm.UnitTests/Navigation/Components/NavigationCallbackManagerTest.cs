@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTests.Navigation.Components
                 HasMetadata = true,
                 Metadata = new MetadataContext()
             });
-            _callbackManager.TryAddNavigationCallback(NavigationDispatcher, new NavigationCallbackType(int.MinValue), "t", NavigationType.Window, result, Metadata)
+            _callbackManager.TryAddNavigationCallback(NavigationDispatcher, new NavigationCallbackType(NewId()), "t", NavigationType.Window, result, Metadata)
                             .ShouldBeNull();
         }
 

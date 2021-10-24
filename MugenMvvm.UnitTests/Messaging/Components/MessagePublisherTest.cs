@@ -112,10 +112,10 @@ namespace MugenMvvm.UnitTests.Messaging.Components
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        [InlineData(-1)]
-        public void TryPublishShouldUseThreadDispatcher(int threadMode)
+        [InlineData(nameof(ThreadExecutionMode.Background))]
+        [InlineData(nameof(ThreadExecutionMode.Main))]
+        [InlineData("")]
+        public void TryPublishShouldUseThreadDispatcher(string threadMode)
         {
             ThreadExecutionMode.TryGet(threadMode, out var threadExecutionMode);
             var invokedCount = 0;

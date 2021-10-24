@@ -16,9 +16,9 @@ namespace MugenMvvm.UnitTests.Navigation
         private static readonly NavigationContext DefaultContext = new(null, NavigationProvider.System, "f", NavigationType.Popup, NavigationMode.Close);
 
         [Theory]
-        [InlineData(1, "1", "Page")]
-        [InlineData(2, "12", "Window")]
-        public void ConstructorShouldInitializeCallback(int callbackType, string operationId, string navigationType)
+        [InlineData(nameof(NavigationCallbackType.Show), "1", nameof(NavigationType.Page))]
+        [InlineData(nameof(NavigationCallbackType.Close), "12", nameof(NavigationType.Window))]
+        public void ConstructorShouldInitializeCallback(string callbackType, string operationId, string navigationType)
         {
             var navigationCallbackType = NavigationCallbackType.Get(callbackType);
             var type = NavigationType.Get(navigationType);

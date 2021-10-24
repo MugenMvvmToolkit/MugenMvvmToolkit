@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -10,21 +11,28 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
     public class ChildCommandAdapter : AttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, ICommandExecutorComponent, IHasPriority
     {
+        private static readonly ImmutableHashSet<ICompositeCommand> Empty = ImmutableHashSet<ICompositeCommand>.Empty.WithComparer(Default.ReferenceEqualityComparer);
+
         private readonly CommandListener _listener;
+        private ImmutableHashSet<ICompositeCommand> _commands;
         private bool _suppressExecute;
         private bool _canExecuteEmptyResult;
 
         public ChildCommandAdapter()
         {
             _listener = new CommandListener(this);
+            _commands = Empty;
         }
 
-        public Func<IReadOnlyList<ICompositeCommand>, object?, IReadOnlyMetadataContext?, bool>? CanExecuteHandler { get; set; }
+        public Func<ImmutableHashSet<ICompositeCommand>, object?, IReadOnlyMetadataContext?, bool>? CanExecuteHandler { get; set; }
+
+        public Func<ImmutableHashSet<ICompositeCommand>, object?, CancellationToken, IReadOnlyMetadataContext?, Task<bool>>? ExecuteHandler { get; set; }
 
         public bool SuppressExecute
         {
@@ -50,12 +58,9 @@ namespace MugenMvvm.Commands.Components
             }
         }
 
-        public bool ExecuteSequentially { get; set; }
-
         public int Priority { get; init; } = CommandComponentPriority.ChildCommandAdapter;
 
-        // ReSharper disable once InconsistentlySynchronizedField
-        protected List<ICompositeCommand> Commands => _listener;
+        protected IReadOnlyCollection<ICompositeCommand> Commands => _commands;
 
         public bool Add(ICompositeCommand command)
         {
@@ -64,9 +69,9 @@ namespace MugenMvvm.Commands.Components
                 return false;
             lock (_listener)
             {
-                if (_listener.Contains(command))
+                if (_commands.Contains(command))
                     return false;
-                _listener.Add(command);
+                _commands = _commands.Add(command);
                 command.AddComponent(_listener);
             }
 
@@ -77,10 +82,7 @@ namespace MugenMvvm.Commands.Components
         public bool Contains(ICompositeCommand command)
         {
             Should.NotBeNull(command, nameof(command));
-            lock (_listener)
-            {
-                return _listener.Contains(command);
-            }
+            return _commands.Contains(command);
         }
 
         public bool Remove(ICompositeCommand command)
@@ -88,8 +90,9 @@ namespace MugenMvvm.Commands.Components
             Should.NotBeNull(command, nameof(command));
             lock (_listener)
             {
-                if (!_listener.Remove(command))
+                if (!_commands.Contains(command))
                     return false;
+                _commands = _commands.Remove(command);
                 command.RemoveComponent(_listener);
             }
 
@@ -101,22 +104,15 @@ namespace MugenMvvm.Commands.Components
         {
             if (SuppressExecute)
                 return true;
-
-            lock (_listener)
-            {
-                return CanExecuteInternal(parameter, metadata);
-            }
+            return CanExecuteInternal(_commands, parameter, metadata);
         }
 
         public virtual bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
-            lock (_listener)
+            foreach (var cmd in _commands)
             {
-                for (var i = 0; i < _listener.Count; i++)
-                {
-                    if (_listener[i].IsExecuting(metadata))
-                        return true;
-                }
+                if (cmd.IsExecuting(metadata))
+                    return true;
             }
 
             return false;
@@ -127,44 +123,23 @@ namespace MugenMvvm.Commands.Components
             if (SuppressExecute)
                 return false;
 
-            if (ExecuteSequentially)
-            {
-                if (!CanExecute(command, parameter, metadata))
-                    return false;
+            var commands = _commands;
+            if (!CanExecuteInternal(commands, parameter, metadata))
+                return false;
 
-                var index = 0;
-                while (true)
-                {
-                    Task<bool> task;
-                    lock (_listener)
-                    {
-                        if (index > _listener.Count - 1)
-                            return false;
-
-                        task = _listener[index].ExecuteAsync(parameter, cancellationToken, metadata);
-                        ++index;
-                    }
-
-                    if (await task.ConfigureAwait(false))
-                        return true;
-                }
-            }
+            var executeHandler = ExecuteHandler;
+            if (executeHandler != null)
+                return await executeHandler(commands, parameter, cancellationToken, metadata).ConfigureAwait(false);
 
             var tasks = new ItemOrListEditor<Task<bool>>();
             var result = false;
-            lock (_listener)
+            foreach (var cmd in commands)
             {
-                if (!CanExecuteInternal(parameter, metadata))
-                    return false;
-
-                for (var i = 0; i < _listener.Count; i++)
-                {
-                    var task = _listener[i].ExecuteAsync(parameter, cancellationToken, metadata);
-                    if (!task.IsCompletedSuccessfully())
-                        tasks.Add(task);
-                    else if (task.Result)
-                        result = true;
-                }
+                var task = cmd.ExecuteAsync(parameter, cancellationToken, metadata);
+                if (!task.IsCompletedSuccessfully())
+                    tasks.Add(task);
+                else if (task.Result)
+                    result = true;
             }
 
             foreach (var task in tasks)
@@ -180,31 +155,28 @@ namespace MugenMvvm.Commands.Components
         public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
             var tasks = new ItemOrListEditor<Task>();
-            lock (_listener)
+            foreach (var cmd in _commands)
             {
-                for (var i = 0; i < _listener.Count; i++)
-                {
-                    var task = _listener[i].WaitAsync(metadata);
-                    if (!task.IsCompleted)
-                        tasks.Add(task);
-                }
+                var task = cmd.WaitAsync(metadata);
+                if (!task.IsCompleted)
+                    tasks.Add(task);
             }
 
             return tasks.WhenAll();
         }
 
-        private bool CanExecuteInternal(object? parameter, IReadOnlyMetadataContext? metadata)
+        private bool CanExecuteInternal(ImmutableHashSet<ICompositeCommand> commands, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             var canExecuteHandler = CanExecuteHandler;
             if (canExecuteHandler != null)
-                return canExecuteHandler(_listener, parameter, metadata);
+                return canExecuteHandler(commands, parameter, metadata);
 
-            if (_listener.Count == 0)
+            if (commands.Count == 0)
                 return CanExecuteEmptyResult;
 
-            for (var i = 0; i < _listener.Count; i++)
+            foreach (var command in commands)
             {
-                if (!_listener[i].CanExecute(parameter, metadata))
+                if (!command.CanExecute(parameter, metadata))
                     return false;
             }
 
@@ -213,11 +185,11 @@ namespace MugenMvvm.Commands.Components
 
         private void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => OwnerOptional?.RaiseCanExecuteChanged(metadata);
 
-        private sealed class CommandListener : List<ICompositeCommand>, ICommandEventHandlerComponent
+        private sealed class CommandListener : ICommandEventHandlerComponent
         {
             private readonly ChildCommandAdapter _adapter;
 
-            public CommandListener(ChildCommandAdapter adapter) : base(2)
+            public CommandListener(ChildCommandAdapter adapter)
             {
                 _adapter = adapter;
             }

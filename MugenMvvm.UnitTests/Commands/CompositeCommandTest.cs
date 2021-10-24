@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
+            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);
@@ -172,7 +172,7 @@ namespace MugenMvvm.UnitTests.Commands
                 }
             });
 
-            CompositeCommand.CreateFromTask(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
+            CompositeCommand.Create(owner, execute, canExecute, notifiers, allowMultipleExecution, threadMode, canNotify, metadata, CommandManager);
             if (r is DelegateCommandRequest request)
             {
                 request.Execute.ShouldEqual(execute);

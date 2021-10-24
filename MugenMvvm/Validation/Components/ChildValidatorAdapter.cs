@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -18,11 +18,15 @@ namespace MugenMvvm.Validation.Components
     public sealed class ChildValidatorAdapter : AttachableComponentBase<IValidator>, IValidationHandlerComponent, IValidatorErrorManagerComponent,
         IDisposableComponent<IValidator>, IHasPriority
     {
+        private static readonly ImmutableHashSet<IValidator> Empty = ImmutableHashSet<IValidator>.Empty.WithComparer(Default.ReferenceEqualityComparer);
+
         private readonly ValidatorListener _listener;
+        private ImmutableHashSet<IValidator> _validators;
 
         public ChildValidatorAdapter()
         {
             _listener = new ValidatorListener(this);
+            _validators = Empty;
         }
 
         public bool DisposeChildValidators { get; set; }
@@ -36,8 +40,9 @@ namespace MugenMvvm.Validation.Components
                 return false;
             lock (_listener)
             {
-                if (!_listener.Add(validator))
+                if (_validators.Contains(validator))
                     return false;
+                _validators = _validators.Add(validator);
                 validator.AddComponent(_listener);
             }
 
@@ -48,10 +53,7 @@ namespace MugenMvvm.Validation.Components
         public bool Contains(IValidator validator)
         {
             Should.NotBeNull(validator, nameof(validator));
-            lock (_listener)
-            {
-                return _listener.Contains(validator);
-            }
+            return _validators.Contains(validator);
         }
 
         public bool Remove(IValidator validator)
@@ -59,8 +61,9 @@ namespace MugenMvvm.Validation.Components
             Should.NotBeNull(validator, nameof(validator));
             lock (_listener)
             {
-                if (!_listener.Remove(validator))
+                if (!_validators.Contains(validator))
                     return false;
+                _validators = _validators.Remove(validator);
                 validator.RemoveComponent(_listener);
             }
 
@@ -76,25 +79,19 @@ namespace MugenMvvm.Validation.Components
         {
             if (!DisposeChildValidators)
                 return;
-            lock (_listener)
-            {
-                foreach (var validator in _listener)
-                    validator.Dispose();
-            }
+            foreach (var validator in _validators)
+                validator.Dispose();
         }
 
         public Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrListEditor<Task> tasks;
-            lock (_listener)
+            var validators = _validators;
+            var tasks = new ItemOrListEditor<Task>(validators.Count);
+            foreach (var item in validators)
             {
-                tasks = new ItemOrListEditor<Task>(_listener.Count);
-                foreach (var item in _listener)
-                {
-                    var task = item.ValidateAsync(member, cancellationToken, metadata);
-                    if (!task.IsCompleted || task.IsFaulted || task.IsCanceled)
-                        tasks.Add(task);
-                }
+                var task = item.ValidateAsync(member, cancellationToken, metadata);
+                if (!task.IsCompletedSuccessfully())
+                    tasks.Add(task);
             }
 
             return tasks.WhenAll();
@@ -102,35 +99,26 @@ namespace MugenMvvm.Validation.Components
 
         public bool HasErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)
         {
-            lock (_listener)
+            foreach (var item in _validators)
             {
-                foreach (var item in _listener)
-                {
-                    if (item.HasErrors(members, source, metadata))
-                        return true;
-                }
-
-                return false;
+                if (item.HasErrors(members, source, metadata))
+                    return true;
             }
+
+            return false;
         }
 
         public void GetErrors(IValidator validator, ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<ValidationErrorInfo> errors, object? source,
             IReadOnlyMetadataContext? metadata)
         {
-            lock (_listener)
-            {
-                foreach (var item in _listener)
-                    item.GetErrors(members, ref errors, source, metadata);
-            }
+            foreach (var item in _validators)
+                item.GetErrors(members, ref errors, source, metadata);
         }
 
         public void GetErrors(IValidator validator, ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<object> errors, object? source, IReadOnlyMetadataContext? metadata)
         {
-            lock (_listener)
-            {
-                foreach (var item in _listener)
-                    item.GetErrors(members, ref errors, source, metadata);
-            }
+            foreach (var item in _validators)
+                item.GetErrors(members, ref errors, source, metadata);
         }
 
         public void SetErrors(IValidator validator, object source, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata)
@@ -147,16 +135,11 @@ namespace MugenMvvm.Validation.Components
         private void RaiseAsyncValidation(string? member, Task validationTask, IReadOnlyMetadataContext? metadata) =>
             OwnerOptional?.GetComponents<IValidatorAsyncValidationListener>().OnAsyncValidation(OwnerOptional, member, validationTask, metadata);
 
-        private sealed class ValidatorListener : HashSet<IValidator>, IValidatorErrorsChangedListener, IValidatorAsyncValidationListener
+        private sealed class ValidatorListener : IValidatorErrorsChangedListener, IValidatorAsyncValidationListener
         {
             private readonly ChildValidatorAdapter _adapter;
 
             public ValidatorListener(ChildValidatorAdapter adapter)
-#if NET461
-                : base(InternalEqualityComparer.Reference)
-#else
-                : base(2, InternalEqualityComparer.Reference)
-#endif
             {
                 _adapter = adapter;
             }

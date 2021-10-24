@@ -302,13 +302,13 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             var request = (BindingExpressionRequest)builder.Delay(100);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
-            request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.Delay, 100));
+            request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.Delay, ConstantExpressionNode.Get(100)));
 
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
             request = builder.TargetDelay(100);
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
-            request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.TargetDelay, 100));
+            request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(BindingParameterNameConstant.TargetDelay, ConstantExpressionNode.Get(100)));
         }
 
         [Fact]

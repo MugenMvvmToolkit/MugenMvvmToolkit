@@ -8,9 +8,14 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
-    public class DeserializationFormat<TRequest, TResult> : EnumBase<DeserializationFormat<TRequest, TResult>, int>, IDeserializationFormat<TRequest, TResult>
+    public class DeserializationFormat<TRequest, TResult> : EnumBase<DeserializationFormat<TRequest, TResult>, string>, IDeserializationFormat<TRequest, TResult>
     {
-        public DeserializationFormat(int value, string? name = null) : base(value, name)
+        static DeserializationFormat()
+        {
+            ThrowOnDuplicate = false;
+        }
+
+        public DeserializationFormat(string value, string? name = null) : base(value, name)
         {
         }
 

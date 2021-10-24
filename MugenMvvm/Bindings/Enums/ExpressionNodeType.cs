@@ -8,21 +8,21 @@ namespace MugenMvvm.Bindings.Enums
 {
     [Serializable]
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
-    public class ExpressionNodeType : EnumBase<ExpressionNodeType, int>
+    public class ExpressionNodeType : EnumBase<ExpressionNodeType, string>
     {
-        public static readonly ExpressionNodeType Binary = new(1);
-        public static readonly ExpressionNodeType Condition = new(2);
-        public static readonly ExpressionNodeType Constant = new(3);
-        public static readonly ExpressionNodeType Index = new(4);
-        public static readonly ExpressionNodeType Member = new(5);
-        public static readonly ExpressionNodeType MethodCall = new(6);
-        public static readonly ExpressionNodeType Unary = new(7);
-        public static readonly ExpressionNodeType Lambda = new(8);
-        public static readonly ExpressionNodeType Parameter = new(9);
-        public static readonly ExpressionNodeType BindingParameter = new(10);
-        public static readonly ExpressionNodeType TypeAccess = new(11);
+        public static readonly ExpressionNodeType Binary = new(nameof(Binary));
+        public static readonly ExpressionNodeType Condition = new(nameof(Condition));
+        public static readonly ExpressionNodeType Constant = new(nameof(Constant));
+        public static readonly ExpressionNodeType Index = new(nameof(Index));
+        public static readonly ExpressionNodeType Member = new(nameof(Member));
+        public static readonly ExpressionNodeType MethodCall = new(nameof(MethodCall));
+        public static readonly ExpressionNodeType Unary = new(nameof(Unary));
+        public static readonly ExpressionNodeType Lambda = new(nameof(Lambda));
+        public static readonly ExpressionNodeType Parameter = new(nameof(Parameter));
+        public static readonly ExpressionNodeType BindingParameter = new(nameof(BindingParameter));
+        public static readonly ExpressionNodeType TypeAccess = new(nameof(TypeAccess));
 
-        public ExpressionNodeType(int value, string? name = null) : base(value, name)
+        public ExpressionNodeType(string value, string? name = null) : base(value, name)
         {
         }
 

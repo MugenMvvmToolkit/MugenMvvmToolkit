@@ -7,15 +7,15 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
-    public class ThreadExecutionMode : EnumBase<ThreadExecutionMode, int>
+    public class ThreadExecutionMode : EnumBase<ThreadExecutionMode, string>
     {
-        public static readonly ThreadExecutionMode Current = new(0);
-        public static readonly ThreadExecutionMode Main = new(1) { IsSynchronized = true };
-        public static readonly ThreadExecutionMode MainAsync = new(2) { IsSynchronized = true };
-        public static readonly ThreadExecutionMode Background = new(3);
-        public static readonly ThreadExecutionMode BackgroundAsync = new(4);
+        public static readonly ThreadExecutionMode Current = new(nameof(Current));
+        public static readonly ThreadExecutionMode Main = new(nameof(Main)) {IsSynchronized = true};
+        public static readonly ThreadExecutionMode MainAsync = new(nameof(MainAsync)) {IsSynchronized = true};
+        public static readonly ThreadExecutionMode Background = new(nameof(Background));
+        public static readonly ThreadExecutionMode BackgroundAsync = new(nameof(BackgroundAsync));
 
-        public ThreadExecutionMode(int value, string? name = null) : base(value, name)
+        public ThreadExecutionMode(string value, string? name = null) : base(value, name)
         {
         }
 

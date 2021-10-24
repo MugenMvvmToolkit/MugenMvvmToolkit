@@ -7,13 +7,13 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = InternalConstant.DataContractNamespace)]
-    public class NavigationCallbackType : EnumBase<NavigationCallbackType, int>
+    public class NavigationCallbackType : EnumBase<NavigationCallbackType, string>
     {
-        public static readonly NavigationCallbackType Show = new(1, nameof(Show));
-        public static readonly NavigationCallbackType Closing = new(2, nameof(Closing));
-        public static readonly NavigationCallbackType Close = new(3, nameof(Close));
+        public static readonly NavigationCallbackType Show = new(nameof(Show));
+        public static readonly NavigationCallbackType Closing = new(nameof(Closing));
+        public static readonly NavigationCallbackType Close = new(nameof(Close));
 
-        public NavigationCallbackType(int value, string? name = null) : base(value, name)
+        public NavigationCallbackType(string value, string? name = null) : base(value, name)
         {
         }
 

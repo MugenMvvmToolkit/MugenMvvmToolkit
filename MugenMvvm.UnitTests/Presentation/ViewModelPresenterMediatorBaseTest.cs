@@ -384,7 +384,7 @@ namespace MugenMvvm.UnitTests.Presentation
             }
             else
             {
-                WaitCompletion(20, () => cancelCount == 1);
+                WaitCompletion(30, () => cancelCount == 1);
                 closeCount.ShouldEqual(0);
                 cancelCount.ShouldEqual(1);
             }
@@ -671,7 +671,7 @@ namespace MugenMvvm.UnitTests.Presentation
                     viewMapping.ShouldEqual(_mapping);
                     if (includeView)
                     {
-                        var request = (ViewModelViewRequest)r;
+                        var request = (ViewModelViewRequest) r;
                         request.ViewModel.ShouldEqual(_vm);
                         request.View.ShouldEqual(_view.Target);
                     }
@@ -788,7 +788,7 @@ namespace MugenMvvm.UnitTests.Presentation
             };
             mediator.TryShow(null, DefaultCancellationToken, Metadata);
             tcs.SetResult(result);
-            WaitCompletion();
+            WaitCompletion(20, () => showCount == 1 || cancelCount == 1);
             if (result)
                 showCount.ShouldEqual(1);
             else

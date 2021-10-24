@@ -121,12 +121,12 @@ namespace MugenMvvm.Bindings.Extensions
         public static BindingBuilderTo<TTarget, TSource> Delay<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, int delay)
             where TTarget : class
             where TSource : class =>
-            builder.BindingParameter(BindingParameterNameConstant.Delay, BoxingExtensions.Box(delay));
+            builder.BindingParameter(BindingParameterNameConstant.Delay, ConstantExpressionNode.Get(delay));
 
         public static BindingBuilderTo<TTarget, TSource> TargetDelay<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder, int delay)
             where TTarget : class
             where TSource : class =>
-            builder.BindingParameter(BindingParameterNameConstant.TargetDelay, BoxingExtensions.Box(delay));
+            builder.BindingParameter(BindingParameterNameConstant.TargetDelay, ConstantExpressionNode.Get(delay));
 
         public static BindingBuilderTo<TTarget, TSource> CommandParameterSource<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder)
             where TTarget : class

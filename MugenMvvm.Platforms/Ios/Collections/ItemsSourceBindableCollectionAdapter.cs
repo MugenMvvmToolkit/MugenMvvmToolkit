@@ -251,6 +251,8 @@ namespace MugenMvvm.Ios.Collections
         {
             if (_closure == null || _closure.Version != Version)
                 return true;
+            if (!ReferenceEquals(Items[oldItemPosition], _resetItems![newItemPosition]))
+                return false;
 
             var changedItems = _changedItems;
             return changedItems == null || !changedItems.ContainsKey((oldItemPosition, CollectionMetadata.ReloadItem));

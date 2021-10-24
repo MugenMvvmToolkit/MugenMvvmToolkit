@@ -25,7 +25,8 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Collections
 {
-    public class BindableCollectionAdapter : ReadOnlyCollection<object?>, IThreadDispatcherHandler, IValueHolder<Delegate>, IHasTarget<IEnumerable?>
+    public class BindableCollectionAdapter : ReadOnlyCollection<object?>, IThreadDispatcherHandler, IValueHolder<Delegate>,
+        IHasTarget<IEnumerable?> //todo bindable count, indexer etc
     {
         protected WeakListener? Listener;
         protected List<object?>? ResetCache;
@@ -417,17 +418,23 @@ namespace MugenMvvm.Collections
             ActionToken newLock = default;
             try
             {
+                bool switched = false;
                 if (oldValue != null)
                 {
                     if (!MugenExtensions.TryLock(oldValue, LockTimeout, out oldLock))
-                        await ThreadDispatcher.SwitchToBackgroundAsync();
+                    {
+                        switched = true;
+                        await ThreadDispatcher.SwitchToAsync(ThreadExecutionMode.BackgroundAsync);
+                    }
+
                     RemoveCollectionListener(oldValue);
                     oldLock.Dispose();
                 }
 
                 if (!MugenExtensions.TryLock(newValue, LockTimeout, out newLock))
                 {
-                    await ThreadDispatcher.SwitchToBackgroundAsync();
+                    if (!switched)
+                        await ThreadDispatcher.SwitchToAsync(ThreadExecutionMode.BackgroundAsync);
                     newLock = MugenExtensions.Lock(newValue);
                 }
 

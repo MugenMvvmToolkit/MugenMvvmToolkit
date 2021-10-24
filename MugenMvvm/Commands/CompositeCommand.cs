@@ -78,7 +78,7 @@ namespace MugenMvvm.Commands
             IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        public static ICompositeCommand CreateFromTask(object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute,
+        public static ICompositeCommand Create(object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, Task> execute,
             Func<IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIReadOnlyCollection<object> notifiers = default,
             bool? allowMultipleExecution = null,
@@ -86,21 +86,21 @@ namespace MugenMvvm.Commands
             IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        public static ICompositeCommand CreateFromTask(object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
+        public static ICompositeCommand Create(object? owner, Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
             Func<IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIReadOnlyCollection<object> notifiers = default,
             bool? allowMultipleExecution = null, ThreadExecutionMode? eventThreadMode = null, Func<object?, object?, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        public static ICompositeCommand CreateFromTask<T>(object? owner, Func<T?, CancellationToken, IReadOnlyMetadataContext?, Task> execute,
+        public static ICompositeCommand Create<T>(object? owner, Func<T?, CancellationToken, IReadOnlyMetadataContext?, Task> execute,
             Func<T?, IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIReadOnlyCollection<object> notifiers = default, bool? allowMultipleExecution = null,
             ThreadExecutionMode? eventThreadMode = null,
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>
             commandManager.GetCommand(owner, execute, canExecute, notifiers, allowMultipleExecution, eventThreadMode, canNotify, metadata);
 
-        public static ICompositeCommand CreateFromTask<T>(object? owner, Func<T?, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
+        public static ICompositeCommand Create<T>(object? owner, Func<T?, CancellationToken, IReadOnlyMetadataContext?, Task<bool>> execute,
             Func<T?, IReadOnlyMetadataContext?, bool>? canExecute = null,
             ItemOrIReadOnlyCollection<object> notifiers = default, bool? allowMultipleExecution = null, ThreadExecutionMode? eventThreadMode = null,
             Func<object?, object?, bool>? canNotify = null, IReadOnlyMetadataContext? metadata = null, ICommandManager? commandManager = null) =>

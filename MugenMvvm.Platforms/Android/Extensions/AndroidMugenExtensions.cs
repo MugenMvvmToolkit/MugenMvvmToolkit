@@ -224,7 +224,7 @@ namespace MugenMvvm.Android.Extensions
                                                            .WithParameters(new[]
                                                            {
                                                                AttachedMemberBuilder.Parameter<string>("p1").Build(),
-                                                               AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()
+                                                               AttachedMemberBuilder.Parameter<int>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()
                                                            })
                                                            .InvokeHandler((_, target, args, _) =>
                                                                NativeBindableMemberMugenExtensions.FindRelativeSource(target, (string)args[0]!, (int)args[1]!))

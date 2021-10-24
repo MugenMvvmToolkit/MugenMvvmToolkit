@@ -18,8 +18,8 @@ namespace MugenMvvm.UnitTests.Serialization.Components
 
         public SerializationManagerTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _serializationFormat = new SerializationFormat<string, Stream?>(1, "Test");
-            _deserializationFormat = new DeserializationFormat<string, Stream?>(1, "Test");
+            _serializationFormat = new SerializationFormat<string, Stream?>("Test");
+            _deserializationFormat = new DeserializationFormat<string, Stream?>("Test");
             Serializer.AddComponent(new SerializationManager());
         }
 

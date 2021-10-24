@@ -224,6 +224,9 @@ namespace MugenMvvm.Android.Collections
         {
             if (_diffVersion != Version)
                 return true;
+            if (!ReferenceEquals(Items[oldItemPosition], _resetItems![newItemPosition]))
+                return false;
+            
             var changedItems = _changedItems;
             return changedItems == null || !changedItems.ContainsKey((oldItemPosition, CollectionMetadata.ReloadItem));
         }

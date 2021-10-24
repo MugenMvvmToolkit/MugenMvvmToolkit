@@ -1,7 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Tests.Commands;
 using Should;
 using Xunit;
@@ -138,7 +142,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 m.ShouldEqual(Metadata);
                 ++cmd1Count;
             }, allowMultipleExecution: true);
-            var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
+            var cmd2 = CompositeCommand.Create<object?>(this, (p, c, m) =>
             {
                 p.ShouldEqual(parameter);
                 c.ShouldEqual(DefaultCancellationToken);
@@ -158,19 +162,19 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task ExecuteAsyncShouldBeHandledByCommandsSequentially(bool result)
+        public async Task ExecuteAsyncShouldBeHandledByCommandsHandler(bool result)
         {
             var parameter = this;
             var cmd1Count = 0;
             var cmd2Count = 0;
-            var cmd1 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
+            var cmd1 = CompositeCommand.Create<object?>(this, (p, c, m) =>
             {
                 p.ShouldEqual(parameter);
                 m.ShouldEqual(Metadata);
                 ++cmd1Count;
                 return Task.FromResult(result);
             }, allowMultipleExecution: true);
-            var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (p, c, m) =>
+            var cmd2 = CompositeCommand.Create<object?>(this, (p, c, m) =>
             {
                 p.ShouldEqual(parameter);
                 c.ShouldEqual(DefaultCancellationToken);
@@ -181,11 +185,61 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             Command.AddChildCommand(cmd1);
             Command.AddChildCommand(cmd2);
-            Command.GetComponent<ChildCommandAdapter>().ExecuteSequentially = true;
+            Command.GetComponent<ChildCommandAdapter>().ExecuteHandler = async (set, p, c, m) =>
+            {
+                set.Count.ShouldEqual(2);
+                set.Contains(cmd1).ShouldBeTrue();
+                set.Contains(cmd2).ShouldBeTrue();
+                if (await cmd1.ExecuteAsync(p, c, m))
+                    return true;
+                return await cmd2.ExecuteAsync(p, c, m);
+            };
             (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata)).ShouldBeTrue();
 
             cmd1Count.ShouldEqual(1);
             cmd2Count.ShouldEqual(result ? 0 : 1);
+        }
+
+        [Fact]
+        public void IsExecutingShouldBeHandledByCommands()
+        {
+            var isExecuting1 = false;
+            var isExecuting2 = false;
+
+            void Assert()
+            {
+                Command.IsExecuting(Metadata).ShouldEqual(isExecuting1 || isExecuting2);
+            }
+
+            var cmd1 = new CompositeCommand(null, ComponentCollectionManager);
+            cmd1.AddComponent(new TestCommandExecutorComponent
+            {
+                IsExecuting = (_, m) =>
+                {
+                    m.ShouldEqual(Metadata);
+                    return isExecuting1;
+                }
+            });
+            var cmd2 = new CompositeCommand(null, ComponentCollectionManager);
+            cmd2.AddComponent(new TestCommandExecutorComponent
+            {
+                IsExecuting = (_, m) =>
+                {
+                    m.ShouldEqual(Metadata);
+                    return isExecuting2;
+                }
+            });
+
+            Command.AddChildCommand(cmd1);
+            Command.AddChildCommand(cmd2);
+            Assert();
+
+            isExecuting1 = true;
+            Assert();
+
+            isExecuting1 = true;
+            isExecuting2 = true;
+            Assert();
         }
 
         [Fact]
@@ -265,60 +319,18 @@ namespace MugenMvvm.UnitTests.Commands.Components
         }
 
         [Fact]
-        public void IsExecutingShouldBeHandledByCommands()
-        {
-            var isExecuting1 = false;
-            var isExecuting2 = false;
-
-            void Assert()
-            {
-                Command.IsExecuting(Metadata).ShouldEqual(isExecuting1 || isExecuting2);
-            }
-
-            var cmd1 = new CompositeCommand(null, ComponentCollectionManager);
-            cmd1.AddComponent(new TestCommandExecutorComponent
-            {
-                IsExecuting = (_, m) =>
-                {
-                    m.ShouldEqual(Metadata);
-                    return isExecuting1;
-                }
-            });
-            var cmd2 = new CompositeCommand(null, ComponentCollectionManager);
-            cmd2.AddComponent(new TestCommandExecutorComponent
-            {
-                IsExecuting = (_, m) =>
-                {
-                    m.ShouldEqual(Metadata);
-                    return isExecuting2;
-                }
-            });
-
-            Command.AddChildCommand(cmd1);
-            Command.AddChildCommand(cmd2);
-            Assert();
-
-            isExecuting1 = true;
-            Assert();
-
-            isExecuting1 = true;
-            isExecuting2 = true;
-            Assert();
-        }
-
-        [Fact]
         public async Task WaitAsyncShouldBeHandledByCommands()
         {
             var cmd1Count = 0;
             var cmd2Count = 0;
             var tcs1 = new TaskCompletionSource<object>();
             var tcs2 = new TaskCompletionSource<object>();
-            var cmd1 = CompositeCommand.CreateFromTask<object?>(this, (_, _, _) =>
+            var cmd1 = CompositeCommand.Create<object?>(this, (_, _, _) =>
             {
                 ++cmd1Count;
                 return tcs1.Task;
             }, allowMultipleExecution: true);
-            var cmd2 = CompositeCommand.CreateFromTask<object?>(this, (_, _, _) =>
+            var cmd2 = CompositeCommand.Create<object?>(this, (_, _, _) =>
             {
                 ++cmd2Count;
                 return tcs2.Task;

@@ -8,6 +8,6 @@ namespace MugenMvvm.UnitTests.Serialization
     public class SerializationContextTest : MetadataOwnerTestBase
     {
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
-            => new SerializationContext<object?, object?>(new SerializationFormat<object?, object?>(1, ""), null, metadata);
+            => new SerializationContext<object?, object?>(new SerializationFormat<object?, object?>(""), null, metadata);
     }
 }
