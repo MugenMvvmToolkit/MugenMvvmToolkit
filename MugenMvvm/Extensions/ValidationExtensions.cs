@@ -40,7 +40,19 @@ namespace MugenMvvm.Extensions
         public static bool RemoveChildValidator(this IValidator owner, IValidator validator)
         {
             Should.NotBeNull(owner, nameof(owner));
-            return owner.GetOrAddComponent<ChildValidatorAdapter>().Remove(validator);
+            return owner.GetComponentOptional<ChildValidatorAdapter>()?.Remove(validator) ?? false;
+        }
+
+        public static void AddErrorMapping(this IValidator owner, string from, string to)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            owner.GetOrAddComponent<MappingValidatorDecorator>().Add(from, to);
+        }
+
+        public static bool RemoveErrorMapping(this IValidator owner, string mapping)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            return owner.GetComponentOptional<MappingValidatorDecorator>()?.Remove(mapping) ?? false;
         }
 
         public static bool Contains(this ItemOrIReadOnlyList<ValidationErrorInfo> errors, string? member)

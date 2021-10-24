@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTests
         private Validator? _validator;
         private TestBinding? _binding;
         protected static readonly ReadOnlyDictionary<string, object?> EmptyDictionary = new(new Dictionary<string, object?>());
-        protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(1, ""), null);
+        protected static readonly SerializationContext<object?, object?> EmptySerializationContext = new(new SerializationFormat<object?, object?>(""), null);
 
         static UnitTestBase()
         {
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTests
 
         protected TestBinding Binding => _binding ??= new TestBinding(ComponentCollectionManager);
 
-        protected static void WaitCompletion(int milliseconds = 10, Func<bool>? predicate = null, int attemptCount = 30)
+        protected static void WaitCompletion(int milliseconds = 10, Func<bool>? predicate = null, int attemptCount = 40)
         {
             var count = 0;
             while (true)
@@ -91,6 +91,6 @@ namespace MugenMvvm.UnitTests
                 Id = hash
             };
 
-        protected int GetBaseHashCode(IExpressionNode expression) => (expression.ExpressionType.Value * 397) ^ expression.Metadata.Count;
+        protected int GetBaseHashCode(IExpressionNode expression) => expression.ExpressionType.Value.GetHashCode() ^ expression.Metadata.Count;
     }
 }
