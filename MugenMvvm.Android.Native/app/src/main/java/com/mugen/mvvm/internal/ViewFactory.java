@@ -54,7 +54,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     }
 
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         return true;
     }
 
@@ -79,7 +79,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     protected Context getContext(@Nullable Object container) {
         Context context;
         if (container instanceof IHasContext)
-            context = (Context) ((IHasContext) container).getContext();
+            context = ((IHasContext) container).getContext();
         else if (container instanceof View)
             context = ((View) container).getContext();
         else if (container instanceof Context)

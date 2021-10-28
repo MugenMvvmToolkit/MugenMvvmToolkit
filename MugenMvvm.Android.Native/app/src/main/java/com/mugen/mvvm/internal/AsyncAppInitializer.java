@@ -84,7 +84,7 @@ public class AsyncAppInitializer implements IAsyncAppInitializer, ILifecycleDisp
     }
 
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         if (!isFinishing(target))
             PendingStates.add(new State(target, lifecycle, state, true));
         return true;
@@ -119,7 +119,7 @@ public class AsyncAppInitializer implements IAsyncAppInitializer, ILifecycleDisp
                 BindPendingState = state;
                 BindCallback.bind(state.Target);
             } else if (state.IsChanging)
-                LifecycleDispatcher.onLifecycleChanging(state.Target, state.Lifecycle, state.State);
+                LifecycleDispatcher.onLifecycleChanging(state.Target, state.Lifecycle, state.State, false);
             else
                 LifecycleDispatcher.onLifecycleChanged(state.Target, state.Lifecycle, state.State);
         }

@@ -27,15 +27,15 @@ namespace MugenMvvm.Extensions
         public static ShowPresenterResult ShowAsync(this IViewModelBase viewModel, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            TryGetShowPresenterResult(presenter.DefaultIfNull(viewModel).Show(viewModel, cancellationToken, metadata), navigationDispatcher.DefaultIfNull(viewModel), metadata,
-                out var showCallback, out var closeCallback, out var presenterResult);
+            TryGetShowPresenterResult(presenter, presenter.DefaultIfNull(viewModel).Show(viewModel, cancellationToken, metadata), navigationDispatcher.DefaultIfNull(viewModel),
+                metadata, out var showCallback, out var closeCallback, out var presenterResult);
             return new ShowPresenterResult(presenterResult, showCallback, closeCallback);
         }
 
         public static ShowPresenterResult<T> ShowAsync<T>(this IHasResult<T> hasNavigationResult, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            TryGetShowPresenterResult(presenter.DefaultIfNull(hasNavigationResult).Show(hasNavigationResult, cancellationToken, metadata),
+            TryGetShowPresenterResult(presenter, presenter.DefaultIfNull(hasNavigationResult).Show(hasNavigationResult, cancellationToken, metadata),
                 navigationDispatcher.DefaultIfNull(hasNavigationResult), metadata, out var showCallback, out var closeCallback, out var presenterResult);
             return new ShowPresenterResult<T>(presenterResult, showCallback, closeCallback);
         }
@@ -72,7 +72,8 @@ namespace MugenMvvm.Extensions
             return default;
         }
 
-        private static void TryGetShowPresenterResult(ItemOrIReadOnlyList<IPresenterResult> result, INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata,
+        private static void TryGetShowPresenterResult(IPresenter? presenter, ItemOrIReadOnlyList<IPresenterResult> result, INavigationDispatcher navigationDispatcher,
+            IReadOnlyMetadataContext? metadata,
             out INavigationCallback? showCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)
         {
             if (result.List != null || result.Item == null)
@@ -90,7 +91,7 @@ namespace MugenMvvm.Extensions
 
             if (closeCallback == null)
             {
-                ExceptionManager.ThrowRequestNotSupported<ShowPresenterResult>(presenterResult, presenterResult, metadata);
+                ExceptionManager.ThrowRequestNotSupported<ShowPresenterResult>(presenter.DefaultIfNull(), presenterResult, metadata);
                 closeCallback = null;
             }
         }

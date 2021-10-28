@@ -40,7 +40,7 @@ public class ViewCleaner implements ILifecycleDispatcher, IViewDispatcher {
     }
 
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         return true;
     }
 

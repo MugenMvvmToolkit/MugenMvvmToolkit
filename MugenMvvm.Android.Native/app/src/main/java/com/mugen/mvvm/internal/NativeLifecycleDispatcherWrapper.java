@@ -18,8 +18,8 @@ public class NativeLifecycleDispatcherWrapper implements ILifecycleDispatcher {
     }
 
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
-        return _lifecycleDispatcher.onLifecycleChanging(ViewMugenExtensions.tryWrap(target), lifecycle, ViewMugenExtensions.tryWrap(state));
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
+        return _lifecycleDispatcher.onLifecycleChanging(ViewMugenExtensions.tryWrap(target), lifecycle, ViewMugenExtensions.tryWrap(state), cancelable);
     }
 
     @Override

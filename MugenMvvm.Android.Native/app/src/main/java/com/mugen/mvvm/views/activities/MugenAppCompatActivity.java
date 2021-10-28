@@ -56,13 +56,13 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
     }
 
     @Override
-    public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+    public View onCreateView(View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
         return MugenContextWrapper.onActivityCreateView(this, parent, super.onCreateView(parent, name, context, attrs), name, context, attrs);
     }
 
     @Override
     public void finish() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Finish, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Finish, null, true)) {
             super.finish();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Finish, null);
         }
@@ -70,7 +70,7 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     public void finishAfterTransition() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.FinishAfterTransition, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.FinishAfterTransition, null, true)) {
             super.finishAfterTransition();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.FinishAfterTransition, null);
         }
@@ -78,7 +78,7 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     public void onBackPressed() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.BackPressed, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.BackPressed, null, true)) {
             super.onBackPressed();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.BackPressed, null);
         }
@@ -86,34 +86,28 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     protected void onNewIntent(Intent intent) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.NewIntent, intent)) {
-            super.onNewIntent(intent);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.NewIntent, intent);
-        } else
-            super.onNewIntent(intent);
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.NewIntent, intent, false);
+        super.onNewIntent(intent);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.NewIntent, intent);
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.ConfigurationChanged, newConfig)) {
-            super.onConfigurationChanged(newConfig);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.ConfigurationChanged, newConfig);
-        } else
-            super.onConfigurationChanged(newConfig);
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.ConfigurationChanged, newConfig, false);
+        super.onConfigurationChanged(newConfig);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.ConfigurationChanged, newConfig);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
-            super.onCreate(savedInstanceState);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
-            if (isFinishing())
-                return;
-            int viewId = getViewId();
-            if (viewId != 0)
-                setContentView(viewId);
-        } else
-            super.onCreate(savedInstanceState);
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState, false);
+        super.onCreate(savedInstanceState);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
+        if (isFinishing())
+            return;
+        int viewId = getViewId();
+        if (viewId != 0)
+            setContentView(viewId);
     }
 
     @Override
@@ -142,54 +136,44 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     protected void onDestroy() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
-            super.onDestroy();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
-            if (_state != null)
-                _state = null;
-        } else
-            super.onDestroy();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null, false);
+        super.onDestroy();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
+        if (_state != null)
+            _state = null;
     }
 
     @Override
     protected void onPause() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
-            super.onPause();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
-        } else
-            super.onPause();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null, false);
+        super.onPause();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
     }
 
     @Override
     protected void onRestart() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Restart, null)) {
-            super.onRestart();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Restart, null);
-        } else
-            super.onRestart();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Restart, null, false);
+        super.onRestart();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Restart, null);
     }
 
     @Override
     protected void onResume() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
-            super.onResume();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
-        } else
-            super.onResume();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null, false);
+        super.onResume();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
-            super.onSaveInstanceState(outState);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
-        } else
-            super.onSaveInstanceState(outState);
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState, false);
+        super.onSaveInstanceState(outState);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu, true)) {
             boolean result = super.onCreateOptionsMenu(menu);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.CreateOptionsMenu, menu);
             return result;
@@ -199,7 +183,7 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item, true)) {
             boolean result = super.onOptionsItemSelected(item);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.OptionsItemSelected, item);
             return result;
@@ -209,28 +193,22 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     protected void onStart() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
-            super.onStart();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
-        } else
-            super.onStart();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null, false);
+        super.onStart();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
     }
 
     @Override
     protected void onStop() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
-            super.onStop();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
-        } else
-            super.onStop();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null, false);
+        super.onStop();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.PostCreate, savedInstanceState)) {
-            super.onPostCreate(savedInstanceState);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
-        } else
-            super.onPostCreate(savedInstanceState);
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.PostCreate, savedInstanceState, false);
+        super.onPostCreate(savedInstanceState);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
     }
 }

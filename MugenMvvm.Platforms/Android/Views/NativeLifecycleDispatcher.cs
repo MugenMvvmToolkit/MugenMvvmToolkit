@@ -35,14 +35,19 @@ namespace MugenMvvm.Android.Views
             }
         }
 
-        public bool OnLifecycleChanging(Object target, int lifecycleState, Object? state)
+        public bool OnLifecycleChanging(Object target, int lifecycleState, Object? state, bool cancelable)
         {
             var viewLifecycleState = AndroidViewLifecycleState.TryParseNativeChanging(lifecycleState);
             if (viewLifecycleState != null)
             {
-                var request = new CancelableRequest(null, state);
-                _viewManager.DefaultIfNull().OnLifecycleChanged(target, viewLifecycleState, request);
-                return !request.Cancel.GetValueOrDefault();
+                if (cancelable)
+                {
+                    var request = new CancelableRequest(null, state);
+                    _viewManager.DefaultIfNull().OnLifecycleChanged(target, viewLifecycleState, request);
+                    return !request.Cancel.GetValueOrDefault();
+                }
+
+                _viewManager.DefaultIfNull().OnLifecycleChanged(target, viewLifecycleState, state);
             }
 
             return true;

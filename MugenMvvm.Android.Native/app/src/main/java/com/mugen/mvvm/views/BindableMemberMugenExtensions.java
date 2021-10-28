@@ -416,18 +416,18 @@ public final class BindableMemberMugenExtensions {
         boolean hasLifecycleOld = oldContent != null && !(oldContent instanceof IHasLifecycleView);
         boolean hasLifecycleNew = content != null && !(content instanceof IHasLifecycleView);
         if (hasLifecycleOld)
-            LifecycleMugenExtensions.onLifecycleChanging(oldContent, LifecycleState.Pause, null);
+            LifecycleMugenExtensions.onLifecycleChanging(oldContent, LifecycleState.Disappear, null, false);
         if (hasLifecycleNew)
-            LifecycleMugenExtensions.onLifecycleChanging(content, LifecycleState.Resume, null);
+            LifecycleMugenExtensions.onLifecycleChanging(content, LifecycleState.Appear, null, false);
 
         viewGroup.removeAllViews();
         if (content != null)
             viewGroup.addView((View) content);
 
         if (hasLifecycleOld)
-            LifecycleMugenExtensions.onLifecycleChanged(oldContent, LifecycleState.Pause, null);
+            LifecycleMugenExtensions.onLifecycleChanged(oldContent, LifecycleState.Disappear, null);
         if (hasLifecycleNew)
-            LifecycleMugenExtensions.onLifecycleChanged(content, LifecycleState.Resume, null);
+            LifecycleMugenExtensions.onLifecycleChanged(content, LifecycleState.Appear, null);
     }
 
     @Nullable

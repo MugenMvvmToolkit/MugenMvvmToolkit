@@ -64,7 +64,7 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        LifecycleMugenExtensions.onLifecycleChanging(object, LifecycleState.Destroy, null);
+        LifecycleMugenExtensions.onLifecycleChanging(object, LifecycleState.Destroy, null, false);
         container.removeView((View) object);
         LifecycleMugenExtensions.onLifecycleChanged(object, LifecycleState.Destroy, null);
     }
@@ -84,12 +84,12 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
         Object oldContent = _currentPrimaryItem;
         if (oldContent != object) {
             if (oldContent != null) {
-                LifecycleMugenExtensions.onLifecycleChanging(oldContent, LifecycleState.Pause, null);
-                LifecycleMugenExtensions.onLifecycleChanged(oldContent, LifecycleState.Pause, null);
+                LifecycleMugenExtensions.onLifecycleChanging(oldContent, LifecycleState.Disappear, null, false);
+                LifecycleMugenExtensions.onLifecycleChanged(oldContent, LifecycleState.Disappear, null);
             }
             _currentPrimaryItem = object;
-            LifecycleMugenExtensions.onLifecycleChanging(object, LifecycleState.Resume, null);
-            LifecycleMugenExtensions.onLifecycleChanged(object, LifecycleState.Resume, null);
+            LifecycleMugenExtensions.onLifecycleChanging(object, LifecycleState.Appear, null, false);
+            LifecycleMugenExtensions.onLifecycleChanged(object, LifecycleState.Appear, null);
         }
     }
 

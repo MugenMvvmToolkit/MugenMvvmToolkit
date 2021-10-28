@@ -70,14 +70,14 @@ public class MugenPager2Adapter extends MugenRecyclerViewAdapter {
             _selectedIndex = position;
 
             if (oldPage != null && oldPage != newPage && !(oldPage instanceof IHasLifecycleView)) {
-                LifecycleMugenExtensions.onLifecycleChanging(oldPage, LifecycleState.Pause, null);
-                LifecycleMugenExtensions.onLifecycleChanged(oldPage, LifecycleState.Pause, null);
+                LifecycleMugenExtensions.onLifecycleChanging(oldPage, LifecycleState.Disappear, null, false);
+                LifecycleMugenExtensions.onLifecycleChanged(oldPage, LifecycleState.Disappear, null);
             }
 
             if (newPage != null && !(newPage instanceof IHasLifecycleView)) {
                 _isFirstPageNotified = true;
-                LifecycleMugenExtensions.onLifecycleChanging(newPage, LifecycleState.Resume, null);
-                LifecycleMugenExtensions.onLifecycleChanged(newPage, LifecycleState.Resume, null);
+                LifecycleMugenExtensions.onLifecycleChanging(newPage, LifecycleState.Appear, null, false);
+                LifecycleMugenExtensions.onLifecycleChanged(newPage, LifecycleState.Appear, null);
             }
         }
 

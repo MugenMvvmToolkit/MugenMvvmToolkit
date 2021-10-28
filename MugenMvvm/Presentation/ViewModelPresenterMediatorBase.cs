@@ -296,6 +296,8 @@ namespace MugenMvvm.Presentation
 
         protected Task WaitShowAsync() => _showingTask?.Task ?? Task.CompletedTask;
 
+        protected bool IsDisposed(IReadOnlyMetadataContext? metadata) => ViewModel.IsInState(ViewModelLifecycleState.Disposed, metadata, _viewModelManager);
+
         private async void Show(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             INavigationContext? context = null;
@@ -326,7 +328,9 @@ namespace MugenMvvm.Presentation
                     return;
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
+                if (!EnsureValidState(context, cancellationToken))
+                    return;
+
                 if (!context.NavigationMode.IsNew && CurrentView != null && (view == null || Equals(CurrentView, view)))
                 {
                     await RefreshAsync(context, cancellationToken);
@@ -334,7 +338,9 @@ namespace MugenMvvm.Presentation
                 }
 
                 var newView = await ViewManager.InitializeAsync(Mapping, GetViewRequest(view, context), cancellationToken, context.GetMetadataOrDefault());
-                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!EnsureValidState(context, cancellationToken))
+                    return;
 
                 var currentView = UpdateView(newView, context);
                 if (context.NavigationMode.IsNew || view == null)
@@ -433,7 +439,7 @@ namespace MugenMvvm.Presentation
 
         private bool EnsureValidState(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            if (!navigationContext.NavigationMode.IsClose && ViewModel.IsInState(ViewModelLifecycleState.Disposed, navigationContext.GetMetadataOrDefault(), _viewModelManager))
+            if (!navigationContext.NavigationMode.IsClose && IsDisposed(navigationContext.GetMetadataOrDefault()))
             {
                 OnNavigationFailed(navigationContext, new ObjectDisposedException(ViewModel.GetType().FullName));
                 return false;

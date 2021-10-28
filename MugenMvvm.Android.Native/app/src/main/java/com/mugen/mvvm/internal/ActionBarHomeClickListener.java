@@ -15,7 +15,7 @@ import com.mugen.mvvm.views.BindableMemberMugenExtensions;
 
 public final class ActionBarHomeClickListener implements ILifecycleDispatcher {
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         if (lifecycle == LifecycleState.OptionsItemSelected && state instanceof MenuItem && ((MenuItem) state).getItemId() == android.R.id.home) {
             Object actionBar = ActivityMugenExtensions.getActionBar((IActivityView) target);
             if (actionBar != null)

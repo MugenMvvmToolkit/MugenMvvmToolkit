@@ -78,19 +78,28 @@ namespace MugenMvvm.Views.Components
         private IView InitializeView(IViewManager viewManager, IViewMapping mapping, IViewModelBase viewModel, object rawView, IReadOnlyMetadataContext? metadata)
         {
             var view = new View(mapping, rawView, viewModel, null, _componentCollectionManager);
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
+            try
+            {
+                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
+                var views = viewModel.Metadata.Get(InternalMetadata.Views);
+                MugenExtensions.AddRaw(ref views, view);
+                viewModel.Metadata.Set(InternalMetadata.Views, views);
 
-            var views = viewModel.Metadata.Get(InternalMetadata.Views);
-            MugenExtensions.AddRaw(ref views, view);
-            viewModel.Metadata.Set(InternalMetadata.Views, views);
+                var attachedValues = rawView.AttachedValues(metadata, _attachedValueManager);
+                attachedValues.TryGet(InternalConstant.ViewsValueKey, out views);
+                MugenExtensions.AddRaw(ref views, view);
+                attachedValues.Set(InternalConstant.ViewsValueKey, views);
 
-            var attachedValues = rawView.AttachedValues(metadata, _attachedValueManager);
-            attachedValues.TryGet(InternalConstant.ViewsValueKey, out views);
-            MugenExtensions.AddRaw(ref views, view);
-            attachedValues.Set(InternalConstant.ViewsValueKey, views);
-
-            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, viewModel, metadata);
-            return view;
+                if (viewModel.IsInState(ViewModelLifecycleState.Disposed, metadata))
+                    ExceptionManager.ThrowObjectDisposed(viewModel);
+                viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, viewModel, metadata);
+                return view;
+            }
+            catch
+            {
+                Cleanup(viewManager, view, viewModel, metadata);
+                throw;
+            }
         }
 
         private void Cleanup(IViewManager viewManager, IView view, object? state, IReadOnlyMetadataContext? metadata)

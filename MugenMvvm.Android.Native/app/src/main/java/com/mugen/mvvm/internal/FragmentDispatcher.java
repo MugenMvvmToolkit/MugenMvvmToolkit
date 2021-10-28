@@ -22,7 +22,7 @@ public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher
     private final String ViewIdKey = "f_vid";
 
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         if (lifecycle == LifecycleState.Create && state instanceof Bundle) {
             if (MugenUtils.isFragmentStateDisabled())
                 FragmentMugenExtensions.clearFragmentState((Bundle) state);

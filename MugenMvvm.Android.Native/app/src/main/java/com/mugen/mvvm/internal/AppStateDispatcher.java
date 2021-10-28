@@ -24,7 +24,7 @@ public class AppStateDispatcher implements ILifecycleDispatcher {
     }
 
     @Override
-    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         if (lifecycle == LifecycleState.Create && target instanceof Activity) {
             MugenService.removeLifecycleDispatcher(this);
             if (state instanceof Bundle)

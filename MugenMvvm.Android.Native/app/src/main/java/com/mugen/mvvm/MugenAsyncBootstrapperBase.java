@@ -8,12 +8,18 @@ import com.mugen.mvvm.interfaces.IHasAsyncInitializationCallback;
 import com.mugen.mvvm.internal.AsyncAppInitializer;
 import com.mugen.mvvm.views.ActivityMugenExtensions;
 
+import java.util.concurrent.CountDownLatch;
+
 public abstract class MugenAsyncBootstrapperBase extends MugenBootstrapperBase implements Runnable {
     private static Thread _initThread;
+    private static CountDownLatch _mainThreadSignal;
 
     public MugenAsyncBootstrapperBase() {
-        _initThread = new Thread(this);
-        _initThread.start();
+        if (isAsync()) {
+            _mainThreadSignal = new CountDownLatch(1);
+            _initThread = new Thread(this);
+            _initThread.start();
+        }
     }
 
     public static void ensureInitialized() {
@@ -23,7 +29,8 @@ public abstract class MugenAsyncBootstrapperBase extends MugenBootstrapperBase i
 
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
-        initializeNative(context, info);
+        if (initializeNative(context, info) && _initThread == null)
+            initialize();
     }
 
     @Override
@@ -39,18 +46,30 @@ public abstract class MugenAsyncBootstrapperBase extends MugenBootstrapperBase i
             if (hasCallback)
                 ((IHasAsyncInitializationCallback) currentActivity).onAsyncInitializationCompleted();
         } else {
+            try {
+                _mainThreadSignal.await();
+            } catch (InterruptedException ignored) {
+            }
             initialize();
+            _mainThreadSignal = null;
             _initThread = null;
             MugenUtils.runOnUiThread(this);
         }
     }
 
     @Override
-    protected void initializeNative(Context context, ProviderInfo info) {
-        super.initializeNative(context, info);
-        AsyncAppInitializer initializer = new AsyncAppInitializer();
-        MugenService.setAsyncAppInitializer(initializer);
-        initializer.onInitializationStarted();
+    protected void initializeNativeInternal(Context context, ProviderInfo info) {
+        super.initializeNativeInternal(context, info);
+        if (_initThread != null) {
+            AsyncAppInitializer initializer = new AsyncAppInitializer();
+            MugenService.setAsyncAppInitializer(initializer);
+            initializer.onInitializationStarted();
+            _mainThreadSignal.countDown();
+        }
+    }
+
+    protected boolean isAsync() {
+        return true;
     }
 
     private static void waitInit() {

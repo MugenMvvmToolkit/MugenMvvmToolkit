@@ -12,12 +12,18 @@ public final class LifecycleMugenExtensions {
     private LifecycleMugenExtensions() {
     }
 
-    public static boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state) {
+    public static boolean onLifecycleChanging(@NonNull Object target, int lifecycle, @Nullable Object state, boolean cancelable) {
         ArrayList<ILifecycleDispatcher> lifecycleDispatchers = MugenService.getLifecycleDispatchers();
-        for (int i = 0; i < lifecycleDispatchers.size(); i++) {
-            if (!lifecycleDispatchers.get(i).onLifecycleChanging(target, lifecycle, state))
-                return false;
+        if (cancelable) {
+            for (int i = 0; i < lifecycleDispatchers.size(); i++) {
+                if (!lifecycleDispatchers.get(i).onLifecycleChanging(target, lifecycle, state, true))
+                    return false;
+            }
+        } else {
+            for (int i = 0; i < lifecycleDispatchers.size(); i++)
+                lifecycleDispatchers.get(i).onLifecycleChanging(target, lifecycle, state, false);
         }
+
         return true;
     }
 

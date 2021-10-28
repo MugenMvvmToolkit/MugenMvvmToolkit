@@ -54,11 +54,9 @@ public class MugenBottomSheetDialogFragment extends BottomSheetDialogFragment im
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
-            super.onCreate(savedInstanceState);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
-        } else
-            super.onCreate(savedInstanceState);
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState, false);
+        super.onCreate(savedInstanceState);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
     }
 
     @Nullable
@@ -87,45 +85,38 @@ public class MugenBottomSheetDialogFragment extends BottomSheetDialogFragment im
 
     @Override
     public void onDestroy() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
-            super.onDestroy();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
-            if (_state != null)
-                _state = null;
-        } else
-            super.onDestroy();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null, false);
+        super.onDestroy();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
+        if (_state != null)
+            _state = null;
+
     }
 
     @Override
     public void onPause() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
-            super.onPause();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
-        } else
-            super.onPause();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Pause, null, false);
+        super.onPause();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
     }
 
     @Override
     public void onResume() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
-            super.onResume();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
-        } else
-            super.onResume();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Resume, null, false);
+        super.onResume();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
-            super.onSaveInstanceState(outState);
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
-        } else
-            super.onSaveInstanceState(outState);
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState, false);
+        super.onSaveInstanceState(outState);
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
     }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu, true)) {
             super.onCreateOptionsMenu(menu, inflater);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.CreateOptionsMenu, menu);
         }
@@ -133,7 +124,7 @@ public class MugenBottomSheetDialogFragment extends BottomSheetDialogFragment im
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item, true)) {
             boolean result = super.onOptionsItemSelected(item);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.OptionsItemSelected, item);
             return result;
@@ -143,25 +134,21 @@ public class MugenBottomSheetDialogFragment extends BottomSheetDialogFragment im
 
     @Override
     public void onStart() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
-            super.onStart();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
-        } else
-            super.onStart();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Start, null, false);
+        super.onStart();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
     }
 
     @Override
     public void onStop() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
-            super.onStop();
-            LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
-        } else
-            super.onStop();
+        LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Stop, null, false);
+        super.onStop();
+        LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
     }
 
     @Override
     public void dismiss() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Dismiss, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Dismiss, null, true)) {
             super.dismiss();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Dismiss, null);
         }
@@ -169,7 +156,7 @@ public class MugenBottomSheetDialogFragment extends BottomSheetDialogFragment im
 
     @Override
     public void dismissAllowingStateLoss() {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.DismissAllowingStateLoss, null)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.DismissAllowingStateLoss, null, true)) {
             super.dismissAllowingStateLoss();
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.DismissAllowingStateLoss, null);
         }
@@ -177,7 +164,7 @@ public class MugenBottomSheetDialogFragment extends BottomSheetDialogFragment im
 
     @Override
     public void onCancel(@NonNull DialogInterface dialog) {
-        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Cancel, dialog)) {
+        if (LifecycleMugenExtensions.onLifecycleChanging(this, LifecycleState.Cancel, dialog, true)) {
             super.onCancel(dialog);
             LifecycleMugenExtensions.onLifecycleChanged(this, LifecycleState.Cancel, dialog);
         }

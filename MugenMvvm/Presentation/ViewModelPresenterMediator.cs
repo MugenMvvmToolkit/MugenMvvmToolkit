@@ -20,8 +20,7 @@ namespace MugenMvvm.Presentation
 {
     public class ViewModelPresenterMediator<TView> : ViewModelPresenterMediatorBase<TView>, IViewLifecycleListener, IHasPriority where TView : class
     {
-        protected bool IsAppeared;
-        protected bool LifecycleAdded;
+        private bool _isClosingFromLifecycle;
 
         public ViewModelPresenterMediator(IViewModelBase viewModel, IViewMapping mapping, IViewPresenterMediator viewPresenterMediator,
             IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, INavigationDispatcher? navigationDispatcher = null,
@@ -38,11 +37,16 @@ namespace MugenMvvm.Presentation
 
         public int Priority { get; init; } = ComponentPriority.Min;
 
+        protected bool IsAppeared { get; set; }
+
+        protected bool LifecycleAdded { get; set; }
+
         protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
         {
             //close from lifecycle
             if (ClosingContext == null)
             {
+                _isClosingFromLifecycle = true;
                 if (ShowingContext != null)
                 {
                     TryClose(CurrentView, default, metadata);
@@ -55,6 +59,7 @@ namespace MugenMvvm.Presentation
 
             if (!IsAppeared)
             {
+                _isClosingFromLifecycle = false;
                 if (LifecycleAdded)
                 {
                     LifecycleAdded = false;
@@ -67,11 +72,26 @@ namespace MugenMvvm.Presentation
 
         protected virtual void OnViewAppearing(object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (state is ICancelableRequest cancelableRequest && cancelableRequest.Cancel.GetValueOrDefault())
+            var cancelableRequest = state as ICancelableRequest;
+            if (cancelableRequest != null && cancelableRequest.Cancel.GetValueOrDefault())
+            {
+                if (ShowingContext != null)
+                    OnNavigationCanceled(ShowingContext, default);
                 return;
-            if (ClosingContext != null)
+            }
+
+            if (_isClosingFromLifecycle && ClosingContext != null)
                 OnNavigationCanceled(ClosingContext, default);
-            if (ShowingContext == null)
+
+            if (ClosingContext != null && cancelableRequest != null)
+            {
+                if (ShowingContext != null)
+                {
+                    cancelableRequest.Cancel = true;
+                    OnNavigationCanceled(ShowingContext, default);
+                }
+            }
+            else if (ShowingContext == null)
             {
                 ShowingContext = GetNavigationContext(NavigationMode.Refresh, metadata);
                 OnNavigating(ShowingContext);
@@ -80,9 +100,12 @@ namespace MugenMvvm.Presentation
 
         protected virtual void OnViewAppeared(object? state, IReadOnlyMetadataContext? metadata)
         {
+            _isClosingFromLifecycle = false;
             IsAppeared = true;
             if (ShowingContext != null)
                 OnViewShown(metadata);
+            if (ClosingContext == null && IsDisposed(metadata))
+                TryClose(CurrentView, default, metadata);
         }
 
         protected virtual void OnViewDisappeared(object? state, IReadOnlyMetadataContext? metadata)
@@ -107,7 +130,11 @@ namespace MugenMvvm.Presentation
             else if (lifecycleState == ViewLifecycleState.Disappeared)
                 OnViewDisappeared(state, metadata);
             else if (lifecycleState == ViewLifecycleState.Closing && state is ICancelableRequest cancelableRequest)
+            {
+                if (ClosingContext == null)
+                    _isClosingFromLifecycle = true;
                 OnViewClosing(cancelableRequest, metadata);
+            }
             else if (lifecycleState == ViewLifecycleState.Closed)
                 OnViewClosed(metadata);
             else if (lifecycleState == ViewLifecycleState.Cleared)
