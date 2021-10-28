@@ -339,7 +339,6 @@ namespace MugenMvvm.Extensions
             bool flatten = true, bool flattenDecoratedItems = true)
             where TKey : notnull
             where TGroup : class
-            where T : notnull
         {
             return configuration.GroupBy(getKey, getGroup, equalityComparer)
                                 .For<TGroup>()
@@ -439,8 +438,7 @@ namespace MugenMvvm.Extensions
             Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> onRemoved,
             Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged = null,
             Action<TrackerCollectionDecorator<T, TState>>? onReset = null, Func<T, bool>? immutableCondition = null,
-            IEqualityComparer<T>? comparer = null)
-            where T : notnull =>
+            IEqualityComparer<T>? comparer = null) =>
             configuration.Subscribe(onAdded, onRemoved, onChanged, onReset, immutableCondition, comparer, out _);
 
         public static DecoratorsConfiguration<T> Subscribe<T, TState>(this DecoratorsConfiguration<T> configuration,
@@ -449,7 +447,6 @@ namespace MugenMvvm.Extensions
             Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged,
             Action<TrackerCollectionDecorator<T, TState>>? onReset, Func<T, bool>? immutableCondition,
             IEqualityComparer<T>? comparer, out ActionToken removeToken)
-            where T : notnull
         {
             var decorator = new TrackerCollectionDecorator<T, TState>(configuration.Priority, configuration.AllowNull, onAdded, onRemoved, onChanged, onReset, immutableCondition,
                 comparer);
@@ -535,28 +532,23 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration<T> Min<T, TResult>(this DecoratorsConfiguration<T> configuration, Action<T?, TResult?> onChanged,
-            Func<T, TResult> selector, TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult?>? comparer = null, bool isImmutable = false)
-            where T : notnull =>
+            Func<T, TResult> selector, TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult?>? comparer = null, bool isImmutable = false) =>
             MaxMin(configuration, onChanged, selector, defaultValue, predicate, comparer, false, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Min<T, TResult>(this DecoratorsConfiguration<T> configuration, Action<T?, TResult?> onChanged,
-            Func<T, TResult> selector, TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, TResult> selector, TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, bool isImmutable, out ActionToken removeToken) =>
             MaxMin(configuration, onChanged, selector, defaultValue, predicate, comparer, false, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Max<T, TResult>(this DecoratorsConfiguration<T> configuration, Action<T?, TResult?> onChanged,
-            Func<T, TResult> selector, TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult?>? comparer = null, bool isImmutable = false)
-            where T : notnull =>
+            Func<T, TResult> selector, TResult? defaultValue = default, Func<T, bool>? predicate = null, IComparer<TResult?>? comparer = null, bool isImmutable = false) =>
             MaxMin(configuration, onChanged, selector, defaultValue, predicate, comparer, true, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Max<T, TResult>(this DecoratorsConfiguration<T> configuration, Action<T?, TResult?> onChanged,
-            Func<T, TResult> selector, TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, TResult> selector, TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, bool isImmutable, out ActionToken removeToken) =>
             MaxMin(configuration, onChanged, selector, defaultValue, predicate, comparer, true, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> MaxMin<T, TResult>(DecoratorsConfiguration<T> configuration, Action<T?, TResult?> onChanged,
             Func<T, TResult> selector, TResult? defaultValue, Func<T, bool>? predicate, IComparer<TResult?>? comparer, bool isMax, bool isImmutable, out ActionToken removeToken)
-            where T : notnull
         {
             Should.NotBeNull(selector, nameof(selector));
             Should.NotBeNull(onChanged, nameof(onChanged));
@@ -572,111 +564,87 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration<T> Count<T>(this DecoratorsConfiguration<T> configuration, Action<int> onChanged, Func<T, bool>? predicate = null,
-            bool isImmutable = false)
-            where T : notnull => configuration.Count(onChanged, predicate, isImmutable, out _);
+            bool isImmutable = false) => configuration.Count(onChanged, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Count<T>(this DecoratorsConfiguration<T> configuration, Action<int> onChanged, Func<T, bool>? predicate,
-            bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, _ => 1, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable || predicate == null, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<int> onChanged,
-            Func<T, int> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, int> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<int?> onChanged,
-            Func<T, int?> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, int?> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<long> onChanged,
-            Func<T, long> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, long> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<long?> onChanged,
-            Func<T, long?> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, long?> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<float> onChanged,
-            Func<T, float> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, float> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<float?> onChanged,
-            Func<T, float?> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, float?> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<double> onChanged,
-            Func<T, double> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, double> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<double?> onChanged,
-            Func<T, double?> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, double?> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<decimal> onChanged,
-            Func<T, decimal> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, decimal> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<decimal?> onChanged,
-            Func<T, decimal?> selector, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, decimal?> selector, Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.Sum(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<int> onChanged, Func<T, int> selector, Func<T, bool>? predicate,
-            bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<int?> onChanged, Func<T, int?> selector, Func<T, bool>? predicate,
-            bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<long> onChanged, Func<T, long> selector, Func<T, bool>? predicate,
-            bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<long?> onChanged, Func<T, long?> selector, Func<T, bool>? predicate,
-            bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<float> onChanged, Func<T, float> selector, Func<T, bool>? predicate,
-            bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<float?> onChanged,
-            Func<T, float?> selector, Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, float?> selector, Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<double> onChanged,
-            Func<T, double> selector, Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, double> selector, Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<double?> onChanged, Func<T, double?> selector,
-            Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<decimal> onChanged,
-            Func<T, decimal> selector, Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, decimal> selector, Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> Sum<T>(this DecoratorsConfiguration<T> configuration, Action<decimal?> onChanged, Func<T, decimal?> selector,
-            Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken)
-            where T : notnull =>
+            Func<T, bool>? predicate, bool isImmutable, out ActionToken removeToken) =>
             configuration.Accumulate(onChanged, 0, selector, (x1, x2) => x1 + x2, (x1, x2) => x1 - x2, predicate, isImmutable, out removeToken);
 
         public static DecoratorsConfiguration<T> All<T>(this DecoratorsConfiguration<T> configuration, Action<bool> onChanged, Func<T, bool> selector,
-            Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull => configuration.All(onChanged, selector, predicate, isImmutable, out _);
+            Func<T, bool>? predicate = null, bool isImmutable = false) => configuration.All(onChanged, selector, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> All<T>(this DecoratorsConfiguration<T> configuration, Action<bool> onChanged, Func<T, bool> selector, Func<T, bool>? predicate,
             bool isImmutable, out ActionToken removeToken)
-            where T : notnull
         {
             Should.NotBeNull(selector, nameof(selector));
             Should.NotBeNull(onChanged, nameof(onChanged));
@@ -692,26 +660,23 @@ namespace MugenMvvm.Extensions
                 isImmutable, out removeToken);
         }
 
-        public static DecoratorsConfiguration<T> Any<T>(this DecoratorsConfiguration<T> configuration, Action<bool> onChanged, Func<T, bool>? selector = null)
-            where T : notnull => configuration.Any(onChanged, selector, out _);
+        public static DecoratorsConfiguration<T> Any<T>(this DecoratorsConfiguration<T> configuration, Action<bool> onChanged, Func<T, bool>? selector = null) =>
+            configuration.Any(onChanged, selector, out _);
 
         public static DecoratorsConfiguration<T> Any<T>(this DecoratorsConfiguration<T> configuration, Action<bool> onChanged, Func<T, bool>? selector,
             out ActionToken removeToken)
-            where T : notnull
         {
             Should.NotBeNull(onChanged, nameof(onChanged));
             return configuration.FirstOrDefault(onChanged.AnyCallback, selector, out removeToken);
         }
 
         public static DecoratorsConfiguration<T> Accumulate<T, TResult>(this DecoratorsConfiguration<T> configuration, Action<TResult> onChanged, TResult seed,
-            Func<T, TResult> selector, Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Func<T, bool>? predicate = null, bool isImmutable = false)
-            where T : notnull =>
+            Func<T, TResult> selector, Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Func<T, bool>? predicate = null, bool isImmutable = false) =>
             configuration.Accumulate(onChanged, seed, selector, add, remove, predicate, isImmutable, out _);
 
         public static DecoratorsConfiguration<T> Accumulate<T, TResult>(this DecoratorsConfiguration<T> configuration, Action<TResult> onChanged, TResult seed,
             Func<T, TResult> selector, Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Func<T, bool>? predicate, bool isImmutable,
             out ActionToken removeToken)
-            where T : notnull
         {
             Should.NotBeNull(selector, nameof(selector));
             Should.NotBeNull(add, nameof(add));
