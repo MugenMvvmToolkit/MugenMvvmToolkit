@@ -92,6 +92,68 @@ namespace MugenMvvm.UnitTests.Collections.Components
         }
 
         [Fact]
+        public void InvalidateShouldResetDecorators()
+        {
+            var item1 = new TestCollectionItem();
+            var item2 = new TestCollectionItem();
+
+            var decoratedItems1 = new[] {item1};
+            var decoratedItems2 = new[] {item2};
+            int decorator1Reset = 0;
+            int decorator2Reset = 0;
+            var collection = CreateCollection(item1, item2);
+            var decorator1 = new TestCollectionDecorator
+            {
+                Priority = 1,
+                Decorate = items =>
+                {
+                    items.ShouldEqual(collection);
+                    return decoratedItems1;
+                },
+                OnReset = (ref IEnumerable<object?>? objects) =>
+                {
+                    objects.ShouldEqual(collection);
+                    objects = decoratedItems1;
+                    ++decorator1Reset;
+                    return true;
+                }
+            };
+            var decorator2 = new TestCollectionDecorator
+            {
+                Priority = 0,
+                Decorate = items =>
+                {
+                    items.ShouldEqual(decoratedItems1);
+                    return decoratedItems2;
+                },
+                OnReset = (ref IEnumerable<object?>? objects) =>
+                {
+                    objects.ShouldEqual(decoratedItems1);
+                    objects = decoratedItems2;
+                    ++decorator2Reset;
+                    return true;
+                }
+            };
+            collection.AddComponent(decorator1);
+            collection.AddComponent(decorator2);
+            collection.DecoratedItems().ShouldEqual(decoratedItems2);
+            decorator1Reset = 0;
+            decorator2Reset = 0;
+
+            collection.InvalidateDecorators();
+            decorator1Reset.ShouldEqual(1);
+            decorator2Reset.ShouldEqual(1);
+
+            collection.InvalidateDecorators(decorator1);
+            decorator1Reset.ShouldEqual(2);
+            decorator2Reset.ShouldEqual(2);
+
+            collection.InvalidateDecorators(decorator2);
+            decorator1Reset.ShouldEqual(2);
+            decorator2Reset.ShouldEqual(3);
+        }
+
+        [Fact]
         public void DecoratorShouldDecorateItems()
         {
             var item1 = new TestCollectionItem();

@@ -149,6 +149,16 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
+        public void Invalidate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator)
+        {
+            using var _ = collection.Lock();
+            if (!CanUpdate())
+                return;
+
+            var items = decorator == null ? GetSource(collection, false) : Decorate(collection, decorator);
+            OnReset(collection, decorator, items, false, true);
+        }
+
         public void OnChanged(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index, object? args)
         {
             if (!CanUpdate())
@@ -401,13 +411,15 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private void OnReset(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items, bool force)
+        private void OnReset(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, IEnumerable<object?>? items, bool force, bool includeDecorator = false)
         {
             if (!force && !CanUpdate())
                 return;
             var decorators = GetDecorators(collection, decorator, out var startIndex);
             if (startIndex == InvalidDecoratorIndex)
                 return;
+            if (includeDecorator && startIndex != 0)
+                --startIndex;
 
             if (decorator == null)
             {

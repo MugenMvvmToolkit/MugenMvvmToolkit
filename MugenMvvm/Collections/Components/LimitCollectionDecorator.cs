@@ -6,13 +6,14 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class LimitCollectionDecorator<T> : CollectionDecoratorBase
+    public sealed class LimitCollectionDecorator<T> : CollectionDecoratorBase, IHasCache
     {
         private IndexMapList<object?> _items;
         private readonly bool _allowNull;
@@ -51,6 +52,8 @@ namespace MugenMvvm.Collections.Components
         }
 
         public int Count => _items.Size;
+
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => Update(_condition, _limit);
 
         protected override bool HasAdditionalItems => false;
 

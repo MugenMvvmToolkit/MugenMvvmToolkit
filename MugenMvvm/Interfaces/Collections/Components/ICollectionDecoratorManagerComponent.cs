@@ -9,6 +9,8 @@ namespace MugenMvvm.Interfaces.Collections.Components
 
         void RaiseItemChanged(IReadOnlyObservableCollection collection, object? item, object? args);
 
+        void Invalidate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator);
+
         void OnChanged(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index, object? args);
 
         void OnAdded(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, object? item, int index);

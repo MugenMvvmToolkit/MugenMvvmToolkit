@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTests.Views.Components
             _viewModel = new TestViewModel();
             var mapping = new ViewMapping("id", typeof(TestViewModel), typeof(object), Metadata);
             _view = new View(mapping, new object(), _viewModel);
-            ViewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ComponentCollectionManager));
+            ViewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ViewModelManager, ComponentCollectionManager));
         }
 
         [Theory]

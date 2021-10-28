@@ -20,12 +20,15 @@ namespace MugenMvvm.Views.Components
     public sealed class ViewModelViewManager : IViewManagerComponent, IViewProviderComponent, IHasPriority
     {
         private readonly IAttachedValueManager? _attachedValueManager;
+        private readonly IViewModelManager? _viewModelManager;
         private readonly IComponentCollectionManager? _componentCollectionManager;
 
         [Preserve(Conditional = true)]
-        public ViewModelViewManager(IAttachedValueManager? attachedValueManager = null, IComponentCollectionManager? componentCollectionManager = null)
+        public ViewModelViewManager(IAttachedValueManager? attachedValueManager = null, IViewModelManager? viewModelManager = null,
+            IComponentCollectionManager? componentCollectionManager = null)
         {
             _attachedValueManager = attachedValueManager;
+            _viewModelManager = viewModelManager;
             _componentCollectionManager = componentCollectionManager;
         }
 
@@ -90,7 +93,7 @@ namespace MugenMvvm.Views.Components
                 MugenExtensions.AddRaw(ref views, view);
                 attachedValues.Set(InternalConstant.ViewsValueKey, views);
 
-                if (viewModel.IsInState(ViewModelLifecycleState.Disposed, metadata))
+                if (viewModel.IsInState(ViewModelLifecycleState.Disposed, metadata, _viewModelManager))
                     ExceptionManager.ThrowObjectDisposed(viewModel);
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, viewModel, metadata);
                 return view;

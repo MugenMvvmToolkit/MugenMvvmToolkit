@@ -115,6 +115,12 @@ namespace MugenMvvm.Extensions
             collection.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.RaiseItemChanged(collection, item, args);
         }
 
+        public static void InvalidateDecorators(this IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            collection.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.Invalidate(collection, decorator);
+        }
+
         public static void OnReset(this ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ICollectionDecorator decorator)
         {
             Should.NotBeNull(decoratorManager, nameof(decoratorManager));

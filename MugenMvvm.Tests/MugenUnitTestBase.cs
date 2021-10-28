@@ -425,7 +425,7 @@ namespace MugenMvvm.Tests
         protected virtual IViewManager GetViewManager()
         {
             var viewManager = new ViewManager(ComponentCollectionManager);
-            viewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ComponentCollectionManager) {Priority = ComponentPriority.Min});
+            viewManager.AddComponent(new ViewModelViewManager(AttachedValueManager, ViewModelManager, ComponentCollectionManager) {Priority = ComponentPriority.Min});
             return viewManager;
         }
 
