@@ -264,25 +264,27 @@ namespace MugenMvvm.Extensions
         }
 
         public static DecoratorsConfiguration<TCollection> SelectMany<T, TCollection>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable<TCollection>?> selector,
-            bool decoratedItems = true, Action<T, IEnumerable?>? cleanup = null)
-            where T : class? => configuration.SelectMany(selector, decoratedItems, cleanup, out _).For<TCollection>();
+            bool decoratedItems = true, Action<T, IEnumerable?>? cleanup = null, bool recycle = false)
+            where T : class? => configuration.SelectMany(selector, decoratedItems, cleanup, recycle, out _);
 
         public static DecoratorsConfiguration<TCollection> SelectMany<T, TCollection>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable<TCollection>?> selector,
-            bool decoratedItems, Action<T, IEnumerable?>? cleanup, out FlattenCollectionDecorator<T> decorator) where T : class?
+            bool decoratedItems, Action<T, IEnumerable?>? cleanup, bool recycle, out FlattenCollectionDecorator<T> decorator) where T : class?
         {
             Should.NotBeNull(selector, nameof(selector));
-            return configuration.SelectMany((Func<T, IEnumerable?>) selector, decoratedItems, cleanup, out decorator).For<TCollection>();
+            return configuration.SelectMany((Func<T, IEnumerable?>) selector, decoratedItems, cleanup, recycle, out decorator).For<TCollection>();
         }
 
         public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable?> selector, bool decoratedItems = true,
-            Action<T, IEnumerable?>? cleanup = null)
-            where T : class? => configuration.SelectMany(selector, decoratedItems, cleanup, out _);
+            Action<T, IEnumerable?>? cleanup = null, bool recycle = false)
+            where T : class? => configuration.SelectMany(selector, decoratedItems, cleanup, recycle, out _);
 
         public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, IEnumerable?> selector, bool decoratedItems,
-            Action<T, IEnumerable?>? cleanup, out FlattenCollectionDecorator<T> decorator) where T : class?
+            Action<T, IEnumerable?>? cleanup, bool recycle, out FlattenCollectionDecorator<T> decorator) where T : class?
         {
             Should.NotBeNull(selector, nameof(selector));
-            return configuration.SelectMany(decoratedItems ? selector.SelectManyDecorated : selector.SelectMany, cleanup, out decorator);
+            if (decoratedItems)
+                return configuration.SelectMany(recycle ? selector.SelectManyDecoratedRecycle : selector.SelectManyDecorated, cleanup, out decorator);
+            return configuration.SelectMany(recycle ? selector.SelectManyRecycle : selector.SelectMany, cleanup, out decorator);
         }
 
         public static DecoratorsConfiguration<T> SelectMany<T>(this DecoratorsConfiguration<T> configuration, Func<T, FlattenItemInfo, FlattenItemInfo> selector,
@@ -1149,9 +1151,15 @@ namespace MugenMvvm.Extensions
             return default;
         }
 
-        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo itemInfo) => new(selector(item), true);
+        private static FlattenItemInfo SelectManyDecorated<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) => new(selector(item), true);
 
-        private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo itemInfo) => new(selector(item), false);
+        private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) => new(selector(item), false);
+
+        private static FlattenItemInfo SelectManyDecoratedRecycle<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) =>
+            currentItem.IsEmpty ? new FlattenItemInfo(selector(item), true) : currentItem;
+
+        private static FlattenItemInfo SelectManyRecycle<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) =>
+            currentItem.IsEmpty ? new FlattenItemInfo(selector(item), false) : currentItem;
 
         private static (int total, int count) AllSelector<T>(this Func<T, bool> selector, T item) => (1, selector(item) ? 1 : 0);
 

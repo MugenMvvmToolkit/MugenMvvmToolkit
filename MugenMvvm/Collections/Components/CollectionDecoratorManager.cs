@@ -287,17 +287,6 @@ namespace MugenMvvm.Collections.Components
             owner.Components.RemoveComponent(this);
         }
 
-        private static void FindAllIndexOf(IReadOnlyObservableCollection collection, ICollectionDecorator decorator, IEnumerable<object?> items, object? item,
-            bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
-        {
-            if (!decorator.HasAdditionalItems(collection))
-                return;
-
-            indexes.Clear();
-            if (!decorator.TryGetIndexes(collection, items, item, ignoreDuplicates, ref indexes))
-                items.FindAllIndexOf(item, ignoreDuplicates, ref indexes);
-        }
-
         private static ItemOrArray<ICollectionDecorator> GetDecorators(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, out int index,
             bool isLengthDefault = false)
         {
@@ -401,13 +390,22 @@ namespace MugenMvvm.Collections.Components
             for (var i = 0; i < decorators.Count; i++)
             {
                 var decorator = decorators[i];
-                items = GetItems(decorator) ?? decorator.Decorate(collection, items);
-                FindAllIndexOf(collection, decorator, items, item, !RaiseItemChangedCheckDuplicates, ref indexes);
+                bool updatedItems = false;
+                if (decorator.HasAdditionalItems(collection) && !decorator.TryGetIndexes(collection, items, item, !RaiseItemChangedCheckDuplicates, ref indexes))
+                {
+                    items = GetItems(decorator) ?? decorator.Decorate(collection, items);
+                    items.FindAllIndexOf(item, !RaiseItemChangedCheckDuplicates, ref indexes);
+                    updatedItems = true;
+                }
+
                 if (indexes.Count != 0)
                 {
                     OnChanged(collection, decorators, i + 1, item, indexes, args);
                     return;
                 }
+
+                if (!updatedItems)
+                    items = GetItems(decorator) ?? decorator.Decorate(collection, items);
             }
         }
 
