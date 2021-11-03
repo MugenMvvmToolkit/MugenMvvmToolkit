@@ -669,11 +669,17 @@ namespace MugenMvvm.UnitTests.Extensions
         public void TrackSelectedItemShouldTrackSelectedItem()
         {
             object? selectedItem = null;
-            _collection.ConfigureDecorators().TrackSelectedItem(() => selectedItem, i => selectedItem = i, (ints, i) =>
+            ISelectedItemTracker<object> selectedItemTracker = null!;
+            _collection.ConfigureDecorators().TrackSelectedItem<object, object?>(out selectedItemTracker, this, (o, s) =>
+            {
+                s.ShouldEqual(this);
+                o.ShouldEqual(selectedItemTracker.SelectedItem);
+                selectedItem = o;
+            }, (ints, i) =>
             {
                 if (!ints.Any())
                     return int.MaxValue;
-                i.ShouldEqual(selectedItem);
+                i.ShouldEqual(selectedItemTracker.SelectedItem);
                 return ints.Max(j => (int) j);
             });
 
@@ -813,10 +819,10 @@ namespace MugenMvvm.UnitTests.Extensions
             int value = 0;
             bool hasValue = false;
             Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
-            _collection.ConfigureDecorators<int>().FirstOrDefault((i, hv) =>
+            _collection.ConfigureDecorators<int>().FirstOrDefault(v =>
             {
-                value = i;
-                hasValue = hv;
+                value = v.GetValueOrDefault();
+                hasValue = v.HasValue;
             }, predicate, out var token);
 
             void Assert()
@@ -852,10 +858,10 @@ namespace MugenMvvm.UnitTests.Extensions
             int value = 0;
             bool hasValue = false;
             Func<int, bool>? predicate = hasCondition ? i => i % 2 == 0 : null;
-            _collection.ConfigureDecorators<int>().LastOrDefault((i, hv) =>
+            _collection.ConfigureDecorators<int>().LastOrDefault(v =>
             {
-                value = i;
-                hasValue = hv;
+                value = v.GetValueOrDefault();
+                hasValue = v.HasValue;
             }, predicate, out var token);
 
             void Assert()

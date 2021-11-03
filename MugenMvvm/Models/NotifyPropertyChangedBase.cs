@@ -85,6 +85,8 @@ namespace MugenMvvm.Models
             PropertyChanged = null;
         }
 
+        internal void OnPropertyChangedInternal(PropertyChangedEventArgs args) => OnPropertyChanged(args);
+
         private void EndSuspend()
         {
             if (Interlocked.Decrement(ref _suspendCount) == 0)

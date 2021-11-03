@@ -12,7 +12,7 @@ namespace MugenMvvm.Collections.Components
     public sealed class FirstLastTrackerCollectionDecorator<T> : CollectionDecoratorBase, IListenerCollectionDecorator, ICollectionBatchUpdateListener
     {
         private readonly bool _allowNull;
-        private readonly Action<T?, bool> _setter;
+        private readonly Action<Optional<T?>> _setter;
         private readonly Func<T, bool>? _condition;
         private readonly bool _isFirstTracker;
         private T? _value;
@@ -22,7 +22,7 @@ namespace MugenMvvm.Collections.Components
         private bool _pendingReset;
         private bool _isDirty;
 
-        public FirstLastTrackerCollectionDecorator(int priority, bool allowNull, bool isFirstTracker, Action<T?, bool> setter, Func<T, bool>? condition) : base(priority)
+        public FirstLastTrackerCollectionDecorator(int priority, bool allowNull, bool isFirstTracker, Action<Optional<T?>> setter, Func<T, bool>? condition) : base(priority)
         {
             Should.NotBeNull(setter, nameof(setter));
             _allowNull = allowNull && TypeChecker.IsNullable<T>();
@@ -153,7 +153,7 @@ namespace MugenMvvm.Collections.Components
             if (_isInBatch)
                 _isDirty = true;
             else
-                _setter(item, hasValue);
+                _setter(Optional.Get<T?>(item, hasValue));
         }
 
         private void Invalidate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, bool force = false) =>

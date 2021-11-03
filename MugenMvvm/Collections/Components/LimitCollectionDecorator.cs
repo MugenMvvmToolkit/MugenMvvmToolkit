@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -41,6 +42,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
+        [Preserve(Conditional = true)]
         public int? Limit
         {
             get => _limit;

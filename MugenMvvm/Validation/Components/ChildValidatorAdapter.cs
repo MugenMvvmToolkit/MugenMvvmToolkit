@@ -40,9 +40,8 @@ namespace MugenMvvm.Validation.Components
                 return false;
             lock (_listener)
             {
-                if (_validators.Contains(validator))
+                if (!MugenExtensions.Add(ref _validators, validator))
                     return false;
-                _validators = _validators.Add(validator);
                 validator.AddComponent(_listener);
             }
 
@@ -61,9 +60,8 @@ namespace MugenMvvm.Validation.Components
             Should.NotBeNull(validator, nameof(validator));
             lock (_listener)
             {
-                if (!_validators.Contains(validator))
+                if (!MugenExtensions.Remove(ref _validators, validator))
                     return false;
-                _validators = _validators.Remove(validator);
                 validator.RemoveComponent(_listener);
             }
 

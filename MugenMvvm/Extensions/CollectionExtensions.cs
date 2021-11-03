@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
@@ -18,6 +19,7 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
+using MugenMvvm.Models;
 
 namespace MugenMvvm.Extensions
 {
@@ -469,17 +471,32 @@ namespace MugenMvvm.Extensions
             return collection;
         }
 
-        public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, Func<T?> getSelectedItem, Action<T?> setSelectedItem,
-            Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null, Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null) where T : class =>
-            configuration.TrackSelectedItem(getSelectedItem, setSelectedItem, getDefault, immutableCondition, comparer, out _);
-
-        public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, Func<T?> getSelectedItem, Action<T?> setSelectedItem,
-            Func<IReadOnlyCollection<T>, T?, T?>? getDefault, Func<T, bool>? immutableCondition, IEqualityComparer<T>? comparer, out ActionToken removeToken) where T : class
+        public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
+            NotifyPropertyChangedBase source, string propertyName = nameof(ISelectedItemTracker<object>.SelectedItem), Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null,
+            Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null)
+            where T : class
         {
-            Should.NotBeNull(getSelectedItem, nameof(getSelectedItem));
-            Should.NotBeNull(setSelectedItem, nameof(setSelectedItem));
-            var closure = new SelectedItemClosure<T>(getSelectedItem, setSelectedItem, getDefault);
-            return configuration.Subscribe<T, object?>(closure.OnAdded, closure.OnRemoved, null, closure.OnEndBatchUpdate, immutableCondition, comparer, out removeToken);
+            Should.NotBeNull(source, nameof(source));
+            var args = propertyName == nameof(ISelectedItemTracker<object>.SelectedItem) ? Default.SelectedItemChangedArgs : new PropertyChangedEventArgs(propertyName);
+            return configuration.TrackSelectedItem(out tracker, (args, source), (_, s) => s.source.OnPropertyChangedInternal(s.args), getDefault, immutableCondition, comparer);
+        }
+
+        public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
+            Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null, Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null)
+            where T : class =>
+            configuration.TrackSelectedItem<T, object?>(out tracker, null, null, getDefault, immutableCondition, comparer);
+
+        public static DecoratorsConfiguration<T> TrackSelectedItem<T, TState>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
+            TState state = default!, Action<T?, TState>? onChanged = null, Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null, Func<T, bool>? immutableCondition = null,
+            IEqualityComparer<T>? comparer = null)
+            where T : class
+        {
+            var closure = new SelectedItemClosure<T, TState>(configuration.Collection, getDefault, onChanged, state);
+            var decorator = new TrackerCollectionDecorator<T, object?>(configuration.Priority, configuration.AllowNull, closure.OnAdded, closure.OnRemoved, null,
+                closure.OnEndBatchUpdate, immutableCondition, comparer);
+            closure.Tracker = decorator;
+            tracker = closure;
+            return configuration.Add(decorator);
         }
 
         public static DecoratorsConfiguration<T> AutoRefreshOnPropertyChanged<T>(this DecoratorsConfiguration<T> configuration, ItemOrArray<string> members, object? args = null,
@@ -694,17 +711,17 @@ namespace MugenMvvm.Extensions
             return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnEndBatchUpdate, null, null, out removeToken);
         }
 
-        public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?, bool> setter, Func<T, bool>? predicate = null) =>
+        public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<Optional<T?>> setter, Func<T, bool>? predicate = null) =>
             configuration.FirstOrDefault(setter, predicate, out _);
 
-        public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?, bool> setter, Func<T, bool>? predicate,
+        public static DecoratorsConfiguration<T> FirstOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<Optional<T?>> setter, Func<T, bool>? predicate,
             out ActionToken removeToken) => configuration.Add(new FirstLastTrackerCollectionDecorator<T>(configuration.Priority, configuration.AllowNull, true, setter, predicate),
             null, out removeToken);
 
-        public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?, bool> setter, Func<T, bool>? predicate = null) =>
+        public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<Optional<T?>> setter, Func<T, bool>? predicate = null) =>
             configuration.LastOrDefault(setter, predicate, out _);
 
-        public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<T?, bool> setter, Func<T, bool>? predicate,
+        public static DecoratorsConfiguration<T> LastOrDefault<T>(this DecoratorsConfiguration<T> configuration, Action<Optional<T?>> setter, Func<T, bool>? predicate,
             out ActionToken removeToken) => configuration.Add(new FirstLastTrackerCollectionDecorator<T>(configuration.Priority, configuration.AllowNull, false, setter, predicate),
             null, out removeToken);
 
@@ -1111,6 +1128,10 @@ namespace MugenMvvm.Extensions
                 manager, collection);
         }
 
+        internal static bool Add<T>(ref ImmutableHashSet<T> hashSet, T item) => ImmutableInterlocked.Update(ref hashSet, (set, i) => set.Add(i), item);
+
+        internal static bool Remove<T>(ref ImmutableHashSet<T> hashSet, T item) => ImmutableInterlocked.Update(ref hashSet, (set, i) => set.Remove(i), item);
+
         private static DecoratorsConfiguration<T> GroupBy<T, TKey, TGroup>(this DecoratorsConfiguration<T> configuration, Func<T, Optional<TKey>> getKey,
             Func<TKey, TGroup> getGroup, IEqualityComparer<TKey>? equalityComparer)
             where TKey : notnull
@@ -1163,7 +1184,7 @@ namespace MugenMvvm.Extensions
 
         private static (int total, int count) AllSelector<T>(this Func<T, bool> selector, T item) => (1, selector(item) ? 1 : 0);
 
-        private static void AnyCallback<T>(this Action<bool> onChanged, T? _, bool hasValue) => onChanged(hasValue);
+        private static void AnyCallback<T>(this Action<bool> onChanged, Optional<T> value) => onChanged(value.HasValue);
 
         private static Optional<TKey> OptionalClosure<T, TKey>(this Func<T, TKey?> getKey, T value) where TKey : notnull => Optional.Get(getKey(value));
 

@@ -246,6 +246,15 @@ namespace MugenMvvm.Extensions
             return invert;
         }
 
+        public static void InvokeAll<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
+            Action<TComponent, TState, IReadOnlyMetadataContext?> invoke)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            foreach (var c in components)
+                invoke(c, state, metadata);
+        }
+
         public static bool InvokeAll<TComponent, TState>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
             Func<TComponent, TState, IReadOnlyMetadataContext?, bool> invoke)
             where TComponent : class, IComponent
@@ -274,6 +283,33 @@ namespace MugenMvvm.Extensions
             var editor = new ItemOrListEditor<T>();
             foreach (var c in components)
                 editor.AddRange(invoke(c, state, metadata));
+
+            return editor.ToItemOrList();
+        }
+
+        public static ItemOrIReadOnlyList<T> InvokeAllDisposable<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, IReadOnlyMetadataContext?, ItemOrIReadOnlyList<T>> invoke)
+            where T : IDisposable
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return invoke(components[0], state, metadata);
+
+            var editor = new ItemOrListEditor<T>();
+            try
+            {
+                foreach (var c in components)
+                    editor.AddRange(invoke(c, state, metadata));
+            }
+            catch
+            {
+                foreach (var item in editor)
+                    item.Dispose();
+                throw;
+            }
 
             return editor.ToItemOrList();
         }
@@ -367,7 +403,7 @@ namespace MugenMvvm.Extensions
 
         public static async ValueTask<ItemOrIReadOnlyList<T>> InvokeAllAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
-            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke)
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke, bool disposeOnException = false)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(invoke, nameof(invoke));
@@ -383,6 +419,39 @@ namespace MugenMvvm.Extensions
                 var result = await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
                 cancellationToken.ThrowIfCancellationRequested();
                 editor.AddRange(result);
+            }
+
+            return editor.ToItemOrList();
+        }
+
+        public static async ValueTask<ItemOrIReadOnlyList<T>> InvokeAllDisposableAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke, bool disposeOnException = false)
+            where T : IDisposable
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(invoke, nameof(invoke));
+            if (components.Count == 0)
+                return default;
+            if (components.Count == 1)
+                return await invoke(components[0], state, cancellationToken, metadata).ConfigureAwait(false);
+
+            var editor = new ItemOrListEditor<T>();
+            try
+            {
+                foreach (var c in components)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    var result = await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+                    cancellationToken.ThrowIfCancellationRequested();
+                    editor.AddRange(result);
+                }
+            }
+            catch
+            {
+                foreach (var item in editor)
+                    item.Dispose();
+                throw;
             }
 
             return editor.ToItemOrList();

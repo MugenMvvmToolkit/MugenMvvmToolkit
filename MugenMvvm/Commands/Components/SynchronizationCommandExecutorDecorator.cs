@@ -125,14 +125,8 @@ namespace MugenMvvm.Commands.Components
             if (executingCommand == null)
                 return true;
 
-            if (command.HasMetadata && command.Metadata.TryGet(InternalMetadata.AllowForceExecuteCommands, out var commands))
-            {
-                if (!ReferenceEquals(command, executingCommand) &&
-                    ItemOrIReadOnlyList.FromRawValue<ICompositeCommand>(commands).Contains(executingCommand))
-                    return true;
-            }
-
-            return false;
+            return command.HasMetadata && command.Metadata.TryGet(InternalMetadata.AllowForceExecuteCommands, out var commands) && !ReferenceEquals(command, executingCommand) &&
+                   ItemOrIReadOnlyList.FromRawValue<ICompositeCommand>(commands).Contains(executingCommand);
         }
 
         private async Task<bool> ExecuteAsync(ICompositeCommand command, ItemOrArray<ICommandExecutorComponent> components, object? parameter,
@@ -185,7 +179,7 @@ namespace MugenMvvm.Commands.Components
             }
 
             public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) =>
-                !AllowForceExecute(command, Synchronizer._executingCommand) || Components.IsExecuting(command, metadata);
+                ReferenceEquals(Synchronizer._executingCommand, command) || Components.IsExecuting(command, metadata);
 
             public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
                 Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);

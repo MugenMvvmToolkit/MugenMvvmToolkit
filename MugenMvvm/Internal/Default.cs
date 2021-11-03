@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.ViewModels;
 
 namespace MugenMvvm.Internal
@@ -21,6 +22,7 @@ namespace MugenMvvm.Internal
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new(InternalConstant.IndexerName);
         internal static readonly PropertyChangedEventArgs IsBusyPropertyChangedArgs = new(nameof(ViewModelBase.IsBusy));
         internal static readonly PropertyChangedEventArgs BusyTokenPropertyChangedArgs = new(nameof(ViewModelBase.BusyToken));
+        internal static readonly PropertyChangedEventArgs SelectedItemChangedArgs = new(nameof(ISelectedItemTracker<object>.SelectedItem));
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new(NotifyCollectionChangedAction.Reset);
 
         private static readonly int[] EmptySize = {0};

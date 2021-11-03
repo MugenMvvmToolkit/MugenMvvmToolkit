@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             var task = command1.ExecuteAsync(null, DefaultCancellationToken, Metadata);
             command1.IsExecuting().ShouldBeTrue();
-            command2.IsExecuting().ShouldEqual(bidirectional);
+            command2.IsExecuting().ShouldBeFalse();
 
             executed1.ShouldEqual(1);
             command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);

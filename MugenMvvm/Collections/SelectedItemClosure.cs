@@ -1,29 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Collections.Components;
+using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Internal;
+using MugenMvvm.Models;
 
 namespace MugenMvvm.Collections
 {
-    internal sealed class SelectedItemClosure<T> where T : class
+    internal sealed class SelectedItemClosure<T, TState> : NotifyPropertyChangedBase, ISelectedItemTracker<T> where T : class
     {
-        private readonly Func<T?> _getSelectedItem;
-        private readonly Action<T?> _setSelectedItem;
+        private readonly IReadOnlyObservableCollection _collection;
         private readonly Func<IReadOnlyCollection<T>, T?, T?>? _getDefault;
+        private readonly Action<T?, TState>? _onChanged;
+        private readonly TState _state;
+        private T? _selectedItem;
 
-        public SelectedItemClosure(Func<T?> getSelectedItem, Action<T?> setSelectedItem, Func<IReadOnlyCollection<T>, T?, T?>? getDefault)
+        public SelectedItemClosure(IReadOnlyObservableCollection collection, Func<IReadOnlyCollection<T>, T?, T?>? getDefault, Action<T?, TState>? onChanged, TState state)
         {
-            _getSelectedItem = getSelectedItem;
-            _setSelectedItem = setSelectedItem;
+            _collection = collection;
             _getDefault = getDefault;
+            _onChanged = onChanged;
+            _state = state;
+            Tracker = null!;
+        }
+
+        public TrackerCollectionDecorator<T, object?> Tracker { get; set; }
+
+        public T? SelectedItem
+        {
+            get => _selectedItem;
+            set => SetSelectedItem(value);
         }
 
         public object? OnAdded(TrackerCollectionDecorator<T, object?> items, T item, object? state, int count)
         {
             if (!items.IsBatchUpdate)
             {
-                var selectedItem = _getSelectedItem();
-                if (selectedItem == null || !items.ItemsRaw.Comparer.Equals(selectedItem, item) && !items.ItemsRaw.ContainsKey(selectedItem))
-                    Set(items, selectedItem);
+                if (SelectedItem == null || !items.ItemsRaw.Comparer.Equals(SelectedItem, item) && !items.ItemsRaw.ContainsKey(SelectedItem))
+                    Reset();
             }
 
             return null;
@@ -33,9 +48,8 @@ namespace MugenMvvm.Collections
         {
             if (!items.IsBatchUpdate)
             {
-                var selectedItem = _getSelectedItem();
-                if (selectedItem == null || !items.ItemsRaw.ContainsKey(selectedItem))
-                    Set(items, selectedItem);
+                if (SelectedItem == null || !items.ItemsRaw.ContainsKey(SelectedItem))
+                    Reset();
             }
 
             return null;
@@ -43,16 +57,33 @@ namespace MugenMvvm.Collections
 
         public void OnEndBatchUpdate(TrackerCollectionDecorator<T, object?> items)
         {
-            var selectedItem = _getSelectedItem();
-            if (selectedItem == null || !items.ItemsRaw.ContainsKey(selectedItem))
-                Set(items, selectedItem);
+            if (SelectedItem == null || !items.ItemsRaw.ContainsKey(SelectedItem))
+                Reset();
         }
 
-        private void Set(TrackerCollectionDecorator<T, object?> items, T? selectedItem)
+        public void Dispose() => _collection.RemoveComponent(Tracker);
+
+        public bool SetSelectedItem(T? value)
         {
-            var item = _getDefault == null ? items.FirstOrDefault() : _getDefault(items, selectedItem);
-            if (!ReferenceEquals(selectedItem, item))
-                _setSelectedItem(item);
+            using var _ = _collection.Lock();
+            if (Tracker.ItemsRaw.Comparer.Equals(SelectedItem, value) || !Tracker.Contains(value))
+                return false;
+            SetValue(value);
+            return true;
+        }
+
+        private void SetValue(T? value)
+        {
+            _selectedItem = value;
+            _onChanged?.Invoke(value, _state);
+            OnPropertyChanged(Default.SelectedItemChangedArgs);
+        }
+
+        private void Reset()
+        {
+            var item = _getDefault == null ? Tracker.FirstOrDefault() : _getDefault(Tracker, SelectedItem);
+            if (!Tracker.ItemsRaw.Comparer.Equals(SelectedItem, item))
+                SetValue(item);
         }
     }
 }

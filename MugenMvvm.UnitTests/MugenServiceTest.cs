@@ -56,36 +56,36 @@ namespace MugenMvvm.UnitTests
         {
             var services = new Dictionary<Type, object>
             {
-                { typeof(IMugenApplication), new MugenApplication() },
-                { typeof(ICommandManager), new CommandManager() },
-                { typeof(IComponentCollectionManager), new ComponentCollectionManager() },
-                { typeof(IAttachedValueManager), new AttachedValueManager() },
-                { typeof(IReflectionManager), new ReflectionManager() },
-                { typeof(IWeakReferenceManager), new WeakReferenceManager() },
-                { typeof(IMessenger), new Messenger() },
-                { typeof(IEntityManager), new EntityManager() },
-                { typeof(INavigationDispatcher), new NavigationDispatcher() },
-                { typeof(IPresenter), new Presenter() },
-                { typeof(ISerializer), new Serializer() },
-                { typeof(IThreadDispatcher), new ThreadDispatcher() },
-                { typeof(IValidationManager), new ValidationManager() },
-                { typeof(IViewModelManager), new ViewModelManager() },
-                { typeof(IViewManager), new ViewManager() },
-                { typeof(IWrapperManager), new WrapperManager() },
-                { typeof(IGlobalValueConverter), new GlobalValueConverter() },
-                { typeof(IBindingManager), new BindingManager() },
-                { typeof(IMemberManager), new MemberManager() },
-                { typeof(IObservationManager), new ObservationManager() },
-                { typeof(IResourceManager), new ResourceManager() },
-                { typeof(IExpressionParser), new ExpressionParser() },
-                { typeof(IExpressionCompiler), new ExpressionCompiler() }
+                {typeof(IMugenApplication), new MugenApplication()},
+                {typeof(ICommandManager), new CommandManager()},
+                {typeof(IComponentCollectionManager), new ComponentCollectionManager()},
+                {typeof(IAttachedValueManager), new AttachedValueManager()},
+                {typeof(IReflectionManager), new ReflectionManager()},
+                {typeof(IWeakReferenceManager), new WeakReferenceManager()},
+                {typeof(IMessenger), new Messenger()},
+                {typeof(IEntityManager), new EntityManager()},
+                {typeof(INavigationDispatcher), new NavigationDispatcher()},
+                {typeof(IPresenter), new Presenter()},
+                {typeof(ISerializer), new Serializer()},
+                {typeof(IThreadDispatcher), new ThreadDispatcher()},
+                {typeof(IValidationManager), new ValidationManager()},
+                {typeof(IViewModelManager), new ViewModelManager()},
+                {typeof(IViewManager), new ViewManager()},
+                {typeof(IWrapperManager), new WrapperManager()},
+                {typeof(IGlobalValueConverter), new GlobalValueConverter()},
+                {typeof(IBindingManager), new BindingManager()},
+                {typeof(IMemberManager), new MemberManager()},
+                {typeof(IObservationManager), new ObservationManager()},
+                {typeof(IResourceManager), new ResourceManager()},
+                {typeof(IExpressionParser), new ExpressionParser()},
+                {typeof(IExpressionCompiler), new ExpressionCompiler()}
             };
             var fallback = new TestFallbackServiceConfiguration
             {
                 Instance = type => services[type],
                 Optional = type =>
                 {
-                    if (type == typeof(ILambdaExpressionCompiler))
+                    if (type == typeof(ILambdaExpressionCompiler) || type == typeof(ILockerProvider))
                         return null;
                     throw new NotSupportedException();
                 }
@@ -161,7 +161,7 @@ namespace MugenMvvm.UnitTests
                 },
                 Optional = type =>
                 {
-                    if (type == typeof(ILambdaExpressionCompiler))
+                    if (type == typeof(ILambdaExpressionCompiler) || type == typeof(ILockerProvider))
                         return null;
                     type.ShouldEqual(GetType());
                     return optional;
@@ -184,7 +184,7 @@ namespace MugenMvvm.UnitTests
         public void InitializeInstanceShouldUseHasService()
         {
             MugenService.Configuration.Clear<MugenServiceTest>();
-            var service = new TestHasServiceModel<MugenServiceTest> { Service = this, ServiceOptional = new MugenServiceTest() };
+            var service = new TestHasServiceModel<MugenServiceTest> {Service = this, ServiceOptional = new MugenServiceTest()};
             ShouldThrow<InvalidOperationException>(() => MugenService.Instance<MugenServiceTest>());
             MugenService.Optional<MugenServiceTest>().ShouldBeNull();
 

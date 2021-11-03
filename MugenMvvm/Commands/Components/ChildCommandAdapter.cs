@@ -69,9 +69,8 @@ namespace MugenMvvm.Commands.Components
                 return false;
             lock (_listener)
             {
-                if (_commands.Contains(command))
+                if (!MugenExtensions.Add(ref _commands, command))
                     return false;
-                _commands = _commands.Add(command);
                 command.AddComponent(_listener);
             }
 
@@ -90,9 +89,8 @@ namespace MugenMvvm.Commands.Components
             Should.NotBeNull(command, nameof(command));
             lock (_listener)
             {
-                if (!_commands.Contains(command))
+                if (!MugenExtensions.Remove(ref _commands, command))
                     return false;
-                _commands = _commands.Remove(command);
                 command.RemoveComponent(_listener);
             }
 

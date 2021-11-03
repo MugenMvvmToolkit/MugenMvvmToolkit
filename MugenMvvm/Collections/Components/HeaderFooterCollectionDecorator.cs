@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -21,12 +22,14 @@ namespace MugenMvvm.Collections.Components
             _footerIndex = NoFooterIndex;
         }
 
+        [Preserve(Conditional = true)]
         public ItemOrIReadOnlyList<object> Header
         {
             get => _header;
             set => Update(value, false);
         }
 
+        [Preserve(Conditional = true)]
         public ItemOrIReadOnlyList<object> Footer
         {
             get => _footer;
@@ -235,7 +238,7 @@ namespace MugenMvvm.Collections.Components
                         {
                             var oldItem = oldValue[i];
                             var newItem = value[i];
-                            if (!Equals(oldItem, newItem))
+                            if (!ReferenceEquals(oldItem, newItem))
                             {
                                 oldValue[i] = newItem;
                                 decoratorManager.OnReplaced(owner, this, oldItem, newItem, i + offset);
@@ -258,7 +261,7 @@ namespace MugenMvvm.Collections.Components
                         {
                             var oldItem = oldValue[i];
                             var newItem = value[i];
-                            if (!Equals(oldItem, newItem))
+                            if (!ReferenceEquals(oldItem, newItem))
                             {
                                 oldValue[i] = newItem;
                                 decoratorManager.OnReplaced(owner, this, oldItem, newItem, i + offset);

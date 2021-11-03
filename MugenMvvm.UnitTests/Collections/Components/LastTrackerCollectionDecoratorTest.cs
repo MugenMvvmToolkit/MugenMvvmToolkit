@@ -26,10 +26,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            var decorator = new FirstLastTrackerCollectionDecorator<int>(0, false, false, (o, hv) =>
+            var decorator = new FirstLastTrackerCollectionDecorator<int>(0, false, false, value =>
             {
-                _item = o;
-                _hasItem = hv;
+                _item = value.GetValueOrDefault();
+                _hasItem = value.HasValue;
             }, condition);
             _collection.AddComponent(decorator);
             _tracker.Changed += Assert;
@@ -47,10 +47,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 hasItem.ShouldEqual(items.Any());
             };
             _collection.RemoveComponent(_tracker);
-            _collection.AddComponent(new FirstLastTrackerCollectionDecorator<TestCollectionItem>(0, false, false, (collectionItem, hv) =>
+            _collection.AddComponent(new FirstLastTrackerCollectionDecorator<TestCollectionItem>(0, false, false, value =>
             {
-                item = collectionItem;
-                hasItem = hv;
+                item = value.GetValueOrDefault();
+                hasItem = value.HasValue;
                 assert();
             }, collectionItem => collectionItem.Id % 2 == 0));
 
