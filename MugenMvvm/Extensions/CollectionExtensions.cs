@@ -491,7 +491,7 @@ namespace MugenMvvm.Extensions
             IEqualityComparer<T>? comparer = null)
             where T : class
         {
-            var closure = new SelectedItemClosure<T, TState>(configuration.Collection, getDefault, onChanged, state);
+            var closure = new SelectedItemTracker<T, TState>(configuration.Collection, getDefault, onChanged, state);
             var decorator = new TrackerCollectionDecorator<T, object?>(configuration.Priority, configuration.AllowNull, closure.OnAdded, closure.OnRemoved, null,
                 closure.OnEndBatchUpdate, immutableCondition, comparer);
             closure.Tracker = decorator;

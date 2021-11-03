@@ -8,7 +8,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Collections
 {
-    internal sealed class SelectedItemClosure<T, TState> : NotifyPropertyChangedBase, ISelectedItemTracker<T> where T : class
+    internal sealed class SelectedItemTracker<T, TState> : NotifyPropertyChangedBase, ISelectedItemTracker<T> where T : class
     {
         private readonly IReadOnlyObservableCollection _collection;
         private readonly Func<IReadOnlyCollection<T>, T?, T?>? _getDefault;
@@ -16,7 +16,7 @@ namespace MugenMvvm.Collections
         private readonly TState _state;
         private T? _selectedItem;
 
-        public SelectedItemClosure(IReadOnlyObservableCollection collection, Func<IReadOnlyCollection<T>, T?, T?>? getDefault, Action<T?, TState>? onChanged, TState state)
+        public SelectedItemTracker(IReadOnlyObservableCollection collection, Func<IReadOnlyCollection<T>, T?, T?>? getDefault, Action<T?, TState>? onChanged, TState state)
         {
             _collection = collection;
             _getDefault = getDefault;
@@ -66,7 +66,7 @@ namespace MugenMvvm.Collections
         public bool SetSelectedItem(T? value)
         {
             using var _ = _collection.Lock();
-            if (Tracker.ItemsRaw.Comparer.Equals(SelectedItem, value) || !Tracker.Contains(value))
+            if (Tracker.ItemsRaw.Comparer.Equals(SelectedItem, value) || value != null && !Tracker.Contains(value))
                 return false;
             SetValue(value);
             return true;
