@@ -58,6 +58,12 @@ namespace MugenMvvm.Extensions.Components
                 (component, s, c, m) => component.TryValidateAsync(s.validator, s.member, c, m));
         }
 
+        public static Task WaitAsync(this ItemOrArray<IValidationHandlerComponent> components, IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(validator, nameof(validator));
+            return components.InvokeAllAsync((validator, member), default, metadata, (component, s, _, m) => component.WaitAsync(s.validator, s.member, m));
+        }
+
         public static void GetErrors(this ItemOrArray<IValidatorErrorManagerComponent> components, IValidator validator,
             ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<ValidationErrorInfo> errors, object? source, IReadOnlyMetadataContext? metadata)
         {

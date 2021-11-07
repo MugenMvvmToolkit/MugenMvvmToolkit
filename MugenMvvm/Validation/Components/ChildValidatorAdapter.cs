@@ -95,6 +95,19 @@ namespace MugenMvvm.Validation.Components
             return tasks.WhenAll();
         }
 
+        public Task WaitAsync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
+        {
+            var tasks = new ItemOrListEditor<Task>();
+            foreach (var cmd in _validators)
+            {
+                var task = cmd.WaitAsync(member, metadata);
+                if (!task.IsCompletedSuccessfully())
+                    tasks.Add(task);
+            }
+
+            return tasks.WhenAll();
+        }
+
         public bool HasErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata)
         {
             foreach (var item in _validators)

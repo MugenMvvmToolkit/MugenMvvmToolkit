@@ -13,6 +13,8 @@ namespace MugenMvvm.Interfaces.Validation
     {
         Task ValidateAsync(string? member = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
+        Task WaitAsync(string? member = null, IReadOnlyMetadataContext? metadata = null);
+
         bool HasErrors(ItemOrIReadOnlyList<string> members = default, object? source = null, IReadOnlyMetadataContext? metadata = null);
 
         void GetErrors(ItemOrIReadOnlyList<string> members, ref ItemOrListEditor<ValidationErrorInfo> errors, object? source = null, IReadOnlyMetadataContext? metadata = null);

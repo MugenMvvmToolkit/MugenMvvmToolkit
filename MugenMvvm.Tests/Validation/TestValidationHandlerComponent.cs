@@ -12,9 +12,14 @@ namespace MugenMvvm.Tests.Validation
     {
         public Func<IValidator, string?, CancellationToken, IReadOnlyMetadataContext?, Task>? TryValidateAsync { get; set; }
 
+        public Func<IValidator, string?, IReadOnlyMetadataContext?, Task>? WaitAsync { get; set; }
+
         public int Priority { get; set; }
 
         Task IValidationHandlerComponent.TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             TryValidateAsync?.Invoke(validator, member, cancellationToken, metadata) ?? Task.CompletedTask;
+
+        Task IValidationHandlerComponent.WaitAsync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata) =>
+            WaitAsync?.Invoke(validator, member, metadata) ?? Task.CompletedTask;
     }
 }

@@ -75,9 +75,19 @@ namespace MugenMvvm.UnitTests.Validation.Components
 
             invokeCount.ShouldEqual(0);
             var task = Validator.ValidateAsync(expectedMember, CancellationToken.None, Metadata);
+            task.IsCompleted.ShouldBeFalse();
             invokeCount.ShouldEqual(count);
+
+            Validator.WaitAsync(NewId(), Metadata).IsCompletedSuccessfully();
+            var waitMemberTask = Validator.WaitAsync(expectedMember, Metadata);
+            var waitAllTask = Validator.WaitAsync(null, Metadata);
+            waitMemberTask.IsCompleted.ShouldBeFalse();
+            waitAllTask.IsCompleted.ShouldBeFalse();
+
             tcs.TrySetResult(null);
             await task;
+            await waitMemberTask;
+            await waitAllTask;
         }
 
         [Fact]

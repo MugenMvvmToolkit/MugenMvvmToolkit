@@ -63,6 +63,8 @@ namespace MugenMvvm.Validation
         public Task ValidateAsync(string? member = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IValidationHandlerComponent>().TryValidateAsync(this, member, cancellationToken, metadata);
 
+        public Task WaitAsync(string? member = null, IReadOnlyMetadataContext? metadata = null) => GetComponents<IValidationHandlerComponent>().WaitAsync(this, member, metadata);
+
         public bool HasErrors(ItemOrIReadOnlyList<string> members = default, object? source = null, IReadOnlyMetadataContext? metadata = null) =>
             GetComponents<IValidatorErrorManagerComponent>().HasErrors(this, members, source, metadata);
 

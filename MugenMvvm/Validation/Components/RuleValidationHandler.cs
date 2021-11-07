@@ -44,7 +44,7 @@ namespace MugenMvvm.Validation.Components
         {
             if (_disposeToken == null)
             {
-                Validate(validator, member, metadata);
+                ValidateSync(validator, member, metadata);
                 return;
             }
 
@@ -59,6 +59,8 @@ namespace MugenMvvm.Validation.Components
                     token.Dispose();
             }
         }
+
+        public Task WaitAsync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata) => Task.CompletedTask;
 
         private async Task ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -79,7 +81,7 @@ namespace MugenMvvm.Validation.Components
             validator.SetErrors(this, editor, metadata);
         }
 
-        private void Validate(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
+        private void ValidateSync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
         {
             _errors?.Clear();
             var editor = new ItemOrListEditor<ValidationErrorInfo>(_errors);

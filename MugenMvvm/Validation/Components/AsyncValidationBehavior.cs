@@ -17,13 +17,13 @@ namespace MugenMvvm.Validation.Components
     public sealed class AsyncValidationBehavior : ComponentDecoratorBase<IValidator, IValidationHandlerComponent>, IValidationHandlerComponent, IValidatorErrorManagerComponent,
         IComponentCollectionDecorator<IValidatorErrorManagerComponent>
     {
-        private readonly Dictionary<string, CancellationTokenSource> _validatingTasks;
+        private readonly Dictionary<string, (CancellationTokenSource cts, Task task)> _validatingTasks;
 
         private ItemOrArray<IValidatorErrorManagerComponent> _errorManagerComponents;
 
         public AsyncValidationBehavior(int priority = ValidationComponentPriority.AsyncBehaviorDecorator) : base(priority)
         {
-            _validatingTasks = new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal);
+            _validatingTasks = new Dictionary<string, (CancellationTokenSource cts, Task task)>(StringComparer.Ordinal);
         }
 
         public void Decorate(IComponentCollection collection, ref ItemOrListEditor<IValidatorErrorManagerComponent> components, IReadOnlyMetadataContext? metadata) =>
@@ -33,13 +33,13 @@ namespace MugenMvvm.Validation.Components
         {
             member ??= "";
             var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
-            CancellationTokenSource? oldValue;
+            (CancellationTokenSource cts, Task task) oldValue;
             lock (_validatingTasks)
             {
                 _validatingTasks.Remove(member, out oldValue);
             }
 
-            oldValue.SafeCancel();
+            oldValue.cts.SafeCancel();
 
             var task = Components.TryValidateAsync(validator, member, source.Token, metadata);
             if (!task.IsCompleted)
@@ -47,21 +47,44 @@ namespace MugenMvvm.Validation.Components
                 lock (_validatingTasks)
                 {
                     _validatingTasks.TryGetValue(member, out oldValue);
-                    _validatingTasks[member] = source;
+                    _validatingTasks[member] = (source, task);
                 }
 
-                oldValue.SafeCancel();
+                oldValue.cts.SafeCancel();
                 validator.GetComponents<IValidatorAsyncValidationListener>().OnAsyncValidation(validator, member, task, metadata);
 
                 task.ContinueWith((_, s) =>
                 {
-                    var state = (Tuple<AsyncValidationBehavior, string, CancellationTokenSource, IReadOnlyMetadataContext?>)s!;
+                    var state = (Tuple<AsyncValidationBehavior, string, CancellationTokenSource, IReadOnlyMetadataContext?>) s!;
                     state.Item1.OnAsyncValidationCompleted(state.Item2, state.Item3, state.Item4);
                     state.Item3.Dispose();
                 }, Tuple.Create(this, member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
             }
 
             return task;
+        }
+
+        public Task WaitAsync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
+        {
+            var tasks = new ItemOrListEditor<Task>();
+            var baseTask = Components.WaitAsync(validator, member, metadata);
+            if (!baseTask.IsCompletedSuccessfully())
+                tasks.Add(baseTask);
+            lock (_validatingTasks)
+            {
+                if (string.IsNullOrEmpty(member))
+                {
+                    foreach (var pair in _validatingTasks)
+                    {
+                        if (!pair.Value.task.IsCompletedSuccessfully())
+                            tasks.Add(pair.Value.task);
+                    }
+                }
+                else if (_validatingTasks.TryGetValue(member!, out var value) && !value.task.IsCompletedSuccessfully())
+                    tasks.Add(value.task);
+            }
+
+            return tasks.WhenAll();
         }
 
         public bool HasErrors(IValidator validator, ItemOrIReadOnlyList<string> members, object? source, IReadOnlyMetadataContext? metadata) =>
@@ -85,7 +108,7 @@ namespace MugenMvvm.Validation.Components
             bool notify;
             lock (_validatingTasks)
             {
-                notify = _validatingTasks.Remove(member, out var value) && cts == value;
+                notify = _validatingTasks.Remove(member, out var value) && value.cts == cts;
             }
 
             if (notify)

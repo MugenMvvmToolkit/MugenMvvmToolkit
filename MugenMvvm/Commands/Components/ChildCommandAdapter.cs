@@ -156,7 +156,7 @@ namespace MugenMvvm.Commands.Components
             foreach (var cmd in _commands)
             {
                 var task = cmd.WaitAsync(metadata);
-                if (!task.IsCompleted)
+                if (!task.IsCompletedSuccessfully())
                     tasks.Add(task);
             }
 

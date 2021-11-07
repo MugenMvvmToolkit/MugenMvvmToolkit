@@ -8,5 +8,7 @@ namespace MugenMvvm.Interfaces.Validation.Components
     public interface IValidationHandlerComponent : IComponent<IValidator>
     {
         Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+
+        Task WaitAsync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata);
     }
 }

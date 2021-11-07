@@ -277,6 +277,44 @@ namespace MugenMvvm.UnitTests.Validation
             count.ShouldEqual(componentCount);
         }
 
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void WaitAsyncShouldBeHandledByComponents(int componentCount)
+        {
+            var memberName = "test";
+            var count = 0;
+            var tasks = new List<TaskCompletionSource<object>>();
+
+            for (var i = 0; i < componentCount; i++)
+            {
+                var tcs = new TaskCompletionSource<object>();
+                tasks.Add(tcs);
+                var component = new TestValidationHandlerComponent
+                {
+                    WaitAsync = (v, m, metadata) =>
+                    {
+                        ++count;
+                        v.ShouldEqual(Validator);
+                        m.ShouldEqual(memberName);
+                        metadata.ShouldEqual(Metadata);
+                        return tcs.Task;
+                    }
+                };
+                Validator.AddComponent(component);
+            }
+
+            var task = Validator.WaitAsync(memberName, Metadata);
+            task.IsCompleted.ShouldBeFalse();
+
+            for (var i = 0; i < componentCount - 1; i++)
+                tasks[i].SetResult(i);
+            task.IsCompleted.ShouldBeFalse();
+            tasks.Last().SetResult("");
+            task.IsCompleted.ShouldBeTrue();
+            count.ShouldEqual(componentCount);
+        }
+
         protected override Validator GetComponentOwner(IComponentCollectionManager? componentCollectionManager = null) => new(null, componentCollectionManager);
     }
 }

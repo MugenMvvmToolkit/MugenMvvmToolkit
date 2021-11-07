@@ -41,5 +41,7 @@ namespace MugenMvvm.Validation.Components
                 }
             }
         }
+
+        public Task WaitAsync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata) => Components.WaitAsync(validator, member, metadata);
     }
 }
