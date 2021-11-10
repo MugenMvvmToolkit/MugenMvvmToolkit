@@ -41,6 +41,13 @@ namespace MugenMvvm.Collections
 
         public DecoratorsConfiguration<T> UpdatePriority(int? priority = null) => new(Collection, priority ?? Priority - Step, Step, AllowNull);
 
+        public DecoratorsConfiguration<T> WithRemoveToken(IComponent<IReadOnlyObservableCollection> decorator, out ActionToken removeToken)
+        {
+            Should.NotBeNull(decorator, nameof(decorator));
+            removeToken = Collection.GetRemoveComponentToken(decorator);
+            return this;
+        }
+
         public static implicit operator SynchronizedObservableCollection<T>(DecoratorsConfiguration<T> configuration) =>
             (SynchronizedObservableCollection<T>) configuration.Collection;
 

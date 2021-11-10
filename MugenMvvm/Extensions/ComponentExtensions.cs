@@ -89,7 +89,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(component, nameof(component));
             if (owner.Components.TryAdd(component, metadata))
-                return ActionToken.FromDelegate((o, comp) => ((IComponentOwner) o!).Components.Remove(comp!), owner, component);
+                return owner.GetRemoveComponentToken(component);
             return default;
         }
 
@@ -117,6 +117,9 @@ namespace MugenMvvm.Extensions
             if (owner.HasComponents)
                 owner.Components.Clear(metadata);
         }
+
+        public static ActionToken GetRemoveComponentToken(this IComponentOwner owner, IComponent component) =>
+            ActionToken.FromDelegate((o, comp) => ((IComponentOwner) o!).Components.Remove(comp!), owner, component);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrArray<T> GetComponents<T>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where T : class

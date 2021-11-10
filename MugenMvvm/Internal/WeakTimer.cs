@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 
@@ -30,14 +31,21 @@ namespace MugenMvvm.Internal
 
             public void Execute()
             {
-                var target = (T?) _weakReference.Target;
-                if (target == null)
+                try
                 {
-                    Timer?.Dispose();
-                    Timer = null;
+                    var target = (T?) _weakReference.Target;
+                    if (target == null)
+                    {
+                        Timer?.Dispose();
+                        Timer = null;
+                    }
+                    else
+                        _action(target);
                 }
-                else
-                    _action(target);
+                catch (Exception e)
+                {
+                    MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.System);
+                }
             }
         }
     }

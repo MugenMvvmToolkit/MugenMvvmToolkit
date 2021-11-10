@@ -76,6 +76,29 @@ namespace MugenMvvm.Collections.Components
             return ItemsRaw.FirstOrDefault().Key.Value;
         }
 
+        public ActionToken Lock()
+        {
+            var collection = OwnerOptional;
+            if (collection == null)
+                return default;
+            return collection.Lock();
+        }
+
+        public void ForEach<TActionState>(TActionState state, Action<T, TState?, TActionState> action)
+        {
+            Should.NotBeNull(action, nameof(action));
+            var collection = OwnerOptional;
+            if (collection == null)
+                return;
+            using var _ = collection.Lock();
+            if (OwnerOptional == null)
+                return;
+            if (_hasItem)
+                action(_item!, default, state);
+            foreach (var pair in ItemsRaw)
+                action(pair.Key.Value!, pair.Value.state, state);
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             if (ItemsRaw.Count == 0)
