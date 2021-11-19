@@ -164,6 +164,18 @@ namespace MugenMvvm.Extensions
             return configuration;
         }
 
+        public static DecoratorsConfiguration<T> RegisterDisposeToken<T>(this DecoratorsConfiguration<T> configuration, IDisposable token)
+        {
+            configuration.Collection.RegisterDisposeToken(token);
+            return configuration;
+        }
+
+        public static DecoratorsConfiguration<T> RegisterDisposeToken<T>(this DecoratorsConfiguration<T> configuration, ActionToken token)
+        {
+            configuration.Collection.RegisterDisposeToken(token);
+            return configuration;
+        }
+
         public static IReadOnlyObservableCollection<T> Collection<T>(this DecoratorsConfiguration<T> configuration) => configuration.CastCollectionTo<T>();
 
         public static SynchronizedObservableCollection<T> CastCollectionToSynchronized<T>(this DecoratorsConfiguration<T> configuration) =>

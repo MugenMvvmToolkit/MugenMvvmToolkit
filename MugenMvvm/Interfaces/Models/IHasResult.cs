@@ -1,7 +1,9 @@
-﻿namespace MugenMvvm.Interfaces.Models
+﻿using MugenMvvm.Internal;
+
+namespace MugenMvvm.Interfaces.Models
 {
-    public interface IHasResult<out TResult>
+    public interface IHasResult<TResult>
     {
-        TResult? Result { get; }
+        Optional<TResult> Result { get; }
     }
 }

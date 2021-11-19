@@ -45,18 +45,21 @@ namespace MugenMvvm.Internal
                 return _value;
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator Optional<T>(T? value) => new(value);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static explicit operator T?(Optional<T> value) => value.Value;
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(Optional<T> left, Optional<T> right) => left.Equals(right);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator !=(Optional<T> left, Optional<T> right) => !left.Equals(right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Optional<T> Cast<TFrom>(TFrom? value) => new Optional<TFrom>(value).Cast<T>();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T? GetValueOrDefault() => _value;

@@ -107,7 +107,7 @@ namespace MugenMvvm.Collections
                         ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
                     var oldItem = _items[index];
-                    if (EqualityComparer<T>.Default.Equals(value, oldItem))
+                    if (InternalEqualityComparer.GetReferenceComparer<T>().Equals(value, oldItem))
                         return;
 
                     if (!GetComponents<IConditionCollectionComponent<T>>().CanReplace(this, oldItem, value, index))

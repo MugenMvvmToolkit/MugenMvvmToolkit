@@ -181,6 +181,7 @@ namespace MugenMvvm.Extensions.Components
                 cancellationToken.ThrowIfCancellationRequested();
                 if (!await c.CanNavigateAsync(navigationDispatcher, navigationContext, cancellationToken).ConfigureAwait(false))
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     result = false;
                     break;
                 }

@@ -26,6 +26,7 @@ namespace MugenMvvm.Internal
         {
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IEqualityComparer<T> GetReferenceComparer<T>() => typeof(T).IsValueType ? EqualityComparer<T>.Default : (IEqualityComparer<T>) Reference;
 
         public static bool Equals(Type[] x, Type[] y)

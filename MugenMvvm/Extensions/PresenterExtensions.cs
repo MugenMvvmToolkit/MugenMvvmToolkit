@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Internal;
 using MugenMvvm.Presentation;
 
 namespace MugenMvvm.Extensions
@@ -56,15 +57,15 @@ namespace MugenMvvm.Extensions
 
         public static ValueTaskAwaiter<INavigationContext> GetAwaiter(this ShowPresenterResult showResult) => showResult.CloseCallback.AsTask(true).GetAwaiter();
 
-        public static ValueTaskAwaiter<T?> GetAwaiter<T>(this ShowPresenterResult<T> showResult) => showResult.CloseCallback.GetResultAsync<T>().GetAwaiter()!;
+        public static ValueTaskAwaiter<Optional<T>> GetAwaiter<T>(this ShowPresenterResult<T> showResult) => showResult.CloseCallback.GetResultAsync<T>().GetAwaiter()!;
 
         public static ConfiguredValueTaskAwaitable<INavigationContext> ConfigureAwait(this ShowPresenterResult showResult, bool continueOnCapturedContext) =>
             showResult.CloseCallback.AsTask(true).ConfigureAwait(continueOnCapturedContext);
 
-        public static ConfiguredValueTaskAwaitable<T?> ConfigureAwait<T>(this ShowPresenterResult<T> showResult, bool continueOnCapturedContext) =>
+        public static ConfiguredValueTaskAwaitable<Optional<T>> ConfigureAwait<T>(this ShowPresenterResult<T> showResult, bool continueOnCapturedContext) =>
             showResult.CloseCallback.GetResultAsync<T>().ConfigureAwait(continueOnCapturedContext);
 
-        private static async ValueTask<T?> GetResultAsync<T>(this INavigationCallback callback)
+        private static async ValueTask<Optional<T>> GetResultAsync<T>(this INavigationCallback callback)
         {
             var navigationContext = await callback.AsTask(true).ConfigureAwait(false);
             if (navigationContext.Target is IHasResult<T> hasResult)
@@ -73,8 +74,7 @@ namespace MugenMvvm.Extensions
         }
 
         private static void TryGetShowPresenterResult(IPresenter? presenter, ItemOrIReadOnlyList<IPresenterResult> result, INavigationDispatcher navigationDispatcher,
-            IReadOnlyMetadataContext? metadata,
-            out INavigationCallback? showCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)
+            IReadOnlyMetadataContext? metadata, out INavigationCallback? showCallback, out INavigationCallback closeCallback, out IPresenterResult presenterResult)
         {
             if (result.List != null || result.Item == null)
                 ExceptionManager.ThrowMultiplePresenterResultNotSupported();

@@ -363,6 +363,7 @@ namespace MugenMvvm.Extensions
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 var b = await invoke(c, state, cancellationToken, metadata).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
                 if (invert)
                 {
                     if (!b)
