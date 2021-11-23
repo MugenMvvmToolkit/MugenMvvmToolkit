@@ -29,7 +29,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     @Nullable
     @Override
     public Object getView(@Nullable Object container, int resourceId, boolean trackLifecycle, @Nullable Bundle metadata) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        Class clazz = ViewMugenExtensions.tryGetClassByLayoutId(resourceId, false);
+        Class clazz = ViewMugenExtensions.tryGetClassByLayoutId(resourceId, false, metadata);
         if (clazz != null && IFragmentView.class.isAssignableFrom(clazz)) {
             IFragmentView fragmentView = (IFragmentView) clazz.getConstructor().newInstance();
             if (resourceId != 0)

@@ -27,7 +27,18 @@ namespace MugenMvvm.Internal
             HasValue = hasValue;
         }
 
-        // ReSharper disable once ConvertToAutoPropertyWhenPossible
+        public static Optional<T> None
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => default;
+        }
+
+        public static Optional<T> Default
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => new(default);
+        }
+
         [MemberNotNullWhen(true, nameof(Value))]
         public bool HasNonNullValue
         {

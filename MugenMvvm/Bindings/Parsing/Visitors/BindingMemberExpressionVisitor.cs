@@ -124,10 +124,11 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                         result = TryGetConstant("~t", memberExpression.Member, out key);
                         if (result == null)
                         {
+                            var path = _memberBuilder.GetPath();
                             var value = _observationManager.DefaultIfNull()
-                                                           .GetMemberPath(_memberBuilder.GetPath(), metadata)
+                                                           .GetMemberPath(path, metadata)
                                                            .GetValueFromPath(type, null, memberFlags.SetInstanceOrStaticFlags(true), 0, metadata, _memberManager);
-                            result = ConstantExpressionNode.Get(value);
+                            result = value is Type t && string.IsNullOrEmpty(path) ? TypeAccessExpressionNode.Get(t) : ConstantExpressionNode.Get(value);
                             _members[key] = result;
                         }
 
@@ -309,7 +310,7 @@ namespace MugenMvvm.Bindings.Parsing.Visitors
                                                   && Path == other.Path && MethodName == other.MethodName && Equals(Target, other.Target);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public override int GetHashCode() => HashCode.Combine(Path, MethodName, (int)MemberFlagsField, (int)BindingMemberFlagsField, (int)MemberType, Target);
+            public override int GetHashCode() => HashCode.Combine(Path, MethodName, (int) MemberFlagsField, (int) BindingMemberFlagsField, (int) MemberType, Target);
         }
     }
 }

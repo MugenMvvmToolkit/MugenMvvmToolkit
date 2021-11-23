@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Toolbar;
 
@@ -65,12 +66,12 @@ public final class ActivityMugenExtensions {
         return false;
     }
 
-    public static boolean startActivity(@Nullable IActivityView activityView, @Nullable Class activityClass, int requestId, @Nullable String viewModelId, int resourceId, int flags) {
+    public static boolean startActivity(@Nullable IActivityView activityView, @Nullable Class activityClass, int requestId, @Nullable String viewModelId, int resourceId, int flags, @Nullable Bundle metadata) {
         IActivityManager activityManager = MugenService.getActivityManager();
-        if (activityManager != null && activityManager.tryStartActivity(activityView, activityClass, requestId, viewModelId, resourceId, flags))
+        if (activityManager != null && activityManager.tryStartActivity(activityView, activityClass, requestId, viewModelId, resourceId, flags, metadata))
             return true;
         if (activityClass == null)
-            activityClass = ViewMugenExtensions.tryGetClassByLayoutId(resourceId, true);
+            activityClass = ViewMugenExtensions.tryGetClassByLayoutId(resourceId, true, metadata);
         if (activityClass == null)
             return false;
 

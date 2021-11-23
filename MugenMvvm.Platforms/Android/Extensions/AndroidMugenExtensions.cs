@@ -195,7 +195,7 @@ namespace MugenMvvm.Android.Extensions
                                                            .Parent()
                                                            .GetBuilder()
                                                            .CustomGetter((_, target, _) => NativeBindableMemberMugenExtensions.GetParent(target))
-                                                           .CustomSetter((_, target, value, _) => NativeBindableMemberMugenExtensions.SetParent(target, (Object)value!))
+                                                           .CustomSetter((_, target, value, _) => NativeBindableMemberMugenExtensions.SetParent(target, (Object) value!))
                                                            .ObservableHandler((_, target, listener, _) =>
                                                                ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ParentMemberName))
                                                            .Build());
@@ -227,7 +227,7 @@ namespace MugenMvvm.Android.Extensions
                                                                AttachedMemberBuilder.Parameter<int>("p2").DefaultValue(BoxingExtensions.Box(1)).Build()
                                                            })
                                                            .InvokeHandler((_, target, args, _) =>
-                                                               NativeBindableMemberMugenExtensions.FindRelativeSource(target, (string)args[0]!, (int)args[1]!))
+                                                               NativeBindableMemberMugenExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
                                                            .ObservableHandler((_, target, listener, _) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -426,7 +426,7 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .PropertyChangedHandler((member, target, _, newValue, metadata) =>
                                                            {
-                                                               if (newValue is IResourceTemplateSelector selector)
+                                                               if (newValue is IResourceTemplateSelector selector and not IContentTemplateSelector)
                                                                    member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                                                            })
                                                            .NonObservable()
@@ -445,7 +445,7 @@ namespace MugenMvvm.Android.Extensions
 
                                                                if (!contentTemplateSelector.TrySelectTemplate(target, value, out var newValue))
                                                                    ExceptionManager.ThrowTemplateNotSupported(target, value);
-                                                               
+
                                                                if (newValue != null)
                                                                {
                                                                    newValue.BindableMembers().SetDataContext(value);
@@ -468,13 +468,13 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .PropertyChangedHandler((member, target, _, newValue, metadata) =>
                                                            {
-                                                               if (newValue is not IResourceTemplateSelector selector)
+                                                               if (newValue is not IResourceTemplateSelector selector || newValue is IContentTemplateSelector)
                                                                    return;
 
                                                                var providerType = NativeBindableMemberMugenExtensions.GetItemSourceProviderType(target);
                                                                if (providerType == ItemSourceProviderType.Content || providerType == ItemSourceProviderType.ContentRaw ||
-                                                                   providerType == ItemSourceProviderType.ResourceOrContent &&
-                                                                   selector is IFragmentTemplateSelector fts && fts.HasFragments)
+                                                                   providerType == ItemSourceProviderType.ResourceOrContent
+                                                                   && selector is IFragmentTemplateSelector fts && fts.HasFragments)
                                                                    member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                                                            })
                                                            .NonObservable()
@@ -538,7 +538,7 @@ namespace MugenMvvm.Android.Extensions
             }
 
             if (integer)
-                return ConstantExpressionNode.Get((int)floatValue);
+                return ConstantExpressionNode.Get((int) floatValue);
             return ConstantExpressionNode.Get(floatValue);
         }
 

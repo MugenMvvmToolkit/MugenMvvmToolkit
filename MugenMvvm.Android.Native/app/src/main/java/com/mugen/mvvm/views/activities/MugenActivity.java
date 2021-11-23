@@ -31,7 +31,7 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     public int getViewId() {
-        return ViewMugenExtensions.tryGetLayoutId(getClass(), getIntent(), 0);
+        return ViewMugenExtensions.tryGetLayoutId(getClass(), getIntent(), 0, null);
     }
 
     @Nullable

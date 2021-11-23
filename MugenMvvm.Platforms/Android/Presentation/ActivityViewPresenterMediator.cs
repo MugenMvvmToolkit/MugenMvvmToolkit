@@ -83,7 +83,7 @@ namespace MugenMvvm.Android.Presentation
             if (mapping is IResourceViewMapping m)
                 resourceId = m.ResourceId;
 
-            if (!ActivityMugenExtensions.StartActivity(topActivity!, activityType!, requestId, mediator.ViewModel.GetId(), resourceId, flags))
+            if (!ActivityMugenExtensions.StartActivity(topActivity!, activityType!, requestId, mediator.ViewModel.GetId(), resourceId, flags, null))
                 ExceptionManager.ThrowPresenterCannotShowRequest(mediator.Mapping, navigationContext.GetMetadataOrDefault());
         }
 

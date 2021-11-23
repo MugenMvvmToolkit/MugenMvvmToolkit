@@ -31,7 +31,7 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
 
     @Override
     public int getViewId() {
-        return ViewMugenExtensions.tryGetLayoutId(getClass(), getIntent(), 0);
+        return ViewMugenExtensions.tryGetLayoutId(getClass(), getIntent(), 0, null);
     }
 
     @Nullable

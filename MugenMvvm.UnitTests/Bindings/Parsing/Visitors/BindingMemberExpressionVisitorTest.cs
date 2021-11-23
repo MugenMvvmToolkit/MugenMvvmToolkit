@@ -673,7 +673,7 @@ namespace MugenMvvm.UnitTests.Bindings.Parsing.Visitors
             _visitor.MemberFlags = MemberFlags.All;
             _visitor.Flags = BindingMemberExpressionFlags.Observable;
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName));
-            _visitor.Visit(expression, isTarget, Metadata).ShouldEqual(ConstantExpressionNode.Get(returnType));
+            _visitor.Visit(expression, isTarget, Metadata).ShouldEqual(TypeAccessExpressionNode.Get(returnType));
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;

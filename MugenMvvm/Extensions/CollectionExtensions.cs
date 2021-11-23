@@ -40,27 +40,26 @@ namespace MugenMvvm.Extensions
 
         public static IReadOnlyObservableCollection<object?> CreateDerivedCollection<T>(this IEnumerable<T> items, bool disposeSourceOnDispose = false, bool isWeak = true,
             bool materialize = false)
-            where T : class
         {
             Should.NotBeNull(items, nameof(items));
             if (items is IReadOnlyObservableCollection collection)
                 return collection.Bind(disposeSourceOnDispose, isWeak, materialize);
 
-            var objects = new SynchronizedObservableCollection<T>();
-            objects.Reset(items);
-            return objects;
+            if (!TypeChecker.IsValueType<T>())
+                return (IReadOnlyObservableCollection<object?>) (object) new SynchronizedObservableCollection<T>(items);
+
+            var result = new SynchronizedObservableCollection<object?>(items.TryGetCount(out var count) ? count : 0);
+            foreach (var item in items)
+                result.Add(item);
+            return result;
         }
 
         public static IReadOnlyObservableCollection<T> CreateDerivedCollectionSource<T>(this IEnumerable<T> items, bool disposeSourceOnDispose = false, bool isWeak = true)
-            where T : class
         {
             Should.NotBeNull(items, nameof(items));
             if (items is IReadOnlyObservableCollection<T> collection)
                 return collection.BindToSource(disposeSourceOnDispose, isWeak);
-
-            var objects = new SynchronizedObservableCollection<T>();
-            objects.Reset(items);
-            return objects;
+            return new SynchronizedObservableCollection<T>(items);
         }
 
         public static DecoratorsConfiguration<T> ConfigureDecorators<T>(this IReadOnlyObservableCollection<T> genericCollection, bool allowNull = false,

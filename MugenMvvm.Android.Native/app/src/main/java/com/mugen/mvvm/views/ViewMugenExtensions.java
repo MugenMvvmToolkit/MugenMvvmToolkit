@@ -164,20 +164,20 @@ public final class ViewMugenExtensions {
     }
 
     @Nullable
-    public static Class tryGetClassByLayoutId(int resourceId, boolean isActivity) {
+    public static Class tryGetClassByLayoutId(int resourceId, boolean isActivity, @Nullable Bundle metadata) {
         IViewLayoutResourceResolver layoutResourceResolver = MugenService.getLayoutResourceResolver();
         if (layoutResourceResolver != null) {
-            Class clazz = layoutResourceResolver.tryGetClassByLayoutId(resourceId, isActivity);
+            Class clazz = layoutResourceResolver.tryGetClassByLayoutId(resourceId, isActivity, metadata);
             if (clazz != null)
                 return clazz;
         }
         return _resourceViewMapping.get(resourceId);
     }
 
-    public static int tryGetLayoutId(@Nullable Class viewClass, @Nullable Intent intent, int defaultValue) {
+    public static int tryGetLayoutId(@Nullable Class viewClass, @Nullable Intent intent, int defaultValue, @Nullable Bundle metadata) {
         IViewLayoutResourceResolver layoutResourceResolver = MugenService.getLayoutResourceResolver();
         if (layoutResourceResolver != null) {
-            int id = layoutResourceResolver.tryGetLayoutId(viewClass, intent);
+            int id = layoutResourceResolver.tryGetLayoutId(viewClass, intent, metadata);
             if (id != 0)
                 return id;
         }

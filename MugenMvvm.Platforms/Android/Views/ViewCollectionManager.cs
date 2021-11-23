@@ -73,19 +73,23 @@ namespace MugenMvvm.Android.Views
 
             var itemTemplateSelector = target.BindableMembers().ItemTemplateSelector();
             if (itemTemplateSelector == null)
+            {
+                if (value == null)
+                    return true;
                 ExceptionManager.ThrowObjectNotInitialized(target, target.BindableMembers().Descriptor.ItemTemplateSelector());
+            }
 
             var itemsSourceProvider = NativeBindableMemberMugenExtensions.GetItemsSourceProvider(target);
             var hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
             if (providerType == ItemSourceProviderType.ContentRaw)
-                ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector)itemTemplateSelector).Collection = value;
+                ContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector) itemTemplateSelector).Collection = value;
             else if (providerType == ItemSourceProviderType.Content ||
                      providerType == ItemSourceProviderType.ResourceOrContent && hasFragments)
             {
                 if (itemsSourceProvider is not ContentItemsSourceProvider provider)
                 {
                     ViewMugenExtensions.RemoveParentObserver(target);
-                    provider = new ContentItemsSourceProvider(target, (IContentTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                    provider = new ContentItemsSourceProvider(target, (IContentTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
                     NativeBindableMemberMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                     BindableMembers.For<object>().ItemsSource().TryRaise(view);
                 }
@@ -97,7 +101,7 @@ namespace MugenMvvm.Android.Views
                 if (itemsSourceProvider is not ResourceItemsSourceProvider provider)
                 {
                     ViewMugenExtensions.RemoveParentObserver(target);
-                    provider = new ResourceItemsSourceProvider(target, (IResourceTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                    provider = new ResourceItemsSourceProvider(target, (IResourceTemplateSelector) itemTemplateSelector, target.BindableMembers().StableIdProvider());
                     NativeBindableMemberMugenExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                     BindableMembers.For<object>().ItemsSource().TryRaise(view);
                 }
@@ -110,7 +114,7 @@ namespace MugenMvvm.Android.Views
 
         private static BindableCollectionAdapter? GetItemsSourceProvider(View target)
         {
-            var itemsSourceProvider = (IItemsSourceProvider?)NativeBindableMemberMugenExtensions.GetItemsSourceProvider(target);
+            var itemsSourceProvider = (IItemsSourceProvider?) NativeBindableMemberMugenExtensions.GetItemsSourceProvider(target);
             if (itemsSourceProvider != null)
                 return itemsSourceProvider.CollectionAdapter;
             return ContentItemsSourceGenerator.TryGet(target);

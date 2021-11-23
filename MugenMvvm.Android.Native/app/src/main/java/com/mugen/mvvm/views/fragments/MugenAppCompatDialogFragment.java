@@ -38,7 +38,7 @@ public class MugenAppCompatDialogFragment extends AppCompatDialogFragment implem
     public int getViewId() {
         if (_viewId != 0)
             return _viewId;
-        return ViewMugenExtensions.tryGetLayoutId(getClass(), null, 0);
+        return ViewMugenExtensions.tryGetLayoutId(getClass(), null, 0, null);
     }
 
     @Nullable

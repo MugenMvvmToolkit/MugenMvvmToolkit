@@ -111,6 +111,21 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        public static void RemoveComponents<T, TState>(this IComponentOwner owner, TState state, Func<T, TState, bool> predicate, IReadOnlyMetadataContext? metadata = null)
+            where T : class
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(predicate, nameof(predicate));
+            if (owner.HasComponents)
+            {
+                foreach (var t in owner.Components.Get<T>())
+                {
+                    if (predicate(t, state))
+                        owner.Components.Remove(t, metadata);
+                }
+            }
+        }
+
         public static void ClearComponents(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(owner, nameof(owner));

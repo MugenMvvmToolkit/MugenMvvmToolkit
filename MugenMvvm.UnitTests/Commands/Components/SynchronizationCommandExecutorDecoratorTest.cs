@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed2.ShouldEqual(bidirectional ? 0 : 1);
 
             tcs.SetResult(default);
-            (await task).ShouldEqual(default);
+            await task.WaitSafeAsync();
             task.IsCompleted.ShouldBeTrue();
             command1.IsExecuting().ShouldBeFalse();
             command2.IsExecuting().ShouldBeFalse();
