@@ -5,6 +5,7 @@
         public const int CommandProvider = 0;
         public const int ConditionEvent = 0;
         public const int PropertyChangedObserver = 0;
+        public const int ValidatorObserver = 0;
         public const int SynchronizationDecorator = 1000;
         public const int Executor = -1000;
         public const int ChildCommandAdapter = Executor - 100;

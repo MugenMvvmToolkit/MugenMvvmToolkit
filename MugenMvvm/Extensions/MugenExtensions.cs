@@ -29,6 +29,7 @@ using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
@@ -228,6 +229,18 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(command, nameof(command));
             return command.GetComponentOptional<PropertyChangedCommandObserver>()?.Remove(notifier) ?? false;
+        }
+        
+        public static bool AddNotifier(this ICompositeCommand command, IValidator notifier)
+        {
+            Should.NotBeNull(command, nameof(command));
+            return command.GetOrAddComponent<ValidatorCommandObserver>().Add(notifier);
+        }
+
+        public static bool RemoveNotifier(this ICompositeCommand command, IValidator notifier)
+        {
+            Should.NotBeNull(command, nameof(command));
+            return command.GetComponentOptional<ValidatorCommandObserver>()?.Remove(notifier) ?? false;
         }
 
         public static Task<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
@@ -522,18 +535,6 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item, IWeakReferenceManager? weakReferenceManager) =>
             weakReferenceManager.DefaultIfNull(item).GetWeakReference(item);
-
-        internal static void CommandNotifierOnPropertyChangedHandler(this IWeakReference weakReference, object? sender, PropertyChangedEventArgs args)
-        {
-            var handler = (PropertyChangedCommandObserver?) weakReference.Target;
-            if (handler == null)
-            {
-                if (sender is INotifyPropertyChanged propertyChanged)
-                    propertyChanged.PropertyChanged -= weakReference.CommandNotifierOnPropertyChangedHandler;
-            }
-            else
-                handler.Handle(sender, args);
-        }
 
         internal static IReadOnlyMetadataContext GetForceExecuteMetadata(IReadOnlyMetadataContext? metadata)
         {

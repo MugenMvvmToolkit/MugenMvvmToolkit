@@ -24,7 +24,25 @@ namespace MugenMvvm.Validation
             Builder = builder;
         }
 
+        public static implicit operator ValidationRuleBuilder.Builder<T>(ValidationRuleMemberBuilder<T, TMember> memberBuilder) => memberBuilder.Builder;
+
         public ItemOrIReadOnlyList<IValidationRule> Build() => Builder.Build();
+
+        public ValidationRuleMemberBuilder<T, TMember> AddValidator<TState>(TState state,
+            Func<T, TMember, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
+            ItemOrIReadOnlyList<string> dependencyMembers = default)
+        {
+            Builder.AddValidator(MemberName, Accessor, state, validator, condition, dependencyMembers);
+            return this;
+        }
+
+        public ValidationRuleMemberBuilder<T, TMember> AddAsyncValidator<TState>(TState state,
+            Func<T, TMember, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
+            ItemOrIReadOnlyList<string> dependencyMembers = default)
+        {
+            Builder.AddAsyncValidator(MemberName, Accessor, state, validator, condition, dependencyMembers);
+            return this;
+        }
 
         public ValidationRuleMemberBuilder<T, TMember> Must(Func<T, TMember, IReadOnlyMetadataContext?, bool> validator, ValidationError error,
             Func<T, IReadOnlyMetadataContext?, bool>? condition = null, ItemOrIReadOnlyList<string> dependencyMembers = default)
