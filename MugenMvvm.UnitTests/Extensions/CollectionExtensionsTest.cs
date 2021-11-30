@@ -670,7 +670,7 @@ namespace MugenMvvm.UnitTests.Extensions
         {
             object? selectedItem = null;
             ISelectedItemTracker<object> selectedItemTracker = null!;
-            _collection.ConfigureDecorators().TrackSelectedItem<object, object?>(out selectedItemTracker, this, (o, s) =>
+            _collection.ConfigureDecorators().TrackSelectedItem<object, object?>(out selectedItemTracker, this, (o, s, _) =>
             {
                 s.ShouldEqual(this);
                 o.ShouldEqual(selectedItemTracker.SelectedItem);

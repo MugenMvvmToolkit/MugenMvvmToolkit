@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using MugenMvvm.Attributes;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Collections
 {
@@ -9,6 +10,6 @@ namespace MugenMvvm.Interfaces.Collections
         [Preserve(Conditional = true)]
         T? SelectedItem { get; set; }
 
-        bool SetSelectedItem(T? value);
+        bool SetSelectedItem(T? value, IReadOnlyMetadataContext? metadata);
     }
 }

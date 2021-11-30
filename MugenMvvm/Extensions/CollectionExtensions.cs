@@ -17,6 +17,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using MugenMvvm.Models;
@@ -507,7 +508,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(source, nameof(source));
             var args = propertyName == nameof(ISelectedItemTracker<object>.SelectedItem) ? Default.SelectedItemChangedArgs : new PropertyChangedEventArgs(propertyName);
-            return configuration.TrackSelectedItem(out tracker, (args, source), (_, s) => s.source.OnPropertyChangedInternal(s.args), getDefault, immutableCondition, comparer);
+            return configuration.TrackSelectedItem(out tracker, (args, source), (_, s, _) => s.source.OnPropertyChangedInternal(s.args), getDefault, immutableCondition, comparer);
         }
 
         public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
@@ -516,7 +517,8 @@ namespace MugenMvvm.Extensions
             configuration.TrackSelectedItem<T, object?>(out tracker, null, null, getDefault, immutableCondition, comparer);
 
         public static DecoratorsConfiguration<T> TrackSelectedItem<T, TState>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
-            TState state = default!, Action<T?, TState>? onChanged = null, Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null, Func<T, bool>? immutableCondition = null,
+            TState state = default!, Action<T?, TState, IReadOnlyMetadataContext?>? onChanged = null, Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null,
+            Func<T, bool>? immutableCondition = null,
             IEqualityComparer<T>? comparer = null)
             where T : class
         {
