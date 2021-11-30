@@ -7,6 +7,7 @@ using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Extensions
@@ -34,7 +35,7 @@ namespace MugenMvvm.Extensions
 
             var context = metadata;
             Interlocked.CompareExchange(ref metadata, new MetadataContext(context), context);
-            return (IMetadataContext)metadata!;
+            return (IMetadataContext) metadata!;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,8 +53,11 @@ namespace MugenMvvm.Extensions
 
         public static IReadOnlyMetadataContext WithValue<T>(this IReadOnlyMetadataContext? metadata, IMetadataContextKey<T> key, T value)
         {
-            if (metadata.IsNullOrEmpty() && metadata is not IMetadataContext)
+            if (metadata.IsNullOrEmpty())
                 return key.ToContext(value);
+
+            if (metadata.TryGet(key, out var currentValue) && InternalEqualityComparer.GetReferenceComparer<T>().Equals(currentValue, value))
+                return metadata;
 
             var ctx = metadata.ToNonReadonly();
             ctx.Set(key, value);

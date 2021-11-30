@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Metadata;
 using Should;
 using Xunit;
 using Xunit.Abstractions;
@@ -89,13 +90,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command1 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m.ShouldEqual(Metadata);
+                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
                 ++executed1;
                 return tcs.Task;
             }, commandManager: CommandManager);
             var command2 = CompositeCommand.Create(this, m =>
             {
-                m.ShouldEqual(Metadata);
+                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
                 ++executed2;
             }, commandManager: CommandManager);
 
@@ -103,12 +104,12 @@ namespace MugenMvvm.UnitTests.Commands.Components
             command1.IsExecuting().ShouldBeFalse();
             command2.IsExecuting().ShouldBeFalse();
 
-            var task = command1.ExecuteAsync(null, DefaultCancellationToken, Metadata);
+            var task = command1.ExecuteAsync(null, DefaultCancellationToken);
             command1.IsExecuting().ShouldBeTrue();
             command2.IsExecuting().ShouldBeFalse();
 
             executed1.ShouldEqual(1);
-            command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
+            command2.ExecuteAsync(null, DefaultCancellationToken);
             executed2.ShouldEqual(bidirectional ? 0 : 1);
 
             tcs.SetResult(default);
@@ -119,9 +120,37 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             executed1.ShouldEqual(1);
             executed2.ShouldEqual(bidirectional ? 0 : 1);
-            command2.ExecuteAsync(null, DefaultCancellationToken, Metadata);
+            command2.ExecuteAsync(null, DefaultCancellationToken);
             executed1.ShouldEqual(1);
             executed2.ShouldEqual(bidirectional ? 1 : 2);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task SynchronizeExecutionShouldHandleInnerExecution(bool includeMetadata)
+        {
+            var executed1 = 0;
+            var executed2 = 0;
+            var command2 = CompositeCommand.Create(this, (c, m) =>
+            {
+                c.CanBeCanceled.ShouldBeTrue();
+                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
+                ++executed2;
+                return Task.CompletedTask;
+            }, commandManager: CommandManager);
+            var command1 = CompositeCommand.Create(this, (c, m) =>
+            {
+                c.CanBeCanceled.ShouldBeTrue();
+                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
+                ++executed1;
+                return command2.ExecuteAsync(null, includeMetadata ? c : default, includeMetadata ? m : null);
+            }, commandManager: CommandManager);
+            command1.SynchronizeWith(command2);
+
+            await command1.ExecuteAsync();
+            executed1.ShouldEqual(1);
+            executed2.ShouldEqual(includeMetadata ? 1 : 0);
         }
     }
 }

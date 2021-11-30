@@ -79,6 +79,41 @@ namespace MugenMvvm.UnitTests.Collections
         [InlineData(0)]
         [InlineData(1)]
         [InlineData(10)]
+        public void InsertRemoveAtShouldBeCorrect(int count)
+        {
+            var editor = new ItemOrListEditor<object>(null, null, false);
+            var objects = new List<object>();
+            for (var i = 0; i < count; i++)
+            {
+                object o = i;
+                objects.Insert(0, o);
+                editor.Insert(0, o);
+            }
+
+            ItemOrIReadOnlyList<object> itemOrList = objects;
+            var editorItemOrList = editor.ToItemOrList();
+            editorItemOrList.Item.ShouldEqual(itemOrList.Item);
+            editorItemOrList.List.ShouldEqual(itemOrList.List);
+
+            for (var i = 0; i < count; i++)
+                objects.IndexOf(objects[i]).ShouldEqual(i);
+
+            for (var i = 0; i < count; i++)
+            {
+                objects.RemoveAt(0);
+                editor.RemoveAt(0);
+
+                itemOrList = objects;
+                editorItemOrList = editor.ToItemOrList();
+                editorItemOrList.Item.ShouldEqual(itemOrList.Item);
+                editorItemOrList.List.ShouldEqual(itemOrList.List);
+            }
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(10)]
         public void AddRemoveShouldBeCorrect(int count)
         {
             ItemOrListEditor<object> editor = default;

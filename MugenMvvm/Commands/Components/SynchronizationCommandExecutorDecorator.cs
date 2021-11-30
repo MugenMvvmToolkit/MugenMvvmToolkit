@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
@@ -13,7 +14,8 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class SynchronizationCommandExecutorDecorator : MultiAttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, IHasPriority
+    public sealed class SynchronizationCommandExecutorDecorator : MultiAttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, IReadOnlyMetadataContext,
+        IHasPriority
     {
         private volatile ICompositeCommand? _executingCommand;
         private CancellationTokenSource? _cancellationTokenSource;
@@ -24,6 +26,8 @@ namespace MugenMvvm.Commands.Components
         }
 
         public int Priority { get; }
+
+        int IReadOnlyMetadataContext.Count => 1;
 
         public static void Synchronize(ICompositeCommand command, ICompositeCommand target, bool bidirectional, int priority = CommandComponentPriority.SynchronizationDecorator)
         {
@@ -39,7 +43,7 @@ namespace MugenMvvm.Commands.Components
         public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             var executingCommand = _executingCommand;
-            return executingCommand == null || IsForceExecute(command, executingCommand, metadata);
+            return executingCommand == null || IsInnerExecution(metadata) || IsForceExecute(command, executingCommand, metadata);
         }
 
         protected override void OnAttached(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
@@ -168,6 +172,29 @@ namespace MugenMvvm.Commands.Components
                 owner.RaiseCanExecuteChanged(metadata);
         }
 
+        private IReadOnlyMetadataContext GetMetadata(IReadOnlyMetadataContext? metadata) =>
+            metadata.IsNullOrEmpty() ? this : metadata.WithValue(CommandMetadata.Synchronizer, this);
+
+        private bool IsInnerExecution(IReadOnlyMetadataContext? metadata) =>
+            metadata != null && (ReferenceEquals(metadata, this) || ReferenceEquals(metadata.Get(CommandMetadata.Synchronizer), this));
+
+        ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() =>
+            new KeyValuePair<IMetadataContextKey, object?>(CommandMetadata.Synchronizer, this);
+
+        bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => CommandMetadata.Synchronizer.Equals(contextKey);
+
+        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value)
+        {
+            if (CommandMetadata.Synchronizer.Equals(contextKey))
+            {
+                value = this;
+                return true;
+            }
+
+            value = null;
+            return false;
+        }
+
         internal sealed class CommandExecutorInterceptor : ComponentDecoratorBase<ICompositeCommand, ICommandExecutorComponent>, ICommandExecutorComponent
         {
             public SynchronizationCommandExecutorDecorator Synchronizer;
@@ -181,8 +208,12 @@ namespace MugenMvvm.Commands.Components
             public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) =>
                 ReferenceEquals(Synchronizer._executingCommand, command) || Components.IsExecuting(command, metadata);
 
-            public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
-                Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
+            public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            {
+                if (Synchronizer.IsInnerExecution(metadata))
+                    return Components.TryExecuteAsync(command, parameter, cancellationToken, metadata);
+                return Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, Synchronizer.GetMetadata(metadata));
+            }
 
             public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => Components.TryWaitAsync(command, metadata);
         }

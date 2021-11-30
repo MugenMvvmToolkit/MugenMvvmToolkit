@@ -219,22 +219,24 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static bool AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
+        public static ICompositeCommand AddNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
-            return command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
+            command.GetOrAddComponent<PropertyChangedCommandObserver>().Add(notifier);
+            return command;
+        }
+
+        public static ICompositeCommand AddNotifier(this ICompositeCommand command, IValidator notifier)
+        {
+            Should.NotBeNull(command, nameof(command));
+            command.GetOrAddComponent<ValidatorCommandObserver>().Add(notifier);
+            return command;
         }
 
         public static bool RemoveNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
             return command.GetComponentOptional<PropertyChangedCommandObserver>()?.Remove(notifier) ?? false;
-        }
-        
-        public static bool AddNotifier(this ICompositeCommand command, IValidator notifier)
-        {
-            Should.NotBeNull(command, nameof(command));
-            return command.GetOrAddComponent<ValidatorCommandObserver>().Add(notifier);
         }
 
         public static bool RemoveNotifier(this ICompositeCommand command, IValidator notifier)
