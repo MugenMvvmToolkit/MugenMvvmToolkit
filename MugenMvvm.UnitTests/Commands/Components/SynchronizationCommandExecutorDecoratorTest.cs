@@ -90,13 +90,13 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command1 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
+                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed1;
                 return tcs.Task;
             }, commandManager: CommandManager);
             var command2 = CompositeCommand.Create(this, m =>
             {
-                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
+                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed2;
             }, commandManager: CommandManager);
 
@@ -128,21 +128,21 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public async Task SynchronizeExecutionShouldHandleInnerExecution(bool includeMetadata)
+        public async Task SynchronizeExecutionShouldHandleRecursiveExecution(bool includeMetadata)
         {
             var executed1 = 0;
             var executed2 = 0;
             var command2 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
+                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed2;
                 return Task.CompletedTask;
             }, commandManager: CommandManager);
             var command1 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m!.Get(CommandMetadata.Synchronizer).ShouldNotBeNull();
+                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed1;
                 return command2.ExecuteAsync(null, includeMetadata ? c : default, includeMetadata ? m : null);
             }, commandManager: CommandManager);

@@ -38,7 +38,15 @@ namespace MugenMvvm.Android.Views
             activityRequest.StartActivity();
 
             activityRequest.View = await handler.Task.ConfigureAwait(false);
-            return await Components.TryInitializeAsync(viewManager, mapping, activityRequest, default, metadata).ConfigureAwait(false);
+            try
+            {
+                return await Components.TryInitializeAsync(viewManager, mapping, activityRequest, default, metadata).ConfigureAwait(false);
+            }
+            catch
+            {
+                (activityRequest.View as IActivityView)?.Finish();
+                throw;
+            }
         }
 
         public Task<bool> TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)

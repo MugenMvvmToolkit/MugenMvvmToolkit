@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
@@ -14,8 +14,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class SynchronizationCommandExecutorDecorator : MultiAttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, IReadOnlyMetadataContext,
-        IHasPriority
+    public sealed class SynchronizationCommandExecutorDecorator : MultiAttachableComponentBase<ICompositeCommand>, ICommandConditionComponent, IHasPriority
     {
         private volatile ICompositeCommand? _executingCommand;
         private CancellationTokenSource? _cancellationTokenSource;
@@ -26,8 +25,6 @@ namespace MugenMvvm.Commands.Components
         }
 
         public int Priority { get; }
-
-        int IReadOnlyMetadataContext.Count => 1;
 
         public static void Synchronize(ICompositeCommand command, ICompositeCommand target, bool bidirectional, int priority = CommandComponentPriority.SynchronizationDecorator)
         {
@@ -43,7 +40,7 @@ namespace MugenMvvm.Commands.Components
         public bool CanExecute(ICompositeCommand command, object? parameter, IReadOnlyMetadataContext? metadata)
         {
             var executingCommand = _executingCommand;
-            return executingCommand == null || IsInnerExecution(metadata) || IsForceExecute(command, executingCommand, metadata);
+            return executingCommand == null || IsRecursiveExecution(metadata, out _) || IsForceExecute(command, executingCommand, metadata);
         }
 
         protected override void OnAttached(ICompositeCommand owner, IReadOnlyMetadataContext? metadata)
@@ -151,7 +148,7 @@ namespace MugenMvvm.Commands.Components
 
                 cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
                 Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
-                return await components.TryExecuteAsync(command, parameter, cts.Token, metadata).ConfigureAwait(false);
+                return await components.TryExecuteAsync(command, parameter, cts.Token, metadata.WithValue(CommandMetadata.SynchronizerToken, cts)).ConfigureAwait(false);
             }
             finally
             {
@@ -172,26 +169,11 @@ namespace MugenMvvm.Commands.Components
                 owner.RaiseCanExecuteChanged(metadata);
         }
 
-        private IReadOnlyMetadataContext GetMetadata(IReadOnlyMetadataContext? metadata) =>
-            metadata.IsNullOrEmpty() ? this : metadata.WithValue(CommandMetadata.Synchronizer, this);
-
-        private bool IsInnerExecution(IReadOnlyMetadataContext? metadata) =>
-            metadata != null && (ReferenceEquals(metadata, this) || ReferenceEquals(metadata.Get(CommandMetadata.Synchronizer), this));
-
-        ItemOrIReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> IReadOnlyMetadataContext.GetValues() =>
-            new KeyValuePair<IMetadataContextKey, object?>(CommandMetadata.Synchronizer, this);
-
-        bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey) => CommandMetadata.Synchronizer.Equals(contextKey);
-
-        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value)
+        private bool IsRecursiveExecution(IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out CancellationTokenSource? cts)
         {
-            if (CommandMetadata.Synchronizer.Equals(contextKey))
-            {
-                value = this;
+            if (metadata != null && metadata.TryGet(CommandMetadata.SynchronizerToken, out cts) && ReferenceEquals(Volatile.Read(ref _cancellationTokenSource), cts))
                 return true;
-            }
-
-            value = null;
+            cts = null;
             return false;
         }
 
@@ -210,12 +192,21 @@ namespace MugenMvvm.Commands.Components
 
             public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
-                if (Synchronizer.IsInnerExecution(metadata))
-                    return Components.TryExecuteAsync(command, parameter, cancellationToken, metadata);
-                return Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, Synchronizer.GetMetadata(metadata));
+                if (!Synchronizer.IsRecursiveExecution(metadata, out var cts))
+                    return Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
+                if (!cancellationToken.CanBeCanceled || cancellationToken.Equals(cts.Token))
+                    return Components.TryExecuteAsync(command, parameter, cts.Token, metadata);
+                return ExecuteRecursiveAsync(command, cts, parameter, cancellationToken, metadata);
             }
 
             public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => Components.TryWaitAsync(command, metadata);
+
+            private async Task<bool> ExecuteRecursiveAsync(ICompositeCommand command, CancellationTokenSource cts, object? parameter, CancellationToken cancellationToken,
+                IReadOnlyMetadataContext? metadata)
+            {
+                using var t = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);
+                return await Components.TryExecuteAsync(command, parameter, t.Token, metadata).ConfigureAwait(false);
+            }
         }
     }
 }

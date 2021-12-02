@@ -54,9 +54,11 @@ namespace MugenMvvm.Extensions
         public static IReadOnlyMetadataContext WithValue<T>(this IReadOnlyMetadataContext? metadata, IMetadataContextKey<T> key, T value)
         {
             if (metadata.IsNullOrEmpty())
-                return key.ToContext(value);
-
-            if (metadata.TryGet(key, out var currentValue) && InternalEqualityComparer.GetReferenceComparer<T>().Equals(currentValue, value))
+            {
+                if (metadata is not IMetadataContext)
+                    return key.ToContext(value);
+            }
+            else if (metadata.TryGet(key, out var currentValue) && InternalEqualityComparer.GetReferenceComparer<T>().Equals(currentValue, value))
                 return metadata;
 
             var ctx = metadata.ToNonReadonly();

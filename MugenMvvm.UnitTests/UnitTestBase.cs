@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Serialization;
 using MugenMvvm.Tests;
@@ -71,6 +72,13 @@ namespace MugenMvvm.UnitTests
         }
 
         protected static void ShouldThrow<T>(Action action) where T : Exception => Assert.Throws<T>(action);
+
+        protected IMetadataContext GetMetadata(bool clear = true)
+        {
+            if (clear)
+                Metadata.Clear();
+            return Metadata;
+        }
 
         protected void ShouldThrow(Action action) => Assert.ThrowsAny<Exception>(action);
 
