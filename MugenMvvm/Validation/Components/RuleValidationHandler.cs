@@ -101,6 +101,11 @@ namespace MugenMvvm.Validation.Components
         {
         }
 
-        void IDisposableComponent<IValidator>.OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata) => _disposeToken?.Cancel();
+        void IDisposableComponent<IValidator>.OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata)
+        {
+            _disposeToken?.Cancel();
+            foreach (var rule in Rules)
+                rule.Dispose();
+        }
     }
 }

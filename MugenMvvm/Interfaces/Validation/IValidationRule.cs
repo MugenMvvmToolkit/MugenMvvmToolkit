@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
@@ -6,7 +7,7 @@ using MugenMvvm.Validation;
 
 namespace MugenMvvm.Interfaces.Validation
 {
-    public interface IValidationRule
+    public interface IValidationRule : IDisposable
     {
         bool IsAsync { get; }
 

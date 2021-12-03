@@ -24,21 +24,22 @@ namespace MugenMvvm.Validation
                 _rules = new ItemOrListEditor<IValidationRule>(capacity);
             }
 
-            public Builder<T> AddValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
-                Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
-                ItemOrIReadOnlyList<string> dependencyMembers = default)
+            public Builder<T> AddRule(IValidationRule rule)
             {
-                _rules.Add(new Rule<T, TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
+                Should.NotBeNull(rule, nameof(rule));
+                _rules.Add(rule);
                 return this;
             }
 
+            public Builder<T> AddValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
+                Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
+                ItemOrIReadOnlyList<string> dependencyMembers = default) =>
+                AddRule(new Rule<T, TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
+
             public Builder<T> AddAsyncValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
                 Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
-                ItemOrIReadOnlyList<string> dependencyMembers = default)
-            {
-                _rules.Add(new Rule<T, TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
-                return this;
-            }
+                ItemOrIReadOnlyList<string> dependencyMembers = default) =>
+                AddRule(new Rule<T, TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
 
             public ItemOrIReadOnlyList<IValidationRule> Build() => _rules.ToItemOrList();
         }
@@ -70,6 +71,10 @@ namespace MugenMvvm.Validation
             }
 
             public bool IsAsync => _validator is Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>;
+
+            public void Dispose()
+            {
+            }
 
             public ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(object t, string? member, CancellationToken cancellationToken,
                 IReadOnlyMetadataContext? metadata)

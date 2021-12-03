@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Tests.Internal;
 using MugenMvvm.Validation;
 
 namespace MugenMvvm.Tests.Validation
 {
-    public class TestValidationRule : IValidationRule
+    public class TestValidationRule : TestDisposable, IValidationRule
     {
         public Func<object, string?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>>? ValidateAsync { get; set; }
 
