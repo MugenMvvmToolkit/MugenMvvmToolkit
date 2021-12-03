@@ -1,6 +1,4 @@
-﻿using System.Threading;
-using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models.Components;
@@ -11,48 +9,22 @@ namespace MugenMvvm.Internal.Components
 {
     internal sealed class DisposeCallbackComponent<T> : IAttachableComponent, IHasDetachConditionComponent, IDisposableComponent<T> where T : class
     {
-        private int _state;
-        private ListInternal<ActionToken> _disposeTokens;
+        private bool _isAttached;
+        private DisposeTokenHandler _disposeTokenHandler;
 
         [Preserve(Conditional = true)]
         public DisposeCallbackComponent()
         {
+            _disposeTokenHandler = new DisposeTokenHandler(this);
         }
 
-        private bool IsDisposed => _state > 1;
-
-        public void Register(ActionToken token)
-        {
-            if (token.IsEmpty)
-                return;
-
-            if (IsDisposed)
-            {
-                token.Dispose();
-                return;
-            }
-
-            var inline = false;
-            lock (this)
-            {
-                if (IsDisposed)
-                    inline = true;
-                else
-                {
-                    if (_disposeTokens.IsEmpty)
-                        _disposeTokens = new ListInternal<ActionToken>(2);
-                    _disposeTokens.Add(token);
-                }
-            }
-
-            if (inline)
-                token.Dispose();
-        }
+        public void Register(ActionToken token) => _disposeTokenHandler.Register(token);
 
         void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (Interlocked.Increment(ref _state) != 1)
+            if (_isAttached)
                 ExceptionManager.ThrowObjectInitialized(this);
+            _isAttached = true;
         }
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
@@ -63,24 +35,7 @@ namespace MugenMvvm.Internal.Components
         {
         }
 
-        void IDisposableComponent<T>.OnDisposed(T owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (IsDisposed)
-                return;
-            lock (this)
-            {
-                if (IsDisposed)
-                    return;
-                Interlocked.Increment(ref _state);
-            }
-
-            if (!_disposeTokens.IsEmpty)
-            {
-                for (var i = 0; i < _disposeTokens.Count; i++)
-                    _disposeTokens.Items[i].Dispose();
-                _disposeTokens = default;
-            }
-        }
+        void IDisposableComponent<T>.OnDisposed(T owner, IReadOnlyMetadataContext? metadata) => _disposeTokenHandler.Dispose();
 
         bool IHasDetachConditionComponent.CanDetach(object owner, IReadOnlyMetadataContext? metadata) => false;
     }

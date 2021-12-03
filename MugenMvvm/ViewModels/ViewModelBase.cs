@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.App;
@@ -21,14 +20,16 @@ namespace MugenMvvm.ViewModels
         IBusyManagerListener, IHasDisposeCallback, IHasDisposeState, IValueHolder<IServiceProvider>, IServiceProvider
     {
         private readonly IViewModelManager? _viewModelManager;
+
         private IBusyManager? _busyManager;
-        private ListInternal<ActionToken> _disposeTokens;
+        private DisposeTokenHandler _disposeTokenHandler;
         private IMetadataContext? _metadata;
         private IMessenger? _messenger;
         private IServiceProvider? _serviceProvider;
 
         protected ViewModelBase(IViewModelManager? viewModelManager = null, IReadOnlyMetadataContext? metadata = null)
         {
+            _disposeTokenHandler = new DisposeTokenHandler(this);
             _viewModelManager = viewModelManager;
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Created, manager: _viewModelManager, metadata: metadata);
         }
@@ -43,7 +44,7 @@ namespace MugenMvvm.ViewModels
 
         public IMessenger Messenger => _messenger ?? this.InitializeService(ref _messenger);
 
-        public bool IsDisposed { get; private set; }
+        public bool IsDisposed => _disposeTokenHandler.IsDisposed;
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
@@ -64,49 +65,15 @@ namespace MugenMvvm.ViewModels
 
         public T GetViewModel<T>(IReadOnlyMetadataContext? metadata = null) where T : IViewModelBase => (T) GetViewModel(typeof(T), metadata);
 
-        public void RegisterDisposeToken(IDisposable disposable) => RegisterDisposeToken(ActionToken.FromDisposable(disposable));
-
         public void Dispose()
         {
-            if (IsDisposed || !CanDispose())
-                return;
-            lock (this)
-            {
-                if (IsDisposed)
-                    return;
-                IsDisposed = true;
-            }
-
-            OnDispose(true);
+            if (CanDispose() && _disposeTokenHandler.TryDispose(this, vm => vm.OnDispose(true)))
+                GC.SuppressFinalize(this);
         }
 
-        public void RegisterDisposeToken(ActionToken token)
-        {
-            if (token.IsEmpty)
-                return;
+        public void RegisterDisposeToken(IDisposable token) => _disposeTokenHandler.Register(token);
 
-            if (IsDisposed)
-            {
-                token.Dispose();
-                return;
-            }
-
-            var inline = false;
-            lock (this)
-            {
-                if (IsDisposed)
-                    inline = true;
-                else
-                {
-                    if (_disposeTokens.IsEmpty)
-                        _disposeTokens = new ListInternal<ActionToken>(2);
-                    _disposeTokens.Add(token);
-                }
-            }
-
-            if (inline)
-                token.Dispose();
-        }
+        public void RegisterDisposeToken(ActionToken token) => _disposeTokenHandler.Register(token);
 
         protected virtual void OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
@@ -129,13 +96,6 @@ namespace MugenMvvm.ViewModels
             }
 
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing, manager: _viewModelManager);
-            if (!_disposeTokens.IsEmpty)
-            {
-                for (var i = 0; i < _disposeTokens.Count; i++)
-                    _disposeTokens.Items[i].Dispose();
-                _disposeTokens = default;
-            }
-
             ClearPropertyChangedSubscribers();
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed, manager: _viewModelManager);
         }
