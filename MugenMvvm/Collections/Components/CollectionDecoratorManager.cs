@@ -31,8 +31,9 @@ namespace MugenMvvm.Collections.Components
         private const int DirtyFlag = 1 << 1;
         private const int BatchSourceFlag = 1 << 2;
         private const int BatchFlag = 1 << 3;
-        private const int PendingResetFlag = 1 << 4;
-        private const int DisposedFlag = 1 << 5;
+        private const int ResetFlag = 1 << 4;
+        private const int PendingResetFlag = 1 << 5;
+        private const int DisposedFlag = 1 << 6;
 
         private const int EmptyIndex = -1;
         private const int InvalidDecoratorIndex = -1;
@@ -665,6 +666,7 @@ namespace MugenMvvm.Collections.Components
             private readonly CollectionDecoratorManager<T> _decoratorManager;
             private readonly int _oldIndex;
             private readonly int _version;
+            private readonly bool _hasResetFlag;
 
             public UpdateOperationToken(ActionToken token, CollectionDecoratorManager<T> decoratorManager)
             {
@@ -672,6 +674,7 @@ namespace MugenMvvm.Collections.Components
                 _decoratorManager = decoratorManager;
                 _oldIndex = decoratorManager._updatingIndex;
                 _version = decoratorManager._version;
+                _hasResetFlag = _decoratorManager.CheckFlag(ResetFlag);
             }
 
             public readonly bool OnUpdate(int startIndex, bool isReset = false)
@@ -681,10 +684,14 @@ namespace MugenMvvm.Collections.Components
                 if (startIndex <= _decoratorManager._updatingIndex ||
                     isReset && _decoratorManager._updatingIndex != EmptyIndex && _decoratorManager._updatingIndex + 1 != startIndex)
                 {
+                    if (isReset && _decoratorManager._updatingIndex + 1 < startIndex && _decoratorManager.CheckFlag(ResetFlag))
+                        return false;
                     _decoratorManager.SetFlag(PendingResetFlag);
                     return false;
                 }
 
+                if (isReset)
+                    _decoratorManager.SetFlag(ResetFlag);
                 _decoratorManager._updatingIndex = startIndex;
                 return true;
             }
@@ -694,12 +701,22 @@ namespace MugenMvvm.Collections.Components
             public void Dispose()
             {
                 if (_token.IsEmpty)
+                {
                     _decoratorManager._updatingIndex = _oldIndex;
+                    if (!_hasResetFlag)
+                        _decoratorManager.ClearFlag(ResetFlag);
+                }
                 else
                 {
                     bool reset = _decoratorManager.CheckFlag(PendingResetFlag);
-                    _decoratorManager.ClearFlag(PendingResetFlag | BatchFlag);
+                    _decoratorManager.ClearFlag(PendingResetFlag | BatchFlag | ResetFlag);
                     _decoratorManager._updatingIndex = EmptyIndex;
+                    if (reset && _decoratorManager.CheckFlag(BatchSourceFlag))
+                    {
+                        reset = false;
+                        _decoratorManager.SetFlag(DirtyFlag);
+                    }
+
                     _token.Dispose();
                     if (reset)
                         _decoratorManager.Reset(null, false, false);
