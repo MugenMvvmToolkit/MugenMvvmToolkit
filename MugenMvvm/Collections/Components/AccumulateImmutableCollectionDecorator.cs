@@ -20,6 +20,7 @@ namespace MugenMvvm.Collections.Components
         private readonly bool _allowNull;
         private readonly TResult _defaultValue;
         private TResult _value;
+        private bool _hasValue;
         private bool _isInBatch;
         private bool _isDirty;
 
@@ -110,8 +111,9 @@ namespace MugenMvvm.Collections.Components
 
         private void Set(TResult value, bool force = false)
         {
-            if (!force && EqualityComparer<TResult>.Default.Equals(_value, value))
+            if (_hasValue && !force && EqualityComparer<TResult>.Default.Equals(_value, value))
                 return;
+            _hasValue = true;
             _value = value;
             if (_isInBatch)
                 _isDirty = true;

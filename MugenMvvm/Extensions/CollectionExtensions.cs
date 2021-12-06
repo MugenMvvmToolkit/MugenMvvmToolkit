@@ -438,17 +438,6 @@ namespace MugenMvvm.Extensions
                                 .For<T>();
         }
 
-        public static DecoratorsConfiguration<T> OfType<T>(this DecoratorsConfiguration<T> configuration) => configuration.OfType(out _);
-
-        public static DecoratorsConfiguration<T> OfType<T>(this DecoratorsConfiguration<T> configuration, out ActionToken removeToken)
-        {
-            var oldAllowNull = configuration.AllowNull;
-            configuration = configuration.For<object>(true).Where((t, _) => t is T, out var decorator);
-            removeToken = ActionToken.FromDelegate((coll, c) => ((IReadOnlyObservableCollection) coll!).RemoveComponent((IComponent<IReadOnlyObservableCollection>) c!),
-                configuration.Collection, decorator);
-            return configuration.For<T>(oldAllowNull);
-        }
-
         public static DecoratorsConfiguration<T> Subscribe<T>(this DecoratorsConfiguration<T> configuration,
             Action<TrackerCollectionDecorator<T, object?>, T>? onAdded, Action<TrackerCollectionDecorator<T, object?>, T>? onRemoved = null,
             Action<TrackerCollectionDecorator<T, object?>, T, object?>? onChanged = null, Action<TrackerCollectionDecorator<T, object?>>? onReset = null,
@@ -463,26 +452,6 @@ namespace MugenMvvm.Extensions
             decorator = new TrackerCollectionDecorator<T, object?>(configuration.Priority, configuration.AllowNull,
                 onAdded == null ? NoDoSubscribeDelegate<T>() : onAdded.OnAddedClosure,
                 onRemoved == null ? NoDoSubscribeDelegate<T>() : onRemoved.OnRemovedClosure, onChanged == null ? null : onChanged.OnChangedClosure, onReset, immutableCondition,
-                comparer);
-            return configuration.Add(decorator);
-        }
-
-        public static DecoratorsConfiguration<T> Subscribe<T, TState>(this DecoratorsConfiguration<T> configuration,
-            Func<TrackerCollectionDecorator<T, TState>, T, TState?, int, TState> onAdded,
-            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> onRemoved,
-            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged = null,
-            Action<TrackerCollectionDecorator<T, TState>>? onReset = null, Func<T, bool>? immutableCondition = null,
-            IEqualityComparer<T>? comparer = null) =>
-            configuration.Subscribe(onAdded, onRemoved, onChanged, onReset, immutableCondition, comparer, out _);
-
-        public static DecoratorsConfiguration<T> Subscribe<T, TState>(this DecoratorsConfiguration<T> configuration,
-            Func<TrackerCollectionDecorator<T, TState>, T, TState?, int, TState> onAdded,
-            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> onRemoved,
-            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged,
-            Action<TrackerCollectionDecorator<T, TState>>? onReset, Func<T, bool>? immutableCondition,
-            IEqualityComparer<T>? comparer, out TrackerCollectionDecorator<T, TState> decorator)
-        {
-            decorator = new TrackerCollectionDecorator<T, TState>(configuration.Priority, configuration.AllowNull, onAdded, onRemoved, onChanged, onReset, immutableCondition,
                 comparer);
             return configuration.Add(decorator);
         }
@@ -543,7 +512,7 @@ namespace MugenMvvm.Extensions
                 if (sender != null && string.IsNullOrEmpty(e.PropertyName) || members.Contains(e.PropertyName!))
                     collection.RaiseItemChanged(sender, args ?? e);
             };
-            return configuration.Subscribe<T, PropertyChangedEventHandler?>((_, item, _, count) =>
+            return configuration.Subscribe<PropertyChangedEventHandler?>((_, item, _, count) =>
             {
                 if (count == 1 && item is INotifyPropertyChanged notifyPropertyChanged)
                 {
@@ -568,7 +537,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(getObservable, nameof(getObservable));
             var collection = configuration.Collection;
-            return configuration.Subscribe<T, IDisposable>((_, item, state, _) =>
+            return configuration.Subscribe<IDisposable>((_, item, state, _) =>
             {
                 if (state == null)
                     return getObservable(item).Subscribe(new ItemChangedObserver<TSignal>(collection, item, args));
@@ -610,7 +579,7 @@ namespace MugenMvvm.Extensions
             }
 
             var closure = new MaxMinClosure<T, TResult>(defaultValue, selector, onChanged, comparer, isMax, predicate);
-            return configuration.Subscribe<T, (TResult?, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnEndBatchUpdate, null, null, out var decorator)
+            return configuration.Subscribe<(TResult?, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnEndBatchUpdate, null, null, out var decorator)
                                 .WithRemoveToken(decorator, out removeToken);
         }
 
@@ -740,7 +709,7 @@ namespace MugenMvvm.Extensions
             }
 
             var closure = new AccumulateClosure<T, TResult>(seed, selector, add, remove, onChanged, predicate);
-            return configuration.Subscribe<T, (TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnEndBatchUpdate, null, null, out var decorator)
+            return configuration.Subscribe<(TResult, bool)>(closure.OnAdded, closure.OnRemoved, closure.OnChanged, closure.OnEndBatchUpdate, null, null, out var decorator)
                                 .WithRemoveToken(decorator, out removeToken);
         }
 

@@ -12,6 +12,7 @@ namespace MugenMvvm.Collections
         private readonly Action<TResult> _onChanged;
         private readonly Func<T, bool>? _predicate;
         private bool _isDirty;
+        private bool _hasValue;
         private TResult _seed;
 
         public AccumulateClosure(TResult seed, Func<T, TResult> selector, Func<TResult, TResult, TResult> add, Func<TResult, TResult, TResult> remove, Action<TResult> onChanged,
@@ -79,8 +80,9 @@ namespace MugenMvvm.Collections
 
         private void Set(TResult value, bool isBatch)
         {
-            if (EqualityComparer<TResult>.Default.Equals(_seed, value))
+            if (_hasValue && EqualityComparer<TResult>.Default.Equals(_seed, value))
                 return;
+            _hasValue = true;
             _seed = value;
             if (isBatch)
                 _isDirty = true;

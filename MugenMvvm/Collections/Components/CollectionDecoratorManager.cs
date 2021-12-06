@@ -31,10 +31,8 @@ namespace MugenMvvm.Collections.Components
         private const int DirtyFlag = 1 << 1;
         private const int BatchSourceFlag = 1 << 2;
         private const int BatchFlag = 1 << 3;
-        private const int ChangeOperationFlag = 1 << 4;
-        private const int NonChangeOperationFlag = 1 << 5;
-        private const int OperationCanceledFlag = 1 << 6;
-        private const int DisposedFlag = 1 << 7;
+        private const int PendingResetFlag = 1 << 4;
+        private const int DisposedFlag = 1 << 5;
 
         private const int EmptyIndex = -1;
         private const int InvalidDecoratorIndex = -1;
@@ -170,7 +168,7 @@ namespace MugenMvvm.Collections.Components
             using var token = BatchUpdate(collection);
             for (var i = startIndex; i < decorators.Count; i++)
             {
-                if (!token.OnUpdate(i, true) || !decorators[i].OnChanged(collection, ref item, ref index, ref args) || !token.CanContinue(collection, item, args))
+                if (!token.OnUpdate(i) || !decorators[i].OnChanged(collection, ref item, ref index, ref args) || !token.CanContinue())
                     return;
             }
 
@@ -190,7 +188,7 @@ namespace MugenMvvm.Collections.Components
             for (var i = startIndex; i < decorators.Count; i++)
             {
                 decorator = decorators[i];
-                if (!token.OnUpdate(i, false) || !decorator.OnAdded(collection, ref item, ref index) || !token.CanContinue())
+                if (!token.OnUpdate(i) || !decorator.OnAdded(collection, ref item, ref index) || !token.CanContinue())
                     return;
 
                 GetItems(decorator)?.Insert(index, item);
@@ -212,7 +210,7 @@ namespace MugenMvvm.Collections.Components
             for (var i = startIndex; i < decorators.Count; i++)
             {
                 decorator = decorators[i];
-                if (!token.OnUpdate(i, false) || !decorator.OnReplaced(collection, ref oldItem, ref newItem, ref index) || ReferenceEquals(oldItem, newItem) ||
+                if (!token.OnUpdate(i) || !decorator.OnReplaced(collection, ref oldItem, ref newItem, ref index) || ReferenceEquals(oldItem, newItem) ||
                     !token.CanContinue())
                     return;
 
@@ -238,7 +236,7 @@ namespace MugenMvvm.Collections.Components
             for (var i = startIndex; i < decorators.Count; i++)
             {
                 decorator = decorators[i];
-                if (!token.OnUpdate(i, false) || !decorator.OnMoved(collection, ref item, ref oldIndex, ref newIndex) || oldIndex == newIndex || !token.CanContinue())
+                if (!token.OnUpdate(i) || !decorator.OnMoved(collection, ref item, ref oldIndex, ref newIndex) || oldIndex == newIndex || !token.CanContinue())
                     return;
 
                 GetItems(decorator)?.Move(oldIndex, newIndex);
@@ -260,7 +258,7 @@ namespace MugenMvvm.Collections.Components
             for (var i = startIndex; i < decorators.Count; i++)
             {
                 decorator = decorators[i];
-                if (!token.OnUpdate(i, false) || !decorator.OnRemoved(collection, ref item, ref index) || !token.CanContinue())
+                if (!token.OnUpdate(i) || !decorator.OnRemoved(collection, ref item, ref index) || !token.CanContinue())
                     return;
 
                 GetItems(decorator)?.RemoveAt(index);
@@ -430,7 +428,7 @@ namespace MugenMvvm.Collections.Components
             for (var i = startIndex; i < decorators.Count; i++)
             {
                 decorator = decorators[i];
-                if (!token.OnUpdate(i, false) || !decorator.OnReset(collection, ref items) || !token.CanContinue())
+                if (!token.OnUpdate(i, true) || !decorator.OnReset(collection, ref items) || !token.CanContinue())
                     return;
 
                 GetItems(decorator)?.Reset(items);
@@ -448,7 +446,7 @@ namespace MugenMvvm.Collections.Components
                 var index = currentIndex;
                 for (var i = startIndex; i < decorators.Count; i++)
                 {
-                    if (!token.OnUpdate(i, true) || !decorators[i].OnChanged(collection, ref item, ref index, ref args) || !token.CanContinue(collection, item, args))
+                    if (!token.OnUpdate(i) || !decorators[i].OnChanged(collection, ref item, ref index, ref args) || !token.CanContinue())
                         return;
                 }
 
@@ -666,7 +664,6 @@ namespace MugenMvvm.Collections.Components
             private ActionToken _token;
             private readonly CollectionDecoratorManager<T> _decoratorManager;
             private readonly int _oldIndex;
-            private readonly int _oldFlags;
             private readonly int _version;
 
             public UpdateOperationToken(ActionToken token, CollectionDecoratorManager<T> decoratorManager)
@@ -674,60 +671,38 @@ namespace MugenMvvm.Collections.Components
                 _token = token;
                 _decoratorManager = decoratorManager;
                 _oldIndex = decoratorManager._updatingIndex;
-                _oldFlags = 0;
                 _version = decoratorManager._version;
-                if (decoratorManager.CheckFlag(ChangeOperationFlag))
-                    _oldFlags |= ChangeOperationFlag;
-                if (decoratorManager.CheckFlag(NonChangeOperationFlag))
-                    _oldFlags |= NonChangeOperationFlag;
             }
 
-            public readonly bool OnUpdate(int startIndex, bool isChange)
+            public readonly bool OnUpdate(int startIndex, bool isReset = false)
             {
-                if (startIndex <= _decoratorManager._updatingIndex)
+                if (_decoratorManager.CheckFlag(PendingResetFlag))
+                    return false;
+                if (startIndex <= _decoratorManager._updatingIndex ||
+                    isReset && _decoratorManager._updatingIndex != EmptyIndex && _decoratorManager._updatingIndex + 1 != startIndex)
                 {
-                    if (!_decoratorManager.CheckFlag(NonChangeOperationFlag))
-                    {
-                        _decoratorManager.SetFlag(OperationCanceledFlag);
-                        return false;
-                    }
-
-                    _decoratorManager.Reset(null, false, false);
+                    _decoratorManager.SetFlag(PendingResetFlag);
                     return false;
                 }
 
                 _decoratorManager._updatingIndex = startIndex;
-                _decoratorManager.SetFlag(isChange ? ChangeOperationFlag : NonChangeOperationFlag);
                 return true;
             }
 
-            public readonly bool CanContinue(IReadOnlyObservableCollection collection, object? item, object? args)
-            {
-                if (_decoratorManager._version != _version)
-                    return false;
-
-                if (!_decoratorManager.CheckFlag(OperationCanceledFlag))
-                    return true;
-
-                _decoratorManager.RaiseItemChanged(collection, item, args);
-                return false;
-            }
-
-            public readonly bool CanContinue() => _decoratorManager._version == _version;
+            public readonly bool CanContinue() => _decoratorManager._version == _version && !_decoratorManager.CheckFlag(PendingResetFlag);
 
             public void Dispose()
             {
                 if (_token.IsEmpty)
-                {
                     _decoratorManager._updatingIndex = _oldIndex;
-                    _decoratorManager.ClearFlag(ChangeOperationFlag | NonChangeOperationFlag);
-                    _decoratorManager._flags |= _oldFlags;
-                }
                 else
                 {
-                    _decoratorManager.ClearFlag(ChangeOperationFlag | NonChangeOperationFlag | OperationCanceledFlag | BatchFlag);
+                    bool reset = _decoratorManager.CheckFlag(PendingResetFlag);
+                    _decoratorManager.ClearFlag(PendingResetFlag | BatchFlag);
                     _decoratorManager._updatingIndex = EmptyIndex;
                     _token.Dispose();
+                    if (reset)
+                        _decoratorManager.Reset(null, false, false);
                 }
             }
         }

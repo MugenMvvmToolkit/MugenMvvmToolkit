@@ -1,4 +1,7 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
@@ -7,7 +10,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly ref struct DecoratorsConfiguration<T>
+    public readonly struct DecoratorsConfiguration<T> : IDecoratorsConfiguration
     {
         public readonly IReadOnlyObservableCollection Collection;
         public readonly int Priority;
@@ -22,6 +25,15 @@ namespace MugenMvvm.Collections
             Priority = priority;
             AllowNull = allowNull;
         }
+
+        public DecoratorsConfiguration<object?> Configuration => this!;
+
+        public static implicit operator SynchronizedObservableCollection<T>(DecoratorsConfiguration<T> configuration) =>
+            (SynchronizedObservableCollection<T>) configuration.Collection;
+
+        public static implicit operator DecoratorsConfiguration<T>(DecoratorsConfiguration<object> configuration) => configuration.For<T>();
+
+        public static implicit operator DecoratorsConfiguration<object>(DecoratorsConfiguration<T> configuration) => configuration.For<object>();
 
         public IReadOnlyObservableCollection<TTo> CastCollectionTo<TTo>() => (IReadOnlyObservableCollection<TTo>) Collection;
 
@@ -48,11 +60,30 @@ namespace MugenMvvm.Collections
             return this;
         }
 
-        public static implicit operator SynchronizedObservableCollection<T>(DecoratorsConfiguration<T> configuration) =>
-            (SynchronizedObservableCollection<T>) configuration.Collection;
+        public DecoratorsConfiguration<TTo> OfType<TTo>() => OfType<TTo>(out _);
 
-        public static implicit operator DecoratorsConfiguration<T>(DecoratorsConfiguration<object> configuration) => configuration.For<T>();
+        public DecoratorsConfiguration<TTo> OfType<TTo>(out ActionToken removeToken)
+        {
+            var oldAllowNull = AllowNull;
+            var configuration = For<object>(true).Where((t, _) => t is TTo, out var decorator);
+            removeToken = Collection.GetRemoveComponentToken(decorator);
+            return configuration.For<TTo>(oldAllowNull);
+        }
 
-        public static implicit operator DecoratorsConfiguration<object>(DecoratorsConfiguration<T> configuration) => configuration.For<object>();
+        public DecoratorsConfiguration<T> Subscribe<TState>(Func<TrackerCollectionDecorator<T, TState>, T, TState?, int, TState> onAdded,
+            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> onRemoved,
+            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged = null,
+            Action<TrackerCollectionDecorator<T, TState>>? onReset = null, Func<T, bool>? immutableCondition = null,
+            IEqualityComparer<T>? comparer = null) => Subscribe(onAdded, onRemoved, onChanged, onReset, immutableCondition, comparer, out _);
+
+        public DecoratorsConfiguration<T> Subscribe<TState>(Func<TrackerCollectionDecorator<T, TState>, T, TState?, int, TState> onAdded,
+            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, TState> onRemoved,
+            Func<TrackerCollectionDecorator<T, TState>, T, TState, int, object?, TState>? onChanged,
+            Action<TrackerCollectionDecorator<T, TState>>? onReset, Func<T, bool>? immutableCondition,
+            IEqualityComparer<T>? comparer, out TrackerCollectionDecorator<T, TState> decorator)
+        {
+            decorator = new TrackerCollectionDecorator<T, TState>(Priority, AllowNull, onAdded, onRemoved, onChanged, onReset, immutableCondition, comparer);
+            return Add(decorator);
+        }
     }
 }
