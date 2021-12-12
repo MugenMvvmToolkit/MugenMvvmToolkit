@@ -54,7 +54,8 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
-            UpdateIfNeed(item, index);
+            if (!UpdateIfNeed(item, index) && _hasValue.GetValueOrDefault() && index <= _index)
+                ++_index;
             return true;
         }
 
@@ -129,18 +130,26 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private void UpdateIfNeed(object? item, int index)
+        private bool UpdateIfNeed(object? item, int index)
         {
             if (_isFirstTracker)
             {
                 if (index <= _index && IsValid(item, out var itemT))
+                {
                     Set(itemT, index, true);
+                    return true;
+                }
             }
             else
             {
                 if (index > _index && IsValid(item, out var itemT))
+                {
                     Set(itemT, index, true);
+                    return true;
+                }
             }
+
+            return false;
         }
 
         private void Set(T? item, int index, bool hasValue, bool force = false)
