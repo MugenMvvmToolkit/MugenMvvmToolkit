@@ -52,22 +52,22 @@ namespace MugenMvvm.Extensions
                     callbacks.Add(callback);
             }
 
-            return callbacks.WhenAll(false, true, isSerializable).AsValueTask();
+            return callbacks.WhenAll(false, true, isSerializable, cancellationToken).AsValueTask();
         }
 
-        public static ValueTaskAwaiter<INavigationContext> GetAwaiter(this ShowPresenterResult showResult) => showResult.CloseCallback.AsTask(true).GetAwaiter();
+        public static ValueTaskAwaiter<INavigationContext> GetAwaiter(this ShowPresenterResult showResult) => showResult.CloseCallback.AsTask(true, default).GetAwaiter();
 
         public static ValueTaskAwaiter<Optional<T>> GetAwaiter<T>(this ShowPresenterResult<T> showResult) => showResult.CloseCallback.GetResultAsync<T>().GetAwaiter()!;
 
         public static ConfiguredValueTaskAwaitable<INavigationContext> ConfigureAwait(this ShowPresenterResult showResult, bool continueOnCapturedContext) =>
-            showResult.CloseCallback.AsTask(true).ConfigureAwait(continueOnCapturedContext);
+            showResult.CloseCallback.AsTask(true, default).ConfigureAwait(continueOnCapturedContext);
 
         public static ConfiguredValueTaskAwaitable<Optional<T>> ConfigureAwait<T>(this ShowPresenterResult<T> showResult, bool continueOnCapturedContext) =>
             showResult.CloseCallback.GetResultAsync<T>().ConfigureAwait(continueOnCapturedContext);
 
-        private static async ValueTask<Optional<T>> GetResultAsync<T>(this INavigationCallback callback)
+        private static async ValueTask<Optional<T>> GetResultAsync<T>(this INavigationCallback callback, CancellationToken cancellationToken = default)
         {
-            var navigationContext = await callback.AsTask(true).ConfigureAwait(false);
+            var navigationContext = await callback.AsTask(true, cancellationToken).ConfigureAwait(false);
             if (navigationContext.Target is IHasResult<T> hasResult)
                 return hasResult.Result;
             return default;

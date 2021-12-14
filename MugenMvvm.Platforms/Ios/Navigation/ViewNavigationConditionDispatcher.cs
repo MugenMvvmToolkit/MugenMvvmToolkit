@@ -20,9 +20,9 @@ namespace MugenMvvm.Ios.Navigation
                                                                                             navigationContext.NavigationMode.IsClose))
             {
                 await navigationDispatcher.WaitNavigationAsync(navigationContext.Target, navigationContext,
-                    (callback, context) => (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
-                                           (callback.CallbackType == NavigationCallbackType.Show || callback.CallbackType == NavigationCallbackType.Closing), true, false,
-                    navigationContext.GetMetadataOrDefault());
+                    (_, callback, context) => (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
+                                              (callback.CallbackType == NavigationCallbackType.Show || callback.CallbackType == NavigationCallbackType.Closing), true, false,
+                    cancellationToken, navigationContext.GetMetadataOrDefault());
             }
 
             return true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
@@ -22,11 +23,13 @@ namespace MugenMvvm.Presentation
             CloseCallback = closeCallback;
         }
 
-        public ValueTask<INavigationContext?> WaitShowAsync(bool isSerializable = false)
+        public ValueTask<INavigationContext?> WaitShowAsync(CancellationToken cancellationToken = default) => WaitShowAsync(false, cancellationToken);
+
+        public ValueTask<INavigationContext?> WaitShowAsync(bool isSerializable, CancellationToken cancellationToken = default)
         {
             if (ShowCallback == null)
                 return default;
-            return ShowCallback.AsTask(isSerializable)!;
+            return ShowCallback.AsTask(isSerializable, cancellationToken)!;
         }
 
         public bool Equals(ShowPresenterResult<TResult> other) =>

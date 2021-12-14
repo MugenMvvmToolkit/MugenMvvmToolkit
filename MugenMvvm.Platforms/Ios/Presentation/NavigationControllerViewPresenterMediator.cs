@@ -90,12 +90,12 @@ namespace MugenMvvm.Ios.Presentation
             {
                 NavigationController.PushViewController(view, animated);
                 if (metadata.Get(NavigationMetadata.ClearBackStack))
-                    await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter, default);
+                    await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, default, metadata, Presenter);
                 return;
             }
 
             if (metadata.Get(NavigationMetadata.ClearBackStack))
-                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, metadata, Presenter, cancellationToken);
+                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, cancellationToken, metadata, Presenter);
 
             cancellationToken.ThrowIfCancellationRequested();
             if (Equals(NavigationController.TopViewController, view))

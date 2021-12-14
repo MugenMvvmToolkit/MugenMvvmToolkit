@@ -20,20 +20,18 @@ namespace MugenMvvm.Android.Navigation
 
             if (navigationContext.NavigationMode.IsNew || navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsRestore)
             {
-                await navigationDispatcher
-                      .WaitNavigationAsync(navigationContext.Target, navigationContext, (callback, context) =>
-                              callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close ||
-                              (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
-                              (callback.CallbackType == NavigationCallbackType.Show || callback.CallbackType == NavigationCallbackType.Closing), true, false,
-                          navigationContext.GetMetadataOrDefault())
-                      .ConfigureAwait(false);
+                await navigationDispatcher.WaitNavigationAsync(navigationContext.Target, navigationContext, (_, callback, context) =>
+                                                  callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close ||
+                                                  (callback.NavigationType == context.NavigationType || callback.NavigationType == NavigationType.Page) &&
+                                                  (callback.CallbackType == NavigationCallbackType.Show || callback.CallbackType == NavigationCallbackType.Closing), true, false,
+                                              cancellationToken, navigationContext.GetMetadataOrDefault())
+                                          .ConfigureAwait(false);
             }
             else if (navigationContext.NavigationMode.IsClose)
             {
-                await navigationDispatcher
-                    .WaitNavigationAsync(navigationContext.Target, navigationContext,
-                        (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close,
-                        true, false, navigationContext.GetMetadataOrDefault());
+                await navigationDispatcher.WaitNavigationAsync(navigationContext.Target, navigationContext,
+                    (_, callback, _) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, true, false,
+                    cancellationToken, navigationContext.GetMetadataOrDefault());
             }
 
             return true;

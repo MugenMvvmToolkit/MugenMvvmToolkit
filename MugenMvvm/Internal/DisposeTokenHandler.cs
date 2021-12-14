@@ -52,9 +52,7 @@ namespace MugenMvvm.Internal
                 token.Dispose();
         }
 
-        public bool TryDispose() => TryDispose<object?>(null, null);
-
-        public bool TryDispose<TState>(TState state, Action<TState>? disposeAction)
+        public bool BeginDispose()
         {
             if (IsDisposed)
                 return false;
@@ -63,16 +61,30 @@ namespace MugenMvvm.Internal
                 if (IsDisposed)
                     return false;
                 IsDisposed = true;
+                return true;
             }
+        }
 
-            disposeAction?.Invoke(state);
+        public void EndDispose()
+        {
+            Should.BeValid(IsDisposed, nameof(IsDisposed));
             if (!_disposeTokens.IsEmpty)
             {
                 for (var i = 0; i < _disposeTokens.Count; i++)
                     _disposeTokens.Items[i].Dispose();
                 _disposeTokens = default;
             }
+        }
 
+        public bool TryDispose() => TryDispose<object?>(null, null);
+
+        public bool TryDispose<TState>(TState state, Action<TState>? disposeAction)
+        {
+            if (!BeginDispose())
+                return false;
+
+            disposeAction?.Invoke(state);
+            EndDispose();
             return true;
         }
 

@@ -67,8 +67,11 @@ namespace MugenMvvm.ViewModels
 
         public void Dispose()
         {
-            if (CanDispose() && _disposeTokenHandler.TryDispose(this, vm => vm.OnDispose(true)))
+            if (CanDispose() && _disposeTokenHandler.BeginDispose())
+            {
+                OnDispose(true);
                 GC.SuppressFinalize(this);
+            }
         }
 
         public void RegisterDisposeToken(IDisposable token) => _disposeTokenHandler.Register(token);
@@ -97,6 +100,7 @@ namespace MugenMvvm.ViewModels
 
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposing, manager: _viewModelManager);
             ClearPropertyChangedSubscribers();
+            _disposeTokenHandler.EndDispose();
             this.NotifyLifecycleChanged(ViewModelLifecycleState.Disposed, manager: _viewModelManager);
         }
 

@@ -86,7 +86,7 @@ namespace MugenMvvm.Extensions
             });
 
         public static Task ClearBackStackAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, object navigationTarget,
-            bool includePending = false, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null, CancellationToken cancellationToken = default)
+            bool includePending = false, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -110,7 +110,7 @@ namespace MugenMvvm.Extensions
                 }
             }
 
-            return callbacks.WhenAll(false, false, false);
+            return callbacks.WhenAll(false, false, false, cancellationToken);
         }
 
         public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
@@ -214,7 +214,8 @@ namespace MugenMvvm.Extensions
         }
 
         public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, object? navigationTarget, TState state,
-            Func<INavigationCallback, TState, bool> filter, bool includePending = true, bool isSerializable = false, IReadOnlyMetadataContext? metadata = null)
+            Func<INavigationEntry, INavigationCallback, TState, bool> filter, bool includePending = true, bool isSerializable = false,
+            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
@@ -229,15 +230,15 @@ namespace MugenMvvm.Extensions
 
                 foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata))
                 {
-                    if (filter(callback, state))
+                    if (filter(t, callback, state))
                         callbacks.Add(callback);
                 }
             }
 
-            return callbacks.WhenAll(false, false, isSerializable);
+            return callbacks.WhenAll(false, false, isSerializable, cancellationToken);
         }
 
-        public static ValueTask<INavigationContext> AsTask(this INavigationCallback callback, bool isSerializable)
+        public static ValueTask<INavigationContext> AsTask(this INavigationCallback callback, bool isSerializable, CancellationToken cancellationToken)
         {
             Should.NotBeNull(callback, nameof(callback));
             if (callback.TryGetResult(out var r))
@@ -245,11 +246,12 @@ namespace MugenMvvm.Extensions
 
             foreach (var navigationCallbackListener in callback.GetCallbacks())
             {
-                if (navigationCallbackListener is NavigationCallbackTaskListener taskListener && taskListener.IsSerializable == isSerializable)
+                if (navigationCallbackListener is NavigationCallbackTaskListener taskListener && taskListener.IsSerializable == isSerializable &&
+                    taskListener.CancellationToken == cancellationToken)
                     return taskListener.Task.AsValueTask();
             }
 
-            var result = new NavigationCallbackTaskListener(isSerializable);
+            var result = new NavigationCallbackTaskListener(isSerializable, cancellationToken);
             callback.AddCallback(result);
             return result.Task.AsValueTask();
         }

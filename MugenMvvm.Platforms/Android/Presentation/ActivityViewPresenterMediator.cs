@@ -60,7 +60,7 @@ namespace MugenMvvm.Android.Presentation
             var flags = 0;
             if (navigationContext.GetOrDefault(NavigationMetadata.ClearBackStack))
             {
-                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, navigationContext.GetMetadataOrDefault(), Presenter, cancellationToken);
+                await NavigationDispatcher.ClearBackStackAsync(NavigationType, mediator.ViewModel, false, cancellationToken, navigationContext.GetMetadataOrDefault(), Presenter);
                 flags = (int) (ActivityFlags.NewTask | ActivityFlags.ClearTask);
             }
 

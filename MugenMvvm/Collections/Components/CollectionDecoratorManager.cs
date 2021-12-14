@@ -636,7 +636,7 @@ namespace MugenMvvm.Collections.Components
         void IDisposableComponent<IReadOnlyObservableCollection>.OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             SetFlag(DisposedFlag | BatchSourceFlag);
-            owner.RemoveComponents<IDecoratedCollectionChangedListener>(metadata);
+            owner.RemoveComponents<IBindableAdapterCollectionListener>(metadata);
         }
 
         void IDisposableComponent<IReadOnlyObservableCollection>.OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)

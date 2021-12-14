@@ -144,9 +144,8 @@ namespace MugenMvvm.Collections
 
             public void OnDetached(object owner, IReadOnlyMetadataContext? metadata) => TryGetTarget((IReadOnlyObservableCollection) owner)?.Dispose();
 
-            public void OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
-            {
-            }
+            public void OnDisposing(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) =>
+                TryGetTarget(owner)?.RemoveComponents<IBindableAdapterCollectionListener>();
 
             public void OnDisposed(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata) => TryGetTarget(owner)?.Dispose();
 

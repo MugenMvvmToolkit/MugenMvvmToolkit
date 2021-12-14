@@ -16,7 +16,9 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
@@ -670,7 +672,8 @@ namespace MugenMvvm.Collections
                 new(CollectionChangedAction.Reset, changedEvents, items, -1, -1);
         }
 
-        protected class WeakListener : ICollectionBatchUpdateListener, IDecoratedCollectionChangedListener, IHasTarget<BindableCollectionAdapter?>, IHasPriority
+        protected class WeakListener : ICollectionBatchUpdateListener, IDecoratedCollectionChangedListener, IBindableAdapterCollectionListener,
+            IDetachableComponent, IHasTarget<BindableCollectionAdapter?>, IHasPriority
         {
             internal readonly IWeakReference Reference;
             private int _version;
@@ -737,6 +740,16 @@ namespace MugenMvvm.Collections
                 }
 
                 return null;
+            }
+
+            public void OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+            {
+                if (owner is IReadOnlyObservableCollection)
+                    _version = int.MinValue;
+            }
+
+            public void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+            {
             }
         }
     }
