@@ -763,7 +763,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                         return;
                     Thread.Sleep(5);
                     if (decorator)
-                        targetCollection.AddComponent(new HeaderFooterCollectionDecorator(index + 1000) {Header = items[index]});
+                        targetCollection.AddComponent(new HeaderFooterCollectionDecorator(index + 1000).SetHeader(items[index]));
                     else
                         targetCollection.Add(items[index]);
                     ++index;

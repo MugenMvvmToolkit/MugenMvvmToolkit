@@ -179,11 +179,18 @@ namespace MugenMvvm.Extensions
                 DebugTracer.AddTraceLogger(cfg.Service);
             return configuration;
         }
-        
+
         public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service)
             where TService : class =>
-            configuration.InitializeService((TService)service);
-        
+            configuration.InitializeService((TService) service);
+
+        public static MugenApplicationConfiguration WithComponent(this MugenApplicationConfiguration configuration, IComponent<IMugenApplication> component,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            configuration.Application.Components.Add(component, metadata);
+            return configuration;
+        }
+
         public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component,
             IReadOnlyMetadataContext? metadata = null)
             where TService : class, IComponentOwner
@@ -191,7 +198,7 @@ namespace MugenMvvm.Extensions
             configuration.Service.Components.Add(component, metadata);
             return configuration;
         }
-        
+
         public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration) => configuration.Application;
 
         private static IViewModelPresenterMediator? GetViewModelPresenterMediator(IPresenter presenter, IViewModelBase viewModel, IViewMapping mapping,

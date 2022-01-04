@@ -4,6 +4,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 // ReSharper disable PossibleMultipleEnumeration
 
@@ -23,17 +24,21 @@ namespace MugenMvvm.Collections.Components
         }
 
         [Preserve(Conditional = true)]
-        public ItemOrIReadOnlyList<object> Header
-        {
-            get => _header;
-            set => Update(value, false);
-        }
+        public IReadOnlyList<object> Header => _header ?? Default.ReadOnlyList<object>();
 
         [Preserve(Conditional = true)]
-        public ItemOrIReadOnlyList<object> Footer
+        public IReadOnlyList<object> Footer => _footer ?? Default.ReadOnlyList<object>();
+
+        public HeaderFooterCollectionDecorator SetHeader(ItemOrIReadOnlyList<object> header)
         {
-            get => _footer;
-            set => Update(value, true);
+            Update(header, false);
+            return this;
+        }
+
+        public HeaderFooterCollectionDecorator SetFooter(ItemOrIReadOnlyList<object> header)
+        {
+            Update(header, true);
+            return this;
         }
 
         protected override bool HasAdditionalItems => HeaderCount != 0 || FooterCount != 0;

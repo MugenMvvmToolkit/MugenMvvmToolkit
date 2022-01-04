@@ -1,7 +1,8 @@
-﻿using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Configuration;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.App.Configuration
 {
@@ -50,6 +51,13 @@ namespace MugenMvvm.App.Configuration
             else
                 Configurator.InitializeService(service);
             return new ServiceConfiguration<TService>(this, service);
+        }
+
+        public MugenApplicationConfiguration Initialize(IPlatformInfo platformInfo, object? state = null, EnumFlags<ApplicationFlags> flags = default,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            Application.Initialize(platformInfo, state, flags, metadata);
+            return this;
         }
 
         public ServiceConfiguration<TService> ServiceConfiguration<TService>() where TService : class => new(this, GetService<TService>());

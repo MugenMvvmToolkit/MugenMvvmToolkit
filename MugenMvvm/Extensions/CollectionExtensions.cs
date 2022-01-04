@@ -419,7 +419,7 @@ namespace MugenMvvm.Extensions
         public static DecoratorsConfiguration<T> WithHeaderFooter<T>(this DecoratorsConfiguration<T> configuration, ItemOrIReadOnlyList<object> header,
             ItemOrIReadOnlyList<object> footer, out HeaderFooterCollectionDecorator decorator)
         {
-            decorator = new HeaderFooterCollectionDecorator(configuration.Priority) {Header = header, Footer = footer};
+            decorator = new HeaderFooterCollectionDecorator(configuration.Priority).SetHeader(header).SetFooter(footer);
             return configuration.Add(decorator);
         }
 

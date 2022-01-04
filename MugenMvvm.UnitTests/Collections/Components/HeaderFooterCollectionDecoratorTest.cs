@@ -30,8 +30,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void AddShouldTrackChanges(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.AddShouldTrackChangesImpl(_collection, Assert);
         }
 
@@ -39,9 +38,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void ChangeShouldTrackChanges(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
-
+            _decorator.SetHeader(header).SetFooter(footer);
             for (var i = 0; i < 100; i++)
             {
                 _collection.Add(i);
@@ -60,8 +57,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void ClearShouldTrackChanges(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.ClearShouldTrackChangesImpl(_collection, Assert);
         }
 
@@ -77,8 +73,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
             _collection.Add(targetItem1);
             _collection.Add(targetItem2);
-            _decorator.Header = new[] { header1, header2, header2 };
-            _decorator.Footer = new[] { footer1, footer2, footer2 };
+            _decorator.SetHeader(new[] {header1, header2, header2}).SetFooter(new[] {footer1, footer2, footer2});
 
             ICollectionDecorator decorator = _decorator;
             var indexes = new ItemOrListEditor<int>();
@@ -110,8 +105,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void MoveShouldTrackChanges1(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.MoveShouldTrackChanges1Impl(_collection, Assert);
         }
 
@@ -119,8 +113,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void MoveShouldTrackChanges2(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.MoveShouldTrackChanges2Impl(_collection, Assert);
         }
 
@@ -128,8 +121,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void RemoveShouldTrackChanges(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.RemoveShouldTrackChangesImpl(_collection, Assert);
         }
 
@@ -137,8 +129,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void ReplaceShouldTrackChanges1(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.ReplaceShouldTrackChanges1Impl(_collection, Assert);
         }
 
@@ -146,8 +137,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void ReplaceShouldTrackChanges2(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.ReplaceShouldTrackChanges2Impl(_collection, Assert);
         }
 
@@ -155,8 +145,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void ResetShouldTrackChanges(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.ResetShouldTrackChangesImpl(_collection, Assert);
         }
 
@@ -173,23 +162,23 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     _collection.Add(i);
 
                 Assert();
-                _decorator.Header = header;
+                _decorator.SetHeader(header);
                 Assert();
-                _decorator.Footer = footer;
+                _decorator.SetFooter(footer);
                 Assert();
-                _decorator.Header = default;
+                _decorator.SetHeader(default);
                 Assert();
-                _decorator.Footer = default;
+                _decorator.SetFooter(default);
                 Assert();
 
-                _decorator.Header = header;
-                _decorator.Footer = footer;
+                _decorator.SetHeader(header);
+                _decorator.SetFooter(footer);
                 Assert();
 
                 _collection.RemoveComponent(_decorator);
                 Assert();
-                _decorator.Header = default;
-                _decorator.Footer = default;
+                _decorator.SetHeader(default);
+                _decorator.SetFooter(default);
             }
 
             for (var i = 0; i < 2; i++)
@@ -199,23 +188,23 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     _collection.Add(i);
 
                 Assert();
-                _decorator.Footer = footer;
+                _decorator.SetFooter(footer);
                 Assert();
-                _decorator.Header = header;
+                _decorator.SetHeader(header);
                 Assert();
-                _decorator.Footer = default;
+                _decorator.SetFooter(default);
                 Assert();
-                _decorator.Header = default;
+                _decorator.SetHeader(default);
                 Assert();
 
-                _decorator.Footer = footer;
-                _decorator.Header = header;
+                _decorator.SetFooter(footer);
+                _decorator.SetHeader(header);
                 Assert();
 
                 _collection.RemoveComponent(_decorator);
                 Assert();
-                _decorator.Header = default;
-                _decorator.Footer = default;
+                _decorator.SetHeader(default);
+                _decorator.SetFooter(default);
             }
         }
 
@@ -223,27 +212,25 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [MemberData(nameof(GetData))]
         public void ShouldTrackChanges(string[]? header, string[]? footer)
         {
-            _decorator.Header = header;
-            _decorator.Footer = footer;
+            _decorator.SetHeader(header).SetFooter(footer);
             CollectionDecoratorTestBase.ShouldTrackChangesImpl(_collection, Assert);
 
-            _decorator.Footer = header;
-            _decorator.Header = footer;
+            _decorator.SetFooter(header).SetHeader(footer);
             Assert();
         }
 
         private static IEnumerable<object?[]> GetData() =>
             new[]
             {
-                new object?[] { null, null },
-                new object?[] { new[] { "header" }, null },
-                new object?[] { new[] { "header1", "header2" }, null },
-                new object?[] { null, new[] { "footer" } },
-                new object?[] { null, new[] { "footer1", "footer2" } },
-                new object?[] { new[] { "header" }, new[] { "footer" } },
-                new object?[] { new[] { "header1", "header2" }, new[] { "footer" } },
-                new object?[] { new[] { "header" }, new[] { "footer1", "footer2" } },
-                new object?[] { new[] { "header1", "header2" }, new[] { "footer1", "footer2" } }
+                new object?[] {null, null},
+                new object?[] {new[] {"header"}, null},
+                new object?[] {new[] {"header1", "header2"}, null},
+                new object?[] {null, new[] {"footer"}},
+                new object?[] {null, new[] {"footer1", "footer2"}},
+                new object?[] {new[] {"header"}, new[] {"footer"}},
+                new object?[] {new[] {"header1", "header2"}, new[] {"footer"}},
+                new object?[] {new[] {"header"}, new[] {"footer1", "footer2"}},
+                new object?[] {new[] {"header1", "header2"}, new[] {"footer1", "footer2"}}
             };
 
         private void Assert()
@@ -257,7 +244,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 footer = default;
             }
 
-            _tracker.ChangedItems.ShouldEqual(Decorate(header, footer));
+            _tracker.ChangedItems.ShouldEqual(Decorate(ItemOrIReadOnlyList.FromList(header), ItemOrIReadOnlyList.FromList(footer)));
             _tracker.ChangedItems.ShouldEqual(_collection.DecoratedItems());
         }
 

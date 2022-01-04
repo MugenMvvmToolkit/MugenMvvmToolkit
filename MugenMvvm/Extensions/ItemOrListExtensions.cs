@@ -62,17 +62,8 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrIEnumerable<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
-            foreach (var v in itemOrList)
-            {
-                if (comparer.EqualsOrDefault(v, value))
-                    return true;
-            }
-
-            return false;
-        }
-
-        public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
-        {
+            if (comparer == null && itemOrList.List is ICollection<T> collection)
+                return collection.Contains(value);
             foreach (var v in itemOrList)
             {
                 if (comparer.EqualsOrDefault(v, value))
@@ -84,6 +75,21 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrIReadOnlyCollection<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
+            if (comparer == null && itemOrList.List is ICollection<T> collection)
+                return collection.Contains(value);
+            foreach (var v in itemOrList)
+            {
+                if (comparer.EqualsOrDefault(v, value))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static bool Contains<T>(this ItemOrIReadOnlyList<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
+        {
+            if (comparer == null && itemOrList.List is ICollection<T> collection)
+                return collection.Contains(value);
             foreach (var v in itemOrList)
             {
                 if (comparer.EqualsOrDefault(v, value))
@@ -95,6 +101,8 @@ namespace MugenMvvm.Extensions
 
         public static bool Contains<T>(this ItemOrArray<T> itemOrList, T value, IEqualityComparer<T>? comparer = null)
         {
+            if (comparer == null && itemOrList.List != null)
+                return Array.IndexOf(itemOrList.List, value) >= 0;
             foreach (var v in itemOrList)
             {
                 if (comparer.EqualsOrDefault(v, value))
