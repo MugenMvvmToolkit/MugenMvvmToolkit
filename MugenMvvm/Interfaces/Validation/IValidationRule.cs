@@ -11,6 +11,7 @@ namespace MugenMvvm.Interfaces.Validation
     {
         bool IsAsync { get; }
 
-        ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(object target, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(IValidator validator, object target, string? member, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata);
     }
 }

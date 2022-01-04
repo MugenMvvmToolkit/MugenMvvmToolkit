@@ -11,11 +11,11 @@ namespace MugenMvvm.Tests.Validation
 {
     public class TestValidationRule : TestDisposable, IValidationRule
     {
-        public Func<object, string?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>>? ValidateAsync { get; set; }
+        public Func<IValidator, object, string?, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>>? ValidateAsync { get; set; }
 
         public bool IsAsync { get; set; }
 
-        ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> IValidationRule.ValidateAsync(object target, string? member, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata) => ValidateAsync?.Invoke(target, member, cancellationToken, metadata) ?? default;
+        ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> IValidationRule.ValidateAsync(IValidator validator, object target, string? member, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata) => ValidateAsync?.Invoke(validator, target, member, cancellationToken, metadata) ?? default;
     }
 }

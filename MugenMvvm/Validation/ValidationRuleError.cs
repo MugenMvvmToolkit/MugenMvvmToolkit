@@ -4,9 +4,9 @@ using System.Runtime.InteropServices;
 namespace MugenMvvm.Validation
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ValidationError
+    public readonly struct ValidationRuleError
     {
-        internal ValidationError(object error)
+        internal ValidationRuleError(object error)
         {
             Should.NotBeNull(error, nameof(error));
             ErrorRaw = error;
@@ -24,12 +24,12 @@ namespace MugenMvvm.Validation
             }
         }
 
-        public static implicit operator ValidationError(string error) => new(error);
+        public static implicit operator ValidationRuleError(string error) => new(error);
 
-        public static implicit operator ValidationError(Func<object> getError) => new(getError);
+        public static implicit operator ValidationRuleError(Func<object> getError) => new(getError);
 
-        public static ValidationError FromDelegate(Func<object> getError) => new(getError);
+        public static ValidationRuleError FromDelegate(Func<object> getError) => new(getError);
 
-        public static ValidationError FromValue(object error) => new(error);
+        public static ValidationRuleError FromValue(object error) => new(error);
     }
 }

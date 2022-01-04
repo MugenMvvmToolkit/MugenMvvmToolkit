@@ -26,8 +26,9 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 new TestValidationRule
                 {
                     IsAsync = false,
-                    ValidateAsync = (t, v, ct, m) =>
+                    ValidateAsync = (vv, t, v, ct, m) =>
                     {
+                        vv.ShouldEqual(Validator);
                         t.ShouldEqual(this);
                         ct.CanBeCanceled.ShouldBeFalse();
                         if (v == member)
@@ -61,12 +62,13 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 new TestValidationRule
                 {
                     IsAsync = true,
-                    ValidateAsync = (t, v, ct, m) =>
+                    ValidateAsync = (vv, t, v, ct, m) =>
                     {
+                        vv.ShouldEqual(Validator);
                         t.ShouldEqual(this);
                         ct.CanBeCanceled.ShouldBeTrue();
                         if (v == memberName1)
-                            return tcs.Task.ContinueWith(t => (ItemOrIReadOnlyList<ValidationErrorInfo>)new ValidationErrorInfo(this, memberName1, memberName1), ct).AsValueTask();
+                            return tcs.Task.ContinueWith(t => (ItemOrIReadOnlyList<ValidationErrorInfo>) new ValidationErrorInfo(this, memberName1, memberName1), ct).AsValueTask();
 
                         return default;
                     }
@@ -74,8 +76,9 @@ namespace MugenMvvm.UnitTests.Validation.Components
                 new TestValidationRule
                 {
                     IsAsync = false,
-                    ValidateAsync = (t, v, ct, m) =>
+                    ValidateAsync = (vv, t, v, ct, m) =>
                     {
+                        vv.ShouldEqual(Validator);
                         t.ShouldEqual(this);
                         ct.CanBeCanceled.ShouldBeTrue();
                         if (v == memberName2)

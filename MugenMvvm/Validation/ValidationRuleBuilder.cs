@@ -32,13 +32,13 @@ namespace MugenMvvm.Validation
             }
 
             public Builder<T> AddValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
-                Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
+                Func<IValidator, T, TValue, TState, IReadOnlyMetadataContext?, object?> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
                 ItemOrIReadOnlyList<string> dependencyMembers = default) =>
                 AddRule(new Rule<T, TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
 
             public Builder<T> AddAsyncValidator<TValue, TState>(string memberName, Func<T, TValue> memberAccessor, TState state,
-                Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>> validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null,
-                ItemOrIReadOnlyList<string> dependencyMembers = default) =>
+                Func<IValidator, T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<object?>> validator,
+                Func<T, TState, IReadOnlyMetadataContext?, bool>? condition = null, ItemOrIReadOnlyList<string> dependencyMembers = default) =>
                 AddRule(new Rule<T, TValue, TState>(memberName, memberAccessor, validator, condition, dependencyMembers, state));
 
             public ItemOrIReadOnlyList<IValidationRule> Build() => _rules.ToItemOrList();
@@ -52,7 +52,6 @@ namespace MugenMvvm.Validation
             private readonly string _memberName;
             private readonly TState _state;
             private readonly Delegate _validator;
-            private readonly Func<Task<object?>, object?, ItemOrIReadOnlyList<ValidationErrorInfo>>? _converterDelegate;
 
             public Rule(string memberName, Func<T, TValue> memberAccessor,
                 Delegate validator, Func<T, TState, IReadOnlyMetadataContext?, bool>? condition, ItemOrIReadOnlyList<string> dependencyMembers, TState state)
@@ -66,17 +65,15 @@ namespace MugenMvvm.Validation
                 _condition = condition;
                 _dependencyMembers = dependencyMembers.GetRawValue();
                 _state = state;
-                if (IsAsync)
-                    _converterDelegate = ConvertResult;
             }
 
-            public bool IsAsync => _validator is Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>;
+            public bool IsAsync => _validator is Func<IValidator, T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<object?>>;
 
             public void Dispose()
             {
             }
 
-            public ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(object t, string? member, CancellationToken cancellationToken,
+            public async ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>> ValidateAsync(IValidator validator, object t, string? member, CancellationToken cancellationToken,
                 IReadOnlyMetadataContext? metadata)
             {
                 if (t is not T target)
@@ -86,17 +83,17 @@ namespace MugenMvvm.Validation
                     return default;
 
                 if (_condition != null && !_condition(target, _state, metadata))
-                    return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(ToError(target, null));
+                    return ToError(target, null);
 
-                if (_validator is Func<T, TValue, TState, IReadOnlyMetadataContext?, object?> validator)
-                    return new ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>(ToError(target, validator(target, _memberAccessor(target), _state, metadata)));
-                return ((Func<T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, Task<object?>>) _validator)
-                       .Invoke(target, _memberAccessor(target), _state, cancellationToken, metadata)
-                       .ContinueWith(_converterDelegate!, target, cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current)
-                       .AsValueTask();
+                object? error;
+                if (_validator is Func<IValidator, T, TValue, TState, IReadOnlyMetadataContext?, object?> validatorFunc)
+                    error = validatorFunc(validator, target, _memberAccessor(target), _state, metadata);
+                else
+                    error = await ((Func<IValidator, T, TValue, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<object?>>) _validator)
+                                  .Invoke(validator, target, _memberAccessor(target), _state, cancellationToken, metadata)
+                                  .ConfigureAwait(false);
+                return ToError(target, error);
             }
-
-            private ItemOrIReadOnlyList<ValidationErrorInfo> ConvertResult(Task<object?> task, object? target) => ToError(target!, task.Result);
 
             private ItemOrIReadOnlyList<ValidationErrorInfo> ToError(object target, object? error) => new ValidationErrorInfo(target, _memberName, error);
 

@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
@@ -11,10 +11,10 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidationHandler : IValidationHandlerComponent, IHasPriority, IHasTarget<object>, IDisposableComponent<IValidator>
+    public sealed class RuleValidationHandler : IValidationHandlerComponent, IHasPriority, IHasTarget<object>, IDisposableComponent<IValidator>, IAttachableComponent,
+        IDetachableComponent //todo review pooled, change rules, set error as rule, opt error manager, cancel for sync
     {
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
-        private readonly List<ValidationErrorInfo>? _errors;
         private readonly CancellationTokenSource? _disposeToken;
 
         public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules, int priority = ValidationComponentPriority.RuleValidationHandler)
@@ -31,9 +31,6 @@ namespace MugenMvvm.Validation.Components
                     break;
                 }
             }
-
-            if (_disposeToken == null && rules.Count > 1)
-                _errors = new List<ValidationErrorInfo>(rules.Count);
         }
 
         public int Priority { get; init; }
@@ -64,37 +61,56 @@ namespace MugenMvvm.Validation.Components
 
         private async Task ValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var editor = new ItemOrListEditor<ValidationErrorInfo>(Rules.Count);
-            var tasks = new ItemOrListEditor<ValueTask<ItemOrIReadOnlyList<ValidationErrorInfo>>>(2);
+            var tasks = new ItemOrListEditor<(IValidationRule, Task<ItemOrIReadOnlyList<ValidationErrorInfo>>)>(2);
             foreach (var rule in Rules)
             {
-                var task = rule.ValidateAsync(Target, member, cancellationToken, metadata);
-                if (task.IsCompletedSuccessfully)
-                    editor.AddRange(task.Result);
+                var task = rule.ValidateAsync(validator, Target, member, cancellationToken, metadata);
+                if (task.IsCompleted)
+                    validator.SetErrors(rule, task.Result, metadata);
                 else
-                    tasks.Add(task);
+                    tasks.Add((rule, task.AsTask()));
             }
 
             foreach (var task in tasks)
-                editor.AddRange(await task.ConfigureAwait(false));
-
-            validator.SetErrors(this, editor, metadata);
+                validator.SetErrors(task.Item1, await task.Item2.ConfigureAwait(false), metadata);
         }
 
         private void ValidateSync(IValidator validator, string? member, IReadOnlyMetadataContext? metadata)
         {
-            _errors?.Clear();
-            var editor = new ItemOrListEditor<ValidationErrorInfo>(_errors);
-            foreach (var rule in Rules)
+            lock (this)
             {
-                var task = rule.ValidateAsync(Target, member, default, metadata);
-                if (!task.IsCompletedSuccessfully)
-                    ExceptionManager.ThrowObjectNotInitialized(rule);
+                foreach (var rule in Rules)
+                {
+                    var task = rule.ValidateAsync(validator, Target, member, default, metadata);
+                    if (!task.IsCompleted)
+                        ExceptionManager.ThrowObjectNotInitialized(rule);
 
-                editor.AddRange(task.Result);
+                    validator.SetErrors(rule, task.Result, metadata);
+                }
             }
+        }
 
-            validator.SetErrors(this, editor, metadata);
+        void IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is IValidator validator)
+                validator.ValidateAsync(metadata: metadata);
+        }
+
+        void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner is IValidator validator)
+            {
+                foreach (var rule in Rules)
+                    validator.ClearErrors(default, rule, metadata);
+            }
         }
 
         void IDisposableComponent<IValidator>.OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)
