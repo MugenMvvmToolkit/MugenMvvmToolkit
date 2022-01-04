@@ -45,8 +45,8 @@ namespace MugenMvvm.UnitTests.Commands.Components
         [InlineData(false)]
         public void ShouldCacheCommandEventHandler(bool cache)
         {
-            _component.CacheCommandNotifier = cache;
-            var metadataOwner = new TestMetadataOwnerPropertyChanged { Metadata = new MetadataContext() };
+            _component.CacheCommandObserver = cache;
+            var metadataOwner = new TestMetadataOwnerPropertyChanged {Metadata = new MetadataContext()};
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var request = DelegateCommandRequest.Get(execute, canExecute, null, null, default, null);
@@ -71,16 +71,18 @@ namespace MugenMvvm.UnitTests.Commands.Components
         public void ShouldCreateRawCommand()
         {
             var command = CommandManager.TryGetCommand<object>(this, CommandMetadata.RawCommandRequest)!;
-            command.GetComponents<object>().Count.ShouldEqual(1);
+            command.GetComponents<object>().Count.ShouldEqual(2);
             command.GetComponentOptional<CommandEventHandler>().ShouldNotBeNull();
+            command.GetComponentOptional<CanExecuteCommandCondition>().ShouldNotBeNull();
         }
 
         [Fact]
         public void TryGetCommandShouldReturnDefaultCommandAnyRequest()
         {
             var command = CommandManager.TryGetCommand<object>(this, this, Metadata)!;
-            command.GetComponents<object>().Count.ShouldEqual(1);
+            command.GetComponents<object>().Count.ShouldEqual(2);
             command.GetComponentOptional<CommandEventHandler>().ShouldNotBeNull();
+            command.GetComponentOptional<CanExecuteCommandCondition>().ShouldNotBeNull();
         }
 
         [Theory]
@@ -103,9 +105,9 @@ namespace MugenMvvm.UnitTests.Commands.Components
                     m.ShouldEqual(Metadata);
                     return canExecuteValue;
                 }
-                : (Func<IReadOnlyMetadataContext?, bool>?)null;
+                : (Func<IReadOnlyMetadataContext?, bool>?) null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? Metadata : null;
 

@@ -122,9 +122,6 @@ namespace MugenMvvm.Commands.Components
                 return false;
 
             var commands = _commands;
-            if (!CanExecuteInternal(commands, parameter, metadata))
-                return false;
-
             var executeHandler = ExecuteHandler;
             if (executeHandler != null)
                 return await executeHandler(commands, parameter, cancellationToken, metadata).ConfigureAwait(false);

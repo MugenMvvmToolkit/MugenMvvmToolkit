@@ -21,13 +21,13 @@ namespace MugenMvvm.Commands.Components
         public CommandProvider(IComponentCollectionManager? componentCollectionManager = null, int priority = CommandComponentPriority.CommandProvider)
         {
             _componentCollectionManager = componentCollectionManager;
-            CacheCommandNotifier = true;
+            CacheCommandObserver = true;
             Priority = priority;
         }
 
         public bool AllowMultipleExecution { get; set; }
 
-        public bool CacheCommandNotifier { get; set; }
+        public bool CacheCommandObserver { get; set; }
 
         public int Priority { get; init; }
 
@@ -35,6 +35,7 @@ namespace MugenMvvm.Commands.Components
         {
             var command = new CompositeCommand(null, _componentCollectionManager);
             command.AddComponent(new CommandEventHandler());
+            command.AddComponent(new CanExecuteCommandCondition());
 
             if (request is Delegate execute)
                 command.AddComponent(new DelegateCommandExecutor<TParameter>(execute, null, AllowMultipleExecution));
@@ -52,7 +53,7 @@ namespace MugenMvvm.Commands.Components
 
         private static PropertyChangedCommandObserver? GetCommandObserverInternal(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
-            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver { CanNotify = commandRequest.CanNotify };
+            var commandNotifier = commandRequest.CanNotify == null ? null : new PropertyChangedCommandObserver {CanNotify = commandRequest.CanNotify};
             var notifiers = commandRequest.Notifiers.IsEmpty ? ItemOrIReadOnlyCollection.FromItem(owner) : commandRequest.Notifiers;
             foreach (var notifier in notifiers)
             {
@@ -65,7 +66,7 @@ namespace MugenMvvm.Commands.Components
 
         private PropertyChangedCommandObserver? GetCommandObserver(object? owner, DelegateCommandRequest commandRequest, IReadOnlyMetadataContext? metadata)
         {
-            if (CacheCommandNotifier && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 &&
+            if (CacheCommandObserver && commandRequest.CanNotify == null && commandRequest.Notifiers.Count == 0 &&
                 owner is IMetadataOwner<IMetadataContext> m and INotifyPropertyChanged)
             {
                 return m.Metadata.GetOrAdd(InternalMetadata.CommandNotifier, (owner, commandRequest, metadata),
