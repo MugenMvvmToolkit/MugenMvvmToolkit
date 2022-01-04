@@ -55,14 +55,14 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return accessorInfo;
                 }
             });
-            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
+            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, Metadata),
                 disposed => currentListener.ShouldBeNull());
         }
 
-        protected override SinglePathObserver GetObserver(object target) => new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true);
+        protected override SinglePathObserver GetObserver(object target) => new MethodSinglePathObserver(MethodName, target, DefaultPath, MemberFlags.InstancePublic, true, true);
 
-        protected override SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) =>
-            new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional);
+        protected override SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional, bool isWeak) =>
+            new MethodSinglePathObserver(MethodName, target, path, memberFlags, optional, isWeak);
     }
 }

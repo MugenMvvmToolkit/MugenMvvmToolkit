@@ -10,13 +10,14 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
-    public abstract class ObserverBase : IMemberPathObserver
+    public abstract class ObserverBase : IMemberPathObserver//todo chain without boxing
     {
         protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
-        protected const byte HasStablePathFlag = 1 << 3;
+        protected const byte HasStablePathFlag = 1 << 3;//todo use attribute, smart detect
         protected const byte InitializedFlag = 1 << 4;
         protected const byte NoDisposeFlag = 1 << 5;
+        protected const byte WeakFlag = 1 << 6;
 
         private static readonly IMemberPathObserverListener[] DisposedItems = new IMemberPathObserverListener[0];
 
@@ -53,6 +54,12 @@ namespace MugenMvvm.Bindings.Observation.Observers
             get => CheckFlag(OptionalFlag);
         }
 
+        public bool IsWeak
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => CheckFlag(WeakFlag);
+        }
+
         public bool IsDisposable
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -79,7 +86,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public bool IsAlive
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_target is IWeakItem w)
@@ -108,8 +114,14 @@ namespace MugenMvvm.Bindings.Observation.Observers
         {
             if (_listeners == DisposedItems || !IsDisposable)
                 return;
-            _listeners = DisposedItems;
-            _target = null;
+            lock (this)
+            {
+                if (_listeners == DisposedItems || !IsDisposable)
+                    return;
+                _listeners = DisposedItems;
+                _target = null;
+            }
+
             OnDisposed();
         }
 
@@ -118,17 +130,36 @@ namespace MugenMvvm.Bindings.Observation.Observers
             Should.NotBeNull(listener, nameof(listener));
             if (IsDisposed)
                 return;
-            var oldListeners = _listeners;
-            MugenExtensions.AddRaw(ref _listeners, listener);
-            if (oldListeners == null)
-                OnListenersAdded();
+
+            object? oldListeners;
+            (bool, Exception?) state;
+            lock (this)
+            {
+                if (IsDisposed)
+                    return;
+                oldListeners = _listeners;
+                MugenExtensions.AddRaw(ref _listeners, listener);
+                state = oldListeners == null ? OnListenersAdded() : default;
+            }
+
+            if (oldListeners == null && state.Item1)
+            {
+                if (state.Item2 != null)
+                    OnError(state.Item2);
+                RaiseOnListenersAdded();//todo expression binding is called twice on attach
+            }
         }
 
         public void RemoveListener(IMemberPathObserverListener listener)
         {
             Should.NotBeNull(listener, nameof(listener));
-            if (!IsDisposed && MugenExtensions.RemoveRaw(ref _listeners, listener) && _listeners == null)
-                OnListenersRemoved();
+            if (IsDisposed)
+                return;
+            lock (this)
+            {
+                if (!IsDisposed && MugenExtensions.RemoveRaw(ref _listeners, listener) && _listeners == null)
+                    OnListenersRemoved();
+            }
         }
 
         public ItemOrIReadOnlyList<IMemberPathObserverListener> GetListeners()
@@ -138,7 +169,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
             return ItemOrIReadOnlyList.FromRawValue<IMemberPathObserverListener>(_listeners);
         }
 
-        protected virtual void OnListenersAdded()
+        protected virtual (bool, Exception?) OnListenersAdded() => default;
+
+        protected virtual void RaiseOnListenersAdded()
         {
         }
 
@@ -157,8 +190,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 var listeners = _listeners;
                 if (listeners is IMemberPathObserverListener[] l)
                 {
-                    for (var i = 0; i < l.Length; i++)
-                        l[i].OnLastMemberChanged(this);
+                    foreach (var t in l)
+                        t.OnLastMemberChanged(this);
                 }
                 else
                     (listeners as IMemberPathObserverListener)?.OnLastMemberChanged(this);
@@ -176,8 +209,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 var listeners = _listeners;
                 if (listeners is IMemberPathObserverListener[] l)
                 {
-                    for (var i = 0; i < l.Length; i++)
-                        l[i].OnPathMembersChanged(this);
+                    foreach (var t in l)
+                        t.OnPathMembersChanged(this);
                 }
                 else
                     (listeners as IMemberPathObserverListener)?.OnPathMembersChanged(this);
@@ -195,8 +228,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 var listeners = _listeners;
                 if (listeners is IMemberPathObserverListener[] l)
                 {
-                    for (var i = 0; i < l.Length; i++)
-                        l[i].OnError(this, exception);
+                    foreach (var t in l)
+                        t.OnError(this, exception);
                 }
                 else
                     (listeners as IMemberPathObserverListener)?.OnError(this, exception);
@@ -213,9 +246,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return null;
             if (_listeners is IMemberPathObserverListener[] l)
             {
-                for (var i = 0; i < l.Length; i++)
+                foreach (var t in l)
                 {
-                    var metadata = TryGetMetadata(l[i]);
+                    var metadata = TryGetMetadata(t);
                     if (metadata != null)
                         return metadata;
                 }

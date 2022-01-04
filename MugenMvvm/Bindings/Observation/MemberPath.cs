@@ -101,6 +101,8 @@ namespace MugenMvvm.Bindings.Observation
             return new SingleMemberPath(path);
         }
 
+        public override string ToString() => Path;
+
         private sealed class SingleMemberPath : IMemberPath
         {
             public SingleMemberPath(string path)

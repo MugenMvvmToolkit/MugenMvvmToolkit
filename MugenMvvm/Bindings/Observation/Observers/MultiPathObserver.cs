@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using System;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
 using MugenMvvm.Enums;
@@ -14,21 +15,23 @@ namespace MugenMvvm.Bindings.Observation.Observers
         private readonly ActionToken[] _listeners;
         private IEventListener? _lastMemberListener;
 
-        public MultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
-            : base(target, path, memberFlags, hasStablePath, optional)
+        public MultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional, bool isWeak)
+            : base(target, path, memberFlags, hasStablePath, optional, isWeak)
         {
             _listeners = new ActionToken[path.Members.Count];
         }
 
-        protected override void OnListenersAdded()
+        protected override (bool, Exception?) OnListenersAdded()
         {
-            base.OnListenersAdded();
-            if (Members != null && _listeners[_listeners.Length - 1].IsEmpty && PenultimateValueOrException is IWeakReference penultimateRef)
+            var result = base.OnListenersAdded();
+            if (State.members != null && _listeners[_listeners.Length - 1].IsEmpty && State.penultimateValueOrException is IWeakReference penultimateRef)
             {
                 var target = penultimateRef.Target;
                 if (target != null)
-                    SubscribeLastMember(target, Members[Members.Length - 1], TryGetMetadata());
+                    SubscribeLastMember(target, State.members[State.members.Length - 1], TryGetMetadata());
             }
+
+            return result;
         }
 
         protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata) =>
@@ -55,13 +58,33 @@ namespace MugenMvvm.Bindings.Observation.Observers
             UnsubscribeLastMember();
         }
 
-        protected IEventListener GetLastMemberListener() => _lastMemberListener ??= new LastMemberListener(this.ToWeakReference());
+        protected IEventListener GetLastMemberListener() => _lastMemberListener ??= IsWeak ? new LastMemberListenerWeak(this.ToWeakReference()) : new LastMemberListener(this);
 
         private sealed class LastMemberListener : IWeakEventListener
         {
+            private readonly MultiPathObserver _observer;
+
+            public LastMemberListener(MultiPathObserver observer)
+            {
+                _observer = observer;
+            }
+
+            public bool IsWeak => true;
+
+            public bool IsAlive => true;
+
+            public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+            {
+                _observer.OnLastMemberChanged();
+                return true;
+            }
+        }
+
+        private sealed class LastMemberListenerWeak : IWeakEventListener
+        {
             private readonly IWeakReference _observer;
 
-            public LastMemberListener(IWeakReference observer)
+            public LastMemberListenerWeak(IWeakReference observer)
             {
                 _observer = observer;
             }

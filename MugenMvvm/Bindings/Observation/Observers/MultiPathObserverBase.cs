@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -11,18 +11,19 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
-    public abstract class MultiPathObserverBase : ObserverBase, IEventListener, IValueHolder<IWeakReference>
+    public abstract class MultiPathObserverBase : ObserverBase, IWeakEventListener, IValueHolder<IWeakReference>
     {
-        protected IMemberInfo[]? Members;
-        protected object? PenultimateValueOrException;
+        protected (IMemberInfo[]? members, object? penultimateValueOrException) State;
 
-        protected MultiPathObserverBase(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
+        protected MultiPathObserverBase(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional, bool isWeak)
             : base(target, memberFlags)
         {
             if (hasStablePath)
                 SetFlag(HasStablePathFlag);
             if (optional)
                 SetFlag(OptionalFlag);
+            if (isWeak)
+                SetFlag(WeakFlag);
             Path = path;
         }
 
@@ -32,40 +33,45 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            UpdateIfNeed();
-            if (PenultimateValueOrException is IWeakReference)
+            if (!CheckFlag(InitializedFlag))
+                UpdateIfNeed();
+            var state = State;
+            if (state.members != null)
             {
                 var target = Target;
-                var members = Members;
-                if (target == null || members == null)
+                if (target == null)
                     return default;
 
-                return new MemberPathMembers(target, members);
+                return new MemberPathMembers(target, state.members);
             }
 
-            if (PenultimateValueOrException is Exception e)
+            if (state.penultimateValueOrException is Exception e)
                 return new MemberPathMembers(e);
             return default;
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            UpdateIfNeed();
-            if (PenultimateValueOrException is IWeakReference penultimateRef)
+            if (!CheckFlag(InitializedFlag))
+                UpdateIfNeed();
+            var state = State;
+            var members = state.members;
+            if (members != null)
             {
-                var members = Members;
-                if (members == null)
+                var penultimateValue = state.penultimateValueOrException;
+                if (penultimateValue is IWeakReference weakReference)
+                {
+                    penultimateValue = weakReference.Target;
+                    if (penultimateValue == null)
+                        return default;
+                }
+                else if (penultimateValue == BindingMetadata.UnsetValue)
                     return default;
 
-                var penultimateValue = penultimateRef.Target;
-                var member = members[members.Length - 1];
-                if (penultimateValue == null && !member.MemberFlags.HasFlag(Enums.MemberFlags.Extension))
-                    return default;
-
-                return new MemberPathLastMember(penultimateValue, member);
+                return new MemberPathLastMember(penultimateValue, members[members.Length - 1]);
             }
 
-            if (PenultimateValueOrException is Exception e)
+            if (state.penultimateValueOrException is Exception e)
                 return new MemberPathLastMember(e);
             return default;
         }
@@ -78,7 +84,16 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         protected abstract void ClearListeners();
 
-        protected override void OnListenersAdded() => UpdateIfNeed();
+        protected override (bool, Exception?) OnListenersAdded()
+        {
+            if (CheckFlag(InitializedFlag) || CheckFlag(UpdatingFlag))
+                return default;
+
+            var result = Update();
+            return (result.raise, result.raise ? State.penultimateValueOrException as Exception : null);
+        }
+
+        protected override void RaiseOnListenersAdded() => Raise(null, true);
 
         protected override void OnListenersRemoved() => UnsubscribeLastMember();
 
@@ -87,18 +102,47 @@ namespace MugenMvvm.Bindings.Observation.Observers
             ClearListeners();
             UnsubscribeLastMember();
             this.ReleaseWeakReference();
-            PenultimateValueOrException = null;
-            Members = null;
+            State = default;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static object? GetPenultimateValueRef(object? value) => value is null or ValueType ? value : value.ToWeakReference();
+
         private void UpdateIfNeed()
         {
-            if (!CheckFlag(InitializedFlag) && !CheckFlag(UpdatingFlag))
-                Update();
+            Exception? exception;
+            (bool, bool) raise;
+            lock (this)
+            {
+                if (!CheckFlag(InitializedFlag) && !CheckFlag(UpdatingFlag))
+                {
+                    raise = Update();
+                    exception = State.penultimateValueOrException as Exception;
+                }
+                else
+                {
+                    raise = default;
+                    exception = null;
+                }
+            }
+
+            Raise(exception, raise.Item2);
         }
 
-        private bool Update()
+        private void Raise(Exception? exception, bool raise)
+        {
+            if (exception != null)
+                OnError(exception);
+            if (raise)
+            {
+                OnPathMembersChanged();
+                lock (this)
+                {
+                    ClearFlag(UpdatingFlag);
+                }
+            }
+        }
+
+        private (bool isValid, bool raise) Update()
         {
             try
             {
@@ -107,15 +151,15 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 if (target == null)
                 {
                     SetMembers(null, null, null);
-                    return false;
+                    return (false, true);
                 }
 
                 ClearListeners();
 
-                if (HasStablePath && Members != null)
+                if (HasStablePath && State.members != null)
                 {
-                    UpdateHasStablePath(Members, MemberFlags.HasFlag(Enums.MemberFlags.Static) ? null : target);
-                    return true;
+                    UpdateHasStablePath(State.members, MemberFlags.HasFlag(Enums.MemberFlags.Static) ? null : target);
+                    return (true, true);
                 }
 
                 var paths = Path.Members;
@@ -136,7 +180,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                             SetMembers(null, null, null);
                         else
                             ExceptionManager.ThrowInvalidBindingMember(type, paths[i]);
-                        return true;
+                        return (true, true);
                     }
 
                     members[i] = member;
@@ -150,27 +194,22 @@ namespace MugenMvvm.Bindings.Observation.Observers
                     if (target.IsUnsetValue())
                     {
                         SetMembers(null, null, null);
-                        return true;
+                        return (true, true);
                     }
 
                     type = target?.GetType() ?? member.Type;
                 }
 
+                SetMembers(GetPenultimateValueRef(target), members, null);
                 if (HasListeners)
                     SubscribeLastMember(target, members[members.Length - 1], metadata);
-                SetMembers(target.ToWeakReference(), members, null);
             }
             catch (Exception e)
             {
                 SetMembers(null, null, e);
-                OnError(e);
-            }
-            finally
-            {
-                ClearFlag(UpdatingFlag);
             }
 
-            return true;
+            return (true, true);
         }
 
         private void UpdateHasStablePath(IMemberInfo[] members, object? target)
@@ -185,26 +224,37 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 target = (member as IAccessorMemberInfo)?.GetValue(target, metadata)!;
                 if (target.IsNullOrUnsetValue())
                 {
-                    SetMembers(null, members, null);
+                    SetMembers(BindingMetadata.UnsetValue, members, null);
                     return;
                 }
             }
 
-            if (HasListeners && Members != null)
-                SubscribeLastMember(target, Members[Members.Length - 1], metadata);
-
-            SetMembers(target.ToWeakReference(), members, null);
+            SetMembers(GetPenultimateValueRef(target), members, null);
+            if (HasListeners)
+                SubscribeLastMember(target, members[members.Length - 1], metadata);
         }
 
-        private void SetMembers(IWeakReference? penultimateValue, IMemberInfo[]? members, Exception? exception)
+        private void SetMembers(object? penultimateValue, IMemberInfo[]? members, Exception? exception)
         {
-            PenultimateValueOrException = (object?)exception ?? penultimateValue;
-            Members = members;
+            State = (members, (object?) exception ?? penultimateValue);
             if (exception == null)
                 SetFlag(InitializedFlag);
-            OnPathMembersChanged();
         }
 
-        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata) => Update();
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        {
+            (bool isValid, bool raise) state;
+            Exception? exception;
+            lock (this)
+            {
+                state = Update();
+                if (!state.isValid)
+                    return false;
+                exception = State.penultimateValueOrException as Exception;
+            }
+
+            Raise(exception, state.raise);
+            return true;
+        }
     }
 }

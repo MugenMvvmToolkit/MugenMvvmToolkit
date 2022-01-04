@@ -43,7 +43,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions.Binding
 
         public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            if (Flags.HasFlag(BindingMemberExpressionFlags.Target))
+            if (Flags.HasFlag(BindingMemberExpressionFlags.Target))//todo reduce path in case of immutable getter
                 return GetObserver(target, metadata);
             if (source == null)
                 return MugenService.ObservationManager.GetMemberPathObserver(target.ToWeakReference(), DataContextRequest(metadata), metadata);

@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Bindings.Interfaces.Members
 {
-    public interface IMethodMemberInfo : IObservableMemberInfo
+    public interface IMethodMemberInfo : IObservableMemberInfo//todo generic invoke
     {
         bool IsGenericMethod { get; }
 

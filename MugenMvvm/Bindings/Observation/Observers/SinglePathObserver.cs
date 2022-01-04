@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
@@ -13,17 +12,19 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation.Observers
 {
-    public class SinglePathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
+    public class SinglePathObserver : ObserverBase, IWeakEventListener, IValueHolder<IWeakReference>
     {
         private object? _lastMemberOrException;
         private ActionToken _lastMemberUnsubscriber;
 
-        public SinglePathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional)
+        public SinglePathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional, bool isWeak)
             : base(target, memberFlags)
         {
             Should.NotBeNull(path, nameof(path));
             if (optional)
                 SetFlag(OptionalFlag);
+            if (isWeak)
+                SetFlag(WeakFlag);
             Path = path;
         }
 
@@ -33,8 +34,10 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            UpdateIfNeed();
-            if (_lastMemberOrException is IMemberInfo member)
+            if (!CheckFlag(InitializedFlag))
+                UpdateIfNeed();
+            var lastMemberOrException = _lastMemberOrException;
+            if (lastMemberOrException is IMemberInfo member)
             {
                 var target = Target;
                 if (target == null)
@@ -42,15 +45,17 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return new MemberPathMembers(target, new ItemOrIReadOnlyList<IMemberInfo>(member));
             }
 
-            if (_lastMemberOrException is Exception e)
+            if (lastMemberOrException is Exception e)
                 return new MemberPathMembers(e);
             return default;
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            UpdateIfNeed();
-            if (_lastMemberOrException is IMemberInfo member)
+            if (!CheckFlag(InitializedFlag))
+                UpdateIfNeed();
+            var lastMemberOrException = _lastMemberOrException;
+            if (lastMemberOrException is IMemberInfo member)
             {
                 var target = Target;
                 if (target == null)
@@ -58,7 +63,7 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 return new MemberPathLastMember(target, member);
             }
 
-            if (_lastMemberOrException is Exception e)
+            if (lastMemberOrException is Exception e)
                 return new MemberPathLastMember(e);
             return default;
         }
@@ -74,9 +79,9 @@ namespace MugenMvvm.Bindings.Observation.Observers
 
         protected virtual void UnsubscribeLastMember() => _lastMemberUnsubscriber.Dispose();
 
-        protected override void OnListenersAdded()
+        protected override (bool, Exception?) OnListenersAdded()
         {
-            UpdateIfNeed();
+            var raise = !CheckFlag(InitializedFlag) && !CheckFlag(UpdatingFlag) && Update();
             if (_lastMemberUnsubscriber.IsEmpty && _lastMemberOrException is IMemberInfo lastMember)
             {
                 var target = Target;
@@ -85,7 +90,11 @@ namespace MugenMvvm.Bindings.Observation.Observers
                 else
                     SubscribeLastMember(target, lastMember, TryGetMetadata());
             }
+
+            return (raise, raise ? _lastMemberOrException as Exception : null);
         }
+
+        protected override void RaiseOnListenersAdded() => Raise(null, true);
 
         protected override void OnListenersRemoved() => UnsubscribeLastMember();
 
@@ -96,55 +105,79 @@ namespace MugenMvvm.Bindings.Observation.Observers
             _lastMemberOrException = null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateIfNeed()
         {
-            if (!CheckFlag(InitializedFlag) && !CheckFlag(UpdatingFlag))
-                Update();
+            Exception? exception;
+            bool raise;
+            lock (this)
+            {
+                if (!CheckFlag(InitializedFlag) && !CheckFlag(UpdatingFlag))
+                {
+                    raise = Update();
+                    exception = _lastMemberOrException as Exception;
+                }
+                else
+                {
+                    raise = false;
+                    exception = null;
+                }
+            }
+
+            if (raise)
+                Raise(exception, true);
         }
 
-        private void Update()
+        private void Raise(Exception? exception, bool raise)
+        {
+            if (exception != null)
+                OnError(exception);
+            if (raise)
+            {
+                OnLastMemberChanged();
+                lock (this)
+                {
+                    ClearFlag(UpdatingFlag);
+                }
+            }
+        }
+
+        private bool Update()
         {
             try
             {
-                SetFlag(UpdatingFlag);
                 var target = Target;
                 if (target == null)
                 {
                     SetLastMember(null, null);
-                    return;
+                    return true;
                 }
 
                 if (_lastMemberOrException is IMemberInfo)
-                    return;
+                    return false;
 
+                SetFlag(UpdatingFlag);
                 var metadata = TryGetMetadata();
                 var targetType = MemberFlags.GetTargetType(ref target);
-                var lastMember = MugenService
-                                 .MemberManager
-                                 .TryGetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
+                var lastMember = MugenService.MemberManager.TryGetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)
                         SetLastMember(null, null);
                     else
                         ExceptionManager.ThrowInvalidBindingMember(targetType, Path.Path);
-                    return;
+                    return true;
                 }
 
+                SetLastMember(lastMember, null);
                 if (HasListeners)
                     SubscribeLastMember(target, lastMember, metadata);
-                SetLastMember(lastMember, null);
             }
             catch (Exception e)
             {
                 SetLastMember(null, e);
-                OnError(e);
             }
-            finally
-            {
-                ClearFlag(UpdatingFlag);
-            }
+
+            return true;
         }
 
         private void SetLastMember(IMemberInfo? lastMember, Exception? exception)
@@ -152,7 +185,6 @@ namespace MugenMvvm.Bindings.Observation.Observers
             _lastMemberOrException = (object?)exception ?? lastMember;
             if (exception == null)
                 SetFlag(InitializedFlag);
-            OnLastMemberChanged();
         }
 
         bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)

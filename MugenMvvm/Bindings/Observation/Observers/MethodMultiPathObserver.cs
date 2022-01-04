@@ -16,8 +16,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
         private IWeakReference? _lastValueRef;
         private ActionToken _unsubscriber;
 
-        public MethodMultiPathObserver(string method, object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
-            : base(target, path, memberFlags, hasStablePath, optional)
+        public MethodMultiPathObserver(string method, object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional, bool isWeak)
+            : base(target, path, memberFlags, hasStablePath, optional, isWeak)
         {
             Should.NotBeNull(method, nameof(method));
             _method = method;
@@ -34,8 +34,11 @@ namespace MugenMvvm.Bindings.Observation.Observers
         protected override void OnLastMemberChanged()
         {
             base.OnLastMemberChanged();
-            var lastMember = GetLastMember();
-            this.AddMethodObserver(lastMember.Target, lastMember.Member, TryGetMetadata(), ref _unsubscriber, ref _lastValueRef);
+            lock (this)
+            {
+                var lastMember = GetLastMember();
+                this.AddMethodObserver(lastMember.Target, lastMember.Member, TryGetMetadata(), ref _unsubscriber, ref _lastValueRef);
+            }
         }
 
         protected override void UnsubscribeLastMember()

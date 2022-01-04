@@ -11,8 +11,8 @@ namespace MugenMvvm.Bindings.Observation.Observers
     {
         private ActionToken _unsubscriber;
 
-        public RootMultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional)
-            : base(target, path, memberFlags, hasStablePath, optional)
+        public RootMultiPathObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional, bool isWeak)
+            : base(target, path, memberFlags, hasStablePath, optional, isWeak)
         {
         }
 

@@ -20,9 +20,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         protected static readonly IMemberPath DefaultPath = MemberPath.Get("test");
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetLastMemberShouldReturnActualMembers(bool optional)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void GetLastMemberShouldReturnActualMembers(bool optional, bool isWeak)
         {
             var accessorInfo = new TestAccessorMemberInfo();
             var memberFlags = MemberFlags.All;
@@ -39,7 +41,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return accessorInfo;
                 }
             });
-            var singlePathObserver = GetObserver(this, path, memberFlags, optional);
+            var singlePathObserver = GetObserver(this, path, memberFlags, optional, isWeak);
             var members = singlePathObserver.GetLastMember(Metadata);
             members.Member.ShouldEqual(accessorInfo);
             members.IsAvailable.ShouldBeTrue();
@@ -47,9 +49,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetLastMemberShouldReturnError(bool optional)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void GetLastMemberShouldReturnError(bool optional, bool isWeak)
         {
             var memberFlags = MemberFlags.All;
             var error = new Exception();
@@ -59,7 +63,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             {
                 TryGetMembers = (_, t, m, f, r, meta) => throw error
             });
-            var singlePathObserver = GetObserver(this, path, memberFlags, optional);
+            var singlePathObserver = GetObserver(this, path, memberFlags, optional, isWeak);
             var members = singlePathObserver.GetLastMember(Metadata);
             members.IsAvailable.ShouldBeFalse();
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
@@ -67,9 +71,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetMembersShouldReturnActualMembers(bool optional)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void GetMembersShouldReturnActualMembers(bool optional, bool isWeak)
         {
             var accessorInfo = new TestAccessorMemberInfo();
             var memberFlags = MemberFlags.All;
@@ -86,7 +92,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                     return accessorInfo;
                 }
             });
-            var singlePathObserver = GetObserver(this, path, memberFlags, optional);
+            var singlePathObserver = GetObserver(this, path, memberFlags, optional, isWeak);
             var members = singlePathObserver.GetMembers(Metadata);
             members.Members.Item.ShouldEqual(accessorInfo);
             members.IsAvailable.ShouldBeTrue();
@@ -94,9 +100,11 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetMembersShouldReturnError(bool optional)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void GetMembersShouldReturnError(bool optional, bool isWeak)
         {
             var memberFlags = MemberFlags.All;
             var error = new Exception();
@@ -106,7 +114,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             {
                 TryGetMembers = (_, t, m, f, r, meta) => throw error
             });
-            var singlePathObserver = GetObserver(this, path, memberFlags, optional);
+            var singlePathObserver = GetObserver(this, path, memberFlags, optional, isWeak);
             var members = singlePathObserver.GetMembers(Metadata);
             members.IsAvailable.ShouldBeFalse();
             members.Target.ShouldEqual(BindingMetadata.UnsetValue);
@@ -123,7 +131,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             {
                 TryGetMembers = (_, t, m, f, r, meta) => default
             });
-            var singlePathObserver = GetObserver(this, path, memberFlags, false);
+            var singlePathObserver = GetObserver(this, path, memberFlags, false, false);
             var lastMember = singlePathObserver.GetLastMember(Metadata);
             lastMember.IsAvailable.ShouldBeFalse();
             lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
@@ -146,7 +154,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (_, t, m, f, r, meta) => default
             });
 
-            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
+            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }
 
@@ -171,7 +179,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 TryGetMembers = (_, t, m, f, r, meta) => accessorInfo
             });
 
-            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
+            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false, false);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, Metadata),
                 disposed => currentListener.ShouldBeNull());
         }
@@ -186,7 +194,7 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             {
                 TryGetMembers = (_, t, m, f, r, meta) => default
             });
-            var singlePathObserver = GetObserver(this, path, memberFlags, true);
+            var singlePathObserver = GetObserver(this, path, memberFlags, true, false);
             var lastMember = singlePathObserver.GetLastMember(Metadata);
             lastMember.IsAvailable.ShouldBeFalse();
             lastMember.Target.ShouldEqual(BindingMetadata.UnsetValue);
@@ -199,9 +207,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
             members.Error.ShouldBeNull();
         }
 
-        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional) =>
-            new(target, path, memberFlags, optional);
+        protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool optional, bool isWeak) =>
+            new(target, path, memberFlags, optional, isWeak);
 
-        protected override SinglePathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.InstancePublic, true);
+        protected override SinglePathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.InstancePublic, true, true);
     }
 }

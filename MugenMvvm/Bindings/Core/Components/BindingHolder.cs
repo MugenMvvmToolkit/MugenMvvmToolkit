@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class BindingHolder : IBindingHolderComponent, IHasPriority
+    public sealed class BindingHolder : IBindingHolderComponent, IHasPriority//todo multi binding
     {
         private static readonly Func<object, string, IBinding?, IBinding, IBinding> UpdateBindingDelegate = UpdateBinding;
 
@@ -34,7 +34,6 @@ namespace MugenMvvm.Bindings.Core.Components
                         .GetValues<object?>(null, (_, key, __, ___) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
                 : target.AttachedValues(metadata, _attachedValueManager).GetValues(path,
                     (_, key, __, state) => key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && key.EndsWith(state, StringComparison.Ordinal));
-
 
             var count = values.Count;
             if (count == 0)

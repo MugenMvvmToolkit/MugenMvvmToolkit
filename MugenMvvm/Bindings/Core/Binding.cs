@@ -7,6 +7,7 @@ using MugenMvvm.Bindings.Extensions.Components;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
+using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
 using MugenMvvm.Bindings.Metadata;
 using MugenMvvm.Bindings.Observation;
 using MugenMvvm.Bindings.Observation.Observers;
@@ -19,9 +20,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core
 {
-    public class Binding : IBinding, IComponentCollection, IMemberPathObserverListener, IReadOnlyMetadataContext, IComparer<object>
+    public class Binding : IBinding, IComponentCollection, IMemberPathObserverListener, IReadOnlyMetadataContext, IComparer<object> //todo synchronized, all components synchronized
     {
-        protected const int TargetUpdatingFlag = 1;
+        protected const int TargetUpdatingFlag = 1;//todo convert by expression implicit
         protected const int SourceUpdatingFlag = 1 << 1;
 
         protected const int HasTargetValueInterceptorFlag = 1 << 2;
@@ -223,6 +224,8 @@ namespace MugenMvvm.Bindings.Core
         {
             if (SourceRaw is IMemberPathObserver memberPath)
                 return memberPath.GetLastMember(this).GetValueOrThrow(this);
+            if (SourceRaw is IConstantExpressionNode constantExpressionNode)
+                return constantExpressionNode.Value;
             return SourceRaw;
         }
 
@@ -251,7 +254,11 @@ namespace MugenMvvm.Bindings.Core
             if (!CheckFlag(HasSourceValueSetterFlag) || !BindingComponentExtensions.TrySetSourceValue(_components, this, pathLastMember, newValue, this))
             {
                 if (newValue.IsUnsetValue())
+                {
+                    pathLastMember.TrySetDefault(this);
                     return false;
+                }
+
                 pathLastMember.TrySetValueWithConvert(newValue, this);
             }
 
@@ -267,7 +274,7 @@ namespace MugenMvvm.Bindings.Core
                 return false;
             }
 
-            newValue = GetSourceValue(pathLastMember);
+            newValue = GetSourceValue(pathLastMember);//todo review delay for expression
             if (CheckFlag(HasTargetValueInterceptorFlag))
                 newValue = BindingComponentExtensions.InterceptTargetValue(_components, this, pathLastMember, newValue, this);
 
@@ -277,7 +284,11 @@ namespace MugenMvvm.Bindings.Core
             if (!CheckFlag(HasTargetValueSetterFlag) || !BindingComponentExtensions.TrySetTargetValue(_components, this, pathLastMember, newValue, this))
             {
                 if (newValue.IsUnsetValue())
+                {
+                    pathLastMember.TrySetDefault(this);
                     return false;
+                }
+
                 pathLastMember.TrySetValueWithConvert(newValue, this);
             }
 

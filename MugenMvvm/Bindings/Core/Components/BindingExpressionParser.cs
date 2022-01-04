@@ -83,12 +83,12 @@ namespace MugenMvvm.Bindings.Core.Components
 
                 if (_compiledExpression == InitializedState)
                 {
-                    return InitializeBinding(new Binding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
-                        ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
+                    return InitializeBinding(new Binding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
+                        ((IBindingMemberExpressionNode) _sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
-                return InitializeBinding(new ExpressionBinding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
-                    BindingMugenExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression)_compiledExpression!), target, source, metadata);
+                return InitializeBinding(new ExpressionBinding((IMemberPathObserver) ((IBindingMemberExpressionNode) TargetExpression).GetBindingSource(target, source, metadata)!,
+                    BindingMugenExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression) _compiledExpression!), target, source, metadata);
             }
 
             private IBinding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
@@ -105,54 +105,60 @@ namespace MugenMvvm.Bindings.Core.Components
                 }
 
                 if (binding.State == BindingState.Valid)
-                    ((BindingExpressionParser)_context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, null, metadata);
+                    ((BindingExpressionParser) _context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, null, metadata);
                 return binding;
             }
 
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                var component = (BindingExpressionParser)_context.Owner;
-                _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, GetParameters(), metadata);
-                component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(component.Owner, _context);
-                TargetExpression = _context.TargetExpression;
-                var sourceExpression = _context.SourceExpression;
-
-                if (TargetExpression is not IBindingMemberExpressionNode)
-                    ExceptionManager.ThrowCannotUseExpressionExpected(TargetExpression, typeof(IBindingMemberExpressionNode));
-
-                if (sourceExpression is IBindingMemberExpressionNode)
+                lock (_context)
                 {
-                    _sourceExpression = sourceExpression;
-                    _compiledExpression = InitializedState;
-                }
-                else
-                {
-                    if (sourceExpression == null)
-                        ExceptionManager.ThrowExpressionNodeCannotBeNull(typeof(BindingBuilder));
-                    _sourceExpression = component._expressionCollectorVisitor.Collect(ref sourceExpression, metadata).GetRawValue()!;
-                    _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
-                }
+                    if (_compiledExpression != null)
+                        return;
 
-                var size = _context.Components.Count;
-                if (size > 1)
-                {
+                    var component = (BindingExpressionParser) _context.Owner;
+                    _context.Initialize(target, source, TargetExpression, (IExpressionNode?) _sourceExpression, GetParameters(), metadata);
+                    component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(component.Owner, _context);
+                    TargetExpression = _context.TargetExpression;
+                    var sourceExpression = _context.SourceExpression;
+
+                    if (TargetExpression is not IBindingMemberExpressionNode)
+                        ExceptionManager.ThrowCannotUseExpressionExpected(TargetExpression, typeof(IBindingMemberExpressionNode));
+
+                    if (sourceExpression is IBindingMemberExpressionNode)
+                    {
+                        _sourceExpression = sourceExpression;
+                        _compiledExpression = InitializedState;
+                    }
+                    else
+                    {
+                        if (sourceExpression == null)
+                            ExceptionManager.ThrowExpressionNodeCannotBeNull(typeof(BindingBuilder));
+                        _sourceExpression = component._expressionCollectorVisitor.Collect(ref sourceExpression, metadata).GetRawValue()!;
+                        _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
+                    }
+
+                    var size = _context.Components.Count;
+                    if (size > 1)
+                    {
+                        foreach (var componentPair in _context.Components)
+                        {
+                            if (componentPair.Value != null)
+                                ++size;
+                        }
+                    }
+
+                    var components = ItemOrArray.Get<object>(size);
+                    size = 0;
                     foreach (var componentPair in _context.Components)
                     {
                         if (componentPair.Value != null)
-                            ++size;
+                            components.SetAt(size++, componentPair.Value);
                     }
-                }
 
-                var components = ItemOrArray.Get<object>(size);
-                size = 0;
-                foreach (var componentPair in _context.Components)
-                {
-                    if (componentPair.Value != null)
-                        components.SetAt(size++, componentPair.Value);
+                    _parametersRaw = components.GetRawValue();
+                    _context.Clear();
                 }
-
-                _parametersRaw = components.GetRawValue();
-                _context.Clear();
             }
 
             private ItemOrIReadOnlyList<IExpressionNode> GetParameters()
@@ -161,7 +167,7 @@ namespace MugenMvvm.Bindings.Core.Components
                     return default;
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> parameters)
                     return ItemOrIReadOnlyList.FromList(parameters.ToList());
-                return new ItemOrIReadOnlyList<IExpressionNode>((IExpressionNode)_parametersRaw);
+                return new ItemOrIReadOnlyList<IExpressionNode>((IExpressionNode) _parametersRaw);
             }
         }
     }

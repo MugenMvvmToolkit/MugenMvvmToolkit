@@ -29,7 +29,7 @@ namespace MugenMvvm.Bindings.Core.Components
 
         public static int Priority { get; set; } = BindingComponentPriority.Delay;
 
-        public static ThreadExecutionMode ExecutionMode { get; set; } = ThreadExecutionMode.Main;
+        public static ThreadExecutionMode ExecutionMode { get; set; } = ThreadExecutionMode.Main;//todo fix
 
         public ushort Delay { get; }
 

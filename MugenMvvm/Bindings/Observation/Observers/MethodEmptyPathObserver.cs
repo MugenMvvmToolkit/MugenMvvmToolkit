@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Bindings.Enums;
+﻿using System;
+using MugenMvvm.Bindings.Enums;
 using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Members;
 using MugenMvvm.Bindings.Interfaces.Observation;
@@ -51,21 +52,25 @@ namespace MugenMvvm.Bindings.Observation.Observers
             this.ReleaseWeakReference();
         }
 
-        protected override void OnListenersAdded()
+        protected override (bool, Exception?) OnListenersAdded()
         {
             if (!_unsubscriber.IsEmpty)
-                return;
+                return default;
             var target = Target;
             if (target == null)
                 _unsubscriber = ActionToken.NoDo;
             else
             {
-                var member = MugenService.MemberManager.TryGetMember(MemberFlags.GetTargetType(ref target), MemberType.Method, MemberFlags, _method, TryGetMetadata());
+                var member = MugenService.MemberManager
+                                         .TryGetMembers(MemberFlags.GetTargetType(ref target), MemberType.Method, MemberFlags, _method, TryGetMetadata())
+                                         .FirstOrDefault();
                 if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this, TryGetMetadata());
                 if (_unsubscriber.IsEmpty)
                     _unsubscriber = ActionToken.NoDo;
             }
+
+            return default;
         }
 
         protected override void OnListenersRemoved() => _unsubscriber.Dispose();

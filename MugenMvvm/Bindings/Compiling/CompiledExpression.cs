@@ -59,36 +59,39 @@ namespace MugenMvvm.Bindings.Compiling
         public object? Invoke(ItemOrArray<ParameterValue> values, IReadOnlyMetadataContext? metadata)
         {
             var key = values.List ?? values.Item.Type ?? (object)Array.Empty<Type>();
-            if (!_cache.TryGetValue(key, out var invoker))
+            lock (_cache)
             {
-                invoker = CompileExpression(values);
+                if (!_cache.TryGetValue(key, out var invoker))
+                {
+                    invoker = CompileExpression(values);
+                    if (values.List == null)
+                        _cache[key] = invoker;
+                    else
+                    {
+                        var types = new Type[values.List.Length];
+                        for (var i = 0; i < values.List.Length; i++)
+                            types[i] = values.List[i].Type;
+                        _cache[types] = invoker;
+                    }
+                }
+
                 if (values.List == null)
-                    _cache[key] = invoker;
+                    _values[0] = values.Item.Value;
                 else
                 {
-                    var types = new Type[values.List.Length];
                     for (var i = 0; i < values.List.Length; i++)
-                        types[i] = values.List[i].Type;
-                    _cache[types] = invoker;
+                        _values[i] = values.List[i].Value;
                 }
-            }
 
-            if (values.List == null)
-                _values[0] = values.Item.Value;
-            else
-            {
-                for (var i = 0; i < values.List.Length; i++)
-                    _values[i] = values.List[i].Value;
-            }
-
-            _values[_values.Length - 1] = metadata;
-            try
-            {
-                return invoker.Invoke(_values);
-            }
-            finally
-            {
-                Array.Clear(_values, 0, _values.Length);
+                _values[_values.Length - 1] = metadata;
+                try
+                {
+                    return invoker.Invoke(_values);
+                }
+                finally
+                {
+                    Array.Clear(_values, 0, _values.Length);
+                }
             }
         }
 

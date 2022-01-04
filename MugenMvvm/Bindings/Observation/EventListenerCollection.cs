@@ -11,9 +11,9 @@ namespace MugenMvvm.Bindings.Observation
     {
         private const int MinValueTrim = 3;
         private const int MaxValueTrim = 100;
-
-        private object? _listeners;
+        
         private bool _raising;
+        private object? _listeners;
         private ushort _removedSize;
         private ushort _size;
 

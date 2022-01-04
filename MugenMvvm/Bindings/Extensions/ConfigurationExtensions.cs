@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Bindings.Compiling;
@@ -34,7 +32,6 @@ using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -50,6 +47,7 @@ namespace MugenMvvm.Bindings.Extensions
     {
         public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration, bool cacheResources = true)
         {
+            var syncRoot = new object();
             configuration.WithAppService(MugenService.Optional<IExpressionCompiler>() ?? new ExpressionCompiler())
                          .WithComponent(new ExpressionCompilerCache())
                          .WithComponent(new CompiledExpressionCompiler())
@@ -61,7 +59,8 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new MethodCallIndexerExpressionBuilder())
                          .WithComponent(new NullConditionalExpressionBuilder())
                          .WithComponent(new ExpressionOptimizer())
-                         .WithComponent(new UnaryExpressionBuilder());
+                         .WithComponent(new UnaryExpressionBuilder())
+                         .WithComponent(new SynchronizedExpressionCompilerDecorator(syncRoot));
 
             configuration.WithAppService(MugenService.Optional<IGlobalValueConverter>() ?? new GlobalValueConverter())
                          .WithComponent(new DefaultGlobalValueConverter());
@@ -79,7 +78,8 @@ namespace MugenMvvm.Bindings.Extensions
                                           .WithComponent(new BindingModeInitializer())
                                           .WithComponent(new BindingParameterInitializer())
                                           .WithComponent(new InlineBindingExpressionInitializer())
-                                          .WithComponent(new DelayBindingInitializer());
+                                          .WithComponent(new DelayBindingInitializer())
+                                          .WithComponent(new SynchronizedBindingManagerDecorator(syncRoot));
 
             var macrosPreInitializer = managerCfg.Service.GetMacrosPreInitializer();
             var macrosVisitor = new MacrosExpressionVisitor();
@@ -101,7 +101,8 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new MethodMemberAccessorDecorator())
                          .WithComponent(new MethodRequestMemberManagerDecorator())
                          .WithComponent(new NameRequestMemberManagerDecorator())
-                         .WithComponent(new ReflectionMemberProvider());
+                         .WithComponent(new ReflectionMemberProvider())
+                         .WithComponent(new SynchronizedMemberManagerDecorator(syncRoot));
 
             var cfg = configuration.WithAppService(MugenService.Optional<IObservationManager>() ?? new ObservationManager())
                                    .WithComponent(new EventInfoObserverProvider())
@@ -110,7 +111,8 @@ namespace MugenMvvm.Bindings.Extensions
                                    .WithComponent(new MemberPathProvider())
                                    .WithComponent(new MemberPathProviderCache())
                                    .WithComponent(new NonObservableMemberObserverDecorator())
-                                   .WithComponent(new PropertyChangedObserverProvider());
+                                   .WithComponent(new PropertyChangedObserverProvider())
+                                   .WithComponent(new SynchronizedObservationManagerDecorator(syncRoot));
             if (cacheResources)
                 cfg.WithComponent(new ResourceMemberPathObserverCache());
 
@@ -134,11 +136,13 @@ namespace MugenMvvm.Bindings.Extensions
                          .WithComponent(new ConstantExpressionConverter())
                          .WithComponent(new MemberExpressionConverter())
                          .WithComponent(new MethodCallExpressionConverter())
+                         .WithComponent(new InvocationExpressionConverter())
                          .WithComponent(new ConditionExpressionConverter())
                          .WithComponent(new IndexerExpressionConverter())
                          .WithComponent(new LambdaExpressionConverter())
                          .WithComponent(new NewArrayExpressionConverter())
-                         .WithComponent(new DefaultExpressionConverter());
+                         .WithComponent(new DefaultExpressionConverter())
+                         .WithComponent(new SynchronizedExpressionParserDecorator(syncRoot));
 
             configuration.WithAppService(MugenService.Optional<IResourceManager>() ?? new ResourceManager())
                          .WithComponent(new ResourceResolver())
@@ -152,7 +156,6 @@ namespace MugenMvvm.Bindings.Extensions
             var memberManager = configuration.GetService<IMemberManager>();
             var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
             RegisterObjectAttachedMembers(attachedMemberProvider);
-            RegisterCollectionAttachedMembers(attachedMemberProvider);
             RegisterValidationAttachedMembers(memberManager, attachedMemberProvider);
             return configuration;
         }
@@ -164,6 +167,7 @@ namespace MugenMvvm.Bindings.Extensions
                                                    .DataContext()
                                                    .GetBuilder()
                                                    .Inherits()
+                                                   .EqualityComparer(Default.ReferenceEqualityComparer)
                                                    .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
                                                    .Root()
@@ -178,9 +182,9 @@ namespace MugenMvvm.Bindings.Extensions
                                                    .WithParameters(new[]
                                                    {
                                                        AttachedMemberBuilder.Parameter<string>().Build(),
-                                                       AttachedMemberBuilder.Parameter<string>().DefaultValue(BoxingExtensions.Box(1)).Build()
+                                                       AttachedMemberBuilder.Parameter<int>().DefaultValue(BoxingExtensions.Box(1)).Build()
                                                    })
-                                                   .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string)args[0]!, (int)args[1]!, metadata))
+                                                   .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string) args[0]!, (int) args[1]!, metadata))
                                                    .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                    .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
@@ -210,7 +214,7 @@ namespace MugenMvvm.Bindings.Extensions
                                                        if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
                                                                        .TrySetItemsSource(viewManager, target, value, metadata))
                                                            ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                                                       ((INotifiableMemberInfo)member).Raise(target, null, metadata);
+                                                       ((INotifiableMemberInfo) member).Raise(target, null, metadata);
                                                    })
                                                    .ObservableAutoHandler()
                                                    .Build());
@@ -231,37 +235,13 @@ namespace MugenMvvm.Bindings.Extensions
                                             if (!viewManager.GetComponents<IViewCollectionManagerComponent>(metadata)
                                                             .TrySetItemsSource(viewManager, target, value, metadata))
                                                 ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-                                            ((INotifiableMemberInfo)member).Raise(target, null, metadata);
+                                            ((INotifiableMemberInfo) member).Raise(target, null, metadata);
                                         })
                                         .ObservableAutoHandler()
                                         .Build();
             attachedMemberProvider.Register(itemsSourceRaw);
             if (itemsSourceRawAlias != null)
                 attachedMemberProvider.Register(itemsSourceRaw, itemsSourceRawAlias);
-        }
-
-        public static void RegisterCollectionAttachedMembers(AttachedMemberProvider attachedMemberProvider)
-        {
-            Should.NotBeNull(attachedMemberProvider, nameof(attachedMemberProvider));
-            attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(nameof(IReadOnlyObservableCollection.Count) +
-                                                                                                   BindingInternalConstant.ChangedEventPostfix)
-                                            .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
-                                            .Build());
-            attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Event<IComponentOwner<IReadOnlyObservableCollection>>(BindingInternalConstant.IndexerGetterName +
-                                                                                                   BindingInternalConstant.ChangedEventPostfix)
-                                            .CustomImplementation((member, target, listener, metadata) => BindingCollectionAdapter.GetOrAdd(target).Listeners.Add(listener))
-                                            .Build());
-            attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Property<IReadOnlyObservableCollection, int>(nameof(IObservableCollection.Count))
-                                            .CustomGetter((member, target, metadata) => BindingCollectionAdapter.GetOrAdd(target).Count)
-                                            .Build());
-            attachedMemberProvider.Register(AttachedMemberBuilder
-                                            .Method<IReadOnlyObservableCollection, object?>(BindingInternalConstant.IndexerGetterName)
-                                            .WithParameters(AttachedMemberBuilder.Parameter<int>().Build())
-                                            .InvokeHandler((member, target, args, metadata) => BindingCollectionAdapter.GetOrAdd(target)[(int)args[0]!])
-                                            .Build());
         }
 
         public static void RegisterValidationAttachedMembers(IMemberManager memberManager, AttachedMemberProvider attachedMemberProvider)
@@ -285,8 +265,8 @@ namespace MugenMvvm.Bindings.Extensions
                                                   target.GetService(false)!.AddComponent(component);
                                                   return ActionToken.FromDelegate((t, c) =>
                                                   {
-                                                      var hasService = (IHasService<IValidator>?)((IWeakReference)t!).Target;
-                                                      hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>)c!);
+                                                      var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
+                                                      hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>) c!);
                                                   }, target.ToWeakReference(), component);
                                               })
                                               .Build();
@@ -387,65 +367,6 @@ namespace MugenMvvm.Bindings.Extensions
                                                    .WithParameters(stringsParameter)
                                                    .InvokeHandler(getErrorsHandler)
                                                    .Build());
-        }
-
-        private sealed class BindingCollectionAdapter : BindableCollectionAdapter, IComponent<IReadOnlyObservableCollection>
-        {
-            private BindingCollectionAdapter()
-            {
-                Listeners = new EventListenerCollection();
-                BatchDelay = 0;
-            }
-
-            public EventListenerCollection Listeners { get; }
-
-            public static BindingCollectionAdapter GetOrAdd(IComponentOwner<IReadOnlyObservableCollection> collection)
-                => collection.GetOrAddComponent(collection, (owner, context) => new BindingCollectionAdapter { Collection = (IEnumerable)owner });
-
-            protected override bool IsChangeEventSupported(object? item, object? args) => false;
-
-            protected override void BatchUpdate(List<CollectionChangedEvent> events, int version)
-            {
-                base.BatchUpdate(events, version);
-                Raise();
-            }
-
-            protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
-            {
-                base.OnAdded(item, index, batchUpdate, version);
-                if (!batchUpdate)
-                    Raise();
-            }
-
-            protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
-            {
-                base.OnRemoved(item, index, batchUpdate, version);
-                if (!batchUpdate)
-                    Raise();
-            }
-
-            protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
-            {
-                base.OnMoved(item, oldIndex, newIndex, batchUpdate, version);
-                if (!batchUpdate)
-                    Raise();
-            }
-
-            protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
-            {
-                base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
-                if (!batchUpdate)
-                    Raise();
-            }
-
-            protected override void OnReset(IEnumerable<object?>? items, Dictionary<(int index, object? args), object?>? changedItems, bool batchUpdate, int version)
-            {
-                base.OnReset(items, changedItems, batchUpdate, version);
-                if (!batchUpdate)
-                    Raise();
-            }
-
-            private void Raise() => Listeners.Raise(Collection, EventArgs.Empty, null);
         }
 
         private sealed class ErrorsChangedValidatorListener : IValidatorErrorsChangedListener

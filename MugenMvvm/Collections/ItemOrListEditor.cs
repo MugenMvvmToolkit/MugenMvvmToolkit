@@ -7,7 +7,7 @@ using MugenMvvm.Extensions;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public struct ItemOrListEditor<T>
+    public struct ItemOrListEditor<T>//todo pooled
     {
         private bool _hasItem;
         private T? _item;

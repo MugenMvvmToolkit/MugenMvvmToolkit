@@ -22,6 +22,7 @@ namespace MugenMvvm.Bindings.Observation
             Optional = optional;
             ObservableMethodName = observable ? observableMethodName : null;
             Expression = expression;
+            IsWeak = true;
         }
 
         public bool HasStablePath { get; protected set; }
@@ -38,6 +39,8 @@ namespace MugenMvvm.Bindings.Observation
         public string? ObservableMethodName { get; protected set; }
 
         public bool Optional { get; protected set; }
+
+        public bool IsWeak { get; protected set; } //todo fix, clear observer (on dispose) review weak value in observer, closure suppress delegate binding, compiled expression invoke generic value type and set, observer chain
 
         public IMemberPath Path { get; protected set; }
 

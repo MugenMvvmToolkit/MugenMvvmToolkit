@@ -17,7 +17,7 @@ namespace MugenMvvm.Extensions
 
         public static Func<Delegate, bool> ClosureDetector { get; set; } = DefaultClosureDetector;
 
-        public static bool HasClosure(this Delegate d)
+        public static bool HasClosure(this Delegate d)//todo target interface
         {
             if (d.Target == null)
                 return false;

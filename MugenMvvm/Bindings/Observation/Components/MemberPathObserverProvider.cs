@@ -32,19 +32,20 @@ namespace MugenMvvm.Bindings.Observation.Components
                 if (membersCount == 0)
                     return new MethodEmptyPathObserver(observerRequest.ObservableMethodName, target, observerRequest.MemberFlags);
                 if (membersCount == 1)
-                    return new MethodSinglePathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.Optional);
+                    return new MethodSinglePathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.Optional,
+                        observerRequest.IsWeak);
                 return new MethodMultiPathObserver(observerRequest.ObservableMethodName, target, path, observerRequest.MemberFlags, observerRequest.HasStablePath,
-                    observerRequest.Optional);
+                    observerRequest.Optional, observerRequest.IsWeak);
             }
 
             if (membersCount == 0)
                 return new EmptyPathObserver(target);
             if (membersCount == 1)
-                return new SinglePathObserver(target, path, observerRequest.MemberFlags, observerRequest.Optional);
+                return new SinglePathObserver(target, path, observerRequest.MemberFlags, observerRequest.Optional, observerRequest.IsWeak);
 
             if (observerRequest.Observable)
-                return new MultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
-            return new RootMultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+                return new MultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional, observerRequest.IsWeak);
+            return new RootMultiPathObserver(target, path, observerRequest.MemberFlags, observerRequest.HasStablePath, observerRequest.Optional, observerRequest.IsWeak);
         }
     }
 }

@@ -82,8 +82,8 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
         }
 
         protected override MultiPathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional) =>
-            new MethodMultiPathObserver(MethodName, target, path, memberFlags, hasStablePath, optional);
+            new MethodMultiPathObserver(MethodName, target, path, memberFlags, hasStablePath, optional, false);
 
-        protected override MultiPathObserver GetObserver(object target) => new MethodMultiPathObserver(MethodName, target, DefaultPath, MemberFlags.All, false, false);
+        protected override MultiPathObserver GetObserver(object target) => new MethodMultiPathObserver(MethodName, target, DefaultPath, MemberFlags.All, false, false, true);
     }
 }

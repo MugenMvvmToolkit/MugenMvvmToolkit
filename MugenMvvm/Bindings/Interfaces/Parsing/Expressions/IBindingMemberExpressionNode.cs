@@ -21,7 +21,7 @@ namespace MugenMvvm.Bindings.Interfaces.Parsing.Expressions
 
         object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path);
 
-        object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
+        object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata); //todo generic?
 
         IBindingMemberExpressionNode Update(int index, EnumFlags<BindingMemberExpressionFlags> flags, EnumFlags<MemberFlags> memberFlags, string? observableMethodName);
     }

@@ -57,9 +57,9 @@ namespace MugenMvvm.UnitTests.Bindings.Observation.Observers
                 disposed => currentListener.ShouldBeNull(), 0);
         }
 
-        protected override RootMultiPathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.All, false, false);
+        protected override RootMultiPathObserver GetObserver(object target) => new(target, DefaultPath, MemberFlags.All, false, false, true);
 
         protected override RootMultiPathObserver GetObserver(object target, IMemberPath path, EnumFlags<MemberFlags> memberFlags, bool hasStablePath, bool optional) =>
-            new(target, path, memberFlags, hasStablePath, optional);
+            new(target, path, memberFlags, hasStablePath, optional, false);
     }
 }

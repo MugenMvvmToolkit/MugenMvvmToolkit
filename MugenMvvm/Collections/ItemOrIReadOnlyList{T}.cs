@@ -10,7 +10,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ItemOrIReadOnlyList<T> : IReadOnlyList<T>
+    public readonly struct ItemOrIReadOnlyList<T> : IReadOnlyList<T>//todo replace to collection
     {
         internal readonly int FixedCount;
         public readonly T? Item;

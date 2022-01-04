@@ -1,17 +1,15 @@
 ﻿using System;
 using MugenMvvm.Bindings.Constants;
-using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Core.Components;
 using MugenMvvm.Bindings.Interfaces.Observation;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Core.Components
 {
-    public sealed class OneWayBindingMode : IAttachableComponent, IBindingSourceObserverListener, IHasPriority
+    public sealed class OneWayBindingMode : IAttachableComponent, IBindingSourceObserverListener, IBindingTargetObserverListener, IHasPriority//todo update listener
     {
         public static readonly OneWayBindingMode Instance = new();
 
@@ -25,13 +23,7 @@ namespace MugenMvvm.Bindings.Core.Components
         {
         }
 
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            var binding = (IBinding) owner;
-            binding.UpdateTarget();
-            if (!binding.Target.IsAllMembersAvailable())
-                binding.AddComponent(OneTimeHandlerComponent.Instance, metadata);
-        }
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => ((IBinding) owner).UpdateTarget();
 
         void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 
@@ -41,30 +33,14 @@ namespace MugenMvvm.Bindings.Core.Components
         {
         }
 
-        internal sealed class OneTimeHandlerComponent : IBindingTargetObserverListener
+        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
+
+        void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
-            public static readonly OneTimeHandlerComponent Instance = new();
+        }
 
-            private OneTimeHandlerComponent()
-            {
-            }
-
-            public void OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding);
-
-            public void OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => Invoke(binding);
-
-            public void OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
-            {
-            }
-
-            private void Invoke(IBinding binding)
-            {
-                if (binding.Target.IsAllMembersAvailable())
-                {
-                    binding.RemoveComponent(this);
-                    binding.UpdateTarget();
-                }
-            }
+        void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
+        {
         }
     }
 }

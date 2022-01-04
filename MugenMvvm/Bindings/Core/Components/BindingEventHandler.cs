@@ -24,7 +24,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Bindings.Core.Components
 {
     public class BindingEventHandler : ITargetValueSetterComponent, IAttachableComponent, IDetachableComponent, IHasAttachConditionComponent, IEventListener,
-        IHasEventArgsComponent, IHasPriority
+        IHasEventArgsComponent, IHasPriority//todo lock
     {
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
@@ -81,7 +81,7 @@ namespace MugenMvvm.Bindings.Core.Components
             return true;
         }
 
-        internal void OnCanExecuteChanged()
+        private void OnCanExecuteChanged()
         {
             if (_currentValue is not ICommand cmd)
                 return;
