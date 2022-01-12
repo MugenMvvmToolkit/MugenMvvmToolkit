@@ -91,7 +91,7 @@ namespace MugenMvvm.Collections.Components
                 return true;
 
             var flattenItemInfo = _getNestedCollection(itemT!, default);
-            if (flattenItemInfo.IsEmpty)
+            if (flattenItemInfo.IsEmpty(collection))
                 return true;
 
             var flattenCollectionItem = flattenItemInfo.GetCollectionItem(itemT, this);
@@ -217,7 +217,7 @@ namespace MugenMvvm.Collections.Components
             if (oldIndex < 0)
             {
                 var newFlattenInfo = newItem.TryCast<T>(_allowNull, out var nT) ? _getNestedCollection(nT!, default) : default;
-                if (newFlattenInfo.IsEmpty)
+                if (newFlattenInfo.IsEmpty(collection))
                 {
                     index = GetIndex(index, oldIndex);
                     return true;
@@ -234,7 +234,7 @@ namespace MugenMvvm.Collections.Components
             var currentFlattenItem = _collectionItems.Indexes[oldIndex].Value;
             var currentFlattenItemInfo = currentFlattenItem.ToFlattenItemInfo();
             var flattenItemInfo = newItem.TryCast<T>(_allowNull, out var newItemT) ? _getNestedCollection(newItemT!, isReplace ? default : currentFlattenItemInfo) : default;
-            if (flattenItemInfo.IsEmpty)
+            if (flattenItemInfo.IsEmpty(collection))
             {
                 index = GetIndex(index, oldIndex);
                 _collectionItems.RemoveAt(oldIndex);
@@ -344,7 +344,7 @@ namespace MugenMvvm.Collections.Components
             if (flattenItem == null)
             {
                 var flattenItemInfo = _getNestedCollection(itemT!, default);
-                if (flattenItemInfo.IsEmpty)
+                if (flattenItemInfo.IsEmpty(source))
                     return;
 
                 flattenItem = flattenItemInfo.GetCollectionItem(item, this);
@@ -356,7 +356,7 @@ namespace MugenMvvm.Collections.Components
                 if (currentFlattenItemInfo != flattenItemInfo)
                 {
                     flattenItem.Detach(this);
-                    if (flattenItemInfo.IsEmpty)
+                    if (flattenItemInfo.IsEmpty(source))
                         return;
                     isRecycled = false;
                     flattenItem = flattenItemInfo.GetCollectionItem(item, this);

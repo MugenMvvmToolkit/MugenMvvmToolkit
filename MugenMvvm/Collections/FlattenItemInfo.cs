@@ -21,8 +21,8 @@ namespace MugenMvvm.Collections
             DecoratedItems = decoratedItems;
         }
 
-        [MemberNotNullWhen(false, nameof(Items))]
-        public bool IsEmpty => Items == null;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool IsEmpty(IReadOnlyObservableCollection? collection) => Items == null || ReferenceEquals(Items, collection);
 
         internal FlattenCollectionItemBase GetCollectionItem(object? item, FlattenCollectionDecorator decorator)
         {
