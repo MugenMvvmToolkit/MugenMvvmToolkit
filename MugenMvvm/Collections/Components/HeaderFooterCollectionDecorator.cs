@@ -29,15 +29,40 @@ namespace MugenMvvm.Collections.Components
         [Preserve(Conditional = true)]
         public IReadOnlyList<object> Footer => _footer ?? Default.ReadOnlyList<object>();
 
+        public HeaderFooterCollectionDecorator SetHeaderFooter(ItemOrIReadOnlyList<object> header, ItemOrIReadOnlyList<object> footer)
+        {
+            var decoratorManager = DecoratorManager;
+            var owner = OwnerOptional;
+            if (decoratorManager == null || owner == null)
+            {
+                SetValue(header, false);
+                SetValue(footer, true);
+                return this;
+            }
+
+            using var _ = owner.Lock();
+            if (DecoratorManager == null)
+            {
+                SetValue(header, false);
+                SetValue(footer, true);
+                return this;
+            }
+
+            using var __ = owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
+            Update(owner, decoratorManager, header, false);
+            Update(owner, decoratorManager, footer, true);
+            return this;
+        }
+
         public HeaderFooterCollectionDecorator SetHeader(ItemOrIReadOnlyList<object> header)
         {
             Update(header, false);
             return this;
         }
 
-        public HeaderFooterCollectionDecorator SetFooter(ItemOrIReadOnlyList<object> header)
+        public HeaderFooterCollectionDecorator SetFooter(ItemOrIReadOnlyList<object> footer)
         {
-            Update(header, true);
+            Update(footer, true);
             return this;
         }
 
@@ -189,6 +214,11 @@ namespace MugenMvvm.Collections.Components
             }
 
             using var __ = owner.BatchUpdateDecorators(owner.GetBatchUpdateManager());
+            Update(owner, decoratorManager, value, isFooter);
+        }
+
+        private void Update(IReadOnlyObservableCollection owner, ICollectionDecoratorManagerComponent decoratorManager, ItemOrIReadOnlyList<object> value, bool isFooter)
+        {
             if (!value.IsEmpty)
             {
                 if (isFooter)
