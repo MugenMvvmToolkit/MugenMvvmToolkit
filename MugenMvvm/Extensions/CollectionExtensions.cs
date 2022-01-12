@@ -419,7 +419,7 @@ namespace MugenMvvm.Extensions
         public static DecoratorsConfiguration<T> WithHeaderFooter<T>(this DecoratorsConfiguration<T> configuration, ItemOrIReadOnlyList<object> header,
             ItemOrIReadOnlyList<object> footer, out HeaderFooterCollectionDecorator decorator)
         {
-            decorator = new HeaderFooterCollectionDecorator(configuration.Priority).SetHeader(header).SetFooter(footer);
+            decorator = new HeaderFooterCollectionDecorator(configuration.Priority).SetHeaderFooter(header, footer);
             return configuration.Add(decorator);
         }
 
@@ -1179,10 +1179,10 @@ namespace MugenMvvm.Extensions
         private static FlattenItemInfo SelectMany<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) => new(selector(item), false);
 
         private static FlattenItemInfo SelectManyDecoratedRecycle<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) =>
-            currentItem.IsEmpty ? new FlattenItemInfo(selector(item), true) : currentItem;
+            currentItem.IsEmpty(null) ? new FlattenItemInfo(selector(item), true) : currentItem;
 
         private static FlattenItemInfo SelectManyRecycle<T>(this Func<T, IEnumerable?> selector, T item, FlattenItemInfo currentItem) =>
-            currentItem.IsEmpty ? new FlattenItemInfo(selector(item), false) : currentItem;
+            currentItem.IsEmpty(null) ? new FlattenItemInfo(selector(item), false) : currentItem;
 
         private static (int total, int count) AllSelector<T>(this Func<T, bool> selector, T item) => (1, selector(item) ? 1 : 0);
 

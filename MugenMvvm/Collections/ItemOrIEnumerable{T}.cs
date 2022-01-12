@@ -37,7 +37,7 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => FixedCount == 0 && List == null;
         }
-        
+
         public bool HasItem
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -52,6 +52,9 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIEnumerable<T>(List<T>? items) => ItemOrIEnumerable.FromList(items);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrIEnumerable<TTo> CastTo<TTo>() => new((TTo?) (object?) Item, (IEnumerable<TTo>?) List, FixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Count() => FixedCount == 0 ? List.CountEx() : FixedCount;
@@ -76,7 +79,7 @@ namespace MugenMvvm.Collections
                 return new List<T>(List);
             if (FixedCount == 0)
                 return new List<T>();
-            return new List<T> { Item! };
+            return new List<T> {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,7 +89,7 @@ namespace MugenMvvm.Collections
                 return List.ToArray();
             if (FixedCount == 0)
                 return Array.Empty<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

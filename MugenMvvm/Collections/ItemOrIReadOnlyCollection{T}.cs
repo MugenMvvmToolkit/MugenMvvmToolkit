@@ -75,13 +75,16 @@ namespace MugenMvvm.Collections
         public IEnumerable<T> AsEnumerable() => AsList();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrIReadOnlyCollection<TTo> CastTo<TTo>() => new((TTo?) (object?) Item, (IReadOnlyCollection<TTo>?) List, FixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IReadOnlyCollection<T> AsList()
         {
             if (List != null)
                 return List;
             if (FixedCount == 0)
                 return Default.ReadOnlyCollection<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -91,7 +94,7 @@ namespace MugenMvvm.Collections
                 return new List<T>(List);
             if (FixedCount == 0)
                 return new List<T>();
-            return new List<T> { Item! };
+            return new List<T> {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,7 +104,7 @@ namespace MugenMvvm.Collections
                 return List.ToArray();
             if (FixedCount == 0)
                 return Array.Empty<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

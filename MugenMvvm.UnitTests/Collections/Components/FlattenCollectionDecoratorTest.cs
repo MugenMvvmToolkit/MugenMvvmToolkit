@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 (o, currentInfo) =>
                 {
                     var result = o == null ? new FlattenItemInfo(NullValue, false) : new FlattenItemInfo(o is string ? null : o, o != _itemCollection2);
-                    if (!currentInfo.IsEmpty)
+                    if (!currentInfo.IsEmpty(null))
                         result.ShouldEqual(currentInfo);
                     return result;
                 },

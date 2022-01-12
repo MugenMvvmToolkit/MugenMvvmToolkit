@@ -10,7 +10,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ItemOrIReadOnlyList<T> : IReadOnlyList<T>//todo replace to collection
+    public readonly struct ItemOrIReadOnlyList<T> : IReadOnlyList<T> //todo replace to collection
     {
         internal readonly int FixedCount;
         public readonly T? Item;
@@ -37,13 +37,13 @@ namespace MugenMvvm.Collections
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => FixedCount == 0 && List == null;
         }
-        
+
         public bool HasItem
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => FixedCount == 1 && List == null;
         }
-        
+
         public int Count
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -65,11 +65,11 @@ namespace MugenMvvm.Collections
                 if (List != null)
                 {
                     if (FixedCount != 0)
-                        return ((T[])List)[index];
+                        return ((T[]) List)[index];
                     return List[index];
                 }
 
-                if ((uint)index < (uint)FixedCount)
+                if ((uint) index < (uint) FixedCount)
                     return Item!;
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
                 return default!;
@@ -92,6 +92,9 @@ namespace MugenMvvm.Collections
         public static implicit operator ItemOrIReadOnlyCollection<T>(ItemOrIReadOnlyList<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.FixedCount);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrIReadOnlyList<TTo> CastTo<TTo>() => new((TTo?) (object?) Item, (IReadOnlyList<TTo>?) List, FixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsEnumerable()
         {
             if (List != null)
@@ -108,7 +111,7 @@ namespace MugenMvvm.Collections
                 return List;
             if (FixedCount == 0)
                 return Default.ReadOnlyList<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -118,7 +121,7 @@ namespace MugenMvvm.Collections
                 return new List<T>(List);
             if (FixedCount == 0)
                 return new List<T>();
-            return new List<T> { Item! };
+            return new List<T> {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -128,7 +131,7 @@ namespace MugenMvvm.Collections
                 return List.ToArray();
             if (FixedCount == 0)
                 return Array.Empty<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

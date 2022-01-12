@@ -51,7 +51,7 @@ namespace MugenMvvm.Collections
             {
                 if (List != null)
                     return List[index];
-                if ((uint)index < (uint)Count)
+                if ((uint) index < (uint) Count)
                     return Item!;
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
                 return default!;
@@ -76,6 +76,9 @@ namespace MugenMvvm.Collections
         public static implicit operator ItemOrIReadOnlyList<T>(ItemOrArray<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.Count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrArray<TTo> CastTo<TTo>() => new((TTo?) (object?) Item, (TTo[]?) (object?) List, Count);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsEnumerable()
         {
             if (List != null)
@@ -92,7 +95,7 @@ namespace MugenMvvm.Collections
                 return List;
             if (Count == 0)
                 return Array.Empty<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -102,7 +105,7 @@ namespace MugenMvvm.Collections
                 return new List<T>(List);
             if (Count == 0)
                 return new List<T>();
-            return new List<T> { Item! };
+            return new List<T> {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -112,7 +115,7 @@ namespace MugenMvvm.Collections
                 return List.ToArray();
             if (Count == 0)
                 return Array.Empty<T>();
-            return new[] { Item! };
+            return new[] {Item!};
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -122,7 +125,7 @@ namespace MugenMvvm.Collections
         private IEnumerator<T> GetEnumeratorRef()
         {
             if (List != null)
-                return ((IEnumerable<T>)List).GetEnumerator();
+                return ((IEnumerable<T>) List).GetEnumerator();
             if (Count == 0)
                 return Default.Enumerator<T>();
             return Default.SingleItemEnumerator(Item!);

@@ -25,7 +25,7 @@ namespace MugenMvvm.Commands.Components
         private volatile TaskCompletionSource<object?>? _tcs;
         private CancellationTokenSource? _cancellationTokenSource;
 
-        public DelegateCommandExecutor(Delegate execute, Delegate? canExecute, bool allowMultipleExecution)
+        public DelegateCommandExecutor(Delegate execute, Delegate? canExecute, bool allowMultipleExecution, int priority = CommandComponentPriority.Executor)
         {
             Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
@@ -37,9 +37,10 @@ namespace MugenMvvm.Commands.Components
                 or Func<T, CancellationToken, IReadOnlyMetadataContext?, Task<bool>>
                 or Func<CancellationToken, IReadOnlyMetadataContext?, Task>
                 or Func<T, CancellationToken, IReadOnlyMetadataContext?, Task>;
+            Priority = priority;
         }
 
-        public int Priority => CommandComponentPriority.Executor;
+        public int Priority { get; }
 
         public bool IsRecursiveExecutionSupported { get; set; }
 
@@ -184,10 +185,20 @@ namespace MugenMvvm.Commands.Components
             }
 
             if (executeAction is Action<IReadOnlyMetadataContext?> execute)
+            {
                 execute(metadata);
-            else
-                ((Action<T, IReadOnlyMetadataContext?>) executeAction).Invoke((T) parameter!, metadata);
-            return true;
+                return true;
+            }
+
+            if (executeAction is Action<T, IReadOnlyMetadataContext?> executeP)
+            {
+                executeP.Invoke((T) parameter!, metadata);
+                return true;
+            }
+
+            if (executeAction is Func<IReadOnlyMetadataContext?, bool> executeFunc)
+                return executeFunc(metadata);
+            return ((Func<T, IReadOnlyMetadataContext?, bool>) executeAction).Invoke((T) parameter!, metadata);
         }
     }
 }

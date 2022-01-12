@@ -29,6 +29,18 @@ namespace MugenMvvm.Extensions
             where T : class? => editor.GetRawValueInternal();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrIEnumerable<TTo> As<T, TTo>(this ItemOrIEnumerable<T> value) where T : class, TTo => new(value.Item, value.List, value.FixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrIReadOnlyCollection<TTo> As<T, TTo>(this ItemOrIReadOnlyCollection<T> value) where T : class, TTo => new(value.Item, value.List, value.FixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrIReadOnlyList<TTo> As<T, TTo>(this ItemOrIReadOnlyList<T> value) where T : class, TTo => new(value.Item, value.List, value.FixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrArray<TTo> As<T, TTo>(this ItemOrArray<T> value) where T : class, TTo => new(value.Item, value.List, value.Count);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T? FirstOrDefault<T>(this ItemOrIEnumerable<T> itemOrList)
         {
             foreach (var item in itemOrList)
