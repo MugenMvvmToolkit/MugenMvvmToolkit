@@ -26,17 +26,14 @@ namespace MugenMvvm.Windows.Extensions
     {
         public static MugenApplicationConfiguration WpfConfiguration(this MugenApplicationConfiguration configuration, bool listenAppLifecycle = true)
         {
-            configuration.ServiceConfiguration<IPresenter>()
-                         .WithComponent(new WpfWindowPresenterMediator());
-
-            configuration.ServiceConfiguration<IAttachedValueManager>()
-                         .WithComponent(new DependencyObjectAttachedValueStorageProvider());
-
-            configuration.ServiceConfiguration<IBindingManager>()
-                         .WithComponent(new BindingExtensionExpressionParser());
-
-            configuration.ServiceConfiguration<IViewManager>()
-                         .WithComponent(new ItemsControlCollectionManager());
+            configuration = configuration.ServiceConfiguration<IPresenter>()
+                                         .WithComponent(new WpfWindowPresenterMediator())
+                                         .ServiceConfiguration<IAttachedValueManager>()
+                                         .WithComponent(new DependencyObjectAttachedValueStorageProvider())
+                                         .ServiceConfiguration<IBindingManager>()
+                                         .WithComponent(new BindingExtensionExpressionParser())
+                                         .ServiceConfiguration<IViewManager>()
+                                         .WithComponent(new ItemsControlCollectionManager());
 
             if (listenAppLifecycle)
             {
@@ -93,7 +90,7 @@ namespace MugenMvvm.Windows.Extensions
                                                            .RawMethod
                                                            .GetBuilder()
                                                            .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build())
-                                                           .InvokeHandler((member, target, args, metadata) => target.FindName((string)args.Item!))
+                                                           .InvokeHandler((member, target, args, metadata) => target.FindName((string) args.Item!))
                                                            .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
 

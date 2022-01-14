@@ -32,9 +32,9 @@ namespace MugenMvvm.ViewModels.Components
         public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewModelLifecycleState.Disposing)
+            if (lifecycleState.BaseState == ViewModelLifecycleState.Disposing)
                 OnDisposing(viewModel, state, metadata);
-            else if (lifecycleState == ViewModelLifecycleState.Disposed)
+            else if (lifecycleState.BaseState == ViewModelLifecycleState.Disposed)
                 OnDisposed(viewModel, state, metadata);
         }
 

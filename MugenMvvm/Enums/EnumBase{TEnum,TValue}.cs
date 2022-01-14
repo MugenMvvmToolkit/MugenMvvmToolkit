@@ -32,10 +32,12 @@ namespace MugenMvvm.Enums
         // ReSharper disable once StaticMemberInGenericType
         public static bool? ThrowOnDuplicate { get; set; }
 
-        protected EnumBase(TValue value, string? name = null)
+        protected EnumBase(TValue value, string? name = null, bool register = true)
         {
             Value = value;
             _name = name;
+            if (!register)
+                return;
             lock (_enumerations)
             {
                 if (!_enumerations.ContainsKey(value))

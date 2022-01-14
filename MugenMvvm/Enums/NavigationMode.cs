@@ -15,8 +15,9 @@ namespace MugenMvvm.Enums
         public static readonly NavigationMode Refresh = new(nameof(Refresh)) {IsRefresh = true};
         public static readonly NavigationMode Restore = new(nameof(Restore)) {IsRefresh = true, IsRestore = true};
         public static readonly NavigationMode Close = new(nameof(Close)) {IsClose = true};
+        public static readonly NavigationMode Back = new(nameof(Back)) {IsClose = true};
 
-        public NavigationMode(string value, string? name = null) : base(value, name)
+        public NavigationMode(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

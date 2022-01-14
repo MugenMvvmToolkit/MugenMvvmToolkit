@@ -15,7 +15,7 @@ namespace MugenMvvm.Enums
             ThrowOnDuplicate = false;
         }
 
-        public SerializationFormat(string value, string? name = null) : base(value, name)
+        public SerializationFormat(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

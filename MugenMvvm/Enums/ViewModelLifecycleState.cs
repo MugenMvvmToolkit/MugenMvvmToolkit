@@ -19,15 +19,21 @@ namespace MugenMvvm.Enums
         public static readonly ViewModelLifecycleState Preserved = new(nameof(Preserved));
         public static readonly ViewModelLifecycleState Restoring = new(nameof(Restoring));
         public static readonly ViewModelLifecycleState Restored = new(nameof(Restored));
+        private ViewModelLifecycleState? _baseState;
 
-        public ViewModelLifecycleState(string value, string? name = null)
-            : base(value, name)
+        public ViewModelLifecycleState(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 
         [Preserve(Conditional = true)]
         protected ViewModelLifecycleState()
         {
+        }
+
+        public ViewModelLifecycleState BaseState
+        {
+            get => _baseState ?? this;
+            set => _baseState = value;
         }
     }
 }

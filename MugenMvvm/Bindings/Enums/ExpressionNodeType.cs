@@ -22,7 +22,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly ExpressionNodeType BindingParameter = new(nameof(BindingParameter));
         public static readonly ExpressionNodeType TypeAccess = new(nameof(TypeAccess));
 
-        public ExpressionNodeType(string value, string? name = null) : base(value, name)
+        public ExpressionNodeType(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

@@ -13,7 +13,7 @@ namespace MugenMvvm.Enums
         public static readonly MessengerResult Ignored = new(2);
         public static readonly MessengerResult Invalid = new(3);
 
-        public MessengerResult(int value, string? name = null) : base(value, name)
+        public MessengerResult(int value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

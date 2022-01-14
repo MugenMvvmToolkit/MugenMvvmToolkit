@@ -19,15 +19,28 @@ namespace MugenMvvm.Enums
         public static readonly ViewLifecycleState Cleared = new(nameof(Cleared));
         public static readonly ViewLifecycleState Closing = new(nameof(Closing));
         public static readonly ViewLifecycleState Closed = new(nameof(Closed));
+        private NavigationMode? _navigationMode;
+        private ViewLifecycleState? _baseState;
 
-        public ViewLifecycleState(string value, string? name = null)
-            : base(value, name)
+        public ViewLifecycleState(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 
         [Preserve(Conditional = true)]
         protected ViewLifecycleState()
         {
+        }
+
+        public ViewLifecycleState BaseState
+        {
+            get => _baseState ?? this;
+            set => _baseState = value;
+        }
+
+        public NavigationMode? NavigationMode
+        {
+            get => _navigationMode ?? _baseState?.NavigationMode;
+            set => _navigationMode = value;
         }
     }
 }

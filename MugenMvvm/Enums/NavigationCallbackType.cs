@@ -13,7 +13,7 @@ namespace MugenMvvm.Enums
         public static readonly NavigationCallbackType Closing = new(nameof(Closing));
         public static readonly NavigationCallbackType Close = new(nameof(Close));
 
-        public NavigationCallbackType(string value, string? name = null) : base(value, name)
+        public NavigationCallbackType(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

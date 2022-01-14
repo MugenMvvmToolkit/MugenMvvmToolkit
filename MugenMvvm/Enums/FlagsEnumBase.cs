@@ -22,8 +22,8 @@ namespace MugenMvvm.Enums
         {
         }
 
-        protected FlagsEnumBase(TValue value, string? name = null, long? flag = null)
-            : base(value, name)
+        protected FlagsEnumBase(TValue value, string? name = null, long? flag = null, bool register = true)
+            : base(value, name, register)
         {
             Flag = flag ?? ConvertValue(value);
             _allFlags |= Flag;

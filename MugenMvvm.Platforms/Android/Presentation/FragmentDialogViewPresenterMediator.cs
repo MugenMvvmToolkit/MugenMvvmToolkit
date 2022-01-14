@@ -74,12 +74,12 @@ namespace MugenMvvm.Android.Presentation
                 if (!view.IsSameView(_view))
                     return;
 
-                if (lifecycleState == ViewLifecycleState.Appeared)
+                if (lifecycleState.BaseState == ViewLifecycleState.Appeared)
                 {
                     viewManager.RemoveComponent(this);
                     TrySetResult(null);
                 }
-                else if (lifecycleState == ViewLifecycleState.Cleared)
+                else if (lifecycleState.BaseState == ViewLifecycleState.Cleared)
                 {
                     viewManager.RemoveComponent(this);
                     TrySetCanceled();

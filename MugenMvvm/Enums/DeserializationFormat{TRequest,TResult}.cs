@@ -15,7 +15,7 @@ namespace MugenMvvm.Enums
             ThrowOnDuplicate = false;
         }
 
-        public DeserializationFormat(string value, string? name = null) : base(value, name)
+        public DeserializationFormat(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

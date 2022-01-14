@@ -31,16 +31,16 @@ namespace MugenMvvm.Views.Components
 
         private static void TrackViewState(object view, HashSet<ViewLifecycleState> states, ViewLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
-            if (state == ViewLifecycleState.Appeared)
+            if (state.BaseState == ViewLifecycleState.Appeared)
             {
                 states.Remove(ViewLifecycleState.Closed);
                 states.Remove(ViewLifecycleState.Disappeared);
-                states.Add(state);
+                states.Add(state.BaseState);
             }
-            else if (state == ViewLifecycleState.Closed || state == ViewLifecycleState.Disappeared)
+            else if (state.BaseState == ViewLifecycleState.Closed || state.BaseState == ViewLifecycleState.Disappeared)
             {
                 states.Remove(ViewLifecycleState.Appeared);
-                states.Add(state);
+                states.Add(state.BaseState);
             }
         }
     }

@@ -16,7 +16,7 @@ namespace MugenMvvm.Enums
         public static readonly LogLevel Error = new(nameof(Error));
         public static readonly LogLevel Fatal = new(nameof(Fatal));
 
-        public LogLevel(string value, string? name = null) : base(value, name)
+        public LogLevel(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

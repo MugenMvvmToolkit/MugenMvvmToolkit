@@ -15,14 +15,21 @@ namespace MugenMvvm.Enums
         public static readonly ApplicationLifecycleState Activated = new(nameof(Activated));
         public static readonly ApplicationLifecycleState Deactivating = new(nameof(Deactivating));
         public static readonly ApplicationLifecycleState Deactivated = new(nameof(Deactivated));
+        private ApplicationLifecycleState? _baseState;
 
-        public ApplicationLifecycleState(string value, string? name = null) : base(value, name)
+        public ApplicationLifecycleState(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 
         [Preserve(Conditional = true)]
         protected ApplicationLifecycleState()
         {
+        }
+
+        public ApplicationLifecycleState BaseState
+        {
+            get => _baseState ?? this;
+            set => _baseState = value;
         }
     }
 }

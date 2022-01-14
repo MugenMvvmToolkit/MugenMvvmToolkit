@@ -35,18 +35,18 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly BinaryTokenType NullCoalescing = new("??", 890);
         public static readonly BinaryTokenType Assignment = new("=", 880);
 
-        public BinaryTokenType(string value, int priority)
-            : this(value, null, priority, default)
+        public BinaryTokenType(string value, int priority, bool register = true)
+            : this(value, null, priority, default, register)
         {
         }
 
-        public BinaryTokenType(string value, int priority, ItemOrArray<string> aliases)
-            : this(value, null, priority, aliases)
+        public BinaryTokenType(string value, int priority, ItemOrArray<string> aliases, bool register = true)
+            : this(value, null, priority, aliases, register)
         {
         }
 
-        public BinaryTokenType(string value, string? name, int priority, ItemOrArray<string> aliases)
-            : base(value, name)
+        public BinaryTokenType(string value, string? name, int priority, ItemOrArray<string> aliases, bool register = true)
+            : base(value, name, register)
         {
             Priority = priority;
             Aliases = aliases;

@@ -32,9 +32,9 @@ namespace MugenMvvm.Views.Components
             if (view.View == null)
                 return;
 
-            if (lifecycleState == ViewLifecycleState.Initializing)
+            if (lifecycleState.BaseState == ViewLifecycleState.Initializing)
                 Initialize(view.View, state, metadata);
-            else if (lifecycleState == ViewLifecycleState.Cleared)
+            else if (lifecycleState.BaseState == ViewLifecycleState.Cleared)
                 Cleanup(view.View, state, metadata);
         }
 

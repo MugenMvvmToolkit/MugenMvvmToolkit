@@ -18,8 +18,7 @@ namespace MugenMvvm.Enums
         public static readonly PlatformType Avalonia = new(nameof(Avalonia));
         public static readonly PlatformType UnitTest = new(nameof(UnitTest));
 
-        public PlatformType(string id, string? name = null)
-            : base(id, name)
+        public PlatformType(string id, string? name = null, bool register = true) : base(id, name, register)
         {
         }
 

@@ -17,7 +17,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly BindingMemberExpressionFlags Target = new(1 << 4, nameof(Target));
         public static readonly BindingMemberExpressionFlags ParentDataContext = new(1 << 5, nameof(ParentDataContext));
 
-        public BindingMemberExpressionFlags(ushort value, string? name = null, long? flag = null) : base(value, name, flag)
+        public BindingMemberExpressionFlags(ushort value, string? name = null, long? flag = null, bool register = true) : base(value, name, flag, register)
         {
         }
 

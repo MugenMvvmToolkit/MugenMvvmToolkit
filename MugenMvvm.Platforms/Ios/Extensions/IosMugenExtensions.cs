@@ -32,47 +32,33 @@ namespace MugenMvvm.Ios.Extensions
     {
         public static MugenApplicationConfiguration IosConfiguration(this MugenApplicationConfiguration configuration, bool shouldSaveAppState = true)
         {
-            configuration
-                .ServiceConfiguration<IWeakReferenceManager>()
-                .WithComponent(new IosWeakReferenceProvider());
-
-            configuration
-                .ServiceConfiguration<IAttachedValueManager>()
-                .WithComponent(new IosAttachedValueStorageProvider());
-
-            configuration
-                .ServiceConfiguration<INavigationDispatcher>()
-                .WithComponent(new ViewNavigationConditionDispatcher());
+            configuration = configuration.ServiceConfiguration<IWeakReferenceManager>()
+                                         .WithComponent(new IosWeakReferenceProvider())
+                                         .ServiceConfiguration<IAttachedValueManager>()
+                                         .WithComponent(new IosAttachedValueStorageProvider())
+                                         .ServiceConfiguration<INavigationDispatcher>()
+                                         .WithComponent(new ViewNavigationConditionDispatcher())
+                                         .ServiceConfiguration<IViewManager>()
+                                         .WithComponent(new ViewLifecycleDispatcher())
+                                         .WithComponent(new ViewCollectionManager())
+                                         .ServiceConfiguration<IPresenter>()
+                                         .WithComponent(new ModalViewPresenterMediator());
 
             if (shouldSaveAppState)
             {
                 var applicationStateDispatcher = new ApplicationStateDispatcher();
-                configuration.Application.AddComponent(applicationStateDispatcher);
-                configuration
-                    .ServiceConfiguration<IViewManager>()
-                    .WithComponent(applicationStateDispatcher);
+                configuration = configuration.WithComponent(applicationStateDispatcher)
+                                             .ServiceConfiguration<IViewManager>()
+                                             .WithComponent(applicationStateDispatcher);
             }
-
-            configuration
-                .ServiceConfiguration<IViewManager>()
-                .WithComponent(new ViewLifecycleDispatcher())
-                .WithComponent(new ViewCollectionManager());
-
-            configuration
-                .ServiceConfiguration<IPresenter>()
-                .WithComponent(new ModalViewPresenterMediator());
 
             return configuration;
         }
 
         public static MugenApplicationConfiguration IosRootViewModel(this MugenApplicationConfiguration configuration, Type rootViewModelType,
-            bool wrapToNavigationController = true)
-        {
-            configuration
-                .ServiceConfiguration<IPresenter>()
-                .WithComponent(new ApplicationPresenter(rootViewModelType, wrapToNavigationController));
-            return configuration;
-        }
+            bool wrapToNavigationController = true) => configuration
+                                                       .ServiceConfiguration<IPresenter>()
+                                                       .WithComponent(new ApplicationPresenter(rootViewModelType, wrapToNavigationController));
 
         public static MugenApplicationConfiguration IosAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {

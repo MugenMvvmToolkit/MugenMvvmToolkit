@@ -13,7 +13,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly ExpressionTraversalType Preorder = new(PreorderValue);
         public static readonly ExpressionTraversalType Postorder = new(PostorderValue);
 
-        public ExpressionTraversalType(int value, string? name = null) : base(value, name)
+        public ExpressionTraversalType(int value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

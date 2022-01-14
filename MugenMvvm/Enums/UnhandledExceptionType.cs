@@ -14,7 +14,7 @@ namespace MugenMvvm.Enums
         public static readonly UnhandledExceptionType Validation = new(3);
         public static readonly UnhandledExceptionType Command = new(4);
 
-        public UnhandledExceptionType(int value, string? name = null) : base(value, name)
+        public UnhandledExceptionType(int value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

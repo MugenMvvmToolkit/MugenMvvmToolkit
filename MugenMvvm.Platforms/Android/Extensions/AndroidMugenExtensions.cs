@@ -61,38 +61,29 @@ namespace MugenMvvm.Android.Extensions
         {
             MugenAndroidUtils.Initialize(bindViewCallback ?? BindViewCallback.Instance, new NativeLifecycleDispatcher());
 
-            configuration.ServiceConfiguration<IExpressionParser>()
-                         .WithComponent(new NativeStringExpressionParser());
-
-            configuration.ServiceConfiguration<IBindingManager>()
-                         .WithComponent(new NativeStringBindingExpressionCache());
-
-            configuration.ServiceConfiguration<IAttachedValueManager>()
-                         .WithComponent(new AndroidAttachedValueStorageProvider());
-
-            configuration.ServiceConfiguration<INavigationDispatcher>()
-                         .WithComponent(new ViewNavigationConditionDispatcher());
-
+            configuration = configuration.ServiceConfiguration<IExpressionParser>()
+                                         .WithComponent(new NativeStringExpressionParser())
+                                         .ServiceConfiguration<IBindingManager>()
+                                         .WithComponent(new NativeStringBindingExpressionCache()).ServiceConfiguration<IAttachedValueManager>()
+                                         .WithComponent(new AndroidAttachedValueStorageProvider())
+                                         .ServiceConfiguration<INavigationDispatcher>()
+                                         .WithComponent(new ViewNavigationConditionDispatcher())
+                                         .ServiceConfiguration<IPresenter>()
+                                         .WithComponent(new ActivityViewPresenterMediator())
+                                         .WithComponent(new FragmentDialogViewPresenterMediator())
+                                         .ServiceConfiguration<IViewManager>()
+                                         .WithComponent(new ViewStateDispatcher())
+                                         .WithComponent(new ViewLifecycleDispatcher())
+                                         .WithComponent(new ResourceViewRequestManager())
+                                         .WithComponent(new ActivityViewRequestManager())
+                                         .WithComponent(new ResourceViewMappingDecorator())
+                                         .WithComponent(new ViewCollectionManager())
+                                         .ServiceConfiguration<IWeakReferenceManager>()
+                                         .WithComponent(new AndroidWeakReferenceProvider());
             configuration.ServiceConfiguration<IViewManager>()
-                         .WithComponent(new ViewStateDispatcher())
-                         .WithComponent(new ViewLifecycleDispatcher())
-                         .WithComponent(new ResourceViewRequestManager())
-                         .WithComponent(new ViewLifecycleMapper())
-                         .WithComponent(new ActivityViewRequestManager())
-                         .WithComponent(new ResourceViewMappingDecorator())
-                         .WithComponent(new ViewCollectionManager())
                          .Service
                          .GetOrAddComponent<ViewLifecycleTracker>()
                          .Trackers.Add(TrackViewState);
-
-            configuration.ServiceConfiguration<IPresenter>()
-                         .WithComponent(new ActivityViewPresenterMediator())
-                         .WithComponent(new FragmentDialogViewPresenterMediator());
-
-            configuration
-                .ServiceConfiguration<IWeakReferenceManager>()
-                .WithComponent(new AndroidWeakReferenceProvider());
-
             return configuration;
         }
 
@@ -509,7 +500,7 @@ namespace MugenMvvm.Android.Extensions
         {
             if (state == AndroidViewLifecycleState.PendingInitialization)
                 states.Add(AndroidViewLifecycleState.PendingInitialization);
-            else if (state == ViewLifecycleState.Initialized)
+            else if (state.BaseState == ViewLifecycleState.Initialized)
                 states.Remove(AndroidViewLifecycleState.PendingInitialization);
         }
 

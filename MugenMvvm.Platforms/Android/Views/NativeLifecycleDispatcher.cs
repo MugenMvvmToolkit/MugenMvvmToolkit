@@ -29,7 +29,7 @@ namespace MugenMvvm.Android.Views
             }
             else
             {
-                var viewLifecycleState = AndroidViewLifecycleState.TryParseNativeChanged(lifecycleState);
+                var viewLifecycleState = AndroidViewLifecycleState.TryParseNativeChanged(target, lifecycleState);
                 if (viewLifecycleState != null)
                     _viewManager.DefaultIfNull().OnLifecycleChanged(target, viewLifecycleState, state);
             }
@@ -37,7 +37,7 @@ namespace MugenMvvm.Android.Views
 
         public bool OnLifecycleChanging(Object target, int lifecycleState, Object? state, bool cancelable)
         {
-            var viewLifecycleState = AndroidViewLifecycleState.TryParseNativeChanging(lifecycleState);
+            var viewLifecycleState = AndroidViewLifecycleState.TryParseNativeChanging(target, lifecycleState);
             if (viewLifecycleState != null)
             {
                 if (cancelable)

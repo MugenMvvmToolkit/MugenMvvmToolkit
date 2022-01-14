@@ -373,11 +373,11 @@ namespace MugenMvvm.Internal
                 Logger.Trace()?.Log($"{ViewModelTag}before ({lifecycleState}) viewmodel={viewModel}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
                 Components.OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
                 Logger.Trace()?.Log($"{ViewModelTag}after ({lifecycleState}) viewmodel={viewModel}, state={state ?? InternalConstant.Null}, metadata={metadata.Dump()}");
-                if (lifecycleState == ViewModelLifecycleState.Created)
+                if (lifecycleState.BaseState == ViewModelLifecycleState.Created)
                     ++_createdCount;
-                else if (lifecycleState == ViewModelLifecycleState.Disposed)
+                else if (lifecycleState.BaseState == ViewModelLifecycleState.Disposed)
                     ++_disposedCount;
-                else if (lifecycleState == ViewModelLifecycleState.Finalized)
+                else if (lifecycleState.BaseState == ViewModelLifecycleState.Finalized)
                     ++_finalizedCount;
                 Logger.Trace()?.Log($"{ViewModelTag}created={_createdCount}, disposed={_disposedCount}, finalized={_finalizedCount}");
             }

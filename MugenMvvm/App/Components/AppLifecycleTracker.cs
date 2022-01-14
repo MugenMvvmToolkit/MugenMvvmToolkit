@@ -37,9 +37,9 @@ namespace MugenMvvm.App.Components
         {
             OnLifecycleChanged(application, lifecycleState, metadata);
             var dispatcher = _navigationDispatcher.DefaultIfNull();
-            if (lifecycleState == ApplicationLifecycleState.Activating)
+            if (lifecycleState.BaseState == ApplicationLifecycleState.Activating)
                 dispatcher.OnNavigating(BackgroundCloseContext(application));
-            else if (lifecycleState == ApplicationLifecycleState.Activated)
+            else if (lifecycleState.BaseState == ApplicationLifecycleState.Activated)
             {
                 var closeContext = BackgroundCloseContext(application);
                 dispatcher
@@ -49,9 +49,9 @@ namespace MugenMvvm.App.Components
                 dispatcher.OnNavigated(closeContext);
                 closeContext.ClearMetadata(true);
             }
-            else if (lifecycleState == ApplicationLifecycleState.Deactivating)
+            else if (lifecycleState.BaseState == ApplicationLifecycleState.Deactivating)
                 dispatcher.OnNavigating(BackgroundNewContext(application));
-            else if (lifecycleState == ApplicationLifecycleState.Deactivated)
+            else if (lifecycleState.BaseState == ApplicationLifecycleState.Deactivated)
             {
                 var newContext = BackgroundNewContext(application);
                 dispatcher
@@ -66,15 +66,15 @@ namespace MugenMvvm.App.Components
 
         private static void TrackAppState(IMugenApplication app, HashSet<ApplicationLifecycleState> states, ApplicationLifecycleState state, IReadOnlyMetadataContext? metadata)
         {
-            if (state == ApplicationLifecycleState.Activating || state == ApplicationLifecycleState.Activated ||
-                state == ApplicationLifecycleState.Deactivating || state == ApplicationLifecycleState.Deactivated)
+            if (state.BaseState == ApplicationLifecycleState.Activating || state.BaseState == ApplicationLifecycleState.Activated ||
+                state.BaseState == ApplicationLifecycleState.Deactivating || state.BaseState == ApplicationLifecycleState.Deactivated)
             {
                 states.Remove(ApplicationLifecycleState.Deactivating);
                 states.Remove(ApplicationLifecycleState.Deactivated);
                 states.Remove(ApplicationLifecycleState.Activating);
                 states.Remove(ApplicationLifecycleState.Activated);
             }
-            else if (state == ApplicationLifecycleState.Initialized)
+            else if (state.BaseState == ApplicationLifecycleState.Initialized)
                 states.Remove(ApplicationLifecycleState.Initializing);
 
             states.Add(state);

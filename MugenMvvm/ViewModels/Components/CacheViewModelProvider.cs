@@ -76,13 +76,13 @@ namespace MugenMvvm.ViewModels.Components
             if (ShouldCache != null && !ShouldCache(viewModel, state, metadata))
                 return;
 
-            if (lifecycleState == ViewModelLifecycleState.Created)
+            if (lifecycleState.BaseState == ViewModelLifecycleState.Created)
             {
                 var id = viewModel.GetId();
                 Add(id, viewModel);
                 viewModel.Metadata.Set(InternalMetadata.CreatedId, id, out _);
             }
-            else if (lifecycleState == ViewModelLifecycleState.Restored)
+            else if (lifecycleState.BaseState == ViewModelLifecycleState.Restored)
             {
                 var id = viewModel.GetId();
                 var createdId = viewModel.Metadata.Get(InternalMetadata.CreatedId);
@@ -92,7 +92,7 @@ namespace MugenMvvm.ViewModels.Components
                     Add(id, viewModel);
                 }
             }
-            else if (lifecycleState == ViewModelLifecycleState.Disposed)
+            else if (lifecycleState.BaseState == ViewModelLifecycleState.Disposed)
                 Remove(viewModel.GetId());
         }
     }

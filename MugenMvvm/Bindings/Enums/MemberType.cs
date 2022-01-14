@@ -15,7 +15,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly MemberType Method = new(1 << 1, nameof(Method));
         public static readonly MemberType Event = new(1 << 2, nameof(Event));
 
-        public MemberType(ushort value, string? name = null, long? flag = null) : base(value, name, flag)
+        public MemberType(ushort value, string? name = null, long? flag = null, bool register = true) : base(value, name, flag, register)
         {
         }
 

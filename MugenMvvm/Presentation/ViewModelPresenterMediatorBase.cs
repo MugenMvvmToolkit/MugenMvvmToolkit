@@ -114,8 +114,12 @@ namespace MugenMvvm.Presentation
             }
         }
 
-        public IPresenterResult? TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public IPresenterResult? TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
+            TryClose(view, NavigationMode.Close, cancellationToken, metadata);
+
+        protected IPresenterResult? TryClose(object? view, NavigationMode navigationMode, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(navigationMode, nameof(navigationMode));
             lock (_locker)
             {
                 if (!IsShowing && !IsShown)
@@ -127,7 +131,7 @@ namespace MugenMvvm.Presentation
                 if (ClosingContext != null)
                     return GetPresenterResult(false, ClosingContext.GetMetadataOrDefault(metadata));
 
-                Close(view, cancellationToken, metadata);
+                Close(view, navigationMode, cancellationToken, metadata);
                 return GetPresenterResult(false, metadata);
             }
         }
@@ -150,7 +154,7 @@ namespace MugenMvvm.Presentation
             }
         }
 
-        protected internal virtual void OnViewClosing(ICancelableRequest e, IReadOnlyMetadataContext? metadata)
+        protected internal virtual void OnViewClosing(NavigationMode navigationMode, ICancelableRequest e, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -163,7 +167,7 @@ namespace MugenMvvm.Presentation
                     if (ClosingContext == null)
                     {
                         e.Cancel = true;
-                        Close(CurrentView, default, metadata);
+                        Close(CurrentView, navigationMode, default, metadata);
                     }
                     else
                         e.Cancel = false;
@@ -175,10 +179,10 @@ namespace MugenMvvm.Presentation
             }
         }
 
-        protected internal virtual void OnViewClosed(IReadOnlyMetadataContext? metadata)
+        protected internal virtual void OnViewClosed(NavigationMode navigationMode, IReadOnlyMetadataContext? metadata)
         {
             if (View != null)
-                OnNavigated(ClosingContext ?? GetNavigationContext(NavigationMode.Close, metadata));
+                OnNavigated(ClosingContext ?? GetNavigationContext(navigationMode, metadata));
         }
 
         protected abstract Task ShowViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
@@ -355,13 +359,13 @@ namespace MugenMvvm.Presentation
             }
         }
 
-        private async void Close(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        private async void Close(object? view, NavigationMode navigationMode, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             INavigationContext? context = null;
             try
             {
                 _showingToken.SafeCancel();
-                context = GetNavigationContext(NavigationMode.Close, metadata);
+                context = GetNavigationContext(navigationMode, metadata);
                 ClosingContext = context;
 
                 await WaitShowAsync();
@@ -390,7 +394,7 @@ namespace MugenMvvm.Presentation
             }
             catch (Exception e)
             {
-                OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.Close, metadata), e);
+                OnNavigationFailed(context ?? GetNavigationContext(navigationMode, metadata), e);
             }
         }
 

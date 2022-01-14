@@ -16,7 +16,7 @@ namespace MugenMvvm.Enums
         public static readonly PlatformIdiom Watch = new(nameof(Watch));
         public static readonly PlatformIdiom Unknown = new(nameof(Unknown));
 
-        public PlatformIdiom(string id, string? name = null) : base(id, name)
+        public PlatformIdiom(string id, string? name = null, bool register = true) : base(id, name, register)
         {
         }
 

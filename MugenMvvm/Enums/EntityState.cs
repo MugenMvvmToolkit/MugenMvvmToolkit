@@ -15,7 +15,7 @@ namespace MugenMvvm.Enums
         public static readonly EntityState Modified = new(1 << 3, nameof(Modified));
         public static readonly EntityState Detached = new(1 << 4, nameof(Detached));
 
-        public EntityState(int value, string? name = null, long? flag = null) : base(value, name, flag)
+        public EntityState(int value, string? name = null, long? flag = null, bool register = true) : base(value, name, flag, register)
         {
         }
 

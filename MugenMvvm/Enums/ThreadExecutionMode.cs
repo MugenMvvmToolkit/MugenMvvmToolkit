@@ -15,7 +15,7 @@ namespace MugenMvvm.Enums
         public static readonly ThreadExecutionMode Background = new(nameof(Background));
         public static readonly ThreadExecutionMode BackgroundAsync = new(nameof(BackgroundAsync));
 
-        public ThreadExecutionMode(string value, string? name = null) : base(value, name)
+        public ThreadExecutionMode(string value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

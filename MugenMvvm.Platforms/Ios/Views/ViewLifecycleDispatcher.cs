@@ -29,7 +29,7 @@ namespace MugenMvvm.Ios.Views
                 controller.ViewIfLoaded?.RaiseParentChanged();
                 BindableMembers.For<object>().ParentNative().TryRaise(controller);
             }
-            else if (lifecycleState == ViewLifecycleState.Cleared && view.TryGet<UIViewController>(out var c))
+            else if (lifecycleState.BaseState == ViewLifecycleState.Cleared && view.TryGet<UIViewController>(out var c))
                 c.ViewIfLoaded?.ClearBindings(true, DisposeView);
         }
     }

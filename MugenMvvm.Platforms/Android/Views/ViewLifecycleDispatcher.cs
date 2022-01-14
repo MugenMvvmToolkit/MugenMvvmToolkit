@@ -37,15 +37,15 @@ namespace MugenMvvm.Android.Views
             {
                 if (state == AndroidViewLifecycleState.Finishing || state == AndroidViewLifecycleState.Finished)
                     return activity.IsFinishing;
-                if (state == ViewLifecycleState.Closed)
-                    return activity.IsFinishing || activity.IsDestroyed;
                 if (state == AndroidViewLifecycleState.Destroyed)
                     return activity.IsDestroyed;
+                if (state.BaseState == ViewLifecycleState.Closed)
+                    return activity.IsFinishing || activity.IsDestroyed;
             }
 
             if (target is IFragmentView fragment)
             {
-                if (state == ViewLifecycleState.Closed || state == AndroidViewLifecycleState.Destroyed)
+                if (state.BaseState == ViewLifecycleState.Closed || state == AndroidViewLifecycleState.Destroyed)
                     return FragmentMugenExtensions.IsDestroyed(fragment);
             }
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.Android.Views
                     if (!_presenter.DefaultIfNull(view.RawView).TryShow(view.RawView, default, metadata).IsEmpty)
                         viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
                 }
-                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view.RawView is IActivityView activityView &&
+                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view.RawView is IActivityView activityView && 
                          viewManager.GetViews(view.SourceView).IsEmpty)
                     activityView.Finish();
             }
@@ -73,7 +73,8 @@ namespace MugenMvvm.Android.Views
 
             if (lifecycleState == AndroidViewLifecycleState.Starting && view.Is<IActivityView>() && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activating, state, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Started && view.Is<IActivityView>() && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
+            else if (lifecycleState == AndroidViewLifecycleState.Started && view.Is<IActivityView>() && 
+                     !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activated, state, metadata);
         }
     }

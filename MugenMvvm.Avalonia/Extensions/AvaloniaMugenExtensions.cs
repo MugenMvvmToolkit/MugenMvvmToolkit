@@ -30,17 +30,14 @@ namespace MugenMvvm.Avalonia.Extensions
 
         public static MugenApplicationConfiguration AvaloniaConfiguration(this MugenApplicationConfiguration configuration, bool listenAppLifecycle = true)
         {
-            configuration.ServiceConfiguration<IPresenter>()
-                         .WithComponent(new AvaloniaWindowPresenterMediator());
-
-            configuration.ServiceConfiguration<IAttachedValueManager>()
-                         .WithComponent(new AvaloniaObjectAttachedValueStorageProvider());
-
-            configuration.ServiceConfiguration<IBindingManager>()
-                         .WithComponent(new BindingExtensionExpressionParser());
-
-            configuration.ServiceConfiguration<IViewManager>()
-                         .WithComponent(new ItemsControlCollectionManager());
+            configuration = configuration.ServiceConfiguration<IPresenter>()
+                                         .WithComponent(new AvaloniaWindowPresenterMediator())
+                                         .ServiceConfiguration<IAttachedValueManager>()
+                                         .WithComponent(new AvaloniaObjectAttachedValueStorageProvider())
+                                         .ServiceConfiguration<IBindingManager>()
+                                         .WithComponent(new BindingExtensionExpressionParser())
+                                         .ServiceConfiguration<IViewManager>()
+                                         .WithComponent(new ItemsControlCollectionManager());
 
             if (listenAppLifecycle)
                 WindowBase.IsActiveProperty.Changed.AddClassHandler<WindowBase>(OnActiveChanged);
@@ -48,13 +45,9 @@ namespace MugenMvvm.Avalonia.Extensions
             return configuration;
         }
 
-        public static MugenApplicationConfiguration AvaloniaBindingConfiguration(this MugenApplicationConfiguration configuration)
-        {
+        public static MugenApplicationConfiguration AvaloniaBindingConfiguration(this MugenApplicationConfiguration configuration) =>
             configuration.ServiceConfiguration<IObservationManager>()
                          .WithComponent(new AvaloniaObjectObserverProvider());
-
-            return configuration;
-        }
 
         public static MugenApplicationConfiguration AvaloniaAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
@@ -85,7 +78,7 @@ namespace MugenMvvm.Avalonia.Extensions
                                                            .InvokeHandler((member, target, args, metadata) =>
                                                            {
                                                                var nameScope = target.FindNameScope();
-                                                               return nameScope?.Find<IControl>((string)args.Item!);
+                                                               return nameScope?.Find<IControl>((string) args.Item!);
                                                            })
                                                            .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                                                            .Build());
@@ -109,7 +102,7 @@ namespace MugenMvvm.Avalonia.Extensions
 
         private static void OnActiveChanged(WindowBase owner, AvaloniaPropertyChangedEventArgs args)
         {
-            var newValue = (bool?)args.NewValue;
+            var newValue = (bool?) args.NewValue;
             if (newValue.GetValueOrDefault())
             {
                 if (Interlocked.Increment(ref _activeWindowCount) == 1)

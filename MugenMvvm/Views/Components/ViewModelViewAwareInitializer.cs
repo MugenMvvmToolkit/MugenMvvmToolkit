@@ -69,7 +69,7 @@ namespace MugenMvvm.Views.Components
             if (viewImp == null)
                 return;
 
-            if (lifecycleState == ViewLifecycleState.Initialized)
+            if (lifecycleState.BaseState == ViewLifecycleState.Initialized)
             {
                 viewImp.Components.AddComponent(this);
                 TryUpdateViewModel(viewImp.Target, viewImp.ViewModel);
@@ -77,7 +77,7 @@ namespace MugenMvvm.Views.Components
                     TryUpdateViewModel(c, viewImp.ViewModel);
                 TryUpdateView(viewImp, false, metadata);
             }
-            else if (lifecycleState == ViewLifecycleState.Clearing)
+            else if (lifecycleState.BaseState == ViewLifecycleState.Clearing)
             {
                 TryUpdateView(viewImp, true, metadata);
                 TryUpdateViewModel(viewImp.Target, null);

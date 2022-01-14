@@ -96,8 +96,8 @@ namespace MugenMvvm.Ios.App
 
         public void OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewLifecycleState.Initialized && view.TryGet<UIViewController>(out var viewController)
-                                                                 && view.View != null && viewController.RestorationIdentifier == null)
+            if (lifecycleState.BaseState == ViewLifecycleState.Initialized && view.TryGet<UIViewController>(out var viewController)
+                                                                           && view.View != null && viewController.RestorationIdentifier == null)
                 viewController.RestorationIdentifier = view.View.ViewModel.GetId();
             else if (lifecycleState == IosViewLifecycleState.EncodingRestorableState && state is NSCoder coder)
             {

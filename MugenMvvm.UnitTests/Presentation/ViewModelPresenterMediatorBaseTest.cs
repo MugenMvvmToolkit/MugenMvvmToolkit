@@ -88,18 +88,18 @@ namespace MugenMvvm.UnitTests.Presentation
             };
             mediator.CloseViewHandler = context =>
             {
-                mediator.OnViewClosed(Metadata);
+                mediator.OnViewClosed(NavigationMode.Close, Metadata);
                 return null;
             };
             mediator.TryShow(null, default, Metadata);
 
             canClose = false;
             var cancelEventArgs = new CancelableRequest();
-            mediator.OnViewClosing(cancelEventArgs, Metadata);
+            mediator.OnViewClosing(NavigationMode.Close, cancelEventArgs, Metadata);
             cancelEventArgs.Cancel!.Value.ShouldBeTrue();
             tcs.SetResult(true);
             cancelEventArgs.Cancel = null;
-            mediator.OnViewClosing(cancelEventArgs, Metadata);
+            mediator.OnViewClosing(NavigationMode.Close, cancelEventArgs, Metadata);
             cancelEventArgs.Cancel!.Value.ShouldBeFalse();
         }
 
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTests.Presentation
             };
             mediator.CloseViewHandler = context =>
             {
-                mediator.OnViewClosed(Metadata);
+                mediator.OnViewClosed(NavigationMode.Close, Metadata);
                 return null;
             };
             mediator.ShowViewHandler = context =>
@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTests.Presentation
             {
                 if (state == 3)
                     throw exception;
-                mediator.OnViewClosed(Metadata);
+                mediator.OnViewClosed(NavigationMode.Close, Metadata);
                 return null;
             };
             NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
@@ -369,7 +369,7 @@ namespace MugenMvvm.UnitTests.Presentation
             mediator.CloseViewHandler = context =>
             {
                 ++closeCount;
-                mediator.OnViewClosed(Metadata);
+                mediator.OnViewClosed(NavigationMode.Close, Metadata);
                 return null;
             };
             mediator.TryShow(null, DefaultCancellationToken, Metadata);

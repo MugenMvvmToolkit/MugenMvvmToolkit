@@ -14,7 +14,7 @@ namespace MugenMvvm.Bindings.Enums
         public static readonly BindingState Disposed = new(2);
         public static readonly BindingState Invalid = new(3);
 
-        public BindingState(int value, string? name = null) : base(value, name)
+        public BindingState(int value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

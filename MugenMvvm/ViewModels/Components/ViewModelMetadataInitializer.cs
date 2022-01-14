@@ -26,7 +26,7 @@ namespace MugenMvvm.ViewModels.Components
         public void OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)
         {
-            if (metadata == null || MetadataMergeKeys.Count == 0 || lifecycleState != ViewModelLifecycleState.Created)
+            if (metadata == null || MetadataMergeKeys.Count == 0 || lifecycleState.BaseState != ViewModelLifecycleState.Created)
                 return;
 
             for (var i = 0; i < MetadataMergeKeys.Count; i++)

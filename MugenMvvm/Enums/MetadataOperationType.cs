@@ -13,7 +13,7 @@ namespace MugenMvvm.Enums
         public static readonly MetadataOperationType Set = new(2);
         public static readonly MetadataOperationType Remove = new(3);
 
-        public MetadataOperationType(int value, string? name = null) : base(value, name)
+        public MetadataOperationType(int value, string? name = null, bool register = true) : base(value, name, register)
         {
         }
 

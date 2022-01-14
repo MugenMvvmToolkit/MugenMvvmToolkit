@@ -13,12 +13,12 @@ namespace MugenMvvm.Enums
         public static readonly ApplicationFlags DesignMode = new(1 << 1, nameof(DesignMode));
         public static readonly ApplicationFlags Debug = new(1 << 2, nameof(Debug));
 
-        [Preserve(Conditional = true)]
-        public ApplicationFlags()
+        public ApplicationFlags(long value, string? name = null, long? flag = null, bool register = true) : base(value, name, flag, register)
         {
         }
 
-        public ApplicationFlags(long value, string? name = null, long? flag = null) : base(value, name, flag)
+        [Preserve(Conditional = true)]
+        protected ApplicationFlags()
         {
         }
     }

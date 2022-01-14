@@ -41,7 +41,7 @@ namespace MugenMvvm.Presentation
 
         protected bool LifecycleAdded { get; set; }
 
-        protected internal override void OnViewClosed(IReadOnlyMetadataContext? metadata)
+        protected internal override void OnViewClosed(NavigationMode navigationMode, IReadOnlyMetadataContext? metadata)
         {
             //close from lifecycle
             if (ClosingContext == null)
@@ -53,7 +53,7 @@ namespace MugenMvvm.Presentation
                     return;
                 }
 
-                ClosingContext = GetNavigationContext(NavigationMode.Close, metadata);
+                ClosingContext = GetNavigationContext(navigationMode, metadata);
                 OnNavigating(ClosingContext);
             }
 
@@ -66,7 +66,7 @@ namespace MugenMvvm.Presentation
                     ViewManager.RemoveComponent(this);
                 }
 
-                base.OnViewClosed(metadata);
+                base.OnViewClosed(navigationMode, metadata);
             }
         }
 
@@ -112,7 +112,7 @@ namespace MugenMvvm.Presentation
         {
             IsAppeared = false;
             if (ClosingContext != null)
-                OnViewClosed(metadata);
+                OnViewClosed(NavigationMode.Close, metadata);
         }
 
         protected virtual void OnViewCleared(object? state, IReadOnlyMetadataContext? metadata)
@@ -123,21 +123,21 @@ namespace MugenMvvm.Presentation
 
         protected virtual void OnViewLifecycleChanged(ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewLifecycleState.Appearing)
+            if (lifecycleState.BaseState == ViewLifecycleState.Appearing)
                 OnViewAppearing(state, metadata);
-            else if (lifecycleState == ViewLifecycleState.Appeared)
+            else if (lifecycleState.BaseState == ViewLifecycleState.Appeared)
                 OnViewAppeared(state, metadata);
-            else if (lifecycleState == ViewLifecycleState.Disappeared)
+            else if (lifecycleState.BaseState == ViewLifecycleState.Disappeared)
                 OnViewDisappeared(state, metadata);
-            else if (lifecycleState == ViewLifecycleState.Closing && state is ICancelableRequest cancelableRequest)
+            else if (lifecycleState.BaseState == ViewLifecycleState.Closing && state is ICancelableRequest cancelableRequest)
             {
                 if (ClosingContext == null)
                     _isClosingFromLifecycle = true;
-                OnViewClosing(cancelableRequest, metadata);
+                OnViewClosing(lifecycleState.NavigationMode ?? NavigationMode.Close, cancelableRequest, metadata);
             }
-            else if (lifecycleState == ViewLifecycleState.Closed)
-                OnViewClosed(metadata);
-            else if (lifecycleState == ViewLifecycleState.Cleared)
+            else if (lifecycleState.BaseState == ViewLifecycleState.Closed)
+                OnViewClosed(lifecycleState.NavigationMode ?? NavigationMode.Close, metadata);
+            else if (lifecycleState.BaseState == ViewLifecycleState.Cleared)
                 OnViewCleared(state, metadata);
         }
 
@@ -193,9 +193,8 @@ namespace MugenMvvm.Presentation
         {
             try
             {
-                if (View == null && lifecycleState == ViewLifecycleState.Initializing && view.View != null &&
-                    Equals(view.View.ViewModel, ViewModel) && view.View.Mapping.Id == Mapping.Id &&
-                    !viewManager.IsInState(view.View.Target, ViewLifecycleState.Closed, metadata))
+                if (View == null && lifecycleState.BaseState == ViewLifecycleState.Initializing && view.View != null &&
+                    Equals(view.View.ViewModel, ViewModel) && view.View.Mapping.Id == Mapping.Id && !viewManager.IsInState(view.View.Target, ViewLifecycleState.Closed, metadata))
                     UpdateView(view.View, ShowingContext ?? GetNavigationContext(NavigationMode.Refresh, metadata));
 
                 if (View != null && view.IsSameView(View))
