@@ -48,107 +48,87 @@ namespace MugenMvvm.Bindings.Extensions
         public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration, bool cacheResources = true)
         {
             var syncRoot = new object();
-            configuration.WithAppService(MugenService.Optional<IExpressionCompiler>() ?? new ExpressionCompiler())
-                         .WithComponent(new ExpressionCompilerCache())
-                         .WithComponent(new CompiledExpressionCompiler())
-                         .WithComponent(new BinaryExpressionBuilder())
-                         .WithComponent(new ConditionExpressionBuilder())
-                         .WithComponent(new ConstantExpressionBuilder())
-                         .WithComponent(new LambdaExpressionBuilder())
-                         .WithComponent(new MemberExpressionBuilder())
-                         .WithComponent(new MethodCallIndexerExpressionBuilder())
-                         .WithComponent(new NullConditionalExpressionBuilder())
-                         .WithComponent(new ExpressionOptimizer())
-                         .WithComponent(new UnaryExpressionBuilder())
-                         .WithComponent(new SynchronizedExpressionCompilerDecorator(syncRoot));
-
-            configuration.WithAppService(MugenService.Optional<IGlobalValueConverter>() ?? new GlobalValueConverter())
-                         .WithComponent(new DefaultGlobalValueConverter());
-
-
-            var managerCfg = configuration.WithAppService(MugenService.Optional<IBindingManager>() ?? new BindingManager())
-                                          .WithComponent(new BindingBuilderDelegateExpressionParser())
-                                          .WithComponent(new BindingExpressionExceptionDecorator())
-                                          .WithComponent(new BindingExpressionParser())
-                                          .WithComponent(new StringBindingExpressionCache())
-                                          .WithComponent(new BindingExpressionPriorityDecorator())
-                                          .WithComponent(new BindingHolder())
-                                          .WithComponent(new BindingHolderLifecycleHandler())
-                                          .WithComponent(new BindingExpressionInitializer())
-                                          .WithComponent(new BindingModeInitializer())
-                                          .WithComponent(new BindingParameterInitializer())
-                                          .WithComponent(new InlineBindingExpressionInitializer())
-                                          .WithComponent(new DelayBindingInitializer())
-                                          .WithComponent(new SynchronizedBindingManagerDecorator(syncRoot));
-
-            var macrosPreInitializer = managerCfg.Service.GetMacrosPreInitializer();
-            var macrosVisitor = new MacrosExpressionVisitor();
-            macrosPreInitializer.TargetVisitors.Add(macrosVisitor);
-            macrosPreInitializer.SourceVisitors.Add(macrosVisitor);
-            macrosPreInitializer.ParameterVisitors.Add(macrosVisitor);
-
-            var macrosPostInitializer = managerCfg.Service.GetMacrosPostInitializer();
-            var constantToBindingParameterVisitor = new ConstantToBindingParameterVisitor();
-            macrosPostInitializer.SourceVisitors.Add(constantToBindingParameterVisitor);
-            macrosPostInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
-
-            configuration.WithAppService(MugenService.Optional<IMemberManager>() ?? new MemberManager())
-                         .WithComponent(new ExtensionMethodMemberProvider())
-                         .WithComponent(new FakeMemberProvider())
-                         .WithComponent(new IndexerAccessorMemberDecorator())
-                         .WithComponent(new MemberCache())
-                         .WithComponent(new MemberSelector())
-                         .WithComponent(new MethodMemberAccessorDecorator())
-                         .WithComponent(new MethodRequestMemberManagerDecorator())
-                         .WithComponent(new NameRequestMemberManagerDecorator())
-                         .WithComponent(new ReflectionMemberProvider())
-                         .WithComponent(new SynchronizedMemberManagerDecorator(syncRoot));
-
-            var cfg = configuration.WithAppService(MugenService.Optional<IObservationManager>() ?? new ObservationManager())
-                                   .WithComponent(new EventInfoObserverProvider())
-                                   .WithComponent(new EventMemberObserverProvider())
-                                   .WithComponent(new MemberPathObserverProvider())
-                                   .WithComponent(new MemberPathProvider())
-                                   .WithComponent(new MemberPathProviderCache())
-                                   .WithComponent(new NonObservableMemberObserverDecorator())
-                                   .WithComponent(new PropertyChangedObserverProvider())
-                                   .WithComponent(new SynchronizedObservationManagerDecorator(syncRoot));
-            if (cacheResources)
-                cfg.WithComponent(new ResourceMemberPathObserverCache());
-
-            configuration.WithAppService(MugenService.Optional<IExpressionParser>() ?? new ExpressionParser())
-                         .WithComponent(new UnaryTokenParser())
-                         .WithComponent(new MemberTokenParser())
-                         .WithComponent(new BinaryTokenParser())
-                         .WithComponent(new ParenTokenParser())
-                         .WithComponent(new ConditionTokenParser())
-                         .WithComponent(new DigitTokenParser())
-                         .WithComponent(new MethodCallTokenParser())
-                         .WithComponent(new ConstantTokenParser())
-                         .WithComponent(new IndexerTokenParser())
-                         .WithComponent(new LambdaTokenParser())
-                         .WithComponent(new StringTokenParser())
-                         .WithComponent(new NullConditionalMemberTokenParser())
-                         .WithComponent(new AssignmentTokenParser())
-                         .WithComponent(new ExpressionParserConverter())
-                         .WithComponent(new BinaryExpressionConverter())
-                         .WithComponent(new UnaryExpressionConverter())
-                         .WithComponent(new ConstantExpressionConverter())
-                         .WithComponent(new MemberExpressionConverter())
-                         .WithComponent(new MethodCallExpressionConverter())
-                         .WithComponent(new InvocationExpressionConverter())
-                         .WithComponent(new ConditionExpressionConverter())
-                         .WithComponent(new IndexerExpressionConverter())
-                         .WithComponent(new LambdaExpressionConverter())
-                         .WithComponent(new NewArrayExpressionConverter())
-                         .WithComponent(new DefaultExpressionConverter())
-                         .WithComponent(new SynchronizedExpressionParserDecorator(syncRoot));
-
-            configuration.WithAppService(MugenService.Optional<IResourceManager>() ?? new ResourceManager())
-                         .WithComponent(new ResourceResolver())
-                         .WithComponent(new TypeResolver());
-
-            return configuration;
+            return configuration.WithService(MugenService.Optional<IExpressionCompiler>() ?? new ExpressionCompiler())
+                                .WithComponent(new ExpressionCompilerCache())
+                                .WithComponent(new CompiledExpressionCompiler())
+                                .WithComponent(new BinaryExpressionBuilder())
+                                .WithComponent(new ConditionExpressionBuilder())
+                                .WithComponent(new ConstantExpressionBuilder())
+                                .WithComponent(new LambdaExpressionBuilder())
+                                .WithComponent(new MemberExpressionBuilder())
+                                .WithComponent(new MethodCallIndexerExpressionBuilder())
+                                .WithComponent(new NullConditionalExpressionBuilder())
+                                .WithComponent(new ExpressionOptimizer())
+                                .WithComponent(new UnaryExpressionBuilder())
+                                .WithComponent(new SynchronizedExpressionCompilerDecorator(syncRoot))
+                                .WithService(MugenService.Optional<IGlobalValueConverter>() ?? new GlobalValueConverter())
+                                .WithComponent(new DefaultGlobalValueConverter())
+                                .WithService(MugenService.Optional<IBindingManager>() ?? new BindingManager())
+                                .WithComponent(new BindingBuilderDelegateExpressionParser())
+                                .WithComponent(new BindingExpressionExceptionDecorator())
+                                .WithComponent(new BindingExpressionParser())
+                                .WithComponent(new StringBindingExpressionCache())
+                                .WithComponent(new BindingExpressionPriorityDecorator())
+                                .WithComponent(new BindingHolder())
+                                .WithComponent(new BindingHolderLifecycleHandler())
+                                .WithComponent(new BindingExpressionInitializer())
+                                .WithComponent(new BindingModeInitializer())
+                                .WithComponent(new BindingParameterInitializer())
+                                .WithComponent(new InlineBindingExpressionInitializer())
+                                .WithComponent(new DelayBindingInitializer())
+                                .WithComponent(new SynchronizedBindingManagerDecorator(syncRoot))
+                                .WithMacrosConfiguration()
+                                .WithService(MugenService.Optional<IMemberManager>() ?? new MemberManager())
+                                .WithComponent(new ExtensionMethodMemberProvider())
+                                .WithComponent(new FakeMemberProvider())
+                                .WithComponent(new IndexerAccessorMemberDecorator())
+                                .WithComponent(new MemberCache())
+                                .WithComponent(new MemberSelector())
+                                .WithComponent(new MethodMemberAccessorDecorator())
+                                .WithComponent(new MethodRequestMemberManagerDecorator())
+                                .WithComponent(new NameRequestMemberManagerDecorator())
+                                .WithComponent(new ReflectionMemberProvider())
+                                .WithComponent(new SynchronizedMemberManagerDecorator(syncRoot))
+                                .WithService(MugenService.Optional<IObservationManager>() ?? new ObservationManager())
+                                .WithComponent(new EventInfoObserverProvider())
+                                .WithComponent(new EventMemberObserverProvider())
+                                .WithComponent(new MemberPathObserverProvider())
+                                .WithComponent(new MemberPathProvider())
+                                .WithComponent(new MemberPathProviderCache())
+                                .WithComponent(new NonObservableMemberObserverDecorator())
+                                .WithComponent(new PropertyChangedObserverProvider())
+                                .WithComponent(new SynchronizedObservationManagerDecorator(syncRoot))
+                                .WithComponent(cacheResources ? new ResourceMemberPathObserverCache() : null)
+                                .WithService(MugenService.Optional<IExpressionParser>() ?? new ExpressionParser())
+                                .WithComponent(new UnaryTokenParser())
+                                .WithComponent(new MemberTokenParser())
+                                .WithComponent(new BinaryTokenParser())
+                                .WithComponent(new ParenTokenParser())
+                                .WithComponent(new ConditionTokenParser())
+                                .WithComponent(new DigitTokenParser())
+                                .WithComponent(new MethodCallTokenParser())
+                                .WithComponent(new ConstantTokenParser())
+                                .WithComponent(new IndexerTokenParser())
+                                .WithComponent(new LambdaTokenParser())
+                                .WithComponent(new StringTokenParser())
+                                .WithComponent(new NullConditionalMemberTokenParser())
+                                .WithComponent(new AssignmentTokenParser())
+                                .WithComponent(new ExpressionParserConverter())
+                                .WithComponent(new BinaryExpressionConverter())
+                                .WithComponent(new UnaryExpressionConverter())
+                                .WithComponent(new ConstantExpressionConverter())
+                                .WithComponent(new MemberExpressionConverter())
+                                .WithComponent(new MethodCallExpressionConverter())
+                                .WithComponent(new InvocationExpressionConverter())
+                                .WithComponent(new ConditionExpressionConverter())
+                                .WithComponent(new IndexerExpressionConverter())
+                                .WithComponent(new LambdaExpressionConverter())
+                                .WithComponent(new NewArrayExpressionConverter())
+                                .WithComponent(new DefaultExpressionConverter())
+                                .WithComponent(new SynchronizedExpressionParserDecorator(syncRoot))
+                                .WithService(MugenService.Optional<IResourceManager>() ?? new ResourceManager())
+                                .WithComponent(new ResourceResolver())
+                                .WithComponent(new TypeResolver());
         }
 
         public static MugenApplicationConfiguration AttachedMembersBaseConfiguration(this MugenApplicationConfiguration configuration)
@@ -367,6 +347,21 @@ namespace MugenMvvm.Bindings.Extensions
                                                    .WithParameters(stringsParameter)
                                                    .InvokeHandler(getErrorsHandler)
                                                    .Build());
+        }
+
+        private static MugenServiceConfiguration<IBindingManager> WithMacrosConfiguration(this MugenServiceConfiguration<IBindingManager> configuration)
+        {
+            var macrosPreInitializer = configuration.Service.GetMacrosPreInitializer();
+            var macrosVisitor = new MacrosExpressionVisitor();
+            macrosPreInitializer.TargetVisitors.Add(macrosVisitor);
+            macrosPreInitializer.SourceVisitors.Add(macrosVisitor);
+            macrosPreInitializer.ParameterVisitors.Add(macrosVisitor);
+
+            var macrosPostInitializer = configuration.Service.GetMacrosPostInitializer();
+            var constantToBindingParameterVisitor = new ConstantToBindingParameterVisitor();
+            macrosPostInitializer.SourceVisitors.Add(constantToBindingParameterVisitor);
+            macrosPostInitializer.ParameterVisitors.Add(constantToBindingParameterVisitor);
+            return configuration;
         }
 
         private sealed class ErrorsChangedValidatorListener : IValidatorErrorsChangedListener

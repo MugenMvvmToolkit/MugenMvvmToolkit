@@ -84,28 +84,27 @@ namespace MugenMvvm.Navigation.Components
             CancellationToken cancellationToken) =>
             InvokeCallbacks(navigationContext, callbackType, null, true, cancellationToken);
 
-        private static ActionToken GetDisposeTargetToken(object target, List<NavigationCallback?> callbacks) =>
-            ActionToken.FromDelegate((t, l) =>
+        private static ActionToken GetDisposeTargetToken(object target, List<NavigationCallback?> callbacks) => ActionToken.FromDelegate((t, l) =>
+        {
+            var list = (List<NavigationCallback?>) l!;
+            lock (list)
             {
-                var list = (List<NavigationCallback?>)l!;
-                lock (list)
+                if (list.Count == 0)
+                    return;
+
+                for (var i = list.Count - 1; i >= 0; i--)
                 {
-                    if (list.Count == 0)
-                        return;
+                    var navigationCallback = list[i];
+                    if (navigationCallback == null)
+                        continue;
 
-                    for (var i = list.Count - 1; i >= 0; i--)
-                    {
-                        var navigationCallback = list[i];
-                        if (navigationCallback == null)
-                            continue;
-
-                        var context = new NavigationContext(t, NavigationProvider.System, navigationCallback.NavigationId, navigationCallback.NavigationType, NavigationMode.Close);
-                        navigationCallback.TrySetException(context, new ObjectDisposedException(t!.GetType().FullName));
-                    }
-
-                    list.Clear();
+                    var context = new NavigationContext(t, NavigationProvider.System, navigationCallback.NavigationId, navigationCallback.NavigationType, NavigationMode.Close);
+                    navigationCallback.TrySetException(context, new ObjectDisposedException(t!.GetType().FullName));
                 }
-            }, target, callbacks);
+
+                list.Clear();
+            }
+        }, target, callbacks);
 
         private static NavigationCallback? TryFindCallback(List<NavigationCallback?> callbacks, NavigationCallbackType callbackType, string navigationId,
             NavigationType navigationType, IReadOnlyMetadataContextKey<List<NavigationCallback?>> key)

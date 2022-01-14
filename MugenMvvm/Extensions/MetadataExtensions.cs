@@ -130,17 +130,19 @@ namespace MugenMvvm.Extensions
             metadataContext.Set(contextKey, value, out _);
         }
 
-        public static void Merge(this IMetadataContext metadataContext, IReadOnlyMetadataContext metadata)
+        public static IMetadataContext Merge(this IMetadataContext metadataContext, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             Should.NotBeNull(metadata, nameof(metadata));
             metadataContext.Merge(metadata.GetValues());
+            return metadataContext;
         }
 
-        public static void Merge(this IMetadataContext metadataContext, IEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
+        public static IMetadataContext Merge(this IMetadataContext metadataContext, IEnumerable<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             metadataContext.Merge(ItemOrIEnumerable.FromList(values));
+            return metadataContext;
         }
 
         public static bool Remove(this IMetadataContext metadataContext, IMetadataContextKey contextKey)

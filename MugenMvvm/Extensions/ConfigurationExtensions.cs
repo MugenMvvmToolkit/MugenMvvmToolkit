@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
@@ -55,7 +54,7 @@ namespace MugenMvvm.Extensions
         public static MugenApplicationConfiguration WithAsyncInitializationAssert(this MugenApplicationConfiguration configuration, Func<bool> isInitializing,
             Func<object, bool>? canIgnore = null)
         {
-            configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
+            configuration.WithService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
                          .WithComponent(new AsyncInitializationAssertBehavior(isInitializing, canIgnore));
             return configuration;
         }
@@ -63,104 +62,80 @@ namespace MugenMvvm.Extensions
         public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, SynchronizationContext? synchronizationContext,
             IServiceProvider? serviceProvider = null)
         {
-            if (serviceProvider == null)
-            {
-                if (!configuration.HasService<IServiceProvider>())
-                    configuration.InitializeService<IServiceProvider>(new MugenServiceProvider());
-            }
-            else
-                configuration.InitializeService(serviceProvider);
-
-            configuration.WithAppService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
-                         .WithComponent(new CollectionDecoratorManagerInitializer());
-
-            configuration.Application.AddComponent(new AppLifecycleTracker());
-
-            configuration.WithAppService(MugenService.Optional<ICommandManager>() ?? new CommandManager())
-                         .WithComponent(new CommandProvider())
-                         .WithComponent(new CommandCleaner());
-
-            configuration.WithAppService(MugenService.Optional<IEntityManager>() ?? new EntityManager())
-                         .WithComponent(new EntityTrackingCollectionProvider())
-                         .WithComponent(new ReflectionEntityStateSnapshotProvider());
-
-            configuration.WithAppService(MugenService.Optional<IAttachedValueManager>() ?? new AttachedValueManager())
-                         .WithComponent(new ConditionalWeakTableAttachedValueStorage())
-                         .WithComponent(new MetadataOwnerAttachedValueStorage())
-                         .WithComponent(new StaticTypeAttachedValueStorage())
-                         .WithComponent(new ValueHolderAttachedValueStorage());
-
-            configuration.WithAppService(MugenService.Optional<IReflectionManager>() ?? new ReflectionManager())
-                         .WithComponent(new ExpressionReflectionDelegateProvider())
-                         .WithComponent(new ReflectionDelegateProviderCache());
-
-            configuration.WithAppService(MugenService.Optional<IWeakReferenceManager>() ?? new WeakReferenceManager())
-                         .WithComponent(new ValueHolderWeakReferenceProviderCache())
-                         .WithComponent(new WeakReferenceProvider());
-
-            configuration.WithAppService(MugenService.Optional<IMessenger>() ?? new Messenger())
-                         .WithComponent(new MessagePublisher())
-                         .WithComponent(new MessengerHandlerSubscriber());
-
             var entryManager = new NavigationEntryManager();
-            configuration.WithAppService(MugenService.Optional<INavigationDispatcher>() ?? new NavigationDispatcher())
-                         .WithComponent(new NavigationCallbackInvoker())
-                         .WithComponent(new NavigationCallbackManager())
-                         .WithComponent(new NavigationContextProvider())
-                         .WithComponent(new NavigationEntryDateTracker())
-                         .WithComponent(new NavigationTargetDispatcher())
-                         .WithComponent(new ForceCloseNavigationHandler())
-                         .WithComponent(entryManager);
-
-            configuration.WithAppService(MugenService.Optional<IPresenter>() ?? new Presenter())
-                         .WithComponent(new NavigationCallbackPresenterDecorator())
-                         .WithComponent(new ViewModelPresenter())
-                         .WithComponent(new ViewPresenterDecorator())
-                         .WithComponent(entryManager)
-                         .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator));
-
-            configuration.WithAppService(MugenService.Optional<ISerializer>() ?? new Serializer())
-                         .WithComponent(new SerializationManager());
-
-            var threadDispatcher = MugenService.Optional<IThreadDispatcher>() ?? new ThreadDispatcher();
-            if (synchronizationContext != null)
-                threadDispatcher.AddComponent(new SynchronizationContextThreadDispatcher(synchronizationContext));
-            configuration.WithAppService(threadDispatcher);
-
-            configuration.WithAppService(MugenService.Optional<IValidationManager>() ?? new ValidationManager())
-                         .WithComponent(new ValidatorProvider());
-
-            configuration.WithAppService(MugenService.Optional<IViewModelManager>() ?? new ViewModelManager())
-                         .WithComponent(new CacheViewModelProvider())
-                         .WithComponent(new ViewModelProvider())
-                         .WithComponent(new ViewModelCleaner())
-                         .WithComponent(new ViewModelLifecycleTracker())
-                         .WithComponent(new ViewModelMetadataInitializer())
-                         .WithComponent(new ViewModelServiceProvider());
-
-            configuration.WithAppService(MugenService.Optional<IViewManager>() ?? new ViewManager())
-                         .WithComponent(new ExecutionModeViewManagerDecorator())
-                         .WithComponent(new RawViewLifecycleDispatcher())
-                         .WithComponent(new ViewCleaner())
-                         .WithComponent(new ViewInitializer())
-                         .WithComponent(new ViewLifecycleTracker())
-                         .WithComponent(new ViewModelViewManager())
-                         .WithComponent(new ViewModelViewAwareInitializer())
-                         .WithComponent(new ViewModelViewInitializerDecorator())
-                         .WithComponent(new UndefinedMappingViewInitializer())
-                         .WithComponent(new ViewLifecycleAwareViewModelHandler())
-                         .WithComponent(new ViewMappingProvider());
-            configuration.WithAppService(MugenService.Optional<IWrapperManager>() ?? new WrapperManager())
-                         .WithComponent(new ViewWrapperManagerDecorator());
-
-            return configuration;
+            return configuration.WithService(MugenService.Optional<IComponentCollectionManager>() ?? new ComponentCollectionManager())
+                                .WithComponent(new CollectionDecoratorManagerInitializer())
+                                .AppConfiguration()
+                                .WithService(serviceProvider ?? (configuration.HasService<IServiceProvider>() ? null : new MugenServiceProvider()))
+                                .WithComponent(new AppLifecycleTracker())
+                                .WithService(MugenService.Optional<ICommandManager>() ?? new CommandManager())
+                                .WithComponent(new CommandProvider())
+                                .WithComponent(new CommandCleaner())
+                                .WithService(MugenService.Optional<IEntityManager>() ?? new EntityManager())
+                                .WithComponent(new EntityTrackingCollectionProvider())
+                                .WithComponent(new ReflectionEntityStateSnapshotProvider())
+                                .WithService(MugenService.Optional<IAttachedValueManager>() ?? new AttachedValueManager())
+                                .WithComponent(new ConditionalWeakTableAttachedValueStorage())
+                                .WithComponent(new MetadataOwnerAttachedValueStorage())
+                                .WithComponent(new StaticTypeAttachedValueStorage())
+                                .WithComponent(new ValueHolderAttachedValueStorage())
+                                .WithService(MugenService.Optional<IReflectionManager>() ?? new ReflectionManager())
+                                .WithComponent(new ExpressionReflectionDelegateProvider())
+                                .WithComponent(new ReflectionDelegateProviderCache())
+                                .WithService(MugenService.Optional<IWeakReferenceManager>() ?? new WeakReferenceManager())
+                                .WithComponent(new ValueHolderWeakReferenceProviderCache())
+                                .WithComponent(new WeakReferenceProvider())
+                                .WithService(MugenService.Optional<IMessenger>() ?? new Messenger())
+                                .WithComponent(new MessagePublisher())
+                                .WithComponent(new MessengerHandlerSubscriber())
+                                .WithService(MugenService.Optional<INavigationDispatcher>() ?? new NavigationDispatcher())
+                                .WithComponent(new NavigationCallbackInvoker())
+                                .WithComponent(new NavigationCallbackManager())
+                                .WithComponent(new NavigationContextProvider())
+                                .WithComponent(new NavigationEntryDateTracker())
+                                .WithComponent(new NavigationTargetDispatcher())
+                                .WithComponent(new ForceCloseNavigationHandler())
+                                .WithComponent(entryManager)
+                                .WithService(MugenService.Optional<IPresenter>() ?? new Presenter())
+                                .WithComponent(new NavigationCallbackPresenterDecorator())
+                                .WithComponent(new ViewModelPresenter())
+                                .WithComponent(new ViewPresenterDecorator())
+                                .WithComponent(entryManager)
+                                .WithComponent(ViewModelPresenterMediatorProvider.Get(GetViewModelPresenterMediator))
+                                .WithService(MugenService.Optional<ISerializer>() ?? new Serializer())
+                                .WithComponent(new SerializationManager())
+                                .WithService(MugenService.Optional<IThreadDispatcher>() ?? new ThreadDispatcher())
+                                .WithComponent(synchronizationContext == null ? null : new SynchronizationContextThreadDispatcher(synchronizationContext))
+                                .WithService(MugenService.Optional<IValidationManager>() ?? new ValidationManager())
+                                .WithComponent(new ValidatorProvider())
+                                .WithService(MugenService.Optional<IViewModelManager>() ?? new ViewModelManager())
+                                .WithComponent(new CacheViewModelProvider())
+                                .WithComponent(new ViewModelProvider())
+                                .WithComponent(new ViewModelCleaner())
+                                .WithComponent(new ViewModelLifecycleTracker())
+                                .WithComponent(new ViewModelMetadataInitializer())
+                                .WithComponent(new ViewModelServiceProvider())
+                                .WithService(MugenService.Optional<IViewManager>() ?? new ViewManager())
+                                .WithComponent(new ExecutionModeViewManagerDecorator())
+                                .WithComponent(new RawViewLifecycleDispatcher())
+                                .WithComponent(new ViewCleaner())
+                                .WithComponent(new ViewInitializer())
+                                .WithComponent(new ViewLifecycleTracker())
+                                .WithComponent(new ViewModelViewManager())
+                                .WithComponent(new ViewModelViewAwareInitializer())
+                                .WithComponent(new ViewModelViewInitializerDecorator())
+                                .WithComponent(new UndefinedMappingViewInitializer())
+                                .WithComponent(new ViewLifecycleAwareViewModelHandler())
+                                .WithComponent(new ViewMappingProvider())
+                                .WithService(MugenService.Optional<IWrapperManager>() ?? new WrapperManager())
+                                .WithComponent(new ViewWrapperManagerDecorator());
         }
 
         public static MugenApplicationConfiguration TraceConfiguration(this MugenApplicationConfiguration configuration, bool traceApp = true, bool traceBinding = true,
             bool traceMessenger = true, bool traceNavigation = true, bool tracePresenter = true, bool traceViewModel = true, bool traceView = true,
             bool includeTraceLogger = true)
         {
-            var cfg = configuration.WithAppService(MugenService.Optional<ILogger>() ?? new Logger());
+            var cfg = configuration.WithService(MugenService.Optional<ILogger>() ?? new Logger());
             if (traceApp)
                 DebugTracer.TraceApp(configuration.Application);
             if (traceBinding)
@@ -180,24 +155,32 @@ namespace MugenMvvm.Extensions
             return configuration;
         }
 
-        public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service)
+        public static MugenApplicationConfiguration WithService<TService>(this MugenApplicationConfiguration configuration, TService? service)
             where TService : class =>
-            configuration.InitializeService((TService) service);
+            service == null ? configuration : configuration.InitializeService(service);
 
-        public static MugenApplicationConfiguration WithComponent(this MugenApplicationConfiguration configuration, IComponent<IMugenApplication> component,
+        public static MugenApplicationConfiguration WithComponent(this MugenApplicationConfiguration configuration, IComponent<IMugenApplication>? component,
             IReadOnlyMetadataContext? metadata = null)
         {
-            configuration.Application.Components.Add(component, metadata);
+            if (component != null)
+                configuration.Application.Components.Add(component, metadata);
             return configuration;
         }
 
-        public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component,
+        public static MugenServiceConfiguration<TService> WithComponent<TService>(this MugenServiceConfiguration<TService> configuration, IComponent<TService>? component,
             IReadOnlyMetadataContext? metadata = null)
             where TService : class, IComponentOwner
         {
-            configuration.Service.Components.Add(component, metadata);
+            if (component != null)
+                configuration.Service.Components.Add(component, metadata);
             return configuration;
         }
+
+        public static MugenApplicationConfiguration WithMetadataValue<T>(this MugenApplicationConfiguration configuration, IMetadataContextKey<T> key, T value) =>
+            configuration.WithMetadata(configuration.Metadata.WithValue(key, value));
+
+        public static MugenApplicationConfiguration WithMetadataValue<TService, T>(this MugenServiceConfiguration<TService> configuration, IMetadataContextKey<T> key, T value)
+            where TService : class => configuration.AppConfiguration().WithMetadataValue(key, value);
 
         public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration) => configuration.Application;
 

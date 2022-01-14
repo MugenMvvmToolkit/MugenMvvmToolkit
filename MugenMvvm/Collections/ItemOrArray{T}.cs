@@ -10,7 +10,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ItemOrArray<T> : IReadOnlyList<T>
+    public readonly struct ItemOrArray<T> : IReadOnlyList<T>, IEquatable<ItemOrArray<T>>
     {
         public readonly T? Item;
         public readonly T[]? List;
@@ -74,6 +74,26 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIReadOnlyList<T>(ItemOrArray<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.Count);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(ItemOrArray<T> left, ItemOrArray<T> right) => left.Equals(right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(ItemOrArray<T> left, ItemOrArray<T> right) => !left.Equals(right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(ItemOrArray<T> other)
+        {
+            if (List != null)
+                return Equals(List, other.List);
+            return Count == other.Count && EqualityComparer<T?>.Default.Equals(Item, other.Item);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object? obj) => obj is ItemOrArray<T> other && Equals(other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => HashCode.Combine(Item, List, Count);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrArray<TTo> CastTo<TTo>() => new((TTo?) (object?) Item, (TTo[]?) (object?) List, Count);

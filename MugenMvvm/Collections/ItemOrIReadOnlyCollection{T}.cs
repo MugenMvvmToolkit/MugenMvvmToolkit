@@ -9,7 +9,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ItemOrIReadOnlyCollection<T> : IReadOnlyCollection<T>
+    public readonly struct ItemOrIReadOnlyCollection<T> : IReadOnlyCollection<T>, IEquatable<ItemOrIReadOnlyCollection<T>>
     {
         internal readonly int FixedCount;
         public readonly T? Item;
@@ -70,6 +70,26 @@ namespace MugenMvvm.Collections
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrIEnumerable<T>(ItemOrIReadOnlyCollection<T> itemOrList) => new(itemOrList.Item!, itemOrList.List, itemOrList.FixedCount);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(ItemOrIReadOnlyCollection<T> left, ItemOrIReadOnlyCollection<T> right) => left.Equals(right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(ItemOrIReadOnlyCollection<T> left, ItemOrIReadOnlyCollection<T> right) => !(left == right);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool Equals(ItemOrIReadOnlyCollection<T> other)
+        {
+            if (List != null)
+                return Equals(List, other.List);
+            return FixedCount == other.FixedCount && EqualityComparer<T?>.Default.Equals(Item, other.Item);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Equals(object? obj) => obj is ItemOrIReadOnlyCollection<T> other && Equals(other);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override int GetHashCode() => HashCode.Combine(FixedCount, Item, List);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IEnumerable<T> AsEnumerable() => AsList();
