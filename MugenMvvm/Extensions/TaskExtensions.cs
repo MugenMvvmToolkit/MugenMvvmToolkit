@@ -212,6 +212,12 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        public static async Task<T> GetValueOrDefaultAsync<T>(this Task<T?> task, T defaultResult = default) where T : struct
+        {
+            var b = await task.ConfigureAwait(false);
+            return b.GetValueOrDefault(defaultResult);
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsCompletedSuccessfully(this Task task)
         {

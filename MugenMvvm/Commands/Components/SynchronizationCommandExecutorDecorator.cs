@@ -130,7 +130,7 @@ namespace MugenMvvm.Commands.Components
                    ItemOrIReadOnlyList.FromRawValue<ICompositeCommand>(commands).Contains(executingCommand);
         }
 
-        private async Task<bool> ExecuteAsync(ICompositeCommand command, ItemOrArray<ICommandExecutorComponent> components, object? parameter,
+        private async Task<bool?> ExecuteAsync(ICompositeCommand command, ItemOrArray<ICommandExecutorComponent> components, object? parameter,
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             CancellationTokenSource? cts = null;
@@ -190,7 +190,7 @@ namespace MugenMvvm.Commands.Components
             public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) =>
                 ReferenceEquals(Synchronizer._executingCommand, command) || Components.IsExecuting(command, metadata);
 
-            public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task<bool?> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 if (!Synchronizer.IsRecursiveExecution(metadata, out var cts))
                     return Synchronizer.ExecuteAsync(command, Components, parameter, cancellationToken, metadata);
@@ -201,7 +201,7 @@ namespace MugenMvvm.Commands.Components
 
             public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => Components.TryWaitAsync(command, metadata);
 
-            private async Task<bool> ExecuteRecursiveAsync(ICompositeCommand command, CancellationTokenSource cts, object? parameter, CancellationToken cancellationToken,
+            private async Task<bool?> ExecuteRecursiveAsync(ICompositeCommand command, CancellationTokenSource cts, object? parameter, CancellationToken cancellationToken,
                 IReadOnlyMetadataContext? metadata)
             {
                 using var t = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, cancellationToken);

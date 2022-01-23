@@ -245,7 +245,7 @@ namespace MugenMvvm.Extensions
             return command.GetComponentOptional<ValidatorCommandObserver>()?.Remove(notifier) ?? false;
         }
 
-        public static Task<bool> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
+        public static Task<bool?> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(command, nameof(command));

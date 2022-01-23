@@ -396,7 +396,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
-            (await task).ShouldBeTrue();
+            (await task)!.Value.ShouldBeTrue();
             task.IsCompleted.ShouldBeTrue();
         }
 
@@ -423,7 +423,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
-            (await task).ShouldBeTrue();
+            (await task)!.Value.ShouldBeTrue();
             task.IsCompleted.ShouldBeTrue();
         }
 

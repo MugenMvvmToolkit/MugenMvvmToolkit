@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
             }
             else
             {
-                (await task1).ShouldBeFalse();
+                (await task1)!.HasValue.ShouldBeFalse();
                 command1.CanExecute(null).ShouldBeFalse();
                 task2.IsCompleted.ShouldBeFalse();
             }

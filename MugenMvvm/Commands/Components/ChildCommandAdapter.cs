@@ -116,31 +116,31 @@ namespace MugenMvvm.Commands.Components
             return false;
         }
 
-        public virtual async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public virtual async Task<bool?> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (SuppressExecute)
-                return false;
+                return null;
 
             var commands = _commands;
             var executeHandler = ExecuteHandler;
             if (executeHandler != null)
                 return await executeHandler(commands, parameter, cancellationToken, metadata).ConfigureAwait(false);
 
-            var tasks = new ItemOrListEditor<Task<bool>>();
+            var tasks = new ItemOrListEditor<Task<bool?>>();
             var result = false;
             foreach (var cmd in commands)
             {
                 var task = cmd.ExecuteAsync(parameter, cancellationToken, metadata);
                 if (!task.IsCompletedSuccessfully())
                     tasks.Add(task);
-                else if (task.Result)
+                else if (task.Result.GetValueOrDefault())
                     result = true;
             }
 
             foreach (var task in tasks)
             {
                 await task.ConfigureAwait(false);
-                if (task.Result)
+                if (task.Result.GetValueOrDefault())
                     result = true;
             }
 

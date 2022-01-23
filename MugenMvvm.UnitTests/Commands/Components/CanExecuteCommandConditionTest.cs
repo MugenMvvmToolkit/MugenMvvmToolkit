@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
                         c.ShouldEqual(DefaultCancellationToken);
                         m.ShouldEqual(Metadata);
                         ++invokeCount;
-                        return Default.FalseTask;
+                        return Default.NullBoolTask;
                     },
                     Priority = -i
                 });

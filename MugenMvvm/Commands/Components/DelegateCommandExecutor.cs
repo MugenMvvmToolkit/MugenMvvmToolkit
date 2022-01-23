@@ -51,7 +51,7 @@ namespace MugenMvvm.Commands.Components
 
         public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => _executeCount != 0;
 
-        public async Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public async Task<bool?> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             CancellationTokenSource? cts = null;
             try

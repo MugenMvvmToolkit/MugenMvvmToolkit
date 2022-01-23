@@ -16,6 +16,9 @@ namespace MugenMvvm.Internal
     {
         public static readonly Task<bool> TrueTask = Task.FromResult(true);
         public static readonly Task<bool> FalseTask = Task.FromResult(false);
+        public static readonly Task<bool?> TrueNullableTask = Task.FromResult<bool?>(true);
+        public static readonly Task<bool?> FalseNullableTask = Task.FromResult<bool?>(false);
+        public static readonly Task<bool?> NullBoolTask = Task.FromResult<bool?>(null);
 
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new(nameof(IList.Count));

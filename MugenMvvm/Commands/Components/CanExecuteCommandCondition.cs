@@ -18,11 +18,11 @@ namespace MugenMvvm.Commands.Components
 
         public bool IsExecuting(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => Components.IsExecuting(command, metadata);
 
-        public Task<bool> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<bool?> TryExecuteAsync(ICompositeCommand command, object? parameter, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (command.CanExecute(parameter, metadata))
                 return Components.TryExecuteAsync(command, parameter, cancellationToken, metadata);
-            return Default.FalseTask;
+            return Default.NullBoolTask;
         }
 
         public Task TryWaitAsync(ICompositeCommand command, IReadOnlyMetadataContext? metadata) => Components.TryWaitAsync(command, metadata);

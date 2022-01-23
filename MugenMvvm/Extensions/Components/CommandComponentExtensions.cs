@@ -72,12 +72,12 @@ namespace MugenMvvm.Extensions.Components
                 c.RaiseCanExecuteChanged(command, metadata);
         }
 
-        public static Task<bool> TryExecuteAsync(this ItemOrArray<ICommandExecutorComponent> components, ICompositeCommand command, object? parameter,
+        public static Task<bool?> TryExecuteAsync(this ItemOrArray<ICommandExecutorComponent> components, ICompositeCommand command, object? parameter,
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(command, nameof(command));
             return components.InvokeSequentiallyAsync((command, parameter), cancellationToken, metadata,
-                (component, s, c, m) => component.TryExecuteAsync(s.command, s.parameter, c, m).AsValueTask()).AsTask();
+                (component, s, c, m) => component.TryExecuteAsync(s.command, s.parameter, c, m).AsValueTask(), b => b.GetValueOrDefault()).AsTask();
         }
 
         public static bool IsExecuting(this ItemOrArray<ICommandExecutorComponent> components, ICompositeCommand command, IReadOnlyMetadataContext? metadata)

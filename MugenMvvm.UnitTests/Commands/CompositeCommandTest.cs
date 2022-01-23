@@ -321,10 +321,10 @@ namespace MugenMvvm.UnitTests.Commands
         public async Task ExecuteShouldBeHandledByComponents(int componentCount)
         {
             var invokeCount = 0;
-            var tcs = new TaskCompletionSource<bool>[componentCount];
+            var tcs = new TaskCompletionSource<bool?>[componentCount];
             for (var i = 0; i < componentCount; i++)
             {
-                var tc = new TaskCompletionSource<bool>();
+                var tc = new TaskCompletionSource<bool?>();
                 tcs[i] = tc;
                 Command.AddComponent(new TestCommandExecutorComponent
                 {
@@ -345,7 +345,7 @@ namespace MugenMvvm.UnitTests.Commands
             for (var i = 0; i < tcs.Length; i++)
                 tcs[i].SetResult(i == componentCount - 1);
 
-            (await task).ShouldBeTrue();
+            (await task)!.Value.ShouldBeTrue();
             invokeCount.ShouldEqual(componentCount);
         }
 

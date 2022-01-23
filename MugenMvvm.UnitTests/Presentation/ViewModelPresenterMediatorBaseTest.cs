@@ -337,7 +337,7 @@ namespace MugenMvvm.UnitTests.Presentation
             NavigationDispatcher.RemoveComponents<TestNavigationContextProviderComponent>();
             NavigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (_, o, provider, arg3, arg4, arg5, arg6) => _navigationContext
+                TryGetNavigationContext = (_, _, _, _, _, _, _) => _navigationContext
             });
             NavigationDispatcher.AddComponent(new TestNavigationConditionComponent
             {
@@ -384,7 +384,7 @@ namespace MugenMvvm.UnitTests.Presentation
             }
             else
             {
-                WaitCompletion(30, () => cancelCount == 1);
+                WaitCompletion(50, () => cancelCount == 1);
                 closeCount.ShouldEqual(0);
                 cancelCount.ShouldEqual(1);
             }

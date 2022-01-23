@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTests.Commands.Components
 
             Command.AddChildCommand(cmd1);
             Command.AddChildCommand(cmd2);
-            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata))!.Value.ShouldBeTrue();
 
             cmd1Count.ShouldEqual(1);
             cmd2Count.ShouldEqual(1);
@@ -190,11 +190,11 @@ namespace MugenMvvm.UnitTests.Commands.Components
                 set.Count.ShouldEqual(2);
                 set.Contains(cmd1).ShouldBeTrue();
                 set.Contains(cmd2).ShouldBeTrue();
-                if (await cmd1.ExecuteAsync(p, c, m))
+                if (await cmd1.ExecuteAsync(p, c, m).GetValueOrDefaultAsync())
                     return true;
-                return await cmd2.ExecuteAsync(p, c, m);
+                return await cmd2.ExecuteAsync(p, c, m).GetValueOrDefaultAsync();
             };
-            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(parameter, DefaultCancellationToken, Metadata))!.Value.ShouldBeTrue();
 
             cmd1Count.ShouldEqual(1);
             cmd2Count.ShouldEqual(result ? 0 : 1);
@@ -270,15 +270,15 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var cmd = CompositeCommand.Create<object?>(this, (p, m) => { ++count; }, commandManager: CommandManager);
 
             Command.AddChildCommand(cmd);
-            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata))!.Value.ShouldBeTrue();
             count.ShouldEqual(1);
 
             _adapter.SuppressExecute = true;
-            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata)).ShouldBeFalse();
+            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata))!.HasValue.ShouldBeFalse();
             count.ShouldEqual(1);
 
             _adapter.SuppressExecute = false;
-            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata)).ShouldBeTrue();
+            (await Command.ExecuteAsync(null, DefaultCancellationToken, Metadata))!.Value.ShouldBeTrue();
             count.ShouldEqual(2);
         }
 
