@@ -191,7 +191,7 @@ namespace MugenMvvm.Collections.Components
                 return;
 
             _items.Clear();
-            var items = decoratorManager.Decorate(owner, this);
+            var items = decoratorManager.Decorate(owner, this, false);
             if (HasFilter)
             {
                 UpdateItems(items);

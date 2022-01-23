@@ -372,7 +372,7 @@ namespace MugenMvvm.Collections
         protected internal abstract IEnumerable<object?> GetItems();
 
         protected static void Reset(ICollectionDecoratorManagerComponent decoratorManager, FlattenCollectionDecorator decorator, IReadOnlyObservableCollection owner) =>
-            decoratorManager.OnReset(owner, decorator, decorator.Decorate(decoratorManager.Decorate(owner, decorator)));
+            decoratorManager.OnReset(owner, decorator, decorator.Decorate(decoratorManager.Decorate(owner, decorator, false)));
 
         protected bool TryGetDecoratorManager([NotNullWhen(true)] out ICollectionDecoratorManagerComponent? decoratorManager,
             [NotNullWhen(true)] out FlattenCollectionDecorator? decorator, [NotNullWhen(true)] out IReadOnlyObservableCollection? decoratorOwner)

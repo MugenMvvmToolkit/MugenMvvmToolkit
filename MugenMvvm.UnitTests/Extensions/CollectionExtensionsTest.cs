@@ -230,7 +230,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null,
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, SortingComparerBuilder.Get<Group>().Descending(group => group.Value).Build(), null, null,
                            flatten);
 
             for (var i = 0; i < 10; i++)
@@ -267,7 +267,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, flatten);
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, builder => builder.Descending(g => g.Value), null, null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);
@@ -339,7 +339,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 return false;
             }, ComponentCollectionManager);
             _collection.ConfigureDecorators<int>()
-                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, flatten);
+                       .GroupBy(i => Optional.Get(i % 2), i => i == 0 ? group1 : group2, group => group.Value, builder => builder.Descending(group => group), null, null, flatten);
 
             for (var i = 0; i < 10; i++)
                 _collection.Add(i);

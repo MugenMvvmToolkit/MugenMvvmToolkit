@@ -114,7 +114,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         private void Invalidate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, bool force = false) =>
-            Invalidate(decoratorManager.Decorate(collection, this), force);
+            Invalidate(decoratorManager.Decorate(collection, this, false), force);
 
         private void Invalidate(IEnumerable<object?>? items, bool force = false)
         {

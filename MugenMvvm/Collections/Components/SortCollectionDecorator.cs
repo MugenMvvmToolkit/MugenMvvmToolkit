@@ -201,7 +201,7 @@ namespace MugenMvvm.Collections.Components
             else
             {
                 _items.Clear();
-                Reset(decoratorManager.Decorate(owner, this));
+                Reset(decoratorManager.Decorate(owner, this, false));
                 decoratorManager.OnReset(owner, this, this);
             }
         }

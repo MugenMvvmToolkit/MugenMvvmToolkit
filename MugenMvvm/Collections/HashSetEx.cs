@@ -10,7 +10,7 @@ namespace MugenMvvm.Collections
     {
         private int _nullCount;
 
-        public HashSetEx() : base(InternalEqualityComparer.GetReferenceComparer<T>())
+        public HashSetEx(IEqualityComparer<T>? comparer) : base(comparer)
         {
         }
 

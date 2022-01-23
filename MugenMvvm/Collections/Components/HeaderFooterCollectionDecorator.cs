@@ -252,7 +252,7 @@ namespace MugenMvvm.Collections.Components
                 {
                     if (isFooter)
                     {
-                        _footerIndex = decoratorManager.Decorate(owner, this).CountEx() + HeaderCount;
+                        _footerIndex = decoratorManager.Decorate(owner, this, false).CountEx() + HeaderCount;
                         offset = _footerIndex;
                     }
 

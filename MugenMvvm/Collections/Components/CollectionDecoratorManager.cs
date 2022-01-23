@@ -46,6 +46,7 @@ namespace MugenMvvm.Collections.Components
         private int _updatingIndex;
         private int _flags;
         private int _flattenListenerCount;
+        private int _lastCachedDecoratorIndex;
         private int? _raiseItemChangedDelay;
         private int? _raiseItemChangedResetThreshold;
         private bool? _raiseItemChangedCheckDuplicates;
@@ -53,6 +54,7 @@ namespace MugenMvvm.Collections.Components
         [Preserve]
         public CollectionDecoratorManager() : this(CollectionComponentPriority.DecoratorManager)
         {
+            _lastCachedDecoratorIndex = -1;
         }
 
         public CollectionDecoratorManager(int priority)
@@ -82,7 +84,7 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; init; }
 
-        public IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null)
+        public IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, bool includeDecorator)
         {
             using var _ = decorator == null || !CheckFlag(InitializedFlag) ? collection.Lock() : default;
             if (!CheckFlag(InitializedFlag))
@@ -93,15 +95,32 @@ namespace MugenMvvm.Collections.Components
             if (index == InvalidDecoratorIndex)
                 yield break;
 
-            int startIndex;
-            DecoratorItems? decoratorItems = null;
-            if (_decoratorCache != null && _decoratorCache.Count != 0)
+            int decoratorIndex;
+            if (decorator == null)
             {
-                foreach (var item in _decoratorCache)
+                decoratorIndex = index - 1;
+                includeDecorator = true;
+            }
+            else
+            {
+                decoratorIndex = index;
+                if (includeDecorator)
+                    ++index;
+            }
+
+            int startIndex;
+            if (_lastCachedDecoratorIndex != -1)
+            {
+                if (_decoratorCache!.TryGetValue(decorators[decoratorIndex], out var decoratorItems))
+                    decoratorItems = includeDecorator ? decoratorItems : decoratorItems.Prev;
+                else if (decoratorIndex <= _lastCachedDecoratorIndex || !_decoratorCache.TryGetValue(decorators[_lastCachedDecoratorIndex], out decoratorItems))
                 {
-                    var value = item.Value;
-                    if (value.Index < index && (decoratorItems == null || value.Index > decoratorItems.Index))
-                        decoratorItems = value;
+                    foreach (var item in _decoratorCache)
+                    {
+                        var value = item.Value;
+                        if (value.Index < index && (decoratorItems == null || value.Index > decoratorItems.Index))
+                            decoratorItems = value;
+                    }
                 }
 
                 if (decoratorItems == null)
@@ -154,7 +173,7 @@ namespace MugenMvvm.Collections.Components
             if (!CanUpdate())
                 return;
 
-            var items = decorator == null ? GetSource(collection, false) : Decorate(collection, decorator);
+            var items = decorator == null ? GetSource(collection, false) : Decorate(collection, decorator, false);
             OnReset(collection, decorator, items, false, true);
         }
 
@@ -480,7 +499,7 @@ namespace MugenMvvm.Collections.Components
 
                 if (!remove && component is ICollectionDecorator decorator)
                 {
-                    var items = Decorate(collection, decorator);
+                    var items = Decorate(collection, decorator, false);
                     if (decorator.OnReset(collection, ref items) && decorator is not IListenerCollectionDecorator)
                         OnReset(collection, decorator, items, true);
                 }
@@ -541,16 +560,20 @@ namespace MugenMvvm.Collections.Components
             if (_decoratorCache == null || _decoratorCache.Count == 0)
                 return;
 
+            _lastCachedDecoratorIndex = -1;
             var updatedCount = 0;
             var decorators = collection.GetComponents<ICollectionDecorator>();
+            DecoratorItems? prev = null;
             for (var i = 0; i < decorators.Count; i++)
             {
-                if (_decoratorCache.TryGetValue(decorators[i], out var value))
-                {
-                    value.Index = i;
-                    if (++updatedCount == _decoratorCache.Count)
-                        break;
-                }
+                if (!_decoratorCache.TryGetValue(decorators[i], out var value))
+                    continue;
+                _lastCachedDecoratorIndex = i;
+                value.Index = i;
+                value.Prev = prev;
+                prev = value;
+                if (++updatedCount == _decoratorCache.Count)
+                    break;
             }
         }
 
@@ -726,6 +749,8 @@ namespace MugenMvvm.Collections.Components
 
         private sealed class DecoratorItems : List<object?>
         {
+            public DecoratorItems? Prev;
+
             public int Index;
 
             public void Set(int index, object? item) => this[index] = item;

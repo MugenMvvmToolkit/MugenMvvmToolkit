@@ -5,7 +5,7 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface ICollectionDecoratorManagerComponent : IComponent<IReadOnlyObservableCollection>
     {
-        IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator = null);
+        IEnumerable<object?> Decorate(IReadOnlyObservableCollection collection, ICollectionDecorator? decorator, bool includeDecorator);
 
         void RaiseItemChanged(IReadOnlyObservableCollection collection, object? item, object? args);
 

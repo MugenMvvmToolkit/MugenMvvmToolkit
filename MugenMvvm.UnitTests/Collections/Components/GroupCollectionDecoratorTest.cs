@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     _headers.Remove(k);
                     _headersIndex.Remove(group);
                 }
-            });
+            }, null, null);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 if (action != CollectionGroupChangedAction.GroupRemoved)
                     groupItems.Cast<int>().ShouldEqualUnordered(ints);
-            });
+            }, null, null);
             _collection.AddComponent(_decorator);
 
             var expectedItems = _collection.Where(o => _getKey(o).HasValue).Cast<int>();
@@ -338,7 +338,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                 if (action != CollectionGroupChangedAction.GroupRemoved)
                     groupItems.Cast<UnstableKey>().ShouldEqualUnordered(list);
-            });
+            }, null, null);
             _collection.AddComponent(_decorator);
 
             var expectedItems = _collection.Where(o => _getKey(o).HasValue).Cast<UnstableKey>();

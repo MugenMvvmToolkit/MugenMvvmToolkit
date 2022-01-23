@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
-            _decorator = new ConvertCollectionDecorator<object?, object>(0, true, (o, c) => "Item: " + o);
+            _decorator = new ConvertCollectionDecorator<object?, object>(0, true, (o, c) => "Item: " + o, null, null, null);
             _collection.AddComponent(_decorator);
             _tracker.Changed += Assert;
         }
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 if (!ReferenceEquals(s, o))
                     values[s].ShouldEqual(o);
                 cleanupItems.Add(s);
-            }));
+            }, null, null));
             collection.Add(item1);
             collection.Add(1);
             collection.Add(item2);
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 dictionary[s].ShouldEqual(o);
                 cleanupItems.Add(s);
-            }));
+            }, null, null));
             collection.Add(item1);
             collection.Add(item2);
             collection.Add(item3);
@@ -199,7 +199,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 if (o is int)
                     return "Item: " + o;
                 return o;
-            });
+            }, null, null, null);
             ICollectionDecorator decorator = new ConvertImmutableCollectionDecorator<int, string>(0, false, o => "Item: " + o);
             _collection.AddComponent(decorator);
             _collection.Add("Test1");
@@ -255,7 +255,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 dictionary[s].ShouldEqual(o);
                 cleanupItems.Add(s);
-            }));
+            }, null, null));
             collection.Add(item1);
             collection.Add(item2);
             collection.Add(item3);
@@ -305,7 +305,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 dictionary[s].ShouldEqual(o);
                 cleanupItems.Add(s);
-            }));
+            }, null, null));
             collection.Add(item1);
             collection.Add(item2);
 
@@ -343,7 +343,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 dictionary[s].ShouldEqual(o);
                 cleanupItems.Add(s);
-            }));
+            }, null, null));
             collection.Add(item1);
             collection.Add(item2);
             collection.Add(item3);

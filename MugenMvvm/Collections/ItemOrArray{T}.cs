@@ -82,12 +82,7 @@ namespace MugenMvvm.Collections
         public static bool operator !=(ItemOrArray<T> left, ItemOrArray<T> right) => !left.Equals(right);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(ItemOrArray<T> other)
-        {
-            if (List != null)
-                return Equals(List, other.List);
-            return Count == other.Count && EqualityComparer<T?>.Default.Equals(Item, other.Item);
-        }
+        public bool Equals(ItemOrArray<T> other) => Count == other.Count && Equals(other.List, List) && EqualityComparer<T?>.Default.Equals(Item, other.Item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object? obj) => obj is ItemOrArray<T> other && Equals(other);

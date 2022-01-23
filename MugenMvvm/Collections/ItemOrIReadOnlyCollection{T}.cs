@@ -78,12 +78,8 @@ namespace MugenMvvm.Collections
         public static bool operator !=(ItemOrIReadOnlyCollection<T> left, ItemOrIReadOnlyCollection<T> right) => !(left == right);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool Equals(ItemOrIReadOnlyCollection<T> other)
-        {
-            if (List != null)
-                return Equals(List, other.List);
-            return FixedCount == other.FixedCount && EqualityComparer<T?>.Default.Equals(Item, other.Item);
-        }
+        public bool Equals(ItemOrIReadOnlyCollection<T> other) =>
+            FixedCount == other.FixedCount && Equals(other.List, List) && EqualityComparer<T?>.Default.Equals(Item, other.Item);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public override bool Equals(object? obj) => obj is ItemOrIReadOnlyCollection<T> other && Equals(other);

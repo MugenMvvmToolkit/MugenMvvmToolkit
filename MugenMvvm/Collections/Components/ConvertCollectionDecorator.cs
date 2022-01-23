@@ -16,21 +16,23 @@ namespace MugenMvvm.Collections.Components
     {
         private readonly bool _allowNull;
         private readonly Action<T, TTo>? _cleanup;
-        private readonly IEqualityComparer<TTo?>? _comparer;
+        private readonly IEqualityComparer<T>? _comparerFrom;
+        private readonly IEqualityComparer<TTo?>? _comparerTo;
         private IndexMapList<(T? from, TTo? to)> _items;
 #pragma warning disable 8714
         private Dictionary<T, TTo?>? _resetCache;
 #pragma warning restore 8714
 
-        public ConvertCollectionDecorator(int priority, bool allowNull, Func<T, TTo?, Optional<TTo>> converter, Action<T, TTo>? cleanup = null,
-            IEqualityComparer<TTo?>? comparer = null) : base(priority)
+        public ConvertCollectionDecorator(int priority, bool allowNull, Func<T, TTo?, Optional<TTo>> converter, Action<T, TTo>? cleanup,
+            IEqualityComparer<T>? comparerFrom, IEqualityComparer<TTo?>? comparerTo) : base(priority)
         {
             Should.NotBeNull(converter, nameof(converter));
             _items = IndexMapList<(T?, TTo?)>.Get();
             Converter = converter;
             _allowNull = allowNull && TypeChecker.IsNullable<T>();
             _cleanup = cleanup;
-            _comparer = comparer;
+            _comparerFrom = comparerFrom;
+            _comparerTo = comparerTo;
         }
 
         public Func<T, TTo?, Optional<TTo>> Converter { get; }
@@ -50,7 +52,7 @@ namespace MugenMvvm.Collections.Components
             {
                 for (var i = 0; i < _items.Size; i++)
                 {
-                    if (_comparer.EqualsOrDefault(toItem, _items.Indexes[i].Value.to))
+                    if (_comparerTo.EqualsOrDefault(toItem, _items.Indexes[i].Value.to))
                     {
                         indexes.Add(_items.Indexes[i].Index);
                         if (ignoreDuplicates)
@@ -90,7 +92,7 @@ namespace MugenMvvm.Collections.Components
             {
                 var oldItem = _items.Indexes[oldIndex].Value.to;
                 var hasNewItem = TryConvert(itemT, oldItem, out var newItem);
-                if (!hasNewItem || !_comparer.EqualsOrDefault(oldItem, newItem))
+                if (!hasNewItem || !_comparerTo.EqualsOrDefault(oldItem, newItem))
                 {
                     _cleanup?.Invoke(itemT!, oldItem!);
                     if (hasNewItem)
@@ -161,7 +163,7 @@ namespace MugenMvvm.Collections.Components
             else
             {
 #pragma warning disable 8714
-                _resetCache ??= new Dictionary<T, TTo?>(_items.Size, InternalEqualityComparer.GetReferenceComparer<T>());
+                _resetCache ??= new Dictionary<T, TTo?>(_items.Size, _comparerFrom);
 #pragma warning restore 8714
                 TTo? nullValue = default;
                 var hasNullValue = false;
@@ -203,7 +205,7 @@ namespace MugenMvvm.Collections.Components
                         if (TryConvert(itemT, oldValue, out var value))
                         {
                             _items.AddRaw(index, (itemT, value));
-                            if (hasOldValue && !_comparer.EqualsOrDefault(oldValue, value))
+                            if (hasOldValue && !_comparerTo.EqualsOrDefault(oldValue, value))
                                 _cleanup?.Invoke(itemT!, oldValue!);
                         }
                     }

@@ -743,8 +743,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             target.AddComponent(decorator1);
             target.AddComponent(decorator2);
             target.AddComponent(new LimitCollectionDecorator<TestCollectionItem>(98, false, 10));
-            target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>(97, false, (item, _) => item));
-            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, int, object>(96, false, o => o.StableId % 2, i => i.ToString()));
+            target.AddComponent(new ConvertCollectionDecorator<TestCollectionItem, TestCollectionItem>(97, false, (item, _) => item, null, null, null));
+            target.AddComponent(new GroupCollectionDecorator<TestCollectionItem, int, object>(96, false, o => o.StableId % 2, i => i.ToString(), null, null, null));
             target.AddComponent(new FlattenCollectionDecorator<TestCollectionItem>(95, false, (o, _) => new FlattenItemInfo(o.Items, true), null));
             target.AddComponent(new HeaderFooterCollectionDecorator(94).SetHeader("Header").SetFooter("Footer"));
 

@@ -45,7 +45,7 @@ namespace MugenMvvm.Collections
                 {
                     var decoratorManager = source.GetComponentOptional<ICollectionDecoratorManagerComponent>();
                     if (decoratorManager != null)
-                        Count = decoratorManager.Decorate(_source, _decorator).CountEx();
+                        Count = decoratorManager.Decorate(_source, _decorator, materialize).CountEx();
                 }
             }
         }
@@ -101,7 +101,7 @@ namespace MugenMvvm.Collections
 
         public bool TryLock(int timeout, out ActionToken lockToken) => _source.TryLock(timeout, out lockToken);
 
-        private IEnumerable<T> GetEnumerable(ICollectionDecorator decorator)
+        private IEnumerable<T> GetEnumerable(DecoratorListener decorator)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             var decoratorManager = _source.GetComponentOptional<ICollectionDecoratorManagerComponent>();
@@ -109,7 +109,7 @@ namespace MugenMvvm.Collections
                 yield break;
 
             using var l = Lock();
-            foreach (T? o in decoratorManager.Decorate(_source, decorator))
+            foreach (T? o in decoratorManager.Decorate(_source, decorator, decorator.Materialize))
                 yield return o!;
         }
 
@@ -118,13 +118,13 @@ namespace MugenMvvm.Collections
         private sealed class DecoratorListener : IListenerCollectionDecorator, IFlattenCollectionListener, ICollectionBatchUpdateListener,
             ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
         {
-            private readonly bool _materialize;
+            public readonly bool Materialize;
             private readonly bool _isWeak;
             private object? _target;
 
             public DecoratorListener(DecoratedReadOnlyObservableCollection<T> target, bool isWeak, bool materialize, int priority)
             {
-                _materialize = materialize;
+                Materialize = materialize;
                 Priority = priority;
                 _isWeak = isWeak;
                 _target = isWeak ? target.ToWeakReference() : target;
@@ -150,7 +150,7 @@ namespace MugenMvvm.Collections
 
             public bool IsLazy(IReadOnlyObservableCollection collection) => false;
 
-            public bool IsCacheRequired(IReadOnlyObservableCollection collection) => _materialize;
+            public bool IsCacheRequired(IReadOnlyObservableCollection collection) => Materialize;
 
             public bool HasAdditionalItems(IReadOnlyObservableCollection collection) => false;
 

@@ -23,6 +23,7 @@ namespace MugenMvvm.Collections.Components
         private readonly Func<T, Optional<TKey>> _getKey;
         private readonly Func<TKey, TGroup> _getGroup;
         private readonly UpdateGroupDelegate<T, TKey, TGroup>? _updateGroup;
+        private readonly IEqualityComparer<T>? _comparerValue;
         private readonly Dictionary<TKey, (TGroup group, HashSetEx<T> items)> _groups;
         private IndexMapList<TKey> _keyMap;
         private ListInternal<(TKey key, TGroup group)> _groupList;
@@ -31,7 +32,7 @@ namespace MugenMvvm.Collections.Components
 #endif
 
         public GroupCollectionDecorator(int priority, bool allowNull, Func<T, Optional<TKey>> getKey, Func<TKey, TGroup> getGroup,
-            UpdateGroupDelegate<T, TKey, TGroup>? updateGroup = null, IEqualityComparer<TKey>? comparer = null) : base(priority)
+            UpdateGroupDelegate<T, TKey, TGroup>? updateGroup, IEqualityComparer<TKey>? comparer, IEqualityComparer<T>? comparerValue) : base(priority)
         {
             Should.NotBeNull(getKey, nameof(getKey));
             Should.NotBeNull(getGroup, nameof(getGroup));
@@ -39,6 +40,7 @@ namespace MugenMvvm.Collections.Components
             _getKey = getKey;
             _getGroup = getGroup;
             _updateGroup = updateGroup;
+            _comparerValue = comparerValue;
             _groups = new Dictionary<TKey, (TGroup group, HashSetEx<T> items)>(comparer);
             _groupList = new ListInternal<(TKey key, TGroup group)>(0);
             _keyMap = IndexMapList<TKey>.Get();
@@ -212,7 +214,7 @@ namespace MugenMvvm.Collections.Components
                     else
                     {
                         var group = _getGroup(key.Value);
-                        value = (group, new HashSetEx<T>());
+                        value = (group, new HashSetEx<T>(_comparerValue));
                         _groups[key.Value] = value;
                         _groupList.Add((key.Value, group));
                     }
@@ -317,7 +319,7 @@ namespace MugenMvvm.Collections.Components
             {
                 var group = _getGroup(key);
                 _groupList.Add((key, group));
-                groupInfo = (group, new HashSetEx<T>());
+                groupInfo = (group, new HashSetEx<T>(_comparerValue));
                 _groups[key] = groupInfo;
                 decoratorManager.OnAdded(collection, this, group, _groupList.Count - 1);
             }
