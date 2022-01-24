@@ -47,9 +47,9 @@ namespace MugenMvvm.Extensions
                 return collection.Bind(disposeSourceOnDispose, isWeak, materialize);
 
             if (!TypeChecker.IsValueType<T>())
-                return (IReadOnlyObservableCollection<object?>) (object) new SynchronizedObservableCollection<T>(items);
+                return (IReadOnlyObservableCollection<object?>) (object) new ObservableList<T>(items);
 
-            var result = new SynchronizedObservableCollection<object?>(items.TryGetCount(out var count) ? count : 0);
+            var result = new ObservableList<object?>(items.TryGetCount(out var count) ? count : 0);
             foreach (var item in items)
                 result.Add(item);
             return result;
@@ -60,7 +60,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(items, nameof(items));
             if (items is IReadOnlyObservableCollection<T> collection)
                 return collection.BindToSource(disposeSourceOnDispose, isWeak);
-            return new SynchronizedObservableCollection<T>(items);
+            return new ObservableList<T>(items);
         }
 
         public static DecoratorsConfiguration<T> ConfigureDecorators<T>(this IReadOnlyObservableCollection<T> genericCollection, bool allowNull = false,
@@ -178,8 +178,11 @@ namespace MugenMvvm.Extensions
 
         public static IReadOnlyObservableCollection<T> Collection<T>(this DecoratorsConfiguration<T> configuration) => configuration.CastCollectionTo<T>();
 
-        public static SynchronizedObservableCollection<T> CastCollectionToSynchronized<T>(this DecoratorsConfiguration<T> configuration) =>
-            configuration.CastCollectionToSynchronized<T>();
+        public static ObservableList<T> CastToList<T>(this DecoratorsConfiguration<T> configuration) => configuration.CastToList<T>();
+
+#pragma warning disable CS8714
+        public static ObservableSet<T> CastToSet<T>(this DecoratorsConfiguration<T> configuration) => configuration.CastToSet<T>();
+#pragma warning restore CS8714
 
         public static DecoratorsConfiguration<TResult> Select<T, TResult>(this DecoratorsConfiguration<T> configuration, Func<T, TResult?, TResult> selector,
             Action<T, TResult>? cleanup = null, IEqualityComparer<T>? comparerFrom = null, IEqualityComparer<TResult?>? comparerTo = null) where TResult : class? =>
@@ -1063,8 +1066,14 @@ namespace MugenMvvm.Extensions
             return false;
         }
 
-        internal static void FindAllIndexOf(this IEnumerable<object?> items, object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
+        internal static void FindAllIndexOf(this IEnumerable items, object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
+            if (items is IHasFindAllIndexOfSupport hasIndexOfSupport)
+            {
+                hasIndexOfSupport.FindAllIndexOf(item, ignoreDuplicates, ref indexes);
+                return;
+            }
+
             if (ignoreDuplicates)
             {
                 if (items is IList<object?> list)
@@ -1077,7 +1086,7 @@ namespace MugenMvvm.Extensions
             }
 
             var index = 0;
-            foreach (var value in items)
+            foreach (var value in items.AsEnumerable())
             {
                 if (Equals(item, value))
                 {

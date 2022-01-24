@@ -14,13 +14,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class ConvertImmutableCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private ConvertImmutableCollectionDecorator<object, object> _decorator;
 
         public ConvertImmutableCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _decorator = new ConvertImmutableCollectionDecorator<object, object>(0, true, o => "Item: " + o);
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             indexes[1].ShouldEqual(3);
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

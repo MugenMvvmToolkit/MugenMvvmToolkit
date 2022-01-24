@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var batchType = BatchUpdateType.Source;
             var begin = 0;
             var end = 0;
-            var collection = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var collection = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
 
             for (var i = 0; i < listenersCount; i++)
             {
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var batchType = BatchUpdateType.Source;
             var begin = 0;
             var end = 0;
-            var collection = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var collection = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var beginBatchUpdate1 = collection.BatchUpdate(batchType);
 
             for (var i = 0; i < listenersCount; i++)
@@ -113,7 +113,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var batchType = BatchUpdateType.Source;
             var begin = 0;
             var end = 0;
-            var collection = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var collection = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             for (var i = 0; i < listenersCount; i++)
             {
                 collection.AddComponent(new TestCollectionBatchUpdateListener
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var batchType = BatchUpdateType.Source;
             var begin = 0;
             var end = 0;
-            var collection = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var collection = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             for (var i = 0; i < listenersCount; i++)
             {
                 collection.AddComponent(new TestCollectionBatchUpdateListener

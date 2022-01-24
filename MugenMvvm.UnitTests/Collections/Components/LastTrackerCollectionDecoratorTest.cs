@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class LastTrackerCollectionDecoratorTest : CollectionDecoratorTestBase
     {
         private readonly Func<int, bool>? _condition;
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private int _item;
         private bool _hasItem;
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public LastTrackerCollectionDecoratorTest(Func<int, bool>? condition = null, ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _condition = condition;
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             var decorator = new FirstLastTrackerCollectionDecorator<int>(0, false, false, value =>
@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

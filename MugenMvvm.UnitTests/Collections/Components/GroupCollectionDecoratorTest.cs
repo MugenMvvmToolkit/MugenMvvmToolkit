@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class GroupCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private readonly Dictionary<int, object> _headers;
         private readonly List<object> _headersIndex;
@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
         public GroupCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _headers = new Dictionary<int, object>();
             _headersIndex = new List<object>();
             _tracker = new DecoratedCollectionChangeTracker<object>();
@@ -425,7 +425,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _tracker.ChangedItems.ShouldEqual(items);
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         private IEnumerable<object?> Decorate(Func<object?, Optional<int>>? getKey, Func<int, object>? getHeader)
         {

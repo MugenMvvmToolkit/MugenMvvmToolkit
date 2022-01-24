@@ -10,6 +10,8 @@ namespace MugenMvvm.Interfaces.Collections
     {
         Type ItemType { get; }
 
+        bool IsSet { get; }
+
         int Count { get; }
     }
 }

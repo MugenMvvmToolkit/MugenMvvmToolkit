@@ -17,11 +17,11 @@ namespace MugenMvvm.UnitTests.Collections
     [Collection(SharedContext)]
     public abstract class ReadOnlyObservableCollectionTestBase : UnitTestBase
     {
-        private readonly SynchronizedObservableCollection<object> _source;
+        private readonly ObservableList<object> _source;
 
         protected ReadOnlyObservableCollectionTestBase(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _source = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _source = new ObservableList<object>(ComponentCollectionManager);
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
         }
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTests.Collections
             var added = 0;
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
 
             for (var i = 0; i < listenersCount; i++)
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTests.Collections
         public void ClearShouldNotifyListeners(int listenersCount, int count)
         {
             var clear = 0;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
             for (var i = 0; i < count; i++)
                 source.Add(new TestCollectionItem());
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTests.Collections
             var added = 0;
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
 
             for (var i = 0; i < listenersCount; i++)
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTests.Collections
             var expectedOldIndex = 0;
             var expectedNewIndex = 0;
             TestCollectionItem? expectedItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
 
             for (var i = 0; i < count + 1; i++)
@@ -193,7 +193,7 @@ namespace MugenMvvm.UnitTests.Collections
             var removed = 0;
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
             for (var i = 0; i < count; i++)
                 source.Add(new TestCollectionItem());
@@ -234,7 +234,7 @@ namespace MugenMvvm.UnitTests.Collections
             var expectedIndex = 0;
 
             TestCollectionItem? expectedItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
             for (var i = 0; i < count; i++)
                 source.Add(new TestCollectionItem());
@@ -274,7 +274,7 @@ namespace MugenMvvm.UnitTests.Collections
             var replaced = 0;
             var expectedIndex = 0;
             TestCollectionItem? expectedOldItem = null, expectedNewItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
             for (var i = 0; i < count; i++)
                 source.Add(new TestCollectionItem());
@@ -315,7 +315,7 @@ namespace MugenMvvm.UnitTests.Collections
         {
             var reset = 0;
             IReadOnlyCollection<TestCollectionItem>? expectedItem = null;
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
             for (var i = 0; i < count; i++)
                 source.Add(new TestCollectionItem());
@@ -439,7 +439,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackDecoratedItems()
         {
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
             var target1 = GetCollection(target, false);
             CollectionDecoratorManagerTest.ShouldTrackItemsMulti3(source, target1);
@@ -453,7 +453,7 @@ namespace MugenMvvm.UnitTests.Collections
             var targetDisposedCount = 0;
             var targetDisposingCount = 0;
 
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, false);
 
             source.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
@@ -486,7 +486,7 @@ namespace MugenMvvm.UnitTests.Collections
             var targetDisposedCount = 0;
             var targetDisposingCount = 0;
 
-            var source = new SynchronizedObservableCollection<TestCollectionItem>(ComponentCollectionManager);
+            var source = new ObservableList<TestCollectionItem>(ComponentCollectionManager);
             var target = GetCollection(source, dispose);
 
             source.AddComponent(new TestDisposableComponent<IReadOnlyObservableCollection>
@@ -511,7 +511,7 @@ namespace MugenMvvm.UnitTests.Collections
 
         protected abstract IReadOnlyObservableCollection<T> GetCollection<T>(IReadOnlyObservableCollection<T> source, bool disposeSource, bool isWeak = true);
 
-        private WeakReference WeakTest(SynchronizedObservableCollection<object> source, bool isWeak)
+        private WeakReference WeakTest(ObservableList<object> source, bool isWeak)
         {
             var collection = GetCollection(source, false, isWeak);
             source.Add(NewId());

@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackChanges1()
         {
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.Collections
         public async Task ShouldTrackChangesBatchDelay()
         {
             const int delay = 50;
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
             collectionAdapter.BatchDelay = delay;
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate1()
         {
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
@@ -186,7 +186,7 @@ namespace MugenMvvm.UnitTests.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate2()
         {
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();
@@ -229,7 +229,7 @@ namespace MugenMvvm.UnitTests.Collections
             ThreadDispatcher.RemoveComponents<IThreadDispatcherComponent>();
             using var t = ThreadDispatcher.AddComponent(dispatcherComponent);
 
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new SuspendableObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
             collectionAdapter.BatchThreshold = 3;
@@ -281,7 +281,7 @@ namespace MugenMvvm.UnitTests.Collections
             ThreadDispatcher.RemoveComponents<IThreadDispatcherComponent>();
             using var t = ThreadDispatcher.AddComponent(dispatcherComponent);
 
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = GetCollection(ThreadDispatcher, adapterCollection);
             var tracker = new ObservableCollectionTracker<object?>();

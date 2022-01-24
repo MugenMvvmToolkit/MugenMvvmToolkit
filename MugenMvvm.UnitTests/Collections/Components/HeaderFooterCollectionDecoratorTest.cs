@@ -12,13 +12,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class HeaderFooterCollectionDecoratorTest : UnitTestBase
     {
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly HeaderFooterCollectionDecorator _decorator;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public HeaderFooterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _decorator = new HeaderFooterCollectionDecorator(0);
             _collection.AddComponent(_decorator);
             _tracker = new DecoratedCollectionChangeTracker<object>();

@@ -23,7 +23,7 @@ namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
-    internal sealed class DecoratedReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>
+    internal sealed class DecoratedReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>, IHasFindAllIndexOfSupport
     {
         private readonly IReadOnlyObservableCollection _source;
         private readonly bool _disposeSource;
@@ -51,6 +51,8 @@ namespace MugenMvvm.Collections
         }
 
         public bool IsDisposed => _decorator == null;
+
+        public bool IsSet => false;
 
         public int Count
         {
@@ -114,6 +116,19 @@ namespace MugenMvvm.Collections
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        void IHasFindAllIndexOfSupport.FindAllIndexOf(object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
+        {
+            if (!TypeChecker.IsCompatible<T>(item))
+                return;
+
+            var decorator = _decorator;
+            if (decorator != null)
+            {
+                _source.GetComponentOptional<ICollectionDecoratorManagerComponent>()?.Decorate(_source, decorator, decorator.Materialize)
+                       .FindAllIndexOf(item, ignoreDuplicates, ref indexes);
+            }
+        }
 
         private sealed class DecoratorListener : IListenerCollectionDecorator, IFlattenCollectionListener, ICollectionBatchUpdateListener,
             ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority

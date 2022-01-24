@@ -24,20 +24,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
     {
         private static readonly int[] NullValue = {int.MaxValue, int.MinValue};
 
-        private readonly SynchronizedObservableCollection<int> _itemCollection1;
-        private readonly SynchronizedObservableCollection<int> _itemCollection2;
-        private readonly SynchronizedObservableCollection<object> _targetCollection;
+        private readonly ObservableList<int> _itemCollection1;
+        private readonly ObservableList<int> _itemCollection2;
+        private readonly ObservableList<object> _targetCollection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public FlattenCollectionDecoratorTest()
         {
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
-            _itemCollection1 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
+            _itemCollection1 = new ObservableList<int>(ComponentCollectionManager);
             _itemCollection1.AddComponent(new FilterCollectionDecorator<int>(0, false) {Filter = (i, _) => i % 2 == 0});
-            _itemCollection2 = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
+            _itemCollection2 = new ObservableList<int>(ComponentCollectionManager);
             _itemCollection2.AddComponent(new SortCollectionDecorator<object>(0, o => o, SortingComparerBuilder.Get<int>().Descending(i => i).Build().AsObjectComparer()));
 
-            _targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _targetCollection = new ObservableList<object>(ComponentCollectionManager);
             _targetCollection.AddComponent(new FlattenCollectionDecorator<IEnumerable?>(0, true,
                 (o, currentInfo) =>
                 {
@@ -127,7 +127,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact]
         public void ChangeShouldTrackUnstableItems1()
         {
-            var collection = new SynchronizedObservableCollection<UnstableCollection>(ComponentCollectionManager);
+            var collection = new ObservableList<UnstableCollection>(ComponentCollectionManager);
             collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(0, false, (c, _) => new FlattenItemInfo(c.Items, true), null));
             var tracker = new DecoratedCollectionChangeTracker<object>();
             var assert = new Action(() =>
@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 if (i % 2 == 0)
                 {
-                    var items = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {i};
+                    var items = new ObservableList<object>(ComponentCollectionManager) {i};
                     collection[i].Items = items;
                     collection.RaiseItemChanged(collection[i]);
                     assert();
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 if (i % 2 == 0)
                 {
-                    var items = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {i + 1000};
+                    var items = new ObservableList<object>(ComponentCollectionManager) {i + 1000};
                     collection[i].Items = items;
                     collection.RaiseItemChanged(collection[i]);
                     assert();
@@ -222,7 +222,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [InlineData(false)]
         public void ChangeShouldTrackUnstableItems2(bool decoratedItems)
         {
-            var collection = new SynchronizedObservableCollection<UnstableCollection>(ComponentCollectionManager);
+            var collection = new ObservableList<UnstableCollection>(ComponentCollectionManager);
             collection.AddComponent(new FlattenCollectionDecorator<UnstableCollection>(0, false, (c, _) => new FlattenItemInfo(c.Items, decoratedItems), null));
             var tracker = new DecoratedCollectionChangeTracker<object>();
             var assert = new Action(() =>
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var unstableCollection = new UnstableCollection();
             collection.Add(unstableCollection);
 
-            var items1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var items1 = new ObservableList<object>(ComponentCollectionManager);
             for (int i = 0; i < 10; i++)
                 items1.Add(i.ToString());
 
@@ -478,20 +478,20 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public async Task ShouldBeThreadSafe1(int timeout)
         {
             var cts = new CancellationTokenSource();
-            var root = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var root = new ObservableList<object>(ComponentCollectionManager);
             root.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, (o, _) => new FlattenItemInfo(o, true), null));
 
             var tracker = new DecoratedCollectionChangeTracker<object>();
             tracker.Changed += () => tracker.ChangedItems.ShouldEqual(root.DecoratedItems());
             root.AddComponent(tracker);
 
-            var child1 = new SynchronizedObservableCollection<IReadOnlyObservableCollection>(ComponentCollectionManager);
+            var child1 = new ObservableList<IReadOnlyObservableCollection>(ComponentCollectionManager);
             child1.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, (o, _) => new FlattenItemInfo(o, true), null));
 
-            var child2 = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
+            var child2 = new ObservableList<ObservableList<Guid>>(ComponentCollectionManager);
             child2.AddComponent(new FlattenCollectionDecorator<IReadOnlyObservableCollection>(0, false, (o, _) => new FlattenItemInfo(o, true), null));
 
-            var nestedChild = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
+            var nestedChild = new ObservableList<Guid>(ComponentCollectionManager);
             child1.Add(nestedChild);
             child2.Add(nestedChild);
 
@@ -556,8 +556,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
 
                     Thread.Sleep(100);
 
-                    var child = new SynchronizedObservableCollection<SynchronizedObservableCollection<Guid>>(ComponentCollectionManager);
-                    var nestedChild1 = new SynchronizedObservableCollection<Guid>(ComponentCollectionManager);
+                    var child = new ObservableList<ObservableList<Guid>>(ComponentCollectionManager);
+                    var nestedChild1 = new ObservableList<Guid>(ComponentCollectionManager);
 
                     Task.Run(() =>
                     {
@@ -650,7 +650,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                     _targetCollection[0] = random.Next() % 2 == 0 ? "" : _itemCollection1;
                     _targetCollection[1] = random.Next() % 2 == 0 ? "" : _itemCollection2;
                     if (_targetCollection.Count > 2)
-                        _targetCollection[2] = random.Next() % 2 == 0 ? "" : new SynchronizedObservableCollection<int>(ComponentCollectionManager) {int.MaxValue, int.MinValue};
+                        _targetCollection[2] = random.Next() % 2 == 0 ? "" : new ObservableList<int>(ComponentCollectionManager) {int.MaxValue, int.MinValue};
                 }
             });
             var t4 = Task.Run(() =>
@@ -729,7 +729,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public async Task ShouldBeThreadSafe3(int timeout, bool decorator)
         {
             var cts = new CancellationTokenSource();
-            var targetCollection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var targetCollection = new ObservableList<object>(ComponentCollectionManager);
             var tracker = new DecoratedCollectionChangeTracker<object>();
             targetCollection.AddComponent(tracker);
             targetCollection.ConfigureDecorators<ThreadSafeItem>()
@@ -778,10 +778,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
                         return;
                     Thread.Sleep(10);
                     var item = items[index];
-                    item.Items = new SynchronizedObservableCollection<object>(ComponentCollectionManager)
+                    item.Items = new ObservableList<object>(ComponentCollectionManager)
                                  .ConfigureDecorators()
                                  .Count(i => item.IsVisible = i > 0)
-                                 .CastCollectionToSynchronized();
+                                 .CastToList();
                     item.Items.Add(index);
                     ++index;
                 }
@@ -796,7 +796,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact(Skip = ReleaseTest)]
         public void ShouldBeWeak()
         {
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collection = new ObservableList<object>(ComponentCollectionManager);
             var weakReference = WeakTest(collection);
             GcCollect();
             GcCollect();
@@ -879,8 +879,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             SetBatchLimit(batchLimit);
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1", "t1-T2"};
-            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var t1 = new ObservableList<object>(ComponentCollectionManager) {"t1-T1", "t1-T2"};
+            var t2 = new ObservableList<object>(ComponentCollectionManager);
 
             for (var i = 0; i < count; i++)
             {
@@ -1007,9 +1007,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
             SetBatchLimit(batchLimit);
 
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t3-T1", "t3-T2"};
+            var t1 = new ObservableList<object>(ComponentCollectionManager);
+            var t2 = new ObservableList<object>(ComponentCollectionManager);
+            var t3 = new ObservableList<object>(ComponentCollectionManager) {"t3-T1", "t3-T2"};
 
             _targetCollection.Add("T1");
             _targetCollection.Add(t1);
@@ -1126,8 +1126,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             SetBatchLimit(batchLimit);
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1"};
-            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
+            var t1 = new ObservableList<object>(ComponentCollectionManager) {"t1-T1"};
+            var t2 = new ObservableList<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
 
             for (var i = 0; i < count; i++)
             {
@@ -1187,8 +1187,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 SetBatchLimit(l);
                 _targetCollection.Clear();
-                var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-                var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+                var t1 = new ObservableList<object>(ComponentCollectionManager);
+                var t2 = new ObservableList<object>(ComponentCollectionManager);
                 for (var i = 0; i < t1Count; i++)
                     t1.Add("t1-T" + i);
                 for (var i = 0; i < t2Count; i++)
@@ -1257,8 +1257,8 @@ namespace MugenMvvm.UnitTests.Collections.Components
         {
             SetBatchLimit(batchLimit);
             _targetCollection.Clear();
-            var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t1-T1"};
-            var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
+            var t1 = new ObservableList<object>(ComponentCollectionManager) {"t1-T1"};
+            var t2 = new ObservableList<object>(ComponentCollectionManager) {"t2-T1", "t2-T2"};
 
             for (var i = 0; i < count; i++)
             {
@@ -1308,13 +1308,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
             {
                 SetBatchLimit(l);
                 _targetCollection.Clear();
-                var t1 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-                var t2 = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+                var t1 = new ObservableList<object>(ComponentCollectionManager);
+                var t2 = new ObservableList<object>(ComponentCollectionManager);
                 for (var i = 0; i < t1Count; i++)
                     t1.Add("t1-T" + i);
                 for (var i = 0; i < t2Count; i++)
                     t2.Add("t2-T" + i);
-                var t3 = new SynchronizedObservableCollection<object>(ComponentCollectionManager) {"t3-T1", "t3-T2", "t3-T3"};
+                var t3 = new ObservableList<object>(ComponentCollectionManager) {"t3-T1", "t3-T2", "t3-T3"};
 
                 for (var i = 0; i < count; i++)
                 {
@@ -1358,10 +1358,10 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        private WeakReference WeakTest(SynchronizedObservableCollection<object> target)
+        private WeakReference WeakTest(ObservableList<object> target)
         {
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
-            collection.AddComponent(new FlattenCollectionDecorator<SynchronizedObservableCollection<object>>(0, false, (o, _) => new FlattenItemInfo(o, true), null));
+            var collection = new ObservableList<object>(ComponentCollectionManager);
+            collection.AddComponent(new FlattenCollectionDecorator<ObservableList<object>>(0, false, (o, _) => new FlattenItemInfo(o, true), null));
             collection.Add(target);
 
             target.Add(NewId());
@@ -1409,7 +1409,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        private static IEnumerable<object?> Decorate(SynchronizedObservableCollection<UnstableCollection> collection)
+        private static IEnumerable<object?> Decorate(ObservableList<UnstableCollection> collection)
         {
             foreach (var item in collection)
             {

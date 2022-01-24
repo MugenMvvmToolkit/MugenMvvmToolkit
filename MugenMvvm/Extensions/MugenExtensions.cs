@@ -461,6 +461,9 @@ namespace MugenMvvm.Extensions
                 if (target is not IWrapper<object> t)
                     return null;
 
+                if (ReferenceEquals(target, t.Target))
+                    return null;
+
                 target = t.Target;
             }
         }
@@ -472,6 +475,10 @@ namespace MugenMvvm.Extensions
             {
                 if (target is not IWrapper<T> t)
                     return target;
+
+                if (ReferenceEquals(target, t.Target))
+                    return target;
+
                 target = t.Target;
             }
         }

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -21,8 +22,8 @@ namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
-    public sealed class SynchronizedObservableCollection<T> : SynchronizableComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection,
-        IHasComponentAddConditionHandler
+    public sealed class ObservableList<T> : SynchronizableComponentOwnerBase<IReadOnlyObservableCollection>, IObservableList<T>, IObservableList,
+        IHasComponentAddConditionHandler, IHasFindAllIndexOfSupport
     {
         private const int DefaultCapacity = 4;
         private const int MaxArrayLength = 0X7FEFFFFF;
@@ -30,17 +31,17 @@ namespace MugenMvvm.Collections
         private int _size;
         private T[] _items;
 
-        public SynchronizedObservableCollection(IComponentCollectionManager? componentCollectionManager = null) : this(null, componentCollectionManager)
+        public ObservableList(IComponentCollectionManager? componentCollectionManager = null) : this(null, componentCollectionManager)
         {
         }
 
-        public SynchronizedObservableCollection(int capacity, IComponentCollectionManager? componentCollectionManager = null) : this(null, componentCollectionManager)
+        public ObservableList(int capacity, IComponentCollectionManager? componentCollectionManager = null) : this(null, componentCollectionManager)
         {
             if (capacity > 0)
                 _items = new T[capacity];
         }
 
-        public SynchronizedObservableCollection(IEnumerable<T>? items, IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
+        public ObservableList(IEnumerable<T>? items, IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
             if (items == null)
                 _items = Array.Empty<T>();
@@ -69,6 +70,8 @@ namespace MugenMvvm.Collections
         public bool IsDisposed { get; private set; }
 
         public int Count => Volatile.Read(ref _size);
+
+        public bool IsSet => false;
 
         bool ICollection.IsSynchronized => true;
 
@@ -219,22 +222,23 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public void Reset(IEnumerable<T>? items)
+        public bool Reset(IEnumerable<T>? items)
         {
             if (ReferenceEquals(items, this))
-                return;
+                return false;
 
             using (Lock())
             {
                 EnsureNotDisposed();
                 if (items == null && _size == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items))
-                    return;
+                    return false;
 
                 GetComponents<ICollectionChangingListener<T>>().OnResetting(this, items);
                 ClearRaw();
                 if (items != null)
                     InsertRangeRaw(_size, items);
                 GetComponents<ICollectionChangedListener<T>>().OnReset(this, _size == 0 ? null : items);
+                return true;
             }
         }
 
@@ -348,7 +352,7 @@ namespace MugenMvvm.Collections
 #if !NET461
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 #endif
-                _items[_size] = default!;
+            _items[_size] = default!;
         }
 
         private void ClearRaw()
@@ -399,7 +403,7 @@ namespace MugenMvvm.Collections
 
             if (value > 0)
             {
-                T[] newItems = new T[value];
+                var newItems = new T[value];
                 if (_size > 0)
                     Array.Copy(_items, newItems, _size);
                 _items = newItems;
@@ -438,6 +442,29 @@ namespace MugenMvvm.Collections
 
         bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
+        void IHasFindAllIndexOfSupport.FindAllIndexOf(object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
+        {
+            if (!TypeChecker.IsCompatible<T>(item))
+                return;
+
+            var value = (T?) item;
+            if (ignoreDuplicates)
+            {
+                var indexOf = IndexOfInternal(value);
+                if (indexOf >= 0)
+                    indexes.Add(indexOf);
+            }
+            else
+            {
+                var comparer = EqualityComparer<T?>.Default;
+                for (var i = 0; i < _size; i++)
+                {
+                    if (comparer.Equals(_items[i], value))
+                        indexes.Add(i);
+                }
+            }
+        }
+
         int IList.Add(object? value)
         {
             using (Lock())
@@ -459,17 +486,17 @@ namespace MugenMvvm.Collections
                 Remove((T) value!);
         }
 
-        void IObservableCollection.Reset(IEnumerable? items) => Reset((IEnumerable<T>?) items);
+        bool IObservableCollection.Reset(IEnumerable? items) => Reset(items as IEnumerable<T> ?? items?.Cast<T>());
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>
         {
-            private readonly SynchronizedObservableCollection<T>? _collection;
+            private readonly ObservableList<T>? _collection;
             private ActionToken _locker;
             private int _index;
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal Enumerator(SynchronizedObservableCollection<T> collection)
+            internal Enumerator(ObservableList<T> collection)
             {
                 _collection = collection;
                 _index = -1;
@@ -496,33 +523,25 @@ namespace MugenMvvm.Collections
 
         private sealed class EnumeratorRef : IEnumerator<T>
         {
-            private readonly SynchronizedObservableCollection<T>? _collection;
+            private readonly ObservableList<T>? _collection;
             private ActionToken _locker;
             private int _index;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            internal EnumeratorRef(SynchronizedObservableCollection<T> collection)
+            internal EnumeratorRef(ObservableList<T> collection)
             {
                 _collection = collection;
                 _index = -1;
                 _locker = collection.Lock();
             }
 
-            public T Current
-            {
-                [MethodImpl(MethodImplOptions.AggressiveInlining)]
-                get => _collection == null ? default! : _collection._items[_index];
-            }
+            public T Current => _collection == null ? default! : _collection._items[_index];
 
             object IEnumerator.Current => Current!;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Dispose() => _locker.Dispose();
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public bool MoveNext() => _collection != null && ++_index < _collection._size;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Reset() => _index = -1;
         }
     }

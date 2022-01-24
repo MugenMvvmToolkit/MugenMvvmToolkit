@@ -13,14 +13,14 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class SortCollectionDecoratorTest : UnitTestBase, IComparer<object?>
     {
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly ObservableList<object> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private readonly SortCollectionDecorator<object> _decorator;
         private bool? _defaultComparer;
 
         public SortCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _collection = new ObservableList<object>(ComponentCollectionManager);
             _decorator = new SortCollectionDecorator<object>(0, o => o);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_decorator);

@@ -20,7 +20,7 @@ namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count={" + nameof(Count) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
-    internal sealed class ReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>
+    internal sealed class ReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>, IHasFindAllIndexOfSupport
     {
         private readonly IReadOnlyObservableCollection<T> _source;
         private readonly bool _disposeSource;
@@ -38,6 +38,8 @@ namespace MugenMvvm.Collections
         }
 
         public bool IsDisposed => _decorator == null;
+
+        public bool IsSet => _source.IsSet;
 
         public int Count => _decorator == null ? 0 : _source.Count;
 
@@ -75,6 +77,9 @@ namespace MugenMvvm.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        void IHasFindAllIndexOfSupport.FindAllIndexOf(object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes) =>
+            _source.FindAllIndexOf(item, ignoreDuplicates, ref indexes);
+
         private sealed class Listener : ICollectionChangedListener<T>, ICollectionItemChangedListener, ICollectionBatchUpdateListener,
             IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
         {
@@ -106,8 +111,6 @@ namespace MugenMvvm.Collections
                 target?.GetBatchUpdateManager().EndBatchUpdate(target, batchUpdateType);
             }
 
-            public void OnChanged(IReadOnlyObservableCollection collection, object? item, object? args) => TryGetTarget(collection)?.RaiseItemChanged(item, args);
-
             public void OnAdded(IReadOnlyObservableCollection<T> collection, T item, int index)
             {
                 var target = TryGetTarget(collection);
@@ -137,6 +140,8 @@ namespace MugenMvvm.Collections
                 var target = TryGetTarget(collection);
                 target?.GetComponents<ICollectionChangedListener<T>>().OnReset(target, items);
             }
+
+            public void OnChanged(IReadOnlyObservableCollection collection, object? item, object? args) => TryGetTarget(collection)?.RaiseItemChanged(item, args);
 
             public void OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
             {

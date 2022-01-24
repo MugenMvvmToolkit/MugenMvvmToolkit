@@ -16,8 +16,10 @@ namespace MugenMvvm.Components
             _componentCollectionManager = componentCollectionManager;
         }
 
-        internal ComponentOwnerBase(IComponentCollectionManager? componentCollectionManager, IComponentOwner<T>? owner) =>
+        internal ComponentOwnerBase(IComponentCollectionManager? componentCollectionManager, IComponentOwner<T>? owner)
+        {
             _componentCollectionManager = componentCollectionManager ?? (owner as ComponentOwnerBase<T>)?._componentCollectionManager;
+        }
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
@@ -33,5 +35,9 @@ namespace MugenMvvm.Components
                 return default;
             return _components.Get<TComponent>(metadata);
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected ItemOrArray<TComponent>? GetComponentsNullable<TComponent>(IReadOnlyMetadataContext? metadata = null)
+            where TComponent : class => _components?.Get<TComponent>(metadata);
     }
 }

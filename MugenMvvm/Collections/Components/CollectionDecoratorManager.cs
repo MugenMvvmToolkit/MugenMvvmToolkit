@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -395,8 +396,8 @@ namespace MugenMvvm.Collections.Components
                 return;
 
             var indexes = new ItemOrListEditor<int>();
-            var items = GetSource(collection, false);
-            items.FindAllIndexOf(item, !RaiseItemChangedCheckDuplicates, ref indexes);
+            var itemsRaw = GetSourceRaw(collection, false);
+            itemsRaw.FindAllIndexOf(item, !RaiseItemChangedCheckDuplicates, ref indexes);
 
             if (indexes.Count != 0)
             {
@@ -404,11 +405,12 @@ namespace MugenMvvm.Collections.Components
                 return;
             }
 
+            var items = itemsRaw.AsEnumerable();
             var decorators = collection.GetComponents<ICollectionDecorator>();
             for (var i = 0; i < decorators.Count; i++)
             {
                 var decorator = decorators[i];
-                bool updatedItems = false;
+                var updatedItems = false;
                 if (decorator.HasAdditionalItems(collection) && !decorator.TryGetIndexes(collection, items, item, !RaiseItemChangedCheckDuplicates, ref indexes))
                 {
                     items = GetItems(decorator) ?? decorator.Decorate(collection, items);
@@ -524,6 +526,9 @@ namespace MugenMvvm.Collections.Components
             return collection.AsEnumerable();
         }
 
+        private IEnumerable GetSourceRaw(IReadOnlyObservableCollection collection, bool force) =>
+            CheckFlag(BatchSourceFlag) && !CheckFlag(DisposedFlag) ? GetSource(collection, force) : collection;
+
         private bool CanUpdate()
         {
             if (!CheckFlag(InitializedFlag))
@@ -585,6 +590,15 @@ namespace MugenMvvm.Collections.Components
                 _decoratorCache[decorator] = new DecoratorItems();
             }
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool CheckFlag(int flag) => (_flags & flag) == flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void SetFlag(int flag) => _flags |= flag;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ClearFlag(int flag) => _flags &= ~flag;
 
         void ICollectionBatchUpdateListener.OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
@@ -671,15 +685,6 @@ namespace MugenMvvm.Collections.Components
             _decoratorCache?.Clear();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool CheckFlag(int flag) => (_flags & flag) == flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void SetFlag(int flag) => _flags |= flag;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void ClearFlag(int flag) => _flags &= ~flag;
-
         void IHasPendingNotifications.Raise(IReadOnlyMetadataContext? metadata) => RaisePendingChanges();
 
         [StructLayout(LayoutKind.Auto)]
@@ -731,7 +736,7 @@ namespace MugenMvvm.Collections.Components
                 }
                 else
                 {
-                    bool reset = _decoratorManager.CheckFlag(PendingResetFlag);
+                    var reset = _decoratorManager.CheckFlag(PendingResetFlag);
                     _decoratorManager.ClearFlag(PendingResetFlag | BatchFlag | ResetFlag);
                     _decoratorManager._updatingIndex = EmptyIndex;
                     if (reset && _decoratorManager.CheckFlag(BatchSourceFlag))
@@ -747,13 +752,31 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        private sealed class DecoratorItems : List<object?>
+        private sealed class DecoratorItems : List<object?>, IHasFindAllIndexOfSupport
         {
             public DecoratorItems? Prev;
 
             public int Index;
 
             public void Set(int index, object? item) => this[index] = item;
+
+            public void FindAllIndexOf(object? item, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
+            {
+                if (ignoreDuplicates)
+                {
+                    var indexOf = IndexOf(item);
+                    if (indexOf >= 0)
+                        indexes.Add(indexOf);
+                }
+                else
+                {
+                    for (var i = 0; i < Count; i++)
+                    {
+                        if (Equals(item, this[i]))
+                            indexes.Add(i);
+                    }
+                }
+            }
         }
     }
 }

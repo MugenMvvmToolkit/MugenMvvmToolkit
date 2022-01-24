@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact]
         public virtual void ShouldTrackChanges() => ShouldTrackChangesImpl(GetCollection(), Assert, GetData);
 
-        internal static void AddShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+        internal static void AddShouldTrackChangesImpl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void ClearShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+        internal static void ClearShouldTrackChangesImpl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             assert();
         }
 
-        internal static void MoveShouldTrackChanges1Impl(IObservableCollection<object?> collection, Action assert,
+        internal static void MoveShouldTrackChanges1Impl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             assert();
         }
 
-        internal static void MoveShouldTrackChanges2Impl(IObservableCollection<object?> collection, Action assert,
+        internal static void MoveShouldTrackChanges2Impl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void RemoveShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+        internal static void RemoveShouldTrackChangesImpl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void ReplaceShouldTrackChanges1Impl(IObservableCollection<object?> collection, Action assert,
+        internal static void ReplaceShouldTrackChanges1Impl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -196,7 +196,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void ReplaceShouldTrackChanges2Impl(IObservableCollection<object?> collection, Action assert,
+        internal static void ReplaceShouldTrackChanges2Impl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -211,7 +211,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             }
         }
 
-        internal static void ResetShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert,
+        internal static void ResetShouldTrackChangesImpl(IObservableList<object?> collection, Action assert,
             Action<IList<object?>, int, Func<int, object?>>? initializeDefault = null, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             assert();
         }
 
-        internal static void ShouldTrackChangesImpl(IObservableCollection<object?> collection, Action assert, Func<int, object?>? getData = null)
+        internal static void ShouldTrackChangesImpl(IObservableList<object?> collection, Action assert, Func<int, object?>? getData = null)
         {
             getData ??= GetDataDefault;
             for (var i = 0; i < 4; i++)
@@ -289,7 +289,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         protected virtual void InitializeDefaultData(IList<object?> collection, int minCount, Func<int, object?> getData) =>
             InitializeDefaultDataImpl(collection, minCount, getData);
 
-        protected abstract IObservableCollection<object?> GetCollection();
+        protected abstract IObservableList<object?> GetCollection();
 
         protected abstract void Assert();
     }

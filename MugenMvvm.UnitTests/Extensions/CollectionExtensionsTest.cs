@@ -22,12 +22,12 @@ namespace MugenMvvm.UnitTests.Extensions
     public class CollectionExtensionsTest : UnitTestBase
     {
         private readonly Random _random;
-        private readonly SynchronizedObservableCollection<object> _collection;
+        private readonly ObservableList<object> _collection;
 
         public CollectionExtensionsTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _random = new Random();
-            _collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            _collection = new ObservableList<object>(ComponentCollectionManager);
             RegisterDisposeToken(WithGlobalService(WeakReferenceManager));
             RegisterDisposeToken(WithGlobalService(ComponentCollectionManager));
         }
@@ -927,7 +927,7 @@ namespace MugenMvvm.UnitTests.Extensions
         [Fact]
         public void SynchronizeLockerShouldSynchronizeCollectionLockers()
         {
-            IReadOnlyObservableCollection target = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            IReadOnlyObservableCollection target = new ObservableList<object>(ComponentCollectionManager);
             IReadOnlyObservableCollection source = _collection;
             target.Locker.ShouldNotEqual(source.Locker);
             _collection.ConfigureDecorators().SynchronizeLocker(target, out var token);
@@ -1005,7 +1005,7 @@ namespace MugenMvvm.UnitTests.Extensions
             {
                 Value = value;
                 _cleanup = cleanup;
-                Items = new SynchronizedObservableCollection<int>(collectionManager);
+                Items = new ObservableList<int>(collectionManager);
             }
 
             public int Value { get; }

@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         [Fact]
         public void ShouldAddDecoratorManager()
         {
-            var collection = new SynchronizedObservableCollection<int>(ComponentCollectionManager);
+            var collection = new ObservableList<int>(ComponentCollectionManager);
             collection.Components.GetComponentOptional<CollectionDecoratorManagerInitializer>().ShouldNotBeNull();
             collection.GetComponentOptional<CollectionDecoratorManager<int>>().ShouldBeNull();
 

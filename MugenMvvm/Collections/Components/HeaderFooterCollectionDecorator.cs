@@ -142,8 +142,10 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        private static void FindAllIndexOf(ItemOrIReadOnlyList<object> items, object? item, int offset, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
+        private static void FindAllIndexOf(List<object>? items, object? item, int offset, bool ignoreDuplicates, ref ItemOrListEditor<int> indexes)
         {
+            if (items == null)
+                return;
             for (var i = 0; i < items.Count; i++)
             {
                 if (Equals(items[i], item))

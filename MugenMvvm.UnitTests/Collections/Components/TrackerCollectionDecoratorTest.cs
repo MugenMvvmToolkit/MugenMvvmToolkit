@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class TrackerCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly Dictionary<int, int> _items;
         private int _sum;
         private int _resetCount;
@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public TrackerCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
             _items = new Dictionary<int, int>();
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             var tracker = new DecoratedCollectionChangeTracker<object>();
             tracker.Changed += Assert;
             _collection.AddComponent(tracker);
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
         public void ChangeShouldTrackChanges(int duplicateCount)
         {
             var trackedItems = new Dictionary<ChangeModel, int>();
-            var collection = new SynchronizedObservableCollection<ChangeModel>(ComponentCollectionManager);
+            var collection = new ObservableList<ChangeModel>(ComponentCollectionManager);
             var tracker = new DecoratedCollectionChangeTracker<object>();
             collection.AddComponent(tracker);
             collection.AddComponent(new TrackerCollectionDecorator<ChangeModel, int>(0, false, (items, item, state, count) =>
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             _items.Count.ShouldEqual(0);
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

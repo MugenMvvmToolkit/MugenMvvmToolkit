@@ -14,12 +14,12 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class DistinctCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
 
         public DistinctCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             var decorator = new DistinctCollectionDecorator<DistinctItem?, int>(0, true, i => i?.Index ?? int.MaxValue);
@@ -117,7 +117,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
                 hashSet.Add(item).ShouldBeTrue();
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

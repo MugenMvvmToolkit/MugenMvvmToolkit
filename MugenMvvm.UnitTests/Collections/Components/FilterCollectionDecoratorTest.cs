@@ -14,13 +14,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
     public class FilterCollectionDecoratorTest : CollectionDecoratorTestBase
     {
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly Func<TestCollectionItem?, int, bool> _filter2;
         private Func<int, int, bool> _filter1;
 
         public FilterCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _filter1 = (i, _) => i % 2 == 0;
             _filter2 = (i, _) => i == null || i.Id % 2 == 0;
             _collection.AddComponent(new FilterCollectionDecorator<int>(0, false) {Filter = _filter1});
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             Assert();
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTests.Collections
         [InlineData(200, 10, 40, false)]
         public void ShouldUseCorrectIndexes(int iterationCount, int minCount, int maxCount, bool detectMoves)
         {
-            var observableCollection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(ThreadDispatcher, adapterCollection);
             collectionAdapter.DetectMoves = detectMoves;
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTests.Collections
             var items = new object[] { 1, 2, 3, 4 };
             var resetItems = new object[] { 4, 3, 2, 1 };
 
-            var observableCollection = new SynchronizedObservableCollection<object?>(items, ComponentCollectionManager);
+            var observableCollection = new ObservableList<object?>(items, ComponentCollectionManager);
             var adapterCollection = new ObservableCollection<object?>();
             var collectionAdapter = (DiffableBindableCollectionAdapter)GetCollection(ThreadDispatcher, adapterCollection);
             collectionAdapter.DiffableComparer = comparer;

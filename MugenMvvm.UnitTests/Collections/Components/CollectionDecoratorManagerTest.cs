@@ -720,7 +720,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             collection.DecoratedItems().ShouldEqual(collection);
         }
 
-        internal static void ShouldTrackItemsMulti3(IObservableCollection<TestCollectionItem> source, IReadOnlyObservableCollection<TestCollectionItem> target)
+        internal static void ShouldTrackItemsMulti3(IObservableList<TestCollectionItem> source, IReadOnlyObservableCollection<TestCollectionItem> target)
         {
             const int count = 100;
             var comparer = Comparer<object?>.Create((x1, x2) =>
@@ -816,9 +816,9 @@ namespace MugenMvvm.UnitTests.Collections.Components
             assert();
         }
 
-        protected IObservableCollection<T> CreateCollection<T>(params T[] items)
+        protected IObservableList<T> CreateCollection<T>(params T[] items)
         {
-            var collection = new SynchronizedObservableCollection<T>(items, ComponentCollectionManager);
+            var collection = new ObservableList<T>(items, ComponentCollectionManager);
             collection.AddComponent(new CollectionDecoratorManager<T>());
             //note activating
             var decoratedItems = collection.DecoratedItems().ToArray();

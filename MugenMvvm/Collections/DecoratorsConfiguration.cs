@@ -7,6 +7,8 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 
+#pragma warning disable CS8714
+
 namespace MugenMvvm.Collections
 {
     [StructLayout(LayoutKind.Auto)]
@@ -28,8 +30,9 @@ namespace MugenMvvm.Collections
 
         public DecoratorsConfiguration<object?> Configuration => this!;
 
-        public static implicit operator SynchronizedObservableCollection<T>(DecoratorsConfiguration<T> configuration) =>
-            (SynchronizedObservableCollection<T>) configuration.Collection;
+        public static implicit operator ObservableSet<T>(DecoratorsConfiguration<T> configuration) => (ObservableSet<T>) configuration.Collection;
+
+        public static implicit operator ObservableList<T>(DecoratorsConfiguration<T> configuration) => (ObservableList<T>) configuration.Collection;
 
         public static implicit operator DecoratorsConfiguration<T>(DecoratorsConfiguration<object> configuration) => configuration.For<T>();
 
@@ -37,7 +40,9 @@ namespace MugenMvvm.Collections
 
         public IReadOnlyObservableCollection<TTo> CastCollectionTo<TTo>() => (IReadOnlyObservableCollection<TTo>) Collection;
 
-        public SynchronizedObservableCollection<TTo> CastCollectionToSynchronized<TTo>() => (SynchronizedObservableCollection<TTo>) Collection;
+        public ObservableList<TTo> CastToList<TTo>() => (ObservableList<TTo>) Collection;
+
+        public ObservableSet<TTo> CastToSet<TTo>() => (ObservableSet<TTo>) Collection;
 
         public DecoratorsConfiguration<TTo> For<TTo>(bool? allowNull = null) => new(Collection, Priority, Step, allowNull.GetValueOrDefault(AllowNull));
 

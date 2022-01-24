@@ -15,13 +15,13 @@ namespace MugenMvvm.UnitTests.Collections.Components
 {
     public class ConvertCollectionDecoratorTest : CollectionDecoratorTestBase
     {
-        private readonly SynchronizedObservableCollection<object?> _collection;
+        private readonly ObservableList<object?> _collection;
         private readonly DecoratedCollectionChangeTracker<object> _tracker;
         private ConvertCollectionDecorator<object?, object> _decorator;
 
         public ConvertCollectionDecoratorTest(ITestOutputHelper? outputHelper = null) : base(outputHelper)
         {
-            _collection = new SynchronizedObservableCollection<object?>(ComponentCollectionManager);
+            _collection = new ObservableList<object?>(ComponentCollectionManager);
             _tracker = new DecoratedCollectionChangeTracker<object>();
             _collection.AddComponent(_tracker);
             _decorator = new ConvertCollectionDecorator<object?, object>(0, true, (o, c) => "Item: " + o, null, null, null);
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             ignoreItems.Add(item3);
 
             var cleanupItems = new List<string>();
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collection = new ObservableList<object>(ComponentCollectionManager);
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
 
             IEnumerable<object?> GetItems()
@@ -158,7 +158,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item3 = NewId();
             var cleanupItems = new List<string>();
 
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collection = new ObservableList<object>(ComponentCollectionManager);
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item3 = NewId();
             var cleanupItems = new List<string>();
 
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collection = new ObservableList<object>(ComponentCollectionManager);
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
@@ -285,7 +285,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item3 = NewId();
             var cleanupItems = new List<string>();
 
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collection = new ObservableList<object>(ComponentCollectionManager);
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
@@ -323,7 +323,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             var item3 = NewId();
             var cleanupItems = new List<string>();
 
-            var collection = new SynchronizedObservableCollection<object>(ComponentCollectionManager);
+            var collection = new ObservableList<object>(ComponentCollectionManager);
             var collectionTracker = new DecoratedCollectionChangeTracker<object>();
             collectionTracker.Changed += () => collectionTracker.ChangedItems.ShouldEqual(collection.DecoratedItems());
             collection.AddComponent(collectionTracker);
@@ -353,7 +353,7 @@ namespace MugenMvvm.UnitTests.Collections.Components
             cleanupItems.ShouldContain(item3);
         }
 
-        protected override IObservableCollection<object?> GetCollection() => _collection;
+        protected override IObservableList<object?> GetCollection() => _collection;
 
         protected override void Assert()
         {

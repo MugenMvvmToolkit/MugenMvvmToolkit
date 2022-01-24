@@ -2,12 +2,10 @@
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollection : IReadOnlyObservableCollection, IList
+    public interface IObservableCollection : IReadOnlyObservableCollection, ICollection
     {
         new int Count { get; }
 
-        void Move(int oldIndex, int newIndex);
-
-        void Reset(IEnumerable? items);
+        bool Reset(IEnumerable? items);
     }
 }
