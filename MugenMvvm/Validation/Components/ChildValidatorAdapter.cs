@@ -146,7 +146,7 @@ namespace MugenMvvm.Validation.Components
         private void RaiseAsyncValidation(string? member, Task validationTask, IReadOnlyMetadataContext? metadata) =>
             OwnerOptional?.GetComponents<IValidatorAsyncValidationListener>().OnAsyncValidation(OwnerOptional, member, validationTask, metadata);
 
-        private sealed class ValidatorListener : IValidatorErrorsChangedListener, IValidatorAsyncValidationListener
+        private sealed class ValidatorListener : IValidatorErrorsChangedListener, IValidatorAsyncValidationListener, IDisposableComponent<IValidator>
         {
             private readonly ChildValidatorAdapter _adapter;
 
@@ -154,6 +154,12 @@ namespace MugenMvvm.Validation.Components
             {
                 _adapter = adapter;
             }
+
+            public void OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)
+            {
+            }
+
+            public void OnDisposed(IValidator owner, IReadOnlyMetadataContext? metadata) => _adapter.Remove(owner);
 
             public void OnAsyncValidation(IValidator validator, string? member, Task validationTask, IReadOnlyMetadataContext? metadata) =>
                 _adapter.RaiseAsyncValidation(member, validationTask, metadata);

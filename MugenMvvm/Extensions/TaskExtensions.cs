@@ -86,16 +86,15 @@ namespace MugenMvvm.Extensions
             where TTask : Task
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
-            return task.WithBusyIndicator(busyManager.GetService(false)!, message, millisecondsDelay, metadata);
+            return task.WithBusyIndicator(busyManager.GetService(false), message, millisecondsDelay, metadata);
         }
 
-        public static TTask WithBusyIndicator<TTask>(this TTask task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0,
+        public static TTask WithBusyIndicator<TTask>(this TTask task, IBusyManager? busyManager, object? message = null, int millisecondsDelay = 0,
             IReadOnlyMetadataContext? metadata = null)
             where TTask : Task
         {
             Should.NotBeNull(task, nameof(task));
-            Should.NotBeNull(busyManager, nameof(busyManager));
-            if (task.IsCompleted)
+            if (busyManager == null || task.IsCompleted)
                 return task;
             if (millisecondsDelay == 0 && message is IHasDelayBusyMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
@@ -108,14 +107,13 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(busyManager, nameof(busyManager));
-            return task.WithBusyIndicator(busyManager.GetService(false)!, message, millisecondsDelay, metadata);
+            return task.WithBusyIndicator(busyManager.GetService(false), message, millisecondsDelay, metadata);
         }
 
-        public static async ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IBusyManager busyManager, object? message = null, int millisecondsDelay = 0,
+        public static async ValueTask<T> WithBusyIndicator<T>(this ValueTask<T> task, IBusyManager? busyManager, object? message = null, int millisecondsDelay = 0,
             IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(busyManager, nameof(busyManager));
-            if (task.IsCompleted)
+            if (busyManager == null || task.IsCompleted)
                 return task.Result;
 
             if (millisecondsDelay == 0 && message is IHasDelayBusyMessage hasBusyDelay)

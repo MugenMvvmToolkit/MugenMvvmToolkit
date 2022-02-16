@@ -22,7 +22,7 @@ namespace MugenMvvm.Threading.Components
             if (synchronizationContext == SynchronizationContext.Current)
                 _mainThreadId = Thread.CurrentThread.ManagedThreadId;
             else
-                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
         public int Priority { get; init; } = ThreadingComponentPriority.Dispatcher;
@@ -47,9 +47,15 @@ namespace MugenMvvm.Threading.Components
             if (handler is IThreadDispatcherHandler h)
             {
                 if (state == null)
-                    ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler)o!).Execute(null), handler);
+                    ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler) o!).Execute(null), handler);
                 else
                     ThreadPool.QueueUserWorkItem(h.Execute, state);
+                return true;
+            }
+
+            if (handler is SendOrPostCallback sendOrPostCallback)
+            {
+                ThreadPool.QueueUserWorkItem(sendOrPostCallback.Invoke, state);
                 return true;
             }
 
@@ -61,7 +67,7 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                ThreadPool.QueueUserWorkItem(o => ((Action)o!).Invoke(), handler);
+                ThreadPool.QueueUserWorkItem(o => ((Action) o!).Invoke(), handler);
                 return true;
             }
 
@@ -84,14 +90,14 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                _synchronizationContext.Post(o => ((Action)o!).Invoke(), handler);
+                _synchronizationContext.Post(o => ((Action) o!).Invoke(), handler);
                 return true;
             }
 
             if (handler is IThreadDispatcherHandler h)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o!).Execute(null), handler);
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o!).Execute(null), handler);
                 else
                     _synchronizationContext.Post(GetSendOrPostCallback(h), state);
                 return true;
@@ -108,6 +114,12 @@ namespace MugenMvvm.Threading.Components
 
         protected virtual bool ExecuteInline(object handler, object? state)
         {
+            if (handler is SendOrPostCallback sendOrPostCallback)
+            {
+                sendOrPostCallback(state);
+                return true;
+            }
+
             if (handler is IThreadDispatcherHandler h)
             {
                 h.Execute(state);
@@ -126,6 +138,12 @@ namespace MugenMvvm.Threading.Components
                 return true;
             }
 
+            if (handler is WaitCallback waitCallback)
+            {
+                waitCallback(state);
+                return true;
+            }
+
             return false;
         }
 
@@ -139,7 +157,7 @@ namespace MugenMvvm.Threading.Components
         private static SendOrPostCallback GetSendOrPostCallback(IThreadDispatcherHandler handler)
         {
             if (handler is IValueHolder<Delegate> holder)
-                return (SendOrPostCallback)(holder.Value ??= new SendOrPostCallback(handler.Execute));
+                return (SendOrPostCallback) (holder.Value ??= new SendOrPostCallback(handler.Execute));
             return handler.Execute;
         }
     }

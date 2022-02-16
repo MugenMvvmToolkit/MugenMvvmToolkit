@@ -117,7 +117,8 @@ namespace MugenMvvm.Commands
 
         public bool IsExecuting(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandExecutorComponent>().IsExecuting(this, metadata);
 
-        public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
+        public bool CanExecute(object? parameter, IReadOnlyMetadataContext? metadata = null) =>
+            !IsDisposed && GetComponents<ICommandConditionComponent>().CanExecute(this, parameter, metadata);
 
         public void RaiseCanExecuteChanged(IReadOnlyMetadataContext? metadata = null) => GetComponents<ICommandEventHandlerComponent>().RaiseCanExecuteChanged(this, metadata);
 

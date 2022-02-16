@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Busy
 {
-    public sealed class BusyManager : ComponentOwnerBase<IBusyManager>, IBusyManager
+    public sealed class BusyManager : ComponentOwnerBase<IBusyManager>, IBusyManager//todo review, issuspend, cancelable, not called onbusy changed
     {
         public BusyManager(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
