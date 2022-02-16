@@ -20,7 +20,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    [DebuggerDisplay("Count={" + nameof(Count) + "}")]
+    [DebuggerDisplay("Count={" + nameof(Count) + "} " + "{" + nameof(Locker) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
     public sealed class ObservableList<T> : SynchronizableComponentOwnerBase<IReadOnlyObservableCollection>, IObservableList<T>, IObservableList,
         IHasComponentAddConditionHandler, IHasFindAllIndexOfSupport

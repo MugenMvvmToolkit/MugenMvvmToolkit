@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal
@@ -7,11 +9,14 @@ namespace MugenMvvm.Interfaces.Internal
     {
         ILocker Locker { get; }
 
-        void UpdateLocker(ILocker locker);
+        void UpdateLocker(ILocker locker, IReadOnlyMetadataContext? metadata);
+
+        bool WaitLockerUpdate(bool includeNested, Action? onPendingUpdate, Action? onUpdated, IReadOnlyMetadataContext? metadata);
 
         [MustUseReturnValue]
         ActionToken Lock();
-        
-        bool TryLock(int timeout, out ActionToken lockToken);
+
+        [MustUseReturnValue]
+        ActionToken TryLock(int timeout);
     }
 }

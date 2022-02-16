@@ -17,6 +17,9 @@ namespace MugenMvvm.Collections.Components
 {
     public abstract class FlattenCollectionDecorator : CollectionDecoratorBase
     {
+        private static readonly Action NoDoAction = () => { };
+        private Action? _pendingLockCallback;
+        private Action? _lockUpdatedCallback;
         private IWeakReference? _weakReference;
         private int? _batchThreshold;
 
@@ -34,6 +37,32 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool IsCacheRequired => true;
 
+        protected Action PendingLockCallback
+        {
+            get
+            {
+                if (_pendingLockCallback != null)
+                    return _pendingLockCallback;
+                var collection = OwnerOptional;
+                if (collection == null)
+                    return NoDoAction;
+                return _pendingLockCallback ??= collection.BeginDecoratorManagerUpdate;
+            }
+        }
+
+        protected Action LockUpdatedCallback
+        {
+            get
+            {
+                if (_lockUpdatedCallback != null)
+                    return _lockUpdatedCallback;
+                var collection = OwnerOptional;
+                if (collection == null)
+                    return NoDoAction;
+                return _lockUpdatedCallback ??= collection.EndDecoratorManagerUpdate;
+            }
+        }
+
         internal IWeakReference WeakReference => _weakReference ??= this.ToWeakReference();
 
         internal abstract int GetIndex(int originalIndex);
@@ -43,14 +72,14 @@ namespace MugenMvvm.Collections.Components
         internal abstract IEnumerable<object?> Decorate(IEnumerable<object?> items);
     }
 
-    public sealed class FlattenCollectionDecorator<T> : FlattenCollectionDecorator, ILockerChangedListener<IReadOnlyObservableCollection>
+    public sealed class FlattenCollectionDecorator<T> : FlattenCollectionDecorator, ILockerHandlerComponent<IReadOnlyObservableCollection>
         where T : class?
     {
         private readonly Func<T, FlattenItemInfo, FlattenItemInfo> _getNestedCollection;
         private readonly Action<T, IEnumerable?>? _cleanup;
+        private readonly bool _allowNull;
         private IndexMapAwareList<FlattenCollectionItemBase> _collectionItems;
         private Dictionary<object, object?>? _resetCache;
-        private readonly bool _allowNull;
 
         public FlattenCollectionDecorator(int priority, bool allowNull, Func<T, FlattenItemInfo, FlattenItemInfo> getNestedCollection, Action<T, IEnumerable?>? cleanup)
             : base(priority)
@@ -96,7 +125,8 @@ namespace MugenMvvm.Collections.Components
 
             var flattenCollectionItem = flattenItemInfo.GetCollectionItem(itemT, this);
             _collectionItems.Add(originalIndex, flattenCollectionItem, binarySearchIndex);
-            flattenCollectionItem.OnAdded(this, decoratorManager, collection, index, true, false, out _);
+            flattenCollectionItem.OnAdded(this, decoratorManager, collection, index, true, false);
+            WaitLockerUpdate(collection, flattenCollectionItem);
             return false;
         }
 
@@ -123,7 +153,7 @@ namespace MugenMvvm.Collections.Components
 
             var flattenCollectionItemBase = _collectionItems.Indexes[binarySearchIndex].Value;
             _collectionItems.RemoveAt(binarySearchIndex);
-            flattenCollectionItemBase.OnRemoved(this, decoratorManager, collection, index, out _);
+            flattenCollectionItemBase.OnRemoved(this, decoratorManager, collection, index);
             return false;
         }
 
@@ -165,6 +195,8 @@ namespace MugenMvvm.Collections.Components
 
                 _resetCache.Clear();
 
+                if (collection.WaitLockerUpdate(true, PendingLockCallback, LockUpdatedCallback, null))
+                    return false;
                 items = Decorate(items);
             }
 
@@ -190,7 +222,7 @@ namespace MugenMvvm.Collections.Components
             {
                 if (itemIndex < _collectionItems.Size && _collectionItems.Indexes[itemIndex].Index == index)
                 {
-                    int count = 0;
+                    var count = 0;
                     var flattenItem = _collectionItems.Indexes[itemIndex].Value;
                     foreach (var nestedItem in flattenItem.GetItems())
                     {
@@ -227,7 +259,8 @@ namespace MugenMvvm.Collections.Components
                 index = GetIndex(index, oldIndex);
                 var newFlattenItem = newFlattenInfo.GetCollectionItem(newItem!, this);
                 _collectionItems.Add(originalIndex, newFlattenItem, oldIndex);
-                newFlattenItem.OnAdded(this, decoratorManager, collection, index, true, false, out _, oldItem, true);
+                newFlattenItem.OnAdded(this, decoratorManager, collection, index, true, false, oldItem, true);
+                WaitLockerUpdate(collection, newFlattenItem);
                 return false;
             }
 
@@ -238,7 +271,7 @@ namespace MugenMvvm.Collections.Components
             {
                 index = GetIndex(index, oldIndex);
                 _collectionItems.RemoveAt(oldIndex);
-                currentFlattenItem.OnRemoved(this, decoratorManager, collection, index, out _, newItem, true);
+                currentFlattenItem.OnRemoved(this, decoratorManager, collection, index, newItem, true);
                 return false;
             }
 
@@ -257,6 +290,7 @@ namespace MugenMvvm.Collections.Components
             var replaceFlattenItem = flattenItemInfo.GetCollectionItem(newItem!, this);
             _collectionItems.Indexes[oldIndex].Value = replaceFlattenItem;
             replaceFlattenItem.OnReplaced(this, decoratorManager, collection, index, currentFlattenItem);
+            WaitLockerUpdate(collection, replaceFlattenItem);
             return false;
         }
 
@@ -364,13 +398,32 @@ namespace MugenMvvm.Collections.Components
             }
 
             _collectionItems.AddRaw(index, flattenItem);
-            flattenItem.OnAdded(this, decoratorManager, source, index, false, isRecycled, out _);
+            flattenItem.OnAdded(this, decoratorManager, source, index, false, isRecycled);
         }
 
-        void ILockerChangedListener<IReadOnlyObservableCollection>.OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
+        private void WaitLockerUpdate(IReadOnlyObservableCollection collection, FlattenCollectionItemBase flattenCollectionItem)
+        {
+            collection.WaitLockerUpdate(false, PendingLockCallback, LockUpdatedCallback, null);
+            flattenCollectionItem.WaitLockerUpdate(true, PendingLockCallback, LockUpdatedCallback, null);
+        }
+
+        void ILockerHandlerComponent<IReadOnlyObservableCollection>.OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < _collectionItems.Size; i++)
-                _collectionItems.Indexes[i].Value.UpdateLocker(locker);
+                _collectionItems.Indexes[i].Value.UpdateLocker(locker, metadata);
+        }
+
+        bool ILockerHandlerComponent<IReadOnlyObservableCollection>.TryWaitLockerUpdate(IReadOnlyObservableCollection owner, Action? onPendingUpdate, Action? onUpdated,
+            IReadOnlyMetadataContext? metadata)
+        {
+            var result = false;
+            for (var i = 0; i < _collectionItems.Size; i++)
+            {
+                if (_collectionItems.Indexes[i].Value.WaitLockerUpdate(true, onPendingUpdate, onUpdated, metadata))
+                    result = true;
+            }
+
+            return result;
         }
     }
 }

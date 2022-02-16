@@ -11,29 +11,27 @@ namespace MugenMvvm.Internal
     {
         public static Builder<T> Get<T>() => default;
 
+        public delegate ChildBuilder<T> BuilderDelegate<T>(Builder<T> builder);
+
         [StructLayout(LayoutKind.Auto)]
         public ref struct Builder<T>
         {
-            public ChildBuilder<T> PinHeaderFooter(Func<T, bool?>? isHeaderOrFooter) => new(default, isHeaderOrFooter);
+            public ChildBuilder<T> Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo<T>.Create(expression, true));
 
-            public ChildBuilder<T> Ascending<TValue>(Func<T, TValue> expression) => new(SortingInfo<T>.Create(expression, true), null);
+            public ChildBuilder<T> Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo<T>.Create(expression, false));
 
-            public ChildBuilder<T> Descending<TValue>(Func<T, TValue> expression) => new(SortingInfo<T>.Create(expression, false), null);
+            public ChildBuilder<T> Compare(Func<T, T, int> compare) => new(SortingInfo<T>.Create(compare));
 
-            public ChildBuilder<T> Compare(Func<T, T, int> compare) => new(SortingInfo<T>.Create(compare), null);
+            public ChildBuilder<T> Compare<TValue>(Func<T, TValue> expression, bool isAscending) => new(SortingInfo<T>.Create(expression, isAscending));
         }
-
-        public delegate ChildBuilder<T> BuilderDelegate<T>(Builder<T> builder);
 
         [StructLayout(LayoutKind.Auto)]
         public ref struct ChildBuilder<T>
         {
-            private readonly Func<T, bool?>? _isHeaderOrFooter;
             private ItemOrListEditor<SortingInfo<T>> _sortInfo;
 
-            internal ChildBuilder(SortingInfo<T> sortingInfo, Func<T, bool?>? isHeaderOrFooter)
+            internal ChildBuilder(SortingInfo<T> sortingInfo)
             {
-                _isHeaderOrFooter = isHeaderOrFooter;
                 _sortInfo = new ItemOrListEditor<SortingInfo<T>>(2);
                 if (!sortingInfo.IsEmpty)
                     _sortInfo.Add(sortingInfo);
@@ -57,7 +55,13 @@ namespace MugenMvvm.Internal
                 return this;
             }
 
-            public SortingComparer<T> Build() => new SortingComparer<T>.Comparer(_sortInfo.ToItemOrArray(), _isHeaderOrFooter);
+            public ChildBuilder<T> ThenCompare<TValue>(Func<T, TValue> expression, bool isAscending)
+            {
+                _sortInfo.Add(SortingInfo<T>.Create(expression, isAscending));
+                return this;
+            }
+
+            public SortingComparer<T> Build() => new SortingComparer<T>.Comparer(_sortInfo.ToItemOrArray());
         }
 
         [StructLayout(LayoutKind.Auto)]
@@ -101,30 +105,17 @@ namespace MugenMvvm.Internal
 
         public abstract class SortingComparer<T> : IComparer<T>
         {
-            private readonly Func<T, bool?>? _isHeaderOrFooter;
             private readonly ItemOrArray<SortingInfo<T>> _sortInfo;
 
-            private SortingComparer(ItemOrArray<SortingInfo<T>> sortInfo, Func<T, bool?>? isHeaderOrFooter)
+            private SortingComparer(ItemOrArray<SortingInfo<T>> sortInfo)
             {
                 _sortInfo = sortInfo;
-                _isHeaderOrFooter = isHeaderOrFooter;
             }
 
             public IComparer<object?> AsObjectComparer() => (IComparer<object?>) this;
 
             public int Compare(T? x, T? y)
             {
-                if (_isHeaderOrFooter != null)
-                {
-                    var xHeaderOrFooter = _isHeaderOrFooter(x!);
-                    var compare = Compare(xHeaderOrFooter, _isHeaderOrFooter(y!));
-                    if (compare != 0)
-                        return compare;
-
-                    if (!xHeaderOrFooter.HasValue)
-                        return 0;
-                }
-
                 foreach (var item in _sortInfo)
                 {
                     var compare = item.Compare(x!, y!);
@@ -135,26 +126,9 @@ namespace MugenMvvm.Internal
                 return 0;
             }
 
-            private static int Compare(bool? x1, bool? x2)
-            {
-                if (Nullable.Equals(x1, x2))
-                    return 0;
-
-                if (x1 != null)
-                {
-                    if (x2 != null)
-                        return x2.Value.CompareTo(x1.Value);
-                    return x1.Value ? -1 : 1;
-                }
-
-                if (x2 != null)
-                    return x2.Value ? 1 : -1;
-                return 0;
-            }
-
             internal sealed class Comparer : SortingComparer<T>, IComparer<object?>
             {
-                internal Comparer(ItemOrArray<SortingInfo<T>> sortInfo, Func<T, bool?>? isHeaderOrFooter) : base(sortInfo, isHeaderOrFooter)
+                internal Comparer(ItemOrArray<SortingInfo<T>> sortInfo) : base(sortInfo)
                 {
                 }
 
@@ -165,18 +139,11 @@ namespace MugenMvvm.Internal
                         if (y is T yT)
                             return Compare(xT, yT);
 
-                        if (_isHeaderOrFooter == null)
-                            return -1;
-                        return Compare(_isHeaderOrFooter(xT), null);
+                        return -1;
                     }
 
-                    if (y is T yTt)
-                    {
-                        if (_isHeaderOrFooter == null)
-                            return 1;
-                        return Compare(null, _isHeaderOrFooter(yTt));
-                    }
-
+                    if (y is T)
+                        return 1;
                     return 0;
                 }
             }

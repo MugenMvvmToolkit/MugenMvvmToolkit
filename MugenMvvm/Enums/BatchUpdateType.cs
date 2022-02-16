@@ -4,6 +4,7 @@
     {
         public static readonly BatchUpdateType Source = new(1);
         public static readonly BatchUpdateType Decorators = new(2);
+        public static readonly BatchUpdateType DecoratorManager = new(3);
 
         public BatchUpdateType(int value, string? name = null, bool register = true) : base(value, name, register)
         {

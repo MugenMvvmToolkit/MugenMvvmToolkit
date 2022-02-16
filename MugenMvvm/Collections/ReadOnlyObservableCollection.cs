@@ -14,13 +14,15 @@ using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
+using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    [DebuggerDisplay("Count={" + nameof(Count) + "}")]
+    [DebuggerDisplay("Count={" + nameof(Count) + "} " + "{" + nameof(Locker) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
-    internal sealed class ReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>, IHasFindAllIndexOfSupport
+    internal sealed class ReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>, IHasFindAllIndexOfSupport,
+        IWrapper<IReadOnlyObservableCollection>
     {
         private readonly IReadOnlyObservableCollection<T> _source;
         private readonly bool _disposeSource;
@@ -44,6 +46,8 @@ namespace MugenMvvm.Collections
         public int Count => _decorator == null ? 0 : _source.Count;
 
         public ILocker Locker => _source.Locker;
+
+        IReadOnlyObservableCollection IHasTarget<IReadOnlyObservableCollection>.Target => _source;
 
         Type IReadOnlyObservableCollection.ItemType => typeof(T);
 
@@ -69,11 +73,14 @@ namespace MugenMvvm.Collections
 
         public IEnumerator<T> GetEnumerator() => _decorator == null ? Default.Enumerator<T>() : _source.GetEnumerator();
 
-        public void UpdateLocker(ILocker locker) => _source.UpdateLocker(locker);
+        public void UpdateLocker(ILocker locker, IReadOnlyMetadataContext? metadata) => _source.UpdateLocker(locker, metadata);
+
+        public bool WaitLockerUpdate(bool includeNested, Action? onPendingUpdate, Action? onUpdated, IReadOnlyMetadataContext? metadata) =>
+            _source.WaitLockerUpdate(includeNested, onPendingUpdate, onUpdated, metadata);
 
         public ActionToken Lock() => _source.Lock();
 
-        public bool TryLock(int timeout, out ActionToken lockToken) => _source.TryLock(timeout, out lockToken);
+        public ActionToken TryLock(int timeout) => _source.TryLock(timeout);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -81,7 +88,7 @@ namespace MugenMvvm.Collections
             _source.FindAllIndexOf(item, ignoreDuplicates, ref indexes);
 
         private sealed class Listener : ICollectionChangedListener<T>, ICollectionItemChangedListener, ICollectionBatchUpdateListener,
-            IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, ILockerChangedListener<IReadOnlyObservableCollection>, IHasPriority
+            IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, ILockerHandlerComponent<IReadOnlyObservableCollection>, IHasPriority
         {
             private readonly bool _isWeak;
             private object? _target;
@@ -157,7 +164,14 @@ namespace MugenMvvm.Collections
             public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
             {
                 var target = TryGetTarget(owner);
-                target?.GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(target, locker, metadata);
+                target?.GetComponents<ILockerHandlerComponent<IReadOnlyObservableCollection>>().OnChanged(target, locker, metadata);
+            }
+
+            public bool TryWaitLockerUpdate(IReadOnlyObservableCollection owner, Action? onPendingUpdate, Action? onUpdated, IReadOnlyMetadataContext? metadata)
+            {
+                var target = TryGetTarget(owner);
+                return target != null && target.GetComponents<ILockerHandlerComponent<IReadOnlyObservableCollection>>()
+                                               .TryWaitLockerUpdate(target, onPendingUpdate, onUpdated, metadata);
             }
 
             private ReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)

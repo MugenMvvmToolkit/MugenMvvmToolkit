@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -45,36 +46,40 @@ namespace MugenMvvm.Collections
                 return;
 
             var isValid = TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner);
-            ActionToken token = default;
-            try
+            using var token = isValid ? owner!.TryLock(0) : default;
+            if (isValid && token.IsEmpty) //possible deadlock
             {
-                if (isValid && !owner!.TryLock(0, out token)) //possible deadlock
+#if NET5_0
+                ThreadPool.QueueUserWorkItem(static s =>
                 {
-                    Task.Run(() =>
+                    using (s.collection.Lock())
                     {
-                        using (collection.Lock())
-                        {
-                            OnEndBatchUpdate(collection, batchUpdateType);
-                        }
-                    });
-                    return;
-                }
-
-                _isInBatch = false;
-                _sourceSnapshot?.Clear();
-                if (_isDirty)
-                {
-                    _isDirty = false;
-                    if (isValid)
-                    {
-                        Size = collection.Count;
-                        Reset(decoratorManager!, decorator!, owner!);
+                        s.Item1.OnEndBatchUpdate(s.collection, s.batchUpdateType);
                     }
-                }
+                }, (this, collection, batchUpdateType), true);
+#else
+                ThreadPool.QueueUserWorkItem(static s =>
+                {
+                    var state = (Tuple<FlattenCollectionItemBase, IReadOnlyObservableCollection, BatchUpdateType>) s!;
+                    using (state.Item2.Lock())
+                    {
+                        state.Item1.OnEndBatchUpdate(state.Item2, state.Item3);
+                    }
+                }, Tuple.Create(this, collection, batchUpdateType));
+#endif
+                return;
             }
-            finally
+
+            _isInBatch = false;
+            _sourceSnapshot?.Clear();
+            if (_isDirty)
             {
-                token.Dispose();
+                _isDirty = false;
+                if (isValid)
+                {
+                    Size = collection.Count;
+                    Reset(decoratorManager!, decorator!, owner!);
+                }
             }
         }
 

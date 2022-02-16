@@ -1,7 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading.Tasks;
+using System.Threading;
 using MugenMvvm.Collections.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -17,7 +18,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    internal abstract class FlattenCollectionItemBase : IndexMapAware, ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>,
+    internal abstract class FlattenCollectionItemBase : IndexMapAware, ILockerHandlerComponent<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>,
         IHasPriority
     {
         public object? Item;
@@ -42,8 +43,6 @@ namespace MugenMvvm.Collections
 
         public int Priority => CollectionComponentPriority.BindableAdapter;
 
-        public FlattenItemInfo ToFlattenItemInfo() => new(Collection, this is FlattenDecoratedCollectionItem);
-
         public virtual void OnBeginBatchUpdate(IReadOnlyObservableCollection collection, BatchUpdateType batchUpdateType)
         {
             if (!_initialized)
@@ -57,42 +56,45 @@ namespace MugenMvvm.Collections
             if (!TryGetDecoratorManager(out var decoratorManager, out var decorator, out var owner))
                 return;
 
-            ActionToken token = default;
-            try
+            using var token = owner.TryLock(0);
+            if (token.IsEmpty) //possible deadlock
             {
-                if (!owner.TryLock(0, out token)) //possible deadlock
+#if NET5_0
+                ThreadPool.QueueUserWorkItem(static s =>
                 {
-                    Task.Run(() =>
+                    using (s.collection.Lock())
                     {
-                        using (collection.Lock())
-                        {
-                            OnEndBatchUpdate(collection, batchUpdateType);
-                        }
-                    });
-                    return;
-                }
-
-                if (_isInBatch)
-                {
-                    _isInBatch = false;
-                    if (_isDirty)
-                    {
-                        _isDirty = false;
-                        Size = GetItems().CountEx();
-                        using (owner.Lock())
-                        {
-                            Reset(decoratorManager, decorator, owner);
-                        }
+                        s.Item1.OnEndBatchUpdate(s.collection, s.batchUpdateType);
                     }
-                }
+                }, (this, collection, batchUpdateType), true);
+#else
+                ThreadPool.QueueUserWorkItem(static s =>
+                {
+                    var state = (Tuple<FlattenCollectionItemBase, IReadOnlyObservableCollection, BatchUpdateType>) s!;
+                    using (state.Item2.Lock())
+                    {
+                        state.Item1.OnEndBatchUpdate(state.Item2, state.Item3);
+                    }
+                }, Tuple.Create(this, collection, batchUpdateType));
+#endif
+                return;
+            }
 
-                owner.GetBatchUpdateManager().EndBatchUpdate(owner, BatchUpdateType.Decorators);
-            }
-            finally
+            if (_isInBatch)
             {
-                token.Dispose();
+                _isInBatch = false;
+                if (_isDirty)
+                {
+                    _isDirty = false;
+                    Size = GetItems().CountEx();
+                    Reset(decoratorManager, decorator, owner);
+                }
             }
+
+            owner.GetBatchUpdateManager().EndBatchUpdate(owner, BatchUpdateType.Decorators);
         }
+
+        public FlattenItemInfo ToFlattenItemInfo() => new(Collection, this is FlattenDecoratedCollectionItem);
 
         public FlattenCollectionItemBase Initialize(object? item, IEnumerable collection, FlattenCollectionDecorator decorator, bool isWeak)
         {
@@ -105,17 +107,23 @@ namespace MugenMvvm.Collections
             return this;
         }
 
-        public void UpdateLocker(ILocker locker)
+        public void UpdateLocker(ILocker locker, IReadOnlyMetadataContext? metadata)
         {
             if (Collection is ISynchronizable synchronizable)
-                synchronizable.UpdateLocker(locker);
+                synchronizable.UpdateLocker(locker, metadata);
+        }
+
+        public bool WaitLockerUpdate(bool includeNested, Action? onPendingUpdate, Action? onUpdated, IReadOnlyMetadataContext? metadata)
+        {
+            if (Collection is ISynchronizable synchronizable)
+                return synchronizable.WaitLockerUpdate(includeNested, onPendingUpdate, onUpdated, metadata);
+            return false;
         }
 
         public void OnAdded(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int index,
-            bool notify, bool isRecycled, out bool isReset, object? replaceItem = null, bool isReplace = false)
+            bool notify, bool isRecycled, object? replaceItem = null, bool isReplace = false)
         {
             using var _ = MugenExtensions.Lock(Collection);
-            isReset = false;
             if (notify)
             {
                 foreach (var item in GetItems())
@@ -133,10 +141,7 @@ namespace MugenMvvm.Collections
                 }
 
                 if (Size > decorator.BatchThreshold)
-                {
-                    isReset = true;
                     Reset(decoratorManager, decorator, source);
-                }
                 else if (isReplace)
                     decoratorManager.OnRemoved(source, decorator, replaceItem, index);
             }
@@ -162,7 +167,7 @@ namespace MugenMvvm.Collections
             }
             else
             {
-                int count = 0;
+                var count = 0;
                 using (var oldEnumerator = oldItem.GetItems().GetEnumerator())
                 using (var newEnumerator = GetItems().GetEnumerator())
                 {
@@ -201,17 +206,13 @@ namespace MugenMvvm.Collections
         }
 
         public void OnRemoved(FlattenCollectionDecorator decorator, ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection source, int index,
-            out bool isReset, object? replaceItem = null, bool isReplace = false)
+            object? replaceItem = null, bool isReplace = false)
         {
             using var _ = MugenExtensions.Lock(Collection);
             if (Size > decorator.BatchThreshold)
-            {
-                isReset = true;
                 Reset(decoratorManager, decorator, source);
-            }
             else
             {
-                isReset = false;
                 if (Size == 0)
                 {
                     if (isReplace)
@@ -366,8 +367,12 @@ namespace MugenMvvm.Collections
         public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
         {
             if (TryGetDecoratorManager(out _, out _, out var decoratorOwner))
-                decoratorOwner.UpdateLocker(locker);
+                decoratorOwner.UpdateLocker(locker, metadata);
         }
+
+        public bool TryWaitLockerUpdate(IReadOnlyObservableCollection owner, Action? onPendingUpdate, Action? onUpdated,
+            IReadOnlyMetadataContext? metadata) =>
+            TryGetDecoratorManager(out _, out _, out var decoratorOwner) && decoratorOwner.WaitLockerUpdate(true, onPendingUpdate, onUpdated, metadata);
 
         protected internal abstract IEnumerable<object?> GetItems();
 
@@ -409,8 +414,8 @@ namespace MugenMvvm.Collections
 
             if (Collection is ISynchronizable collectionSynchronizable)
             {
-                collectionSynchronizable.UpdateLocker(source.Locker);
-                source.UpdateLocker(collectionSynchronizable.Locker);
+                collectionSynchronizable.UpdateLocker(source.Locker, null);
+                source.UpdateLocker(collectionSynchronizable.Locker, null);
             }
 
             _initialized = true;

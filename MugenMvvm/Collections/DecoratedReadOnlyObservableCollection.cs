@@ -15,15 +15,17 @@ using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
+using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Internal;
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections
 {
-    [DebuggerDisplay("Count={" + nameof(Count) + "}")]
+    [DebuggerDisplay("Count={" + nameof(Count) + "} " + "{" + nameof(Locker) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
-    internal sealed class DecoratedReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>, IHasFindAllIndexOfSupport
+    internal sealed class DecoratedReadOnlyObservableCollection<T> : ComponentOwnerBase<IReadOnlyObservableCollection>, IReadOnlyObservableCollection<T>, IHasFindAllIndexOfSupport,
+        IWrapper<IReadOnlyObservableCollection>
     {
         private readonly IReadOnlyObservableCollection _source;
         private readonly bool _disposeSource;
@@ -66,6 +68,8 @@ namespace MugenMvvm.Collections
 
         public ILocker Locker => _source.Locker;
 
+        IReadOnlyObservableCollection IHasTarget<IReadOnlyObservableCollection>.Target => _source;
+
         Type IReadOnlyObservableCollection.ItemType => typeof(T);
 
         public void Dispose()
@@ -97,11 +101,14 @@ namespace MugenMvvm.Collections
             return GetEnumerable(decorator).GetEnumerator();
         }
 
-        public void UpdateLocker(ILocker locker) => _source.UpdateLocker(locker);
+        public void UpdateLocker(ILocker locker, IReadOnlyMetadataContext? metadata) => _source.UpdateLocker(locker, metadata);
+
+        public bool WaitLockerUpdate(bool includeNested, Action? onPendingUpdate, Action? onUpdated, IReadOnlyMetadataContext? metadata) =>
+            _source.WaitLockerUpdate(includeNested, onPendingUpdate, onUpdated, metadata);
 
         public ActionToken Lock() => _source.Lock();
 
-        public bool TryLock(int timeout, out ActionToken lockToken) => _source.TryLock(timeout, out lockToken);
+        public ActionToken TryLock(int timeout) => _source.TryLock(timeout);
 
         private IEnumerable<T> GetEnumerable(DecoratorListener decorator)
         {
@@ -131,7 +138,7 @@ namespace MugenMvvm.Collections
         }
 
         private sealed class DecoratorListener : IListenerCollectionDecorator, IFlattenCollectionListener, ICollectionBatchUpdateListener,
-            ILockerChangedListener<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
+            ILockerHandlerComponent<IReadOnlyObservableCollection>, IDisposableComponent<IReadOnlyObservableCollection>, IDetachableComponent, IHasPriority
         {
             public readonly bool Materialize;
             private readonly bool _isWeak;
@@ -252,7 +259,14 @@ namespace MugenMvvm.Collections
             public void OnChanged(IReadOnlyObservableCollection owner, ILocker locker, IReadOnlyMetadataContext? metadata)
             {
                 var target = TryGetTarget(owner);
-                target?.GetComponents<ILockerChangedListener<IReadOnlyObservableCollection>>().OnChanged(target, locker, metadata);
+                target?.GetComponents<ILockerHandlerComponent<IReadOnlyObservableCollection>>().OnChanged(target, locker, metadata);
+            }
+
+            public bool TryWaitLockerUpdate(IReadOnlyObservableCollection owner, Action? onPendingUpdate, Action? onUpdated, IReadOnlyMetadataContext? metadata)
+            {
+                var target = TryGetTarget(owner);
+                return target != null && target.GetComponents<ILockerHandlerComponent<IReadOnlyObservableCollection>>()
+                                               .TryWaitLockerUpdate(target, onPendingUpdate, onUpdated, metadata);
             }
 
             private DecoratedReadOnlyObservableCollection<T>? TryGetTarget(IReadOnlyObservableCollection source)

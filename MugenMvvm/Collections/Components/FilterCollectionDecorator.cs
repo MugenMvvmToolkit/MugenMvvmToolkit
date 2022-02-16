@@ -8,13 +8,12 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
-using MugenMvvm.Metadata;
 
 // ReSharper disable PossibleMultipleEnumeration
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class FilterCollectionDecorator<T> : CollectionDecoratorBase, IHasCache
+    public class FilterCollectionDecorator<T> : CollectionDecoratorBase, IHasCache
     {
         private readonly bool _allowNull;
         private Func<T, int, bool>? _filter;
@@ -40,10 +39,14 @@ namespace MugenMvvm.Collections.Components
 
         protected override bool HasAdditionalItems => false;
 
+        protected virtual bool HasItemDecorator => false;
+
         [MemberNotNullWhen(true, nameof(_filter))]
         private bool HasFilter => _filter != null;
 
         public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null) => UpdateFilterInternal(_filter);
+
+        protected virtual object? Decorate(object? item) => item;
 
         protected override void OnDetached(IReadOnlyObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
@@ -55,13 +58,7 @@ namespace MugenMvvm.Collections.Components
             IEnumerable<object?> items) => Decorate(items);
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
-            ref object? args)
-        {
-            if (!HasFilter)
-                return true;
-
-            return Replace(decoratorManager, collection, item, item, ref index, true, args);
-        }
+            ref object? args) => !HasFilter || Replace(decoratorManager, collection, item, item, ref index, true);
 
         protected override bool OnAdded(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index)
         {
@@ -86,7 +83,7 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            return Replace(decoratorManager, collection, oldItem, newItem, ref index, false, null);
+            return Replace(decoratorManager, collection, oldItem, newItem, ref index, false);
         }
 
         protected override bool OnMoved(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int oldIndex,
@@ -147,26 +144,26 @@ namespace MugenMvvm.Collections.Components
         }
 
         private bool Replace(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, object? oldItem, object? newItem, ref int index,
-            bool isChange, object? args)
+            bool isChange)
         {
             var oldIndex = _items.BinarySearch(index);
             if (oldIndex < 0)
             {
-                if (FilterInternal(newItem, index, args))
+                if (FilterInternal(newItem, index))
                 {
                     index -= GetIndexOffset(oldIndex);
                     return true;
                 }
 
                 _items.Add(index, newItem, oldIndex);
-                decoratorManager.OnRemoved(collection, this, oldItem, index - GetIndexOffset(oldIndex));
+                decoratorManager.OnRemoved(collection, this, Decorate(oldItem), index - GetIndexOffset(oldIndex));
                 return false;
             }
 
-            if (FilterInternal(newItem, index, args))
+            if (FilterInternal(newItem, index))
             {
                 _items.RemoveAt(oldIndex);
-                decoratorManager.OnAdded(collection, this, newItem, index - GetIndexOffset(oldIndex));
+                decoratorManager.OnAdded(collection, this, Decorate(newItem), index - GetIndexOffset(oldIndex));
                 return false;
             }
 
@@ -217,7 +214,7 @@ namespace MugenMvvm.Collections.Components
 
         private IEnumerable<object?> Decorate(IEnumerable<object?> items)
         {
-            if (_items.Size == 0 || !HasFilter)
+            if ((_items.Size == 0 || !HasFilter) && !HasItemDecorator)
                 return items;
             return DecorateImpl(items);
         }
@@ -240,17 +237,8 @@ namespace MugenMvvm.Collections.Components
                 }
 
                 ++index;
-                yield return item;
+                yield return Decorate(item);
             }
-        }
-
-        private bool FilterInternal(object? value, int index, object? args)
-        {
-            if (ReferenceEquals(args, CollectionMetadata.TrueFilterArgs))
-                return true;
-            if (ReferenceEquals(args, CollectionMetadata.FalseFilterArgs))
-                return false;
-            return FilterInternal(value, index);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -16,6 +16,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
@@ -290,43 +291,32 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
-        public static ActionToken SynchronizeLockerWith<T>(this T source, T target) where T : class, IComponentOwner<T>, ISynchronizable
+        public static ActionToken SynchronizeLockerWith<T>(this T source, T target, IReadOnlyMetadataContext? metadata = null) where T : class, IComponentOwner<T>, ISynchronizable
         {
             Should.NotBeNull(source, nameof(source));
             Should.NotBeNull(target, nameof(target));
             if (ReferenceEquals(source, target))
                 return default;
 
-            ActionToken t1 = default;
-            ActionToken t2 = default;
-            try
+            while (true)
             {
-                while (true)
+                using var t1 = source.TryLock(10);
+                if (t1.IsEmpty)
+                    continue;
+                using var t2 = target.TryLock(10);
+                if (t2.IsEmpty)
+                    continue;
+
+                foreach (var component in source.Components.GetComponents<LockerSynchronizer<T>>())
                 {
-                    if (!source.TryLock(10, out t1))
-                        continue;
-                    if (!target.TryLock(10, out t2))
-                    {
-                        t1.Dispose();
-                        continue;
-                    }
-
-                    foreach (var component in source.Components.GetComponents<LockerSynchronizer<T>>())
-                    {
-                        if (component.IsSynchronized(source, target))
-                            return ActionToken.FromHandler(component, source, target);
-                    }
-
-                    var synchronizer = new LockerSynchronizer<T>(source, target);
-                    source.Components.Add(synchronizer);
-                    target.Components.Add(synchronizer);
-                    return ActionToken.FromHandler(synchronizer, source, target);
+                    if (component.IsSynchronized(source, target))
+                        return ActionToken.FromHandler(component, source, target);
                 }
-            }
-            finally
-            {
-                t1.Dispose();
-                t2.Dispose();
+
+                var synchronizer = new LockerSynchronizer<T>(source, target, metadata);
+                source.Components.Add(synchronizer, metadata);
+                target.Components.Add(synchronizer, metadata);
+                return ActionToken.FromHandler(synchronizer, source, target);
             }
         }
 
@@ -535,6 +525,12 @@ namespace MugenMvvm.Extensions
             return true;
         }
 
+        internal static bool TryLock(this ISynchronizable target, int timeout, out ActionToken lockToken)
+        {
+            lockToken = target.TryLock(timeout);
+            return !lockToken.IsEmpty;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder) => valueHolder?.Value?.Release();
 
@@ -597,6 +593,12 @@ namespace MugenMvvm.Extensions
                 return allowNull;
             return item is T;
         }
+
+        internal static void BeginDecoratorManagerUpdate(this IReadOnlyObservableCollection collection) =>
+            collection.GetBatchUpdateManager().BeginBatchUpdate(collection, BatchUpdateType.DecoratorManager);
+
+        internal static void EndDecoratorManagerUpdate(this IReadOnlyObservableCollection collection) =>
+            collection.GetBatchUpdateManager().EndBatchUpdate(collection, BatchUpdateType.DecoratorManager);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static object? ToString<T>(T? item)

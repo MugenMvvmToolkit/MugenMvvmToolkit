@@ -2,9 +2,6 @@
 {
     public static class CollectionMetadata
     {
-        public static readonly object TrueFilterArgs = new();
-        public static readonly object FalseFilterArgs = new();
-
         public static readonly object ReloadItem = new();
 
         public static bool RaiseItemChangedCheckDuplicates { get; set; }

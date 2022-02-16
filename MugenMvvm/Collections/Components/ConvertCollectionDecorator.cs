@@ -65,12 +65,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         protected override IEnumerable<object?> Decorate(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection,
-            IEnumerable<object?> items)
-        {
-            if (_items.Size == 0)
-                return items;
-            return DecorateImpl(items);
-        }
+            IEnumerable<object?> items) => _items.Size == 0 ? items : DecorateImpl(items);
 
         protected override bool OnChanged(ICollectionDecoratorManagerComponent decoratorManager, IReadOnlyObservableCollection collection, ref object? item, ref int index,
             ref object? args)

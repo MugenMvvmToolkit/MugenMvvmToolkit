@@ -19,7 +19,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    [DebuggerDisplay("Count={" + nameof(Count) + "}")]
+    [DebuggerDisplay("Count={" + nameof(Count) + "} " + "{" + nameof(Locker) + "}")]
     [DebuggerTypeProxy(typeof(ReadOnlyObservableCollectionDebuggerProxy<>))]
     public sealed class ObservableSet<T> : SynchronizableComponentOwnerBase<IReadOnlyObservableCollection>, IObservableCollection<T>, IObservableCollection,
         IHasComponentAddConditionHandler, IHasFindAllIndexOfSupport where T : notnull
@@ -96,7 +96,7 @@ namespace MugenMvvm.Collections
             return new Enumerator(this);
         }
 
-        public bool Add(T item)
+        public bool Add(T item, bool addLast = true)
         {
             using (Lock())
             {
@@ -104,18 +104,18 @@ namespace MugenMvvm.Collections
                 if (_dictionary.ContainsKey(item))
                     return false;
 
-                var index = _list.Count;
+                var index = addLast ? _list.Count : 0;
                 if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index))
                     return false;
 
                 GetComponents<ICollectionChangingListener<T>>().OnAdding(this, item, index);
-                _dictionary[item] = _list.AddLast(item);
+                _dictionary[item] = addLast ? _list.AddLast(item) : _list.AddFirst(item);
                 GetComponents<ICollectionChangedListener<T>>().OnAdded(this, item, index);
                 return true;
             }
         }
 
-        public bool AddOrUpdate(T item)
+        public bool AddOrUpdate(T item, bool addLast = true)
         {
             using (Lock())
             {
@@ -138,12 +138,12 @@ namespace MugenMvvm.Collections
                 }
                 else
                 {
-                    var index = _list.Count;
+                    var index = addLast ? _list.Count : 0;
                     if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index))
                         return false;
 
                     GetComponents<ICollectionChangingListener<T>>().OnAdding(this, item, index);
-                    _dictionary[item] = _list.AddLast(item);
+                    _dictionary[item] = addLast ? _list.AddLast(item) : _list.AddFirst(item);
                     GetComponents<ICollectionChangedListener<T>>().OnAdded(this, item, index);
                 }
 

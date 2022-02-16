@@ -370,11 +370,11 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value < 10000;
-            _collection.ConfigureDecorators<IntValue>().Max((i, v) =>
+            _collection.ConfigureDecorators<IntValue>().Max(i => i.Value, (i, v) =>
             {
                 maxValueItem = i;
                 maxValue = v;
-            }, i => i.Value, maxValue, condition, null, immutable);
+            }, maxValue, condition, null, immutable);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () =>
@@ -453,11 +453,11 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -10000;
-            _collection.ConfigureDecorators<IntValue>().Min((i, v) =>
+            _collection.ConfigureDecorators<IntValue>().Min(i => i.Value, (i, v) =>
             {
                 minValueItem = i;
                 minValue = v;
-            }, i => i.Value, minValue, condition, null, immutable);
+            }, minValue, condition, null, immutable);
             if (!withCondition)
                 condition = _ => true;
             Action assert = () =>
@@ -535,7 +535,7 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<IntValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -1000;
-            _collection.ConfigureDecorators<IntValue>().Sum(i => sum = i, arg => arg.Value, condition, immutable);
+            _collection.ConfigureDecorators<IntValue>().Sum(arg => arg.Value, i => sum = i, condition, immutable);
             if (!withCondition)
                 condition = _ => true;
 
@@ -606,7 +606,7 @@ namespace MugenMvvm.UnitTests.Extensions
             Func<DecimalValue, bool>? condition = null;
             if (withCondition)
                 condition = value => value.Value > -1000;
-            _collection.ConfigureDecorators<DecimalValue>().Sum(i => sum = i, arg => arg.Value, condition, immutable);
+            _collection.ConfigureDecorators<DecimalValue>().Sum(arg => arg.Value, i => sum = i, condition, immutable);
             if (!withCondition)
                 condition = _ => true;
 
@@ -719,7 +719,7 @@ namespace MugenMvvm.UnitTests.Extensions
                 _collection.OfType<IntValue>().Where(predicate).All(selector).ShouldEqual(value);
             }
 
-            _collection.ConfigureDecorators<IntValue>().All(b => value = b, selector, hasCondition ? predicate : null, immutable);
+            _collection.ConfigureDecorators<IntValue>().All(selector, b => value = b, hasCondition ? predicate : null, immutable);
 
             _collection.Add(new IntValue {Value = -1});
             Assert();
@@ -937,20 +937,20 @@ namespace MugenMvvm.UnitTests.Extensions
             var locker2 = new TestLocker {Priority = 2};
             var locker3 = new TestLocker {Priority = 3};
             var locker4 = new TestLocker {Priority = 3};
-            target.UpdateLocker(locker1);
+            target.UpdateLocker(locker1, null);
             target.Locker.ShouldEqual(locker1);
             source.Locker.ShouldEqual(locker1);
 
-            source.UpdateLocker(locker2);
+            source.UpdateLocker(locker2, null);
             target.Locker.ShouldEqual(locker2);
             source.Locker.ShouldEqual(locker2);
 
             token.Dispose();
-            target.UpdateLocker(locker3);
+            target.UpdateLocker(locker3, null);
             target.Locker.ShouldEqual(locker3);
             source.Locker.ShouldEqual(locker2);
 
-            source.UpdateLocker(locker4);
+            source.UpdateLocker(locker4, null);
             target.Locker.ShouldEqual(locker3);
             source.Locker.ShouldEqual(locker4);
         }

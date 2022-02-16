@@ -224,12 +224,25 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnChanged<T>(this ItemOrArray<ILockerChangedListener<T>> listeners, T owner, ILocker locker, IReadOnlyMetadataContext? metadata) where T : class
+        public static void OnChanged<T>(this ItemOrArray<ILockerHandlerComponent<T>> listeners, T owner, ILocker locker, IReadOnlyMetadataContext? metadata) where T : class
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(locker, nameof(locker));
             foreach (var listener in listeners)
                 listener.OnChanged(owner, locker, metadata);
+        }
+
+        public static bool TryWaitLockerUpdate<T>(this ItemOrArray<ILockerHandlerComponent<T>> listeners, T owner, Action? onPendingUpdate, Action? onUpdated,
+            IReadOnlyMetadataContext? metadata) where T : class
+        {
+            bool result = false;
+            foreach (var listener in listeners)
+            {
+                if (listener.TryWaitLockerUpdate(owner, onPendingUpdate, onUpdated, metadata))
+                    result = true;
+            }
+
+            return result;
         }
 
         public static void OnDisposing<T>(object? components, T owner, IReadOnlyMetadataContext? metadata) where T : class
