@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Bindings.Core;
 using MugenMvvm.Bindings.Delegates;
+using MugenMvvm.Bindings.Extensions;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Collections;
@@ -44,7 +45,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 TryParseBindingExpression = (_, o, arg3) =>
                 {
                     ++invokeCount;
-                    o.ShouldEqual(Delegate);
+                    o.ShouldEqual(Delegate.ToBindingBuilderDelegate());
                     arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
@@ -78,7 +79,7 @@ namespace MugenMvvm.UnitTests.Bindings.Core
                 TryParseBindingExpression = (_, o, arg3) =>
                 {
                     ++invokeCount;
-                    o.ShouldEqual(Delegate);
+                    o.ShouldEqual(Delegate.ToBindingBuilderDelegate());
                     arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }

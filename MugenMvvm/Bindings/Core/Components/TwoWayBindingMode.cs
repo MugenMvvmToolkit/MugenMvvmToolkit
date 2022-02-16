@@ -11,10 +11,13 @@ namespace MugenMvvm.Bindings.Core.Components
 {
     public sealed class TwoWayBindingMode : IAttachableComponent, IBindingSourceObserverListener, IBindingTargetObserverListener, IHasPriority
     {
-        public static readonly TwoWayBindingMode Instance = new();
+        public static readonly TwoWayBindingMode Target = new(false);
+        public static readonly TwoWayBindingMode Source = new(true);
+        private readonly bool _source;
 
-        private TwoWayBindingMode()
+        private TwoWayBindingMode(bool source)
         {
+            _source = source;
         }
 
         public int Priority { get; init; } = BindingComponentPriority.Mode;
@@ -23,7 +26,13 @@ namespace MugenMvvm.Bindings.Core.Components
         {
         }
 
-        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata) => ((IBinding) owner).UpdateTarget();
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (_source)
+                ((IBinding) owner).UpdateSource();
+            else
+                ((IBinding) owner).UpdateTarget();
+        }
 
         void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 

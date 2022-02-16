@@ -32,6 +32,7 @@ using MugenMvvm.Bindings.Resources.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -137,6 +138,9 @@ namespace MugenMvvm.Bindings.Extensions
             var attachedMemberProvider = memberManager.GetAttachedMemberProvider();
             RegisterObjectAttachedMembers(attachedMemberProvider);
             RegisterValidationAttachedMembers(memberManager, attachedMemberProvider);
+            var canExecuteEvent = memberManager.TryGetMember(typeof(ICompositeCommand), MemberType.Event, MemberFlags.InstancePublic, nameof(ICompositeCommand.CanExecuteChanged));
+            if (canExecuteEvent != null)
+                attachedMemberProvider.Register(canExecuteEvent, nameof(ICompositeCommand.IsExecuting) + BindingInternalConstant.ChangedEventPostfix);
             return configuration;
         }
 
@@ -242,11 +246,11 @@ namespace MugenMvvm.Bindings.Extensions
                                               .CustomImplementation((member, target, listener, metadata) =>
                                               {
                                                   var component = new ErrorsChangedValidatorListener(listener);
-                                                  target.GetService(false)!.AddComponent(component);
+                                                  target.GetService(false)?.AddComponent(component);
                                                   return ActionToken.FromDelegate((t, c) =>
                                                   {
                                                       var hasService = (IHasService<IValidator>?) ((IWeakReference) t!).Target;
-                                                      hasService?.GetService(false)!.RemoveComponent((IComponent<IValidator>) c!);
+                                                      hasService?.GetService(false)?.RemoveComponent((IComponent<IValidator>) c!);
                                                   }, target.ToWeakReference(), component);
                                               })
                                               .Build();

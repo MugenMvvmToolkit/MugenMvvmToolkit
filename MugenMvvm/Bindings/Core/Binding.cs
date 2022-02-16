@@ -22,7 +22,7 @@ namespace MugenMvvm.Bindings.Core
 {
     public class Binding : IBinding, IComponentCollection, IMemberPathObserverListener, IReadOnlyMetadataContext, IComparer<object> //todo synchronized, all components synchronized
     {
-        protected const int TargetUpdatingFlag = 1;//todo convert by expression implicit
+        protected const int TargetUpdatingFlag = 1; //todo convert using expression implicit
         protected const int SourceUpdatingFlag = 1 << 1;
 
         protected const int HasTargetValueInterceptorFlag = 1 << 2;
@@ -274,7 +274,7 @@ namespace MugenMvvm.Bindings.Core
                 return false;
             }
 
-            newValue = GetSourceValue(pathLastMember);//todo review delay for expression
+            newValue = GetSourceValue(pathLastMember); //todo review delay for expression
             if (CheckFlag(HasTargetValueInterceptorFlag))
                 newValue = BindingComponentExtensions.InterceptTargetValue(_components, this, pathLastMember, newValue, this);
 
@@ -431,6 +431,10 @@ namespace MugenMvvm.Bindings.Core
             if (component is IComponentCollectionChangedListener)
                 SetFlag(HasComponentChangedListener);
 
+            ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
+            if (CheckFlag(HasComponentChangedListener))
+                ComponentComponentExtensions.OnComponentAdded(_components, this, component, metadata);
+
             if (!CheckFlag(HasSourceObserverListener) && component is IBindingSourceObserverListener)
             {
                 SetFlag(HasSourceObserverListener);
@@ -442,10 +446,6 @@ namespace MugenMvvm.Bindings.Core
                 SetFlag(HasTargetObserverListener);
                 Target.AddListener(this);
             }
-
-            ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
-            if (CheckFlag(HasComponentChangedListener))
-                ComponentComponentExtensions.OnComponentAdded(_components, this, component, metadata);
         }
 
         private bool OnComponentRemoving(object component, IReadOnlyMetadataContext? metadata)

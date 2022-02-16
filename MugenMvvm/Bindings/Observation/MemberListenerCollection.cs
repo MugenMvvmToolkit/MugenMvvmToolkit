@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Observation
 {
-    public class MemberListenerCollection : ActionToken.IHandler
+    public class MemberListenerCollection : ActionToken.IHandler//todo lock free
     {
         private const int MinValueTrim = 3;
         private const int MaxValueTrim = 100;
@@ -28,13 +28,20 @@ namespace MugenMvvm.Bindings.Observation
         {
             if (Count == 0)
                 return;
+
             var raising = _raising;
             _raising = true;
             try
             {
                 var hasDeadRef = false;
-                var listeners = _listeners;
-                var size = _size;
+                WeakEventListener<string>[] listeners;
+                ushort size;
+                lock (this)
+                {
+                    listeners = _listeners;
+                    size = _size;
+                }
+
                 for (var i = 0; i < size; i++)
                 {
                     var listener = listeners[i];
@@ -43,7 +50,12 @@ namespace MugenMvvm.Bindings.Observation
                 }
 
                 if (hasDeadRef)
-                    TrimIfNeed(true);
+                {
+                    lock (this)
+                    {
+                        TrimIfNeed(true);
+                    }
+                }
             }
             finally
             {
@@ -53,45 +65,51 @@ namespace MugenMvvm.Bindings.Observation
 
         public ActionToken Add(IEventListener target, string? memberName)
         {
-            memberName ??= "";
-            if (_size > MaxValueTrim && _removedSize == 0 && _listeners.Length == _size)
-                ClearDeadReferences();
-
-            var weakItem = target.ToWeak(memberName);
-            if (_removedSize == 0)
+            lock (this)
             {
-                if (_size == _listeners.Length)
-                    Array.Resize(ref _listeners, EventListenerCollection.GetCapacity(_size));
+                memberName ??= "";
+                if (_size > MaxValueTrim && _removedSize == 0 && _listeners.Length == _size)
+                    ClearDeadReferences();
 
-                _listeners[_size++] = weakItem;
-            }
-            else
-            {
-                for (var i = 0; i < _size; i++)
+                var weakItem = target.ToWeak(memberName);
+                if (_removedSize == 0)
                 {
-                    if (_listeners[i].IsEmpty)
+                    if (_size == _listeners.Length)
+                        Array.Resize(ref _listeners, EventListenerCollection.GetCapacity(_size));
+
+                    _listeners[_size++] = weakItem;
+                }
+                else
+                {
+                    for (var i = 0; i < _size; i++)
                     {
-                        _listeners[i] = weakItem;
-                        --_removedSize;
-                        break;
+                        if (_listeners[i].IsEmpty)
+                        {
+                            _listeners[i] = weakItem;
+                            --_removedSize;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (_size - _removedSize == 1)
-                OnListenersAdded();
-            OnListenerAdded(memberName);
-            return ActionToken.FromHandler(this, weakItem.Target, memberName);
+                if (_size - _removedSize == 1)
+                    OnListenersAdded();
+                OnListenerAdded(memberName);
+                return ActionToken.FromHandler(this, weakItem.Target, memberName);
+            }
         }
 
         public void Clear()
         {
-            if (_size == 0)
-                return;
-            _listeners = Array.Empty<WeakEventListener<string>>();
-            _size = 0;
-            _removedSize = 0;
-            OnListenersRemoved();
+            lock (this)
+            {
+                if (_size == 0)
+                    return;
+                _listeners = Array.Empty<WeakEventListener<string>>();
+                _size = 0;
+                _removedSize = 0;
+                OnListenersRemoved();
+            }
         }
 
         protected virtual void OnListenersAdded()
@@ -239,17 +257,20 @@ namespace MugenMvvm.Bindings.Observation
 
         void ActionToken.IHandler.Invoke(object? target, object? state)
         {
-            var propertyName = (string)state!;
-            var listeners = _listeners;
-            var size = _size;
-            for (var i = 0; i < size; i++)
+            lock (this)
             {
-                var listener = listeners[i];
-                if (listener.Target == target && listener.State == propertyName)
+                var propertyName = (string) state!;
+                var listeners = _listeners;
+                var size = _size;
+                for (var i = 0; i < size; i++)
                 {
-                    if (RemoveAt(listeners, i))
-                        TrimIfNeed(false);
-                    break;
+                    var listener = listeners[i];
+                    if (listener.Target == target && listener.State == propertyName)
+                    {
+                        if (RemoveAt(listeners, i))
+                            TrimIfNeed(false);
+                        break;
+                    }
                 }
             }
         }

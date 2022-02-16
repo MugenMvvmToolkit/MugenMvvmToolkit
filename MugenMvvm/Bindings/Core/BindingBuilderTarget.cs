@@ -31,7 +31,8 @@ namespace MugenMvvm.Bindings.Core
 
         public BindingBuilderFrom<TTarget, TSource> For<TValue>(Expression<Func<TTarget, TValue>> expression) => new(expression);
 
-        public BindingBuilderTo<TTarget, TSource> Action(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object?>> expression) => Action<TSource>(expression);
+        public BindingBuilderTo<TTarget, TSource> Action<TResult>(Expression<Func<IBindingBuilderContext<TTarget, TSource>, TResult>> expression) =>
+            new(new BindingBuilderFrom<TTarget, TSource>(UnaryExpressionNode.ActionMacros), expression, default);
 
         public BindingBuilderTo<TTarget, T> Action<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object?>> expression)
             where T : class =>

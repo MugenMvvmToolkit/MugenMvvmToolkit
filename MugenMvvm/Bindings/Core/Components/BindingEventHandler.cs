@@ -24,7 +24,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Bindings.Core.Components
 {
     public class BindingEventHandler : ITargetValueSetterComponent, IAttachableComponent, IDetachableComponent, IHasAttachConditionComponent, IEventListener,
-        IHasEventArgsComponent, IHasPriority//todo lock
+        IHasEventArgsComponent, IHasPriority //todo lock
     {
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
@@ -89,11 +89,14 @@ namespace MugenMvvm.Bindings.Core.Components
             var target = _targetRef?.Target;
             if (target == null)
                 return;
+            var enabledMember = _enabledMember;
+            if (enabledMember == null)
+                return;
 
             var value = cmd is ICompositeCommand compositeCommand
                 ? compositeCommand.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata), _currentMetadata)
                 : cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata));
-            SetEnabled(value, target);
+            enabledMember.SetValue(target, BoxingExtensions.Box(value), _currentMetadata);
         }
 
         private bool InitializeCanExecute(object? target)
@@ -110,24 +113,10 @@ namespace MugenMvvm.Bindings.Core.Components
             return true;
         }
 
-        private void SetEnabled(bool value, object? target = null)
-        {
-            var enabledMember = _enabledMember;
-            if (enabledMember == null)
-                return;
-
-            target ??= _targetRef?.Target;
-            if (target != null)
-                enabledMember.SetValue(target, BoxingExtensions.Box(value), _currentMetadata);
-        }
-
         private void ClearValue()
         {
             if (_canExecuteHandler != null && _currentValue is ICommand c)
-            {
                 c.CanExecuteChanged -= _canExecuteHandler;
-                SetEnabled(true);
-            }
 
             _targetRef = null;
             _enabledMember = null;

@@ -11,38 +11,43 @@ namespace MugenMvvm.UnitTests.Bindings.Core.Components
 {
     public class TwoWayBindingModeTest : UnitTestBase
     {
-        [Fact]
-        public void ShouldUpdateBindingIfTargetAvailable()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldUpdateBindingIfTargetAvailable(bool source)
         {
+            var mode = source ? TwoWayBindingMode.Source : TwoWayBindingMode.Target;
             var updateTargetCount = 0;
             var updateSourceCount = 0;
             Binding.UpdateSource = () => ++updateSourceCount;
             Binding.UpdateTarget = () => ++updateTargetCount;
 
-            IBindingSourceObserverListener sourceMode = TwoWayBindingMode.Instance;
+            IBindingSourceObserverListener sourceMode = mode;
             Binding.AddComponent(sourceMode);
-            updateTargetCount.ShouldEqual(1);
-            updateSourceCount.ShouldEqual(0);
+            updateTargetCount.ShouldEqual(source ? 0 : 1);
+            updateSourceCount.ShouldEqual(source ? 1 : 0);
             Binding.GetComponents<object>().Single().ShouldEqual(sourceMode);
 
+            updateTargetCount = 0;
+            updateSourceCount = 0;
             sourceMode.OnSourceLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
-            updateTargetCount.ShouldEqual(2);
+            updateTargetCount.ShouldEqual(1);
 
             sourceMode.OnSourcePathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
-            updateTargetCount.ShouldEqual(3);
+            updateTargetCount.ShouldEqual(2);
 
             sourceMode.OnSourceError(Binding, EmptyPathObserver.Empty, new Exception(), Metadata);
-            updateTargetCount.ShouldEqual(3);
+            updateTargetCount.ShouldEqual(2);
 
 
-            IBindingTargetObserverListener mode = TwoWayBindingMode.Instance;
-            mode.OnTargetLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
+            IBindingTargetObserverListener targetMode = mode;
+            targetMode.OnTargetLastMemberChanged(Binding, EmptyPathObserver.Empty, Metadata);
             updateSourceCount.ShouldEqual(1);
 
-            mode.OnTargetPathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
+            targetMode.OnTargetPathMembersChanged(Binding, EmptyPathObserver.Empty, Metadata);
             updateSourceCount.ShouldEqual(2);
 
-            mode.OnTargetError(Binding, EmptyPathObserver.Empty, new Exception(), Metadata);
+            targetMode.OnTargetError(Binding, EmptyPathObserver.Empty, new Exception(), Metadata);
             updateSourceCount.ShouldEqual(2);
         }
     }

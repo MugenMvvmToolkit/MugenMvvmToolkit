@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Bindings.Constants;
 using MugenMvvm.Bindings.Core;
@@ -8,35 +9,39 @@ using MugenMvvm.Bindings.Interfaces.Build;
 using MugenMvvm.Bindings.Interfaces.Converting;
 using MugenMvvm.Bindings.Interfaces.Core;
 using MugenMvvm.Bindings.Interfaces.Parsing.Expressions;
+using MugenMvvm.Bindings.Parsing;
 using MugenMvvm.Bindings.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Bindings.Extensions
 {
     public static class BindingBuilderExtensions
     {
+        private static readonly Dictionary<Delegate, BindingBuilderDelegate> BindingBuilderCache = new(47, InternalEqualityComparer.Reference);
+
         public static ItemOrIReadOnlyList<IBindingBuilder> ParseBindingExpression<TTarget, TSource>(this IBindingManager? bindingManager,
             BindingBuilderDelegate<TTarget, TSource> getBuilder, IReadOnlyMetadataContext? metadata)
             where TTarget : class
             where TSource : class =>
             bindingManager
                 .DefaultIfNull()
-                .ParseBindingExpression(expression: getBuilder, metadata);
+                .ParseBindingExpression(getBuilder.ToBindingBuilderDelegate(), metadata);
 
         public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, object> getBuilder,
             IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null)
             where TTarget : class =>
-            bindingManager.BindInternal(getBuilder, target, null, metadata);
+            bindingManager.BindInternal(getBuilder.ToBindingBuilderDelegate(), target, null, metadata);
 
         public static ItemOrIReadOnlyList<IBinding> Bind<TTarget, TSource>(this TTarget target, TSource? source, BindingBuilderDelegate<TTarget, TSource> getBuilder,
             IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
             where TTarget : class
             where TSource : class =>
-            bindingManager.BindInternal(getBuilder, target, source, metadata);
+            bindingManager.BindInternal(getBuilder.ToBindingBuilderDelegate(), target, source, metadata);
 
         public static ItemOrIReadOnlyList<IBinding> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null, bool includeResult = true)
@@ -51,7 +56,7 @@ namespace MugenMvvm.Bindings.Extensions
         public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, TTarget> getBuilder,
             IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
             where TTarget : class =>
-            bindingManager.BindInternal(getBuilder, target, target, metadata);
+            bindingManager.BindInternal(getBuilder.ToBindingBuilderDelegate(), target, target, metadata);
 
         public static ItemOrIReadOnlyList<IBinding> BindToSelf<TTarget>(this TTarget target, string expression, IReadOnlyMetadataContext? metadata = null,
             IBindingManager? bindingManager = null, bool includeResult = true)
@@ -62,6 +67,11 @@ namespace MugenMvvm.Bindings.Extensions
             where TTarget : class
             where TSource : class =>
             builder.BindingParameter(null, MemberExpressionNode.TwoWayMode);
+
+        public static BindingBuilderTo<TTarget, TSource> TwoWayToSource<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder)
+            where TTarget : class
+            where TSource : class =>
+            builder.BindingParameter(null, MemberExpressionNode.TwoWayToSourceMode);
 
         public static BindingBuilderTo<TTarget, TSource> OneWay<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder)
             where TTarget : class
@@ -219,6 +229,28 @@ namespace MugenMvvm.Bindings.Extensions
             Should.NotBeNullOrEmpty(tag, nameof(tag));
             return builder.BindingParameter(BindingParameterNameConstant.Trace, ConstantExpressionNode.Get(tag));
         }
+
+        public static BindingBuilderDelegate ToBindingBuilderDelegate<TTarget, TSource>(this BindingBuilderDelegate<TTarget, TSource> @delegate)
+            where TTarget : class
+            where TSource : class
+        {
+            lock (BindingBuilderCache)
+            {
+                if (!BindingBuilderCache.TryGetValue(@delegate, out var result))
+                {
+                    if (@delegate.HasClosure())
+                        ExceptionManager.ThrowCannotUseExpressionClosure(@delegate);
+                    result = @delegate.BuildDelegateClosure;
+                    BindingBuilderCache[@delegate] = result;
+                }
+
+                return result;
+            }
+        }
+
+        private static ItemOrArray<BindingExpressionRequest> BuildDelegateClosure<TTarget, TSource>(this BindingBuilderDelegate<TTarget, TSource> @delegate)
+            where TTarget : class
+            where TSource : class => @delegate.Invoke(default);
 
         private static void BindInternalWithoutBindings(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
         {

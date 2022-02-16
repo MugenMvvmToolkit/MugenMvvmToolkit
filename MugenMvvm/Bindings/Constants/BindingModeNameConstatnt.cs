@@ -7,5 +7,6 @@
         public const string OneWay = nameof(OneWay);
         public const string OneWayToSource = nameof(OneWayToSource);
         public const string TwoWay = nameof(TwoWay);
+        public const string TwoWayToSource = nameof(TwoWayToSource);
     }
 }

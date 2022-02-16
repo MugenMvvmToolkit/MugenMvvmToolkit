@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 TryParseBindingExpression = (_, o, arg3) =>
                 {
                     ++invokeCount;
-                    o.ShouldEqual(Delegate);
+                    o.ShouldEqual(Delegate.ToBindingBuilderDelegate());
                     arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 TryParseBindingExpression = (_, o, arg3) =>
                 {
                     ++invokeCount;
-                    o.ShouldEqual(del);
+                    o.ShouldEqual(del.ToBindingBuilderDelegate());
                     arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }
@@ -346,6 +346,12 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
             request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(null, MemberExpressionNode.TwoWayMode));
 
             builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
+            request = builder.TwoWayToSource();
+            request.Target.ShouldEqual(target);
+            request.Source.ShouldEqual(source);
+            request.Parameters.Item.ShouldEqual(new KeyValuePair<string?, object>(null, MemberExpressionNode.TwoWayToSourceMode));
+            
+            builder = new BindingBuilderTo<object, string>(new BindingBuilderFrom<object, string>(target), source, default);
             request = builder.OneWay();
             request.Target.ShouldEqual(target);
             request.Source.ShouldEqual(source);
@@ -380,7 +386,7 @@ namespace MugenMvvm.UnitTests.Bindings.Extensions
                 TryParseBindingExpression = (_, o, arg3) =>
                 {
                     ++invokeCount;
-                    o.ShouldEqual(Delegate);
+                    o.ShouldEqual(Delegate.ToBindingBuilderDelegate());
                     arg3.ShouldEqual(Metadata);
                     return testBuilder;
                 }

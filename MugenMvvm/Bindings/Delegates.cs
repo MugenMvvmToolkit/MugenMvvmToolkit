@@ -15,6 +15,8 @@ namespace MugenMvvm.Bindings.Delegates
         where TTarget : class
         where TSource : class;
 
+    public delegate ItemOrArray<BindingExpressionRequest> BindingBuilderDelegate();
+
     public delegate ActionToken TryObserveDelegate<in TMember, in TTarget>(TMember member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         where TMember : class, IMemberInfo;
 

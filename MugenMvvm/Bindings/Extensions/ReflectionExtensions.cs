@@ -27,10 +27,10 @@ namespace MugenMvvm.Bindings.Extensions
             if (left.Type != right.Type && left.Type.IsValueType == right.Type.IsValueType)
             {
                 if (right.Type.GetTypeConvertPriority() > left.Type.GetTypeConvertPriority())
-                    return TryGenerate(right, left, getExpr);
+                    return TryGenerate(left, right, right.Type, left.Type, getExpr);
             }
 
-            return TryGenerate(left, right, getExpr);
+            return TryGenerate(left, right, left.Type, right.Type, getExpr);
         }
 
         public static void Convert(ref Expression left, ref Expression right, bool exactly)
@@ -291,7 +291,7 @@ namespace MugenMvvm.Bindings.Extensions
         {
             if (propertyInfo == null)
                 return MemberFlags.Instance;
-            return GetAccessModifiers((MemberInfo)(propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true))!) | propertyInfo.GetObservableFlags();
+            return GetAccessModifiers((MemberInfo) (propertyInfo.GetGetMethod(true) ?? propertyInfo.GetSetMethod(true))!) | propertyInfo.GetObservableFlags();
         }
 
         public static EnumFlags<MemberFlags> GetAccessModifiers(this MethodBase? method)
@@ -388,8 +388,8 @@ namespace MugenMvvm.Bindings.Extensions
         }
 #endif
 
-        private static Expression TryGenerate(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr) =>
-            TryGenerate(left, right, left.Type, getExpr, false) ?? TryGenerate(right, left, right.Type, getExpr, true)!;
+        private static Expression TryGenerate(this Expression left, Expression right, Type firstType, Type secondType, Func<Expression, Expression, Expression> getExpr) =>
+            TryGenerate(left, right, firstType, getExpr, false) ?? TryGenerate(left, right, secondType, getExpr, true)!;
 
         private static Expression? TryGenerate(this Expression left, Expression right, Type typeToConvert, Func<Expression, Expression, Expression> getExpr, bool throwOnError)
         {
@@ -432,7 +432,7 @@ namespace MugenMvvm.Bindings.Extensions
                 var typeCode = Type.GetTypeCode(type);
                 if (typeCode == TypeCode.Object)
                     return 100;
-                return (int)typeCode;
+                return (int) typeCode;
             }
 
             return 0;

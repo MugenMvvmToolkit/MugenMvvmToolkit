@@ -23,6 +23,7 @@ namespace MugenMvvm.Bindings.Parsing.Expressions
         public static readonly MemberExpressionNode OneWayMode = new(null, BindingModeNameConstant.OneWay);
         public static readonly MemberExpressionNode OneWayToSourceMode = new(null, BindingModeNameConstant.OneWayToSource);
         public static readonly MemberExpressionNode TwoWayMode = new(null, BindingModeNameConstant.TwoWay);
+        public static readonly MemberExpressionNode TwoWayToSourceMode = new(null, BindingModeNameConstant.TwoWayToSource);
 
         public static readonly MemberExpressionNode OptionalParameter = new(null, BindingParameterNameConstant.Optional);
         public static readonly MemberExpressionNode HasStablePathParameter = new(null, BindingParameterNameConstant.HasStablePath);
