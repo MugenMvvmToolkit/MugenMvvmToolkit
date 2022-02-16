@@ -5,6 +5,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.Tests.Messaging;
@@ -38,6 +39,7 @@ namespace MugenMvvm.UnitTests.App.Components
             ctx.ShouldBeNull();
 
             Application.OnLifecycleChanged(ApplicationLifecycleState.Activated, null, Metadata);
+            Application.Metadata.Get(ApplicationMetadata.IsInBackground).ShouldBeFalse();
             ctx!.NavigationMode.ShouldEqual(NavigationMode.Close);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);
@@ -46,6 +48,7 @@ namespace MugenMvvm.UnitTests.App.Components
 
             ctx = null;
             Application.OnLifecycleChanged(ApplicationLifecycleState.Deactivated, null, Metadata);
+            Application.Metadata.Get(ApplicationMetadata.IsInBackground).ShouldBeTrue();
             ctx!.NavigationMode.ShouldEqual(NavigationMode.New);
             ctx.NavigationId.ShouldEqual(InternalConstant.BackgroundNavigationId);
             ctx.NavigationType.ShouldEqual(NavigationType.Background);

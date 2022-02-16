@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Internal.Components;
+using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 
 namespace MugenMvvm.App.Components
@@ -44,10 +45,10 @@ namespace MugenMvvm.App.Components
                 var closeContext = BackgroundCloseContext(application);
                 dispatcher
                     .GetComponents<INavigationCallbackManagerComponent>(metadata)
-                    .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Show, InternalConstant.BackgroundNavigationId, NavigationType.Background, application,
-                        metadata);
+                    .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Show, InternalConstant.BackgroundNavigationId, NavigationType.Background, application, metadata);
                 dispatcher.OnNavigated(closeContext);
                 closeContext.ClearMetadata(true);
+                application.Metadata.Set(ApplicationMetadata.IsInBackground, false);
             }
             else if (lifecycleState.BaseState == ApplicationLifecycleState.Deactivating)
                 dispatcher.OnNavigating(BackgroundNewContext(application));
@@ -59,6 +60,7 @@ namespace MugenMvvm.App.Components
                     .TryAddNavigationCallback(dispatcher, NavigationCallbackType.Close, InternalConstant.BackgroundNavigationId, NavigationType.Background, application, metadata);
                 dispatcher.OnNavigated(newContext);
                 newContext.ClearMetadata(true);
+                application.Metadata.Set(ApplicationMetadata.IsInBackground, true);
             }
 
             _messenger.DefaultIfNull().Publish(application, lifecycleState, metadata);
