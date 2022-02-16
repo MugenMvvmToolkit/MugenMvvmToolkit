@@ -122,7 +122,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsSatisfied(object? item, [NotNullWhen(true)] out TResult? result)
+        private bool IsSatisfied(object? item, [MaybeNullWhen(false)] out TResult result)
         {
             if (!item.TryCast<T>(_allowNull, out var itemT) || _predicate != null && !_predicate(itemT!))
             {

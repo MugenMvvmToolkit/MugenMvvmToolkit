@@ -304,12 +304,13 @@ namespace MugenMvvm.UnitTests.Views.Components
             object? expectedTarget = null;
             bool result = true;
 
-            expectedMapping = _component.AddMapping(vmType, vType, false, null, null, (m, t, isViewMapping, target, metadata) =>
+            expectedMapping = _component.AddMapping(vmType, vType, false, null, null, (m, t, isViewMapping, target, c, metadata) =>
             {
                 m.ShouldEqual(expectedMapping);
                 expectedType.ShouldEqual(t);
                 expectedIsViewMapping.ShouldEqual(isViewMapping);
                 target.ShouldEqual(expectedTarget);
+                c.ShouldEqual(0);
                 metadata.ShouldEqual(Metadata);
                 ++invokeCount;
                 return result;

@@ -349,7 +349,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsSatisfied(object? item, [NotNullWhen(true)] out T? itemT) => item.TryCast(_allowNull, out itemT);
+        private bool IsSatisfied(object? item, [MaybeNullWhen(false)] out T itemT) => item.TryCast(_allowNull, out itemT);
 
         private void UpdateIndexesBinary(int binarySearchIndex, int value)
         {

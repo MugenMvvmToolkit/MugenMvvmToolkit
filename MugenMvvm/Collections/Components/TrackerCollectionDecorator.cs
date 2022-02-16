@@ -341,7 +341,7 @@ namespace MugenMvvm.Collections.Components
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private bool IsSatisfied(object? item, [NotNullWhen(true)] out T? result) => item.TryCast(_allowNull, out result!) && (_condition == null || _condition(result));
+        private bool IsSatisfied(object? item, [MaybeNullWhen(false)] out T result) => item.TryCast(_allowNull, out result!) && (_condition == null || _condition(result));
 
         private IEnumerator<T> Enumerate()
         {

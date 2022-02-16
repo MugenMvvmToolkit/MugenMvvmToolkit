@@ -20,7 +20,7 @@ namespace MugenMvvm.Collections
 
         public static IndexMapAwareList<T> Get() => new(true);
 
-        public readonly bool Move(int oldIndex, int newIndex, [NotNullWhen(true)] out T? value)
+        public readonly bool Move(int oldIndex, int newIndex, [MaybeNullWhen(false)] out T value)
         {
             int? i1 = null;
             int? i2 = null;
@@ -30,14 +30,14 @@ namespace MugenMvvm.Collections
         public readonly bool Move(int oldIndex, int newIndex, out T? value, [NotNull] ref int? binarySearchOldIndex, [NotNull] ref int? binarySearchNewIndex) =>
             Move(ref oldIndex, ref newIndex, out value, ref binarySearchOldIndex, ref binarySearchNewIndex);
 
-        public readonly bool Move(ref int oldIndex, ref int newIndex, [NotNullWhen(true)] out T? value)
+        public readonly bool Move(ref int oldIndex, ref int newIndex, [MaybeNullWhen(false)] out T value)
         {
             int? i1 = null;
             int? i2 = null;
             return Move(ref oldIndex, ref newIndex, out value, ref i1, ref i2);
         }
 
-        public readonly bool Move(ref int oldIndex, ref int newIndex, [NotNullWhen(true)] out T? value, [NotNull] ref int? binarySearchOldIndex,
+        public readonly bool Move(ref int oldIndex, ref int newIndex, [MaybeNullWhen(false)] out T value, [NotNull] ref int? binarySearchOldIndex,
             [NotNull] ref int? binarySearchNewIndex)
         {
             if (Size == 0)

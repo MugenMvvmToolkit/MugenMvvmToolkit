@@ -130,13 +130,13 @@ namespace MugenMvvm.Views.Components
                     if (resolvedCount != 0)
                         return false;
                     if (requestedType.IsGenericType && mappingType == requestedType.GetGenericTypeDefinition())
-                        return _postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, metadata);
+                        return _postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, resolvedCount, metadata);
                 }
                 else if (mappingType == requestedType)
-                    return _postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, metadata);
+                    return _postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, resolvedCount, metadata);
 
                 return !_exactlyEqual && mappingType.IsAssignableFromGeneric(requestedType) &&
-                       (_postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, metadata));
+                       (_postCondition == null || _postCondition(Mapping, requestedType, isViewMapping, target, resolvedCount, metadata));
             }
 
             private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata) =>

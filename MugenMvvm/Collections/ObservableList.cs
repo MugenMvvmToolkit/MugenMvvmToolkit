@@ -92,34 +92,28 @@ namespace MugenMvvm.Collections
         {
             get
             {
-                using (Lock())
-                {
-                    EnsureNotDisposed();
-                    if ((uint) index >= (uint) _size)
-                        ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+                using var _ = Lock();
+                if ((uint) index >= (uint) _size)
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
-                    return _items[index];
-                }
+                return _items[index];
             }
             set
             {
-                using (Lock())
-                {
-                    EnsureNotDisposed();
-                    if ((uint) index >= (uint) _size)
-                        ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+                using var _ = Lock();
+                if ((uint) index >= (uint) _size)
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
-                    var oldItem = _items[index];
-                    if (InternalEqualityComparer.GetReferenceComparer<T>().Equals(value, oldItem))
-                        return;
+                var oldItem = _items[index];
+                if (InternalEqualityComparer.GetReferenceComparer<T>().Equals(value, oldItem))
+                    return;
 
-                    if (!GetComponents<IConditionCollectionComponent<T>>().CanReplace(this, oldItem, value, index))
-                        return;
+                if (!GetComponents<IConditionCollectionComponent<T>>().CanReplace(this, oldItem, value, index))
+                    return;
 
-                    GetComponents<ICollectionChangingListener<T>>().OnReplacing(this, oldItem, value, index);
-                    _items[index] = value;
-                    GetComponents<ICollectionChangedListener<T>>().OnReplaced(this, oldItem, value, index);
-                }
+                GetComponents<ICollectionChangingListener<T>>().OnReplacing(this, oldItem, value, index);
+                _items[index] = value;
+                GetComponents<ICollectionChangedListener<T>>().OnReplaced(this, oldItem, value, index);
             }
         }
 
@@ -130,96 +124,74 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Enumerator GetEnumerator()
-        {
-            EnsureNotDisposed();
-            return new Enumerator(this);
-        }
+        public Enumerator GetEnumerator() => new(this);
 
         public void Clear() => Reset(null);
 
         public bool Remove(T? item)
         {
-            using (Lock())
-            {
-                var index = IndexOfInternal(item);
-                if (index < 0)
-                    return false;
-                RemoveInternal(index);
-                return true;
-            }
+            using var _ = Lock();
+            var index = IndexOfInternal(item);
+            if (index < 0)
+                return false;
+            RemoveInternal(index);
+            return true;
         }
 
         public bool Contains(T? item)
         {
-            using (Lock())
-            {
-                return _size != 0 && IndexOfInternal(item) != -1;
-            }
+            using var _ = Lock();
+            return _size != 0 && IndexOfInternal(item) != -1;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
             Should.NotBeNull(array, nameof(array));
-            using (Lock())
-            {
-                EnsureNotDisposed();
-                Array.Copy(_items, 0, array, arrayIndex, _size);
-            }
+            using var _ = Lock();
+            Array.Copy(_items, 0, array, arrayIndex, _size);
         }
 
         public void Add(T item)
         {
-            using (Lock())
-            {
-                InsertInternal(_size, item, true);
-            }
+            using var _ = Lock();
+            InsertInternal(_size, item, true);
         }
 
         public void Dispose()
         {
             if (IsDisposed)
                 return;
-            using (Lock())
-            {
-                if (IsDisposed)
-                    return;
-                var components = GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>();
-                components.OnDisposing(this, null);
-                components.OnDisposed(this, null);
-                this.ClearComponents();
-                IsDisposed = true;
-            }
+            using var _ = Lock(false);
+            if (IsDisposed)
+                return;
+            var components = GetComponents<IDisposableComponent<IReadOnlyObservableCollection>>();
+            components.OnDisposing(this, null);
+            components.OnDisposed(this, null);
+            this.ClearComponents();
+            IsDisposed = true;
         }
 
         public void RemoveAt(int index)
         {
-            using (Lock())
-            {
-                if ((uint) index >= (uint) _size)
-                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-
-                RemoveInternal(index);
-            }
+            using var _ = Lock();
+            if ((uint) index >= (uint) _size)
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            RemoveInternal(index);
         }
 
         public int IndexOf(T? item)
         {
-            using (Lock())
-            {
-                return IndexOfInternal(item);
-            }
+            using var _ = Lock();
+            return IndexOfInternal(item);
         }
 
         public void Insert(int index, T item)
         {
-            using (Lock())
-            {
-                if ((uint) index > (uint) _size)
-                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            using var _ = Lock();
+            if ((uint) index > (uint) _size)
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
-                InsertInternal(index, item, false);
-            }
+            InsertInternal(index, item, false);
         }
 
         public bool Reset(IEnumerable<T>? items)
@@ -227,19 +199,16 @@ namespace MugenMvvm.Collections
             if (ReferenceEquals(items, this))
                 return false;
 
-            using (Lock())
-            {
-                EnsureNotDisposed();
-                if (items == null && _size == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items))
-                    return false;
+            using var _ = Lock();
+            if (items == null && _size == 0 || !GetComponents<IConditionCollectionComponent<T>>().CanReset(this, items))
+                return false;
 
-                GetComponents<ICollectionChangingListener<T>>().OnResetting(this, items);
-                ClearRaw();
-                if (items != null)
-                    InsertRangeRaw(_size, items);
-                GetComponents<ICollectionChangedListener<T>>().OnReset(this, _size == 0 ? null : items);
-                return true;
-            }
+            GetComponents<ICollectionChangingListener<T>>().OnResetting(this, items);
+            ClearRaw();
+            if (items != null)
+                InsertRangeRaw(_size, items);
+            GetComponents<ICollectionChangedListener<T>>().OnReset(this, _size == 0 ? null : items);
+            return true;
         }
 
         public void Move(int oldIndex, int newIndex)
@@ -247,31 +216,27 @@ namespace MugenMvvm.Collections
             if (oldIndex == newIndex)
                 return;
 
-            using (Lock())
-            {
-                EnsureNotDisposed();
-                if ((uint) oldIndex >= (uint) _size)
-                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(oldIndex));
-                if ((uint) newIndex >= (uint) _size)
-                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(newIndex));
+            using var _ = Lock();
+            if ((uint) oldIndex >= (uint) _size)
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(oldIndex));
+            if ((uint) newIndex >= (uint) _size)
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(newIndex));
 
-                var obj = _items[oldIndex];
-                if (!GetComponents<IConditionCollectionComponent<T>>().CanMove(this, obj, oldIndex, newIndex))
-                    return;
+            var obj = _items[oldIndex];
+            if (!GetComponents<IConditionCollectionComponent<T>>().CanMove(this, obj, oldIndex, newIndex))
+                return;
 
-                GetComponents<ICollectionChangingListener<T>>().OnMoving(this, obj, oldIndex, newIndex);
-                if (newIndex < oldIndex)
-                    Array.Copy(_items, newIndex, _items, newIndex + 1, oldIndex - newIndex);
-                else
-                    Array.Copy(_items, oldIndex + 1, _items, oldIndex, newIndex - oldIndex);
-                _items[newIndex] = obj;
-                GetComponents<ICollectionChangedListener<T>>().OnMoved(this, obj, oldIndex, newIndex);
-            }
+            GetComponents<ICollectionChangingListener<T>>().OnMoving(this, obj, oldIndex, newIndex);
+            if (newIndex < oldIndex)
+                Array.Copy(_items, newIndex, _items, newIndex + 1, oldIndex - newIndex);
+            else
+                Array.Copy(_items, oldIndex + 1, _items, oldIndex, newIndex - oldIndex);
+            _items[newIndex] = obj;
+            GetComponents<ICollectionChangedListener<T>>().OnMoved(this, obj, oldIndex, newIndex);
         }
 
         private void InsertInternal(int index, T item, bool isAdd)
         {
-            EnsureNotDisposed();
             if (!GetComponents<IConditionCollectionComponent<T>>().CanAdd(this, item, index))
                 return;
 
@@ -285,7 +250,6 @@ namespace MugenMvvm.Collections
 
         private void RemoveInternal(int index)
         {
-            EnsureNotDisposed();
             var oldItem = _items[index];
             if (!GetComponents<IConditionCollectionComponent<T>>().CanRemove(this, oldItem, index))
                 return;
@@ -352,7 +316,7 @@ namespace MugenMvvm.Collections
 #if !NET461
             if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 #endif
-            _items[_size] = default!;
+                _items[_size] = default!;
         }
 
         private void ClearRaw()
@@ -373,11 +337,7 @@ namespace MugenMvvm.Collections
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int IndexOfInternal(T? item)
-        {
-            EnsureNotDisposed();
-            return Array.IndexOf(_items, item, 0, _size);
-        }
+        private int IndexOfInternal(T? item) => Array.IndexOf(_items, item, 0, _size);
 
         private object? Get(int index) => BoxingExtensions.Box(this[index]);
 
@@ -412,33 +372,31 @@ namespace MugenMvvm.Collections
                 _items = Array.Empty<T>();
         }
 
-        private EnumeratorRef GetEnumeratorRef()
-        {
-            EnsureNotDisposed();
-            return new EnumeratorRef(this);
-        }
+        private new ActionToken Lock() => Lock(true);
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureNotDisposed()
+        private ActionToken Lock(bool checkDisposed)
         {
-            if (IsDisposed)
+            var actionToken = base.Lock();
+            if (checkDisposed && IsDisposed)
+            {
+                actionToken.Dispose();
                 ExceptionManager.ThrowObjectDisposed(this);
+            }
+
+            return actionToken;
         }
 
         void ICollection.CopyTo(Array array, int index)
         {
             Should.NotBeNull(array, nameof(array));
             Should.BeValid(array.Rank == 1, nameof(array));
-            using (Lock())
-            {
-                EnsureNotDisposed();
-                Array.Copy(_items, 0, array, index, _size);
-            }
+            using var _ = Lock();
+            Array.Copy(_items, 0, array, index, _size);
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumeratorRef();
+        IEnumerator IEnumerable.GetEnumerator() => new EnumeratorRef(this);
 
-        IEnumerator<T> IEnumerable<T>.GetEnumerator() => GetEnumeratorRef();
+        IEnumerator<T> IEnumerable<T>.GetEnumerator() => new EnumeratorRef(this);
 
         bool IHasComponentAddConditionHandler.CanAddComponent(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata) => !IsDisposed;
 
@@ -467,11 +425,9 @@ namespace MugenMvvm.Collections
 
         int IList.Add(object? value)
         {
-            using (Lock())
-            {
-                InsertInternal(_size, (T) value!, true);
-                return _size - 1;
-            }
+            using var _ = Lock();
+            InsertInternal(_size, (T) value!, true);
+            return _size - 1;
         }
 
         bool IList.Contains(object? value) => TypeChecker.IsCompatible<T>(value) && Contains((T) value!);

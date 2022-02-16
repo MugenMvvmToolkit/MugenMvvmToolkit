@@ -12,5 +12,6 @@ namespace MugenMvvm.Delegates
     public delegate void UpdateGroupDelegate<in T, in TKey, in TGroup>(TKey key, TGroup group, IReadOnlyCollection<T> items, CollectionGroupChangedAction action, T? item,
         object? args);
 
-    public delegate bool MappingPostConditionDelegate(IViewMapping mapping, Type requestedType, bool isViewMapping, object? target, IReadOnlyMetadataContext? metadata);
+    public delegate bool MappingPostConditionDelegate(IViewMapping mapping, Type requestedType, bool isViewMapping, object? target, int resolvedCount,
+        IReadOnlyMetadataContext? metadata);
 }

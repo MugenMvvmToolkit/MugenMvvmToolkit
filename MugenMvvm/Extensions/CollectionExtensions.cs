@@ -961,7 +961,7 @@ namespace MugenMvvm.Extensions
         }
 
 #if NET461
-        internal static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, [NotNullWhen(true)] out TValue value) where TKey : notnull
+        internal static bool Remove<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, [MaybeNullWhen(false)] out TValue value) where TKey : notnull
         {
             Should.NotBeNull(dictionary, nameof(dictionary));
             if (dictionary.TryGetValue(key, out value))
