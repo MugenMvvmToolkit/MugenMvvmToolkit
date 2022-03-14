@@ -22,6 +22,7 @@
     <IsBindingProject>true</IsBindingProject>
     <AndroidGenerateJniMarshalMethods>true</AndroidGenerateJniMarshalMethods>
     <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <AndroidUseIntermediateDesignerFile>false</AndroidUseIntermediateDesignerFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('net4')) or $(TargetFramework.StartsWith('net5.0-windows')) ">

@@ -32,6 +32,7 @@ namespace MugenMvvm.Commands.Components
             _canExecute = canExecute;
             _allowMultipleExecution = allowMultipleExecution;
             _currentThreadId = int.MinValue;
+            ExecutorTokenKey = MetadataContextKey.FromKey<CancellationTokenSource>(nameof(ExecutorTokenKey) + Default.NextCounter());
             IsRecursiveExecutionSupported = true;
             IsAsync = _execute is Func<CancellationToken, IReadOnlyMetadataContext?, Task<bool>>
                 or Func<T, CancellationToken, IReadOnlyMetadataContext?, Task<bool>>
@@ -43,6 +44,8 @@ namespace MugenMvvm.Commands.Components
         public int Priority { get; }
 
         public bool IsRecursiveExecutionSupported { get; set; }
+
+        public IMetadataContextKey<CancellationTokenSource> ExecutorTokenKey { get; }
 
         private bool IsAsync { get; }
 
@@ -71,7 +74,7 @@ namespace MugenMvvm.Commands.Components
                         {
                             Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
                             if (IsRecursiveExecutionSupported)
-                                metadata = metadata.WithValue(CommandMetadata.ExecutorToken, cts);
+                                metadata = metadata.WithValue(ExecutorTokenKey, cts);
                         }
 
                         cancellationToken = cts.Token;
@@ -145,7 +148,7 @@ namespace MugenMvvm.Commands.Components
                 return false;
 
             if (IsAsync)
-                return metadata != null && metadata.TryGet(CommandMetadata.ExecutorToken, out cts) && ReferenceEquals(Volatile.Read(ref _cancellationTokenSource), cts);
+                return metadata != null && metadata.TryGet(ExecutorTokenKey, out cts) && ReferenceEquals(Volatile.Read(ref _cancellationTokenSource), cts);
             return _currentThreadId == Environment.CurrentManagedThreadId;
         }
 

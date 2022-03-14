@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
@@ -22,7 +23,10 @@ namespace MugenMvvm.Commands.Components
         private SynchronizationCommandExecutorDecorator(int priority)
         {
             Priority = priority;
+            SynchronizerTokenKey = MetadataContextKey.FromKey<CancellationTokenSource>(nameof(SynchronizerTokenKey) + Default.NextCounter());
         }
+
+        public IMetadataContextKey<CancellationTokenSource> SynchronizerTokenKey { get; }
 
         public int Priority { get; }
 
@@ -148,7 +152,7 @@ namespace MugenMvvm.Commands.Components
 
                 cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
                 Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
-                return await components.TryExecuteAsync(command, parameter, cts.Token, metadata.WithValue(CommandMetadata.SynchronizerToken, cts)).ConfigureAwait(false);
+                return await components.TryExecuteAsync(command, parameter, cts.Token, metadata.WithValue(SynchronizerTokenKey, cts)).ConfigureAwait(false);
             }
             finally
             {
@@ -171,7 +175,7 @@ namespace MugenMvvm.Commands.Components
 
         private bool IsRecursiveExecution(IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out CancellationTokenSource? cts)
         {
-            if (metadata != null && metadata.TryGet(CommandMetadata.SynchronizerToken, out cts) && ReferenceEquals(Volatile.Read(ref _cancellationTokenSource), cts))
+            if (metadata != null && metadata.TryGet(SynchronizerTokenKey, out cts) && ReferenceEquals(Volatile.Read(ref _cancellationTokenSource), cts))
                 return true;
             cts = null;
             return false;

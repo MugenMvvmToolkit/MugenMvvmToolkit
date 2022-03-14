@@ -17,6 +17,7 @@
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <DefineConstants>NET_CORE;SPAN_API;ANDROID</DefineConstants>
+    <AndroidUseIntermediateDesignerFile>false</AndroidUseIntermediateDesignerFile>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('xamarin.ios')) ">

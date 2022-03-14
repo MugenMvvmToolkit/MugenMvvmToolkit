@@ -2,20 +2,26 @@
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
+using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Models.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
-    public sealed class RuleValidationHandler : IValidationHandlerComponent, IHasPriority, IHasTarget<object>, IDisposableComponent<IValidator>, IAttachableComponent,
-        IDetachableComponent //todo review pooled, change rules, set error as rule, opt error manager, cancel for sync
+    public sealed class RuleValidationHandler : IValidationHandlerComponent, IHasPriority, IHasTarget<object>, ISuspendableComponent<IValidator>, IDisposableComponent<IValidator>,
+        IAttachableComponent, IDetachableComponent //todo review pooled, change rules, set error as rule, opt error manager, cancel for sync
     {
         public readonly ItemOrIReadOnlyList<IValidationRule> Rules;
         private readonly CancellationTokenSource? _disposeToken;
+
+        private bool _isNotificationsDirty;
+        private volatile int _suspendCount;
 
         public RuleValidationHandler(object target, ItemOrIReadOnlyList<IValidationRule> rules, int priority = ValidationComponentPriority.RuleValidationHandler)
         {
@@ -37,8 +43,22 @@ namespace MugenMvvm.Validation.Components
 
         public object Target { get; }
 
+        public bool IsSuspended(IValidator owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;//todo global suspend
+
+        public ActionToken TrySuspend(IValidator owner, IReadOnlyMetadataContext? metadata)
+        {
+            Interlocked.Increment(ref _suspendCount);
+            return ActionToken.FromDelegate((o, c) => ((RuleValidationHandler) o!).EndSuspendNotifications((IValidator) c!), this, owner);
+        }
+
         public async Task TryValidateAsync(IValidator validator, string? member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
+            if (_suspendCount != 0)
+            {
+                _isNotificationsDirty = true;
+                return;
+            }
+
             if (_disposeToken == null)
             {
                 ValidateSync(validator, member, metadata);
@@ -87,6 +107,15 @@ namespace MugenMvvm.Validation.Components
 
                     validator.SetErrors(rule, task.Result, metadata);
                 }
+            }
+        }
+
+        private void EndSuspendNotifications(IValidator validator)
+        {
+            if (Interlocked.Decrement(ref _suspendCount) == 0 && _isNotificationsDirty)
+            {
+                _isNotificationsDirty = false;
+                TryValidateAsync(validator, null, default, null).LogException(UnhandledExceptionType.Validation);
             }
         }
 

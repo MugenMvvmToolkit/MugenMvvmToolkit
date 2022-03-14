@@ -90,15 +90,10 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command1 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed1;
                 return tcs.Task;
             }, commandManager: CommandManager);
-            var command2 = CompositeCommand.Create(this, m =>
-            {
-                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
-                ++executed2;
-            }, commandManager: CommandManager);
+            var command2 = CompositeCommand.Create(this, m => { ++executed2; }, commandManager: CommandManager);
 
             command1.SynchronizeWith(command2, bidirectional);
             command1.IsExecuting().ShouldBeFalse();
@@ -135,14 +130,12 @@ namespace MugenMvvm.UnitTests.Commands.Components
             var command2 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed2;
                 return Task.CompletedTask;
             }, commandManager: CommandManager);
             var command1 = CompositeCommand.Create(this, (c, m) =>
             {
                 c.CanBeCanceled.ShouldBeTrue();
-                m!.Get(CommandMetadata.SynchronizerToken).ShouldNotBeNull();
                 ++executed1;
                 return command2.ExecuteAsync(null, includeMetadata ? c : default, includeMetadata ? m : null);
             }, commandManager: CommandManager);

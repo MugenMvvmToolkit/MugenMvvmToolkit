@@ -9,6 +9,7 @@
   <attr path="/api/package[@name='com.mugen.mvvm.views.activities']" name="managedName">MugenMvvm.Android.Native.Views.Activities</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.views.fragments']" name="managedName">MugenMvvm.Android.Native.Views.Fragments</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.views.support']" name="managedName">MugenMvvm.Android.Native.Views.Support</attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.views.listeners']" name="managedName">MugenMvvm.Android.Native.Views.Listeners</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']" name="managedName">MugenMvvm.Android.Native.Interfaces</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']" name="managedName">MugenMvvm.Android.Native.Interfaces.Views</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.views']/class[@name='BindableMemberMugenExtensions']" name="managedName">NativeBindableMemberMugenExtensions</attr>
