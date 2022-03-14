@@ -2,4 +2,4 @@
 
 BASEDIR=$(dirname "$0")
 cd "$BASEDIR" || exit $?
-./gradlew clean
+bash ./gradlew clean

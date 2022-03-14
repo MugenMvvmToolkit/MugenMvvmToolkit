@@ -5,10 +5,10 @@ projectPath=$localPath
 copyFromPath=$projectPath/app/build/outputs/aar
 copyToPath=$projectPath/../MugenMvvm.Platforms/Android/Jars
 
-buildTask=assembleDebug
+buildTask=app:assembleDebug
 
 cd "$projectPath" || exit $?
-./gradlew clean $buildTask
+bash ./gradlew $buildTask
 
 mkdir -p "$copyToPath"
 cp -rf "$copyFromPath"/app-debug.aar "$copyToPath"/mugenmvvm-core.aar

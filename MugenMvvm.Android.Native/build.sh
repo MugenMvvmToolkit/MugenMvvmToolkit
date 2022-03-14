@@ -5,7 +5,7 @@ projectPath=$localPath
 copyFromPath=$projectPath/app/build/outputs/aar
 copyToPath=$projectPath/../MugenMvvm.Platforms/Android/Jars
 
-buildTask=assembleRelease
+buildTask=app:assembleRelease
 
 cd "$projectPath" || exit $?
 ./gradlew clean $buildTask
