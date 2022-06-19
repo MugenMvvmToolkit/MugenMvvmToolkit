@@ -1,6 +1,7 @@
 package com.mugen.mvvm.views.activities;
 
 import android.content.Context;
+import android.content.Intent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,6 +14,11 @@ public class ActivityWrapper implements IActivityView {
 
     public ActivityWrapper(INativeActivityView target) {
         Target = target;
+    }
+
+    @Override
+    public Intent getIntent() {
+        return Target.getIntent();
     }
 
     @NonNull

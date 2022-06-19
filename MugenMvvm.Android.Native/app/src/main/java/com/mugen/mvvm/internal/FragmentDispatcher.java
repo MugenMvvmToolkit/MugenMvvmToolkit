@@ -46,7 +46,7 @@ public class FragmentDispatcher implements ILifecycleDispatcher, IViewDispatcher
 
     @Override
     public int getPriority() {
-        return PriorityConstant.PreInitializer;
+        return PriorityConstant.FragmentStateDispatcher;
     }
 
     @Override

@@ -414,7 +414,7 @@ namespace MugenMvvm.UnitTests.Presentation
                 context.NavigationMode.ShouldEqual(NavigationMode.Refresh);
                 if (result)
                     mediator.OnViewActivated(Metadata);
-                return new ValueTask<bool>(result);
+                return Task.FromResult(result);
             };
             mediator.OnNavigatedHandler = context =>
             {
@@ -709,7 +709,7 @@ namespace MugenMvvm.UnitTests.Presentation
             {
                 ++activateCount;
                 mediator.OnViewActivated(Metadata);
-                return new ValueTask<bool>(true);
+                return Task.FromResult(true);
             };
 
             var cleanupViewCount = 0;

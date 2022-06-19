@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using JetBrains.Annotations;
 using MugenMvvm.Collections;
 using MugenMvvm.Commands;
@@ -234,6 +235,13 @@ namespace MugenMvvm.Extensions
             return command;
         }
 
+        public static ICompositeCommand AddNotifier(this ICompositeCommand command, ICommand notifier)
+        {
+            Should.NotBeNull(command, nameof(command));
+            command.GetOrAddComponent<CommandObserver>().Add(notifier);
+            return command;
+        }
+
         public static bool RemoveNotifier(this ICompositeCommand command, INotifyPropertyChanged notifier)
         {
             Should.NotBeNull(command, nameof(command));
@@ -244,6 +252,18 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(command, nameof(command));
             return command.GetComponentOptional<ValidatorCommandObserver>()?.Remove(notifier) ?? false;
+        }
+
+        public static bool RemoveNotifier(this ICompositeCommand command, ICommand notifier)
+        {
+            Should.NotBeNull(command, nameof(command));
+            return command.GetComponentOptional<CommandObserver>()?.Remove(notifier) ?? false;
+        }
+
+        public static void ForceExecute(this ICompositeCommand command, object? parameter = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(command, nameof(command));
+            command.Execute(parameter, GetForceExecuteMetadata(metadata));
         }
 
         public static Task<bool?> ForceExecuteAsync(this ICompositeCommand command, object? parameter = null, CancellationToken cancellationToken = default,

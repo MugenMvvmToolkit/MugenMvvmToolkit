@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Android.Interfaces
 {
-    public interface IResourceTemplateSelector
+    public interface IResourceTemplateSelector//todo getcontext
     {
         public const int NoResult = int.MinValue;
 

@@ -1,5 +1,6 @@
 package com.mugen.mvvm.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,6 +8,8 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -45,6 +48,13 @@ public final class ViewMugenExtensions {
     private final static HashMap<Class, Integer> _viewResourceMapping = new HashMap<>();
 
     private ViewMugenExtensions() {
+    }
+
+    public static boolean isDestroyed(@NonNull View view) {
+        Activity activity = (Activity) ActivityMugenExtensions.tryGetActivity(view.getContext());
+        if (activity == null)
+            return false;
+        return activity.isFinishing() || activity.isDestroyed();
     }
 
     public static void addParentObserver(@NonNull View view) {
@@ -290,5 +300,51 @@ public final class ViewMugenExtensions {
             return wrapper;
         }
         return target;
+    }
+
+    public static boolean showKeyboard(@NonNull final View view) {
+        if (view.getVisibility() != View.VISIBLE || !view.isEnabled())
+            return false;
+        view.requestFocus();
+        if (view.hasWindowFocus())
+            showKeyboardNow(view);
+        else {
+            view.getViewTreeObserver().addOnWindowFocusChangeListener(new ViewTreeObserver.OnWindowFocusChangeListener() {
+                @Override
+                public void onWindowFocusChanged(boolean hasFocus) {
+                    if (hasFocus) {
+                        showKeyboardNow(view);
+                        view.getViewTreeObserver().removeOnWindowFocusChangeListener(this);
+                    }
+                }
+            });
+        }
+        return true;
+    }
+
+    public static void hideKeyboard(@Nullable View view, boolean force) {
+        if (view != null && (view.isFocused() || force) && !isFinishing(view)) {
+            InputMethodManager manager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (manager != null)
+                manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    private static void showKeyboardNow(final View view) {
+        view.post(new Runnable() {
+            @Override
+            public void run() {
+                if (view.requestFocus() && !isFinishing(view)) {
+                    InputMethodManager manager = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    if (manager != null)
+                        manager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }
+        });
+    }
+
+    private static boolean isFinishing(View view) {
+        Activity activity = (Activity) ActivityMugenExtensions.tryGetActivity(view.getContext());
+        return activity != null && activity.isFinishing();
     }
 }

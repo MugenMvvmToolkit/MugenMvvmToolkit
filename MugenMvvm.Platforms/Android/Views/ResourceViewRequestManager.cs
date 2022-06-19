@@ -47,7 +47,7 @@ namespace MugenMvvm.Android.Views
                             return new ValueTask<IView?>(v);
                     }
 
-                    var view = ViewMugenExtensions.GetView(container, resourceId, true, null!);
+                    var view = ViewMugenExtensions.GetView(container, resourceId, true, viewMapping?.Bundle!);
                     viewMapping ??= new ResourceViewMapping(resourceId, viewRequest.ViewModel.GetType(), view.GetType(), metadata);
                     viewRequest.View = view;
                     mapping = viewMapping;
@@ -56,7 +56,7 @@ namespace MugenMvvm.Android.Views
             else if (mapping is IResourceViewMapping resourceViewMapping)
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
-                view ??= ViewMugenExtensions.GetView(TryGetParentView(viewManager, viewModel, metadata)!, resourceViewMapping.ResourceId, true, null!);
+                view ??= ViewMugenExtensions.GetView(TryGetParentView(viewManager, viewModel, metadata)!, resourceViewMapping.ResourceId, true, resourceViewMapping.Bundle!);
                 request = ViewModelViewRequest.GetRequestOrRaw(request, viewModel, view);
             }
 

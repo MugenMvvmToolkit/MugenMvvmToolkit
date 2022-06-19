@@ -34,7 +34,13 @@ namespace MugenMvvm.Bindings.Core.Components
                 ((IBinding) owner).UpdateTarget();
         }
 
-        void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
+        void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+        {
+            if (_source)
+                binding.UpdateSource();
+            else
+                binding.UpdateTarget();
+        }
 
         void IBindingSourceObserverListener.OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateTarget();
 
@@ -42,7 +48,13 @@ namespace MugenMvvm.Bindings.Core.Components
         {
         }
 
-        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateSource();
+        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+        {
+            if (_source)
+                binding.UpdateSource();
+            else
+                binding.UpdateTarget();
+        }
 
         void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata) => binding.UpdateSource();
 

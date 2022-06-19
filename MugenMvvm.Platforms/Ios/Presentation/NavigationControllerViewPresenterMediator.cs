@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
@@ -22,8 +23,8 @@ namespace MugenMvvm.Ios.Presentation
         private readonly IPresenter? _presenter;
         private readonly IViewManager? _viewManager;
 
-        public NavigationControllerViewPresenterMediator(UINavigationController navigationController, IViewManager? viewManager = null, IPresenter? presenter = null,
-            INavigationDispatcher? navigationDispatcher = null)
+        public NavigationControllerViewPresenterMediator(UINavigationController navigationController, IThreadDispatcher? threadDispatcher = null, IViewManager? viewManager = null,
+            IPresenter? presenter = null, INavigationDispatcher? navigationDispatcher = null) : base(threadDispatcher)
         {
             Should.NotBeNull(navigationController, nameof(navigationController));
             NavigationController = navigationController;

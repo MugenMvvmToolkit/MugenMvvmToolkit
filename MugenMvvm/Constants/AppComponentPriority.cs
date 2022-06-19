@@ -2,6 +2,6 @@
 {
     public static class AppComponentPriority
     {
-        public const int LifecycleTracker = 0;
+        public const int LifecycleTracker = ComponentPriority.PreInitializer;
     }
 }

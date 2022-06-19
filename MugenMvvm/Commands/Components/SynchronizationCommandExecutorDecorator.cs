@@ -134,8 +134,8 @@ namespace MugenMvvm.Commands.Components
                    ItemOrIReadOnlyList.FromRawValue<ICompositeCommand>(commands).Contains(executingCommand);
         }
 
-        private async Task<bool?> ExecuteAsync(ICompositeCommand command, ItemOrArray<ICommandExecutorComponent> components, object? parameter,
-            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        private async Task<bool?> ExecuteAsync(ICompositeCommand command, ItemOrArray<ICommandExecutorComponent> components, object? parameter, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             CancellationTokenSource? cts = null;
             try

@@ -422,7 +422,7 @@ namespace MugenMvvm.Extensions
 
         public static async ValueTask<ItemOrIReadOnlyList<T>> InvokeAllAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
-            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke, bool disposeOnException = false)
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(invoke, nameof(invoke));
@@ -445,7 +445,7 @@ namespace MugenMvvm.Extensions
 
         public static async ValueTask<ItemOrIReadOnlyList<T>> InvokeAllDisposableAsync<TComponent, TState, T>(this ItemOrArray<TComponent> components, TState state,
             CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata,
-            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke, bool disposeOnException = false)
+            Func<TComponent, TState, CancellationToken, IReadOnlyMetadataContext?, ValueTask<ItemOrIReadOnlyList<T>>> invoke)//todo fix disposable
             where T : IDisposable
             where TComponent : class, IComponent
         {

@@ -209,6 +209,14 @@ namespace MugenMvvm.Android.Extensions
                                                            .CustomSetter((_, target, value, _) => NativeBindableMemberMugenExtensions.SetEnabled(target, value))
                                                            .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .IsFocused()
+                                                           .GetBuilder()
+                                                           .CustomGetter((_, target, _) => target.IsFocused)
+                                                           .CustomSetter((_, target, value, _) => NativeBindableMemberMugenExtensions.SetFocused(target, value))
+                                                           .ObservableHandler((_, target, listener, _) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.IsFocusedMemberName))
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
                                                            .RelativeSourceMethod()
                                                            .RawMethod
                                                            .GetBuilder()
@@ -232,6 +240,18 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .CustomImplementation((_, target, listener, _) =>
                                                                ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ClickEventName))
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .ImeAction()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((_, target, listener, _) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.ImeActionEventName))
+                                                           .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                                                           .FocusChanged()
+                                                           .GetBuilder()
+                                                           .CustomImplementation((_, target, listener, _) =>
+                                                               ViewMemberChangedListener.Add(target, listener, ViewMemberChangedListener.FocusChangedEventName))
                                                            .Build());
 
             //compound button
@@ -387,6 +407,8 @@ namespace MugenMvvm.Android.Extensions
                                                            })
                                                            .CustomSetter((m, target, value, _) =>
                                                            {
+                                                               if (ViewMugenExtensions.IsDestroyed(target))
+                                                                   return;
                                                                int index;
                                                                var itemsSource = target.BindableMembers().ItemsSource();
                                                                if (itemsSource == null)
@@ -430,6 +452,8 @@ namespace MugenMvvm.Android.Extensions
                                                                NativeBindableMemberMugenExtensions.GetContent(target)?.BindableMembers().DataContext())
                                                            .CustomSetter((_, target, value, _) =>
                                                            {
+                                                               if (ViewMugenExtensions.IsDestroyed(target))
+                                                                   return;
                                                                var contentTemplateSelector = target.BindableMembers().ContentTemplateSelector();
                                                                if (contentTemplateSelector == null)
                                                                    ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
@@ -459,6 +483,8 @@ namespace MugenMvvm.Android.Extensions
                                                            .GetBuilder()
                                                            .PropertyChangedHandler((member, target, _, newValue, metadata) =>
                                                            {
+                                                               if (ViewMugenExtensions.IsDestroyed(target))
+                                                                   return;
                                                                if (newValue is not IResourceTemplateSelector selector || newValue is IContentTemplateSelector)
                                                                    return;
 
@@ -483,6 +509,8 @@ namespace MugenMvvm.Android.Extensions
                                                            })
                                                            .CustomSetter((member, target, value, _) =>
                                                            {
+                                                               if (ViewMugenExtensions.IsDestroyed(target))
+                                                                   return;
                                                                if (!NativeBindableMemberMugenExtensions.SetSelectedIndex(target, value, target.BindableMembers().SmoothScroll()))
                                                                    ExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                                                            })

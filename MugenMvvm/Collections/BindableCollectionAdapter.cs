@@ -113,18 +113,22 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnCollectionChanged(IEnumerable? oldValue, IEnumerable? newValue, int version) => ClearResetCache();
 
-        protected virtual void AddCollectionListener(IEnumerable collection, int version)
+        protected virtual bool AddCollectionListener(IEnumerable collection, int version)
         {
             if (collection is IComponentOwner componentOwner)
             {
                 Listener = new WeakListener(this, version, Listener);
-                componentOwner.Components.Add(Listener);
+                return componentOwner.Components.TryAdd(Listener);
             }
-            else if (collection is INotifyCollectionChanged notifyCollectionChanged)
+
+            if (collection is INotifyCollectionChanged notifyCollectionChanged)
             {
                 Listener = new WeakListener(this, version, Listener);
                 notifyCollectionChanged.CollectionChanged += Listener.OnCollectionChanged;
+                return true;
             }
+
+            return false;
         }
 
         protected virtual void RemoveCollectionListener(IEnumerable collection)
@@ -451,8 +455,14 @@ namespace MugenMvvm.Collections
                         AddEvent(CollectionChangedEvent.Reset(null), version);
                     else
                     {
-                        AddCollectionListener(newValue, version);
-                        AddEvent(CollectionChangedEvent.Reset(GetCollectionItems(newValue)), version);
+                        if (AddCollectionListener(newValue, version))
+                            AddEvent(CollectionChangedEvent.Reset(GetCollectionItems(newValue)), version);
+                        else
+                        {
+                            newValue = null;
+                            _collection = null;
+                            AddEvent(CollectionChangedEvent.Reset(null), version);
+                        }
                     }
                 }
             }

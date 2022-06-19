@@ -63,17 +63,17 @@ namespace MugenMvvm.Android.Views
                     if (!_presenter.DefaultIfNull(view.RawView).TryShow(view.RawView, default, metadata).IsEmpty)
                         viewManager.OnLifecycleChanged(view, AndroidViewLifecycleState.PendingInitialization, state, metadata);
                 }
-                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view.RawView is IActivityView activityView && 
+                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishNotInitializedView && view.RawView is IActivityView activityView &&
                          viewManager.GetViews(view.SourceView).IsEmpty)
                     activityView.Finish();
             }
 
             if (lifecycleState == AndroidViewLifecycleState.Destroyed && view.View != null)
-                viewManager.TryCleanupAsync(view.View, state, default, metadata);
+                viewManager.TryCleanup(view.View, state, metadata);
 
             if (lifecycleState == AndroidViewLifecycleState.Starting && view.Is<IActivityView>() && !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activating, state, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Started && view.Is<IActivityView>() && 
+            else if (lifecycleState == AndroidViewLifecycleState.Started && view.Is<IActivityView>() &&
                      !_application.DefaultIfNull().IsInState(ApplicationLifecycleState.Activated))
                 _application.DefaultIfNull().OnLifecycleChanged(ApplicationLifecycleState.Activated, state, metadata);
         }

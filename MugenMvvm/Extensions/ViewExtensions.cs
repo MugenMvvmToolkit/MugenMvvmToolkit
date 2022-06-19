@@ -21,6 +21,20 @@ namespace MugenMvvm.Extensions
             viewManager.OnLifecycleChanged(new ViewInfo(view), lifecycleState, state, metadata);
         }
 
+        public static void TryInitialize(this IViewManager viewManager, IViewMapping mapping, object request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+#pragma warning disable CS4014
+            viewManager.TryInitializeAsync(mapping, request, default, metadata).LogException(UnhandledExceptionType.System);
+#pragma warning restore CS4014
+        }
+
+        public static void TryCleanup(this IViewManager viewManager, IView view, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            viewManager.TryCleanupAsync(view, state, default, metadata).LogException(UnhandledExceptionType.System);
+        }
+
         public static async ValueTask<IView> InitializeAsync(this IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {

@@ -15,6 +15,9 @@ public final class BindableMemberConstant {
     public final static CharSequence SelectedIndexEvent = "SelectedIndexChanged";
     public static final CharSequence Checked = "Checked";
     public static final CharSequence CheckedEvent = "CheckedChanged";
+    public static final CharSequence IsFocused = "IsFocused";
+    public static final CharSequence FocusChangedEvent = "FocusChanged";
+    public static final CharSequence ImeActionEvent = "ImeAction";
 
     private BindableMemberConstant() {
     }

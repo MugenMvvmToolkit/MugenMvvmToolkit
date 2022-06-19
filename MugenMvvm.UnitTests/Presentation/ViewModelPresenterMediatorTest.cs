@@ -200,7 +200,14 @@ namespace MugenMvvm.UnitTests.Presentation
                 TryInitializeAsync = (_, _, r, _, _) =>
                 {
                     r.ShouldEqual(viewRequest);
+                    ++initializeCount;
                     return new ValueTask<IView?>(_view);
+                },
+                TryCleanupAsync = (_, v, _, _, _) =>
+                {
+                    v.ShouldEqual(_view);
+                    ++cleanupCount;
+                    return Task.FromResult(true);
                 }
             });
 
@@ -210,13 +217,6 @@ namespace MugenMvvm.UnitTests.Presentation
                 m.ShouldNotBeNull();
                 ++getViewRequestCount;
                 return viewRequest;
-            };
-            _viewPresenter.Initialize = (p, v, m) =>
-            {
-                p.ShouldEqual(_mediator);
-                v.ShouldEqual(_view.Target);
-                m.ShouldNotBeNull();
-                ++initializeCount;
             };
             _viewPresenter.Show = (p, v, m, c) =>
             {
@@ -241,13 +241,6 @@ namespace MugenMvvm.UnitTests.Presentation
                 m.ShouldNotBeNull();
                 ++closeCount;
                 return Task.CompletedTask;
-            };
-            _viewPresenter.Cleanup = (p, v, m) =>
-            {
-                p.ShouldEqual(_mediator);
-                v.ShouldEqual(_view.Target);
-                m.ShouldNotBeNull();
-                ++cleanupCount;
             };
 
             _mediator.TryShow(null, default, Metadata);

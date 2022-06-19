@@ -176,6 +176,13 @@ namespace MugenMvvm.Extensions
             return configuration;
         }
 
+        public static MugenApplicationConfiguration RemoveComponents<T>(this MugenApplicationConfiguration configuration, IComponent<IMugenApplication>? component,
+            IReadOnlyMetadataContext? metadata = null) where T : class, IComponent<IMugenApplication>
+        {
+            configuration.Application.RemoveComponents<T>(metadata);
+            return configuration;
+        }
+
         public static MugenApplicationConfiguration WithMetadataValue<T>(this MugenApplicationConfiguration configuration, IMetadataContextKey<T> key, T value) =>
             configuration.WithMetadata(configuration.Metadata.WithValue(key, value));
 

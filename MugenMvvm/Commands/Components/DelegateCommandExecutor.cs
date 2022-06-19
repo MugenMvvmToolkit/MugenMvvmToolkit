@@ -70,14 +70,13 @@ namespace MugenMvvm.Commands.Components
                     {
                         var isNew = cts == null;
                         cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, isNew ? default : cts!.Token);
+                        cancellationToken = cts.Token;
                         if (isNew)
                         {
                             Interlocked.Exchange(ref _cancellationTokenSource, cts).SafeCancel();
                             if (IsRecursiveExecutionSupported)
                                 metadata = metadata.WithValue(ExecutorTokenKey, cts);
                         }
-
-                        cancellationToken = cts.Token;
                     }
                     else if (IsRecursiveExecutionSupported)
                         Interlocked.Exchange(ref _currentThreadId, Environment.CurrentManagedThreadId);

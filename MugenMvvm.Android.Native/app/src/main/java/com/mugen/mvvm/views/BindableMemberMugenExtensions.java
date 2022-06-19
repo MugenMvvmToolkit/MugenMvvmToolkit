@@ -187,6 +187,21 @@ public final class BindableMemberMugenExtensions {
             view.setEnabled(value);
     }
 
+    public static void setFocused(@NonNull View view, boolean value) {
+        if (view.isFocused() == value)
+            return;
+        if (value)
+            if (view instanceof EditText)
+                ViewMugenExtensions.showKeyboard(view);
+            else
+                view.requestFocus();
+        else {
+            if (view instanceof EditText)
+                ViewMugenExtensions.hideKeyboard(view, false);
+            view.clearFocus();
+        }
+    }
+
     public static boolean getChecked(@NonNull View view) {
         return ((Checkable) view).isChecked();
     }

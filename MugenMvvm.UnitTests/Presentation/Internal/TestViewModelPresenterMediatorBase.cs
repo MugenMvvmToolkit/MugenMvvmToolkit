@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTests.Presentation.Internal
 
         public new T? CurrentView => base.CurrentView;
 
-        public Func<INavigationContext, ValueTask<bool>>? ActivateViewHandler { get; set; }
+        public Func<INavigationContext, Task<bool>>? ActivateViewHandler { get; set; }
 
         public Func<NavigationMode, IReadOnlyMetadataContext?, INavigationContext>? GetNavigationContextHandler { get; set; }
 
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTests.Presentation.Internal
 
         protected override ThreadExecutionMode ExecutionMode => ExecutionModeField ?? base.ExecutionMode;
 
-        protected override ValueTask<bool> ActivateViewAsync(T view, INavigationContext context, CancellationToken cancellationToken) =>
+        protected override Task<bool> ActivateViewAsync(T view, INavigationContext context, CancellationToken cancellationToken) =>
             ActivateViewHandler?.Invoke(context) ?? base.ActivateViewAsync(view, context, cancellationToken);
 
         protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata) =>

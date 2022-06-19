@@ -15,15 +15,17 @@ namespace MugenMvvm.Collections
         private readonly Func<IReadOnlyCollection<T>, T?, T?>? _getDefault;
         private readonly Action<T?, TState, IReadOnlyMetadataContext?>? _onChanged;
         private readonly TState _state;
+        private readonly IEqualityComparer<T?>? _equalityComparer;
         private T? _selectedItem;
 
         public SelectedItemTracker(IReadOnlyObservableCollection collection, Func<IReadOnlyCollection<T>, T?, T?>? getDefault,
-            Action<T?, TState, IReadOnlyMetadataContext?>? onChanged, TState state)
+            Action<T?, TState, IReadOnlyMetadataContext?>? onChanged, TState state, IEqualityComparer<T?>? equalityComparer)
         {
             _collection = collection;
             _getDefault = getDefault;
             _onChanged = onChanged;
             _state = state;
+            _equalityComparer = equalityComparer;
             Tracker = null!;
         }
 
@@ -39,7 +41,7 @@ namespace MugenMvvm.Collections
         {
             if (!items.IsBatchUpdate)
             {
-                if (SelectedItem == null || !items.ItemsRaw.Comparer.Equals(SelectedItem, item) && !items.ItemsRaw.ContainsKey(SelectedItem))
+                if (SelectedItem == null || !Equals(SelectedItem, item) && !items.ItemsRaw.ContainsKey(SelectedItem))
                     Reset(null);
             }
 
@@ -68,7 +70,7 @@ namespace MugenMvvm.Collections
         public bool SetSelectedItem(T? value, IReadOnlyMetadataContext? metadata)
         {
             using var _ = _collection.Lock();
-            if (Tracker.ItemsRaw.Comparer.Equals(SelectedItem, value) || value != null && !Tracker.Contains(value))
+            if (Equals(SelectedItem, value) || value != null && !Tracker.Contains(value))
                 return false;
             SetValue(value, metadata);
             return true;
@@ -84,8 +86,15 @@ namespace MugenMvvm.Collections
         private void Reset(IReadOnlyMetadataContext? metadata)
         {
             var item = _getDefault == null ? Tracker.FirstOrDefault() : _getDefault(Tracker, SelectedItem);
-            if (!Tracker.ItemsRaw.Comparer.Equals(SelectedItem, item))
+            if (!Equals(SelectedItem, item))
                 SetValue(item, metadata);
+        }
+
+        private bool Equals(T? x1, T? x2)
+        {
+            if (_equalityComparer == null)
+                return Tracker.ItemsRaw.Comparer.Equals(x1, x2);
+            return _equalityComparer.Equals(x1, x2);
         }
     }
 }

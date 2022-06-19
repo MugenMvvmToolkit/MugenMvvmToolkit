@@ -43,7 +43,7 @@ namespace MugenMvvm.Validation.Components
 
         public object Target { get; }
 
-        public bool IsSuspended(IValidator owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0;//todo global suspend
+        public bool IsSuspended(IValidator owner, IReadOnlyMetadataContext? metadata) => _suspendCount != 0; //todo global suspend
 
         public ActionToken TrySuspend(IValidator owner, IReadOnlyMetadataContext? metadata)
         {
@@ -126,7 +126,7 @@ namespace MugenMvvm.Validation.Components
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is IValidator validator)
-                validator.ValidateAsync(metadata: metadata);
+                validator.Validate(metadata: metadata);
         }
 
         void IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)

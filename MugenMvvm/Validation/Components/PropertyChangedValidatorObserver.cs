@@ -30,7 +30,7 @@ namespace MugenMvvm.Validation.Components
         private void OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             foreach (var owner in Owners)
-                owner.ValidateAsync(e.PropertyName).LogException(UnhandledExceptionType.Validation);
+                owner.Validate(e.PropertyName);
         }
 
         void IDisposableComponent<IValidator>.OnDisposing(IValidator owner, IReadOnlyMetadataContext? metadata)

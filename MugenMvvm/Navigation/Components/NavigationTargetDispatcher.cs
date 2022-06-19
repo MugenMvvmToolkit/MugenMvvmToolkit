@@ -14,7 +14,7 @@ namespace MugenMvvm.Navigation.Components
 
         public async ValueTask<bool> CanNavigateAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
+            var nextTarget = navigationDispatcher.TryGetNextNavigationTarget(navigationContext);
             var target = navigationContext.Target;
             if (navigationContext.NavigationMode.IsClose)
             {
@@ -30,7 +30,7 @@ namespace MugenMvvm.Navigation.Components
 
         public void OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
+            var nextTarget = navigationDispatcher.TryGetNextNavigationTarget(navigationContext);
             if (navigationContext.NavigationMode.IsClose)
             {
                 (navigationContext.Target as IHasNavigatingHandler)?.OnNavigatingFrom(navigationDispatcher, navigationContext, nextTarget);
@@ -46,7 +46,7 @@ namespace MugenMvvm.Navigation.Components
 
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            var nextTarget = navigationDispatcher.GetNextNavigationTarget(navigationContext);
+            var nextTarget = navigationDispatcher.TryGetNextNavigationTarget(navigationContext);
             if (navigationContext.NavigationMode.IsClose)
             {
                 (navigationContext.Target as IHasNavigatedHandler)?.OnNavigatedFrom(navigationDispatcher, navigationContext, nextTarget);

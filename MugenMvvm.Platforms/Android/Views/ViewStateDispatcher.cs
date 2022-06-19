@@ -87,10 +87,11 @@ namespace MugenMvvm.Android.Views
             if (b == null)
             {
                 if (request != null)
-                    viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
+                    viewManager.TryInitialize(ViewMapping.Undefined, request, metadata);
                 return;
             }
 
+            metadata = metadata.WithValue(NavigationMetadata.IsRestoration, true);
             if (request == null)
             {
                 FragmentMugenExtensions.ClearFragmentState(b);
@@ -104,7 +105,7 @@ namespace MugenMvvm.Android.Views
                 if (view is IActivityView activity)
                     activity.Finish();
                 else
-                    viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
+                    viewManager.TryInitialize(ViewMapping.Undefined, request, metadata);
             }
             else
                 viewManager.OnLifecycleChanged(viewInfo, AndroidViewLifecycleState.PendingInitialization, state, metadata);

@@ -21,7 +21,7 @@ import java.util.Map;
 
 public class ViewMemberListenerManager implements IMemberListenerManager {
     private static boolean isTextViewMember(View view, String memberName) {
-        return view instanceof TextView && (BindableMemberConstant.TextEvent.equals(memberName) || BindableMemberConstant.Text.equals(memberName));
+        return view instanceof TextView && (BindableMemberConstant.TextEvent.equals(memberName) || BindableMemberConstant.Text.equals(memberName) || BindableMemberConstant.ImeActionEvent.equals(memberName));
     }
 
     @Nullable
@@ -29,7 +29,8 @@ public class ViewMemberListenerManager implements IMemberListenerManager {
     public IMemberListener tryGetListener(@NonNull Object target, @NonNull String memberName, @Nullable HashMap<String, IMemberListener> listeners) {
         if (target instanceof View) {
             View view = (View) target;
-            if (BindableMemberConstant.Click.equals(memberName) || isTextViewMember(view, memberName)) {
+            if (BindableMemberConstant.Click.equals(memberName) || isTextViewMember(view, memberName) || BindableMemberConstant.IsFocused.equals(memberName)
+                    || BindableMemberConstant.FocusChangedEvent.equals(memberName)) {
                 if (listeners != null) {
                     for (Map.Entry<String, IMemberListener> entry : listeners.entrySet()) {
                         if (entry.getValue() instanceof ViewMemberListener)

@@ -84,7 +84,15 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Optional<TTo> Cast<TTo>() => HasValue ? new Optional<TTo>(MugenExtensions.CastGeneric<T?, TTo>(Value)) : default;
+        public Optional<TTo> Cast<TTo>()
+        {
+            if (!HasValue)
+                return default;
+            return typeof(TTo) == typeof(VoidResult) ? Optional<TTo>.Default : new Optional<TTo>(MugenExtensions.CastGeneric<T?, TTo>(Value));
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Optional<VoidResult> AsVoid() => HasValue ? Optional<VoidResult>.Default : default;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Equals(Optional<T> other) => HasValue == other.HasValue && EqualityComparer<T?>.Default.Equals(_value, other._value);

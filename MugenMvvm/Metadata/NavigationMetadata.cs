@@ -15,6 +15,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<bool>? _forceClose;
         private static IMetadataContextKey<NavigationType>? _navigationType;
         private static IMetadataContextKey<bool>? _clearBackStack;
+        private static IMetadataContextKey<bool>? _isRestoration;
         private static IMetadataContextKey<DateTime>? _navigationDate;
 
         [AllowNull]
@@ -71,6 +72,13 @@ namespace MugenMvvm.Metadata
         {
             get => _clearBackStack ??= GetBuilder(_clearBackStack, nameof(ClearBackStack)).Build();
             set => _clearBackStack = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<bool> IsRestoration
+        {
+            get => _isRestoration ??= GetBuilder(_isRestoration, nameof(IsRestoration)).Build();
+            set => _isRestoration = value;
         }
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(IMetadataContextKey<T>? _, string name) => MetadataContextKey.Create<T>(typeof(NavigationMetadata), name);

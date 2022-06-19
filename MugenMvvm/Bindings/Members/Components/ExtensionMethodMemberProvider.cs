@@ -17,7 +17,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Members.Components
-{
+{//todo check from expression
     public sealed class ExtensionMethodMemberProvider : AttachableComponentBase<IMemberManager>, IMemberProviderComponent, IHasPriority
     {
         private readonly HashSet<Type> _types;

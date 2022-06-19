@@ -26,6 +26,9 @@ namespace MugenMvvm.Android.Bindings
         public const string SelectedIndexEventName = "SelectedIndexChanged";
         public const string CheckedMemberName = "Checked";
         public const string CheckedEventName = "CheckedChanged";
+        public const string IsFocusedMemberName = "IsFocused";
+        public const string FocusChangedEventName = "FocusChanged";
+        public const string ImeActionEventName = "ImeAction";
 
         public static readonly ICharSequence ParentMemberNameNative = BindableMemberConstant.Parent!;
         public static readonly ICharSequence ParentEventNameNative = BindableMemberConstant.ParentEvent!;
@@ -39,6 +42,9 @@ namespace MugenMvvm.Android.Bindings
         public static readonly ICharSequence SelectedIndexEventNameNative = BindableMemberConstant.SelectedIndexEvent!;
         public static readonly ICharSequence CheckedMemberNameNative = BindableMemberConstant.Checked!;
         public static readonly ICharSequence CheckedEventNameNative = BindableMemberConstant.CheckedEvent!;
+        public static readonly ICharSequence IsFocusedMemberNameNative = BindableMemberConstant.IsFocused!;
+        public static readonly ICharSequence FocusChangedEventNameNative = BindableMemberConstant.FocusChangedEvent!;
+        public static readonly ICharSequence ImeActionEventNameNative = BindableMemberConstant.ImeActionEvent!;
 
         private static readonly Dictionary<string, ICharSequence> NetToJavaMapping = new(3);
         private static readonly Dictionary<ICharSequence, string> JavaToNetMapping = new(3);
@@ -89,6 +95,12 @@ namespace MugenMvvm.Android.Bindings
                 return CheckedMemberName;
             if (member == CheckedEventNameNative)
                 return CheckedEventName;
+            if (member == FocusChangedEventNameNative)
+                return FocusChangedEventName;
+            if (member == IsFocusedMemberNameNative)
+                return IsFocusedMemberName;
+            if (member == ImeActionEventNameNative)
+                return ImeActionEventName;
             if (!JavaToNetMapping.TryGetValue(member, out var r))
             {
                 r = member.ToString();
@@ -126,6 +138,12 @@ namespace MugenMvvm.Android.Bindings
                     return CheckedMemberNameNative;
                 case CheckedEventName:
                     return CheckedEventNameNative;
+                case IsFocusedMemberName:
+                    return IsFocusedMemberNameNative;
+                case FocusChangedEventName:
+                    return FocusChangedEventNameNative;
+                case ImeActionEventName:
+                    return ImeActionEventNameNative;
             }
 
             if (!NetToJavaMapping.TryGetValue(member, out var r))

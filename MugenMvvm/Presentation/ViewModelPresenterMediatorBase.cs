@@ -13,6 +13,7 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 
@@ -109,32 +110,16 @@ namespace MugenMvvm.Presentation
                 if (ShowingContext != null)
                     return GetPresenterResult(false, ShowingContext.GetMetadataOrDefault(metadata));
 
-                Show(view, cancellationToken, metadata);
+                if (IsShown && view != null && metadata != null && metadata.Get(NavigationMetadata.IsRestoration))
+                    Restore(view, cancellationToken, metadata);
+                else
+                    Show(view, cancellationToken, metadata);
                 return GetPresenterResult(true, metadata);
             }
         }
 
         public IPresenterResult? TryClose(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata) =>
             TryClose(view, NavigationMode.Close, cancellationToken, metadata);
-
-        protected IPresenterResult? TryClose(object? view, NavigationMode navigationMode, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(navigationMode, nameof(navigationMode));
-            lock (_locker)
-            {
-                if (!IsShowing && !IsShown)
-                    return null;
-
-                if (!CanClose(view, cancellationToken, metadata))
-                    return null;
-
-                if (ClosingContext != null)
-                    return GetPresenterResult(false, ClosingContext.GetMetadataOrDefault(metadata));
-
-                Close(view, navigationMode, cancellationToken, metadata);
-                return GetPresenterResult(false, metadata);
-            }
-        }
 
         protected internal virtual void OnViewShown(IReadOnlyMetadataContext? metadata)
         {
@@ -189,16 +174,20 @@ namespace MugenMvvm.Presentation
 
         protected abstract Task CloseViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
-        protected abstract void InitializeView(TView view, INavigationContext navigationContext);
+        protected virtual void InitializeView(TView view, INavigationContext navigationContext)
+        {
+        }
 
-        protected abstract void CleanupView(TView view, INavigationContext navigationContext);
+        protected virtual void CleanupView(TView view, INavigationContext navigationContext)
+        {
+        }
 
-        protected virtual ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
+        protected virtual Task<bool> ActivateViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (cancellationToken.IsCancellationRequested)
-                return Task.FromCanceled<bool>(cancellationToken).AsValueTask();
+                return Task.FromCanceled<bool>(cancellationToken);
             OnViewActivated(navigationContext.GetMetadataOrDefault());
-            return new ValueTask<bool>(true);
+            return Default.TrueTask;
         }
 
         protected virtual IPresenterResult GetPresenterResult(bool show, IReadOnlyMetadataContext? metadata) =>
@@ -276,6 +265,25 @@ namespace MugenMvvm.Presentation
             NavigationDispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
         }
 
+        protected IPresenterResult? TryClose(object? view, NavigationMode navigationMode, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(navigationMode, nameof(navigationMode));
+            lock (_locker)
+            {
+                if (!IsShowing && !IsShown)
+                    return null;
+
+                if (!CanClose(view, cancellationToken, metadata))
+                    return null;
+
+                if (ClosingContext != null)
+                    return GetPresenterResult(false, ClosingContext.GetMetadataOrDefault(metadata));
+
+                Close(view, navigationMode, cancellationToken, metadata);
+                return GetPresenterResult(false, metadata);
+            }
+        }
+
         [return: NotNullIfNotNull("view")]
         protected TView? UpdateView(IView? view, INavigationContext navigationContext)
         {
@@ -289,7 +297,7 @@ namespace MugenMvvm.Presentation
             if (oldViewObj != null)
                 CleanupView(oldViewObj, navigationContext);
             if (oldView != null)
-                ViewManager.TryCleanupAsync(oldView, navigationContext, default, navigationContext.GetMetadataOrDefault());
+                ViewManager.TryCleanup(oldView, navigationContext, navigationContext.GetMetadataOrDefault());
 
             View = view;
             CurrentView = newView;
@@ -307,6 +315,7 @@ namespace MugenMvvm.Presentation
             INavigationContext? context = null;
             try
             {
+                var originalToken = cancellationToken;
                 _showingTask?.TrySetCanceled();
                 _showingToken.SafeCancel();
                 _showingToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, default);
@@ -352,10 +361,25 @@ namespace MugenMvvm.Presentation
                 else
                     await RefreshAsync(context, cancellationToken);
                 IsShown = true;
+                originalToken.Register(o => ((ViewModelPresenterMediatorBase<TView>) o!).OnCanceled(), this);
             }
             catch (Exception e)
             {
                 OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.Refresh, metadata), e);
+            }
+        }
+
+        private async void Restore(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            var context = GetNavigationContext(NavigationMode.Refresh, metadata);
+            try
+            {
+                var newView = await ViewManager.InitializeAsync(Mapping, ViewModelViewRequest.GetRequestOrRaw(ViewModel, view), cancellationToken, metadata);
+                UpdateView(newView, context);
+            }
+            catch (Exception e)
+            {
+                OnNavigationFailed(context, e);
             }
         }
 
@@ -404,6 +428,27 @@ namespace MugenMvvm.Presentation
                 OnNavigationCanceled(context, default);
         }
 
+        private async void OnCanceled()
+        {
+            INavigationContext? context = null;
+            try
+            {
+                await ThreadDispatcher.SwitchToAsync(ExecutionMode);
+                if (!IsShown)
+                    return;
+                context = GetNavigationContext(NavigationMode.New, null);
+                ClosingContext = context;
+                var view = CurrentView;
+                OnNavigationCanceled(context, default);
+                if (view != null)
+                    await CloseViewAsync(view, context, default);
+            }
+            catch (Exception e)
+            {
+                OnNavigationFailed(context ?? GetNavigationContext(NavigationMode.New, null), e);
+            }
+        }
+
         private void ClearFields(INavigationContext navigationContext, CancellationToken? cancellationToken, Exception? error)
         {
             lock (_locker)
@@ -429,11 +474,21 @@ namespace MugenMvvm.Presentation
                     if (tcs == null)
                         return;
                     if (error != null)
+                    {
+                        tcs.Task.LogException(UnhandledExceptionType.System); //todo fix
                         tcs.TrySetException(error);
+                    }
                     else if (cancellationToken != null)
                         tcs.TrySetCanceled(cancellationToken.Value);
                     else
                         tcs.TrySetResult(null);
+
+                    if (cancellationToken != null || error != null)
+                    {
+                        IsShown = false;
+                        ClosingContext = null;
+                        ClosingCancelArgs = null;
+                    }
                 }
             }
         }

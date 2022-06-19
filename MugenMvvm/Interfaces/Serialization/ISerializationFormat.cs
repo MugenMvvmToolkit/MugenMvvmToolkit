@@ -1,10 +1,10 @@
-﻿namespace MugenMvvm.Interfaces.Serialization
+﻿using MugenMvvm.Interfaces.Models;
+
+namespace MugenMvvm.Interfaces.Serialization
 {
-    public interface ISerializationFormatBase
+    public interface ISerializationFormatBase : IHasName
     {
         bool IsSerialization { get; }
-
-        string Name { get; }
     }
 
     public interface ISerializationFormatBase<out TRequest, in TResult> : ISerializationFormatBase

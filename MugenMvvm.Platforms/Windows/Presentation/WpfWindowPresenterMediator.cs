@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Presentation;
 
@@ -15,7 +16,8 @@ namespace MugenMvvm.Windows.Presentation
         private readonly CancelEventHandler _closingHandler;
         private readonly EventHandler _deactivatedHandler;
 
-        public WpfWindowPresenterMediator(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null) : base(viewManager, navigationDispatcher)
+        public WpfWindowPresenterMediator(IThreadDispatcher? threadDispatcher = null, IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
+            : base(threadDispatcher, viewManager, navigationDispatcher)
         {
             _activatedHandler = OnActivated;
             _deactivatedHandler = OnDeactivated;
@@ -23,7 +25,7 @@ namespace MugenMvvm.Windows.Presentation
             _closedHandler = OnClosed;
         }
 
-        protected override void Initialize(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext)
+        /*protected override void Initialize(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext)
         {
             view.Activated += _activatedHandler;
             view.Deactivated += _deactivatedHandler;
@@ -37,7 +39,7 @@ namespace MugenMvvm.Windows.Presentation
             view.Deactivated -= _deactivatedHandler;
             view.Closing -= _closingHandler;
             view.Closed -= _closedHandler;
-        }
+        }*///todo fix
 
         protected override void Activate(IViewModelPresenterMediator mediator, Window view, INavigationContext navigationContext) => view.Activate();
 

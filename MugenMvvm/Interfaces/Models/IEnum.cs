@@ -1,9 +1,7 @@
 ﻿namespace MugenMvvm.Interfaces.Models
 {
-    public interface IEnum
+    public interface IEnum : IHasName
     {
-        string Name { get; }
-
         object Value { get; }
     }
 }

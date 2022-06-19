@@ -64,6 +64,8 @@ namespace MugenMvvm.Internal
 
         private Func<Type, IReadOnlyMetadataContext?, object>? Generate(Type type)
         {
+            if (type.IsGenericTypeDefinition)
+                return null;
             var constructors = type.GetConstructors();
             if (constructors.Length != 1)
                 return null;

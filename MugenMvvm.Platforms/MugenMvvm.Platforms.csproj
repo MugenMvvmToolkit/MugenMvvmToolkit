@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>xamarin.ios10;monoandroid10.0;net461;</TargetFrameworks>
+    <TargetFrameworks>xamarin.ios10;monoandroid10.0;net461;net6.0-android</TargetFrameworks>
     <TargetFrameworks Condition=" '$(OS)' == 'Windows_NT' ">net5.0-windows;$(TargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
 
@@ -16,7 +16,7 @@
     <AssemblyName>MugenMvvm.Ios</AssemblyName>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <PropertyGroup Condition=" $(TargetFramework.Contains('android')) ">
     <AssemblyName>MugenMvvm.Android</AssemblyName>
     <AndroidClassParser>class-parse</AndroidClassParser>
     <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
@@ -47,7 +47,7 @@
     <AssemblyAttribute Include="MugenMvvm.Attributes.LinkerSafeAttribute" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <ItemGroup Condition=" $(TargetFramework.Contains('android')) ">
     <Compile Include="Android\**\*.cs" />
     <Compile Include="Common\IContentTemplateSelector.cs" />
     <LibraryProjectZip Include="Android\Jars\mugenmvvm-core.aar" />
@@ -75,13 +75,13 @@
     <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
   </ItemGroup>
 
-  <Target Name="AndroidNativeBuild" BeforeTargets="_CreateBindingResourceArchive" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <Target Name="AndroidNativeBuild" BeforeTargets="_CreateBindingResourceArchive" Condition=" $(TargetFramework.StartsWith('android')) ">
     <Exec Command="..\MugenMvvm.Android.Native\build.bat" Condition=" '$(OS)' == 'Windows_NT' And '$(Configuration)' != 'Debug' " />
     <Exec Command="bash ..\MugenMvvm.Android.Native\build.sh" Condition=" '$(OS)' != 'Windows_NT' And '$(Configuration)' != 'Debug' " />
     <Exec Command="..\MugenMvvm.Android.Native\build_debug.bat" Condition=" '$(OS)' == 'Windows_NT' And '$(Configuration)' == 'Debug' " />
     <Exec Command="bash ..\MugenMvvm.Android.Native\build_debug.sh" Condition=" '$(OS)' != 'Windows_NT' And '$(Configuration)' == 'Debug' " />
   </Target>
-  <Target Name="AndroidNativeClean" BeforeTargets="Clean" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <Target Name="AndroidNativeClean" BeforeTargets="Clean" Condition=" $(TargetFramework.StartsWith('android')) ">
     <Exec Command="..\MugenMvvm.Android.Native\clean.bat" Condition=" '$(OS)' == 'Windows_NT' " />
     <Exec Command="bash ..\MugenMvvm.Android.Native\clean.sh" Condition=" '$(OS)' != 'Windows_NT' " />
   </Target>

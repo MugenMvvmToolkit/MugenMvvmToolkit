@@ -5,6 +5,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Ios.Interfaces;
@@ -21,7 +22,8 @@ namespace MugenMvvm.Ios.Presentation
         private readonly MugenAdaptivePresentationControllerDelegate _presentationControllerDelegate;
         private readonly IViewManager? _viewManager;
 
-        public ModalViewPresenterMediator(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
+        public ModalViewPresenterMediator(IThreadDispatcher? threadDispatcher = null, IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
+            : base(threadDispatcher)
         {
             _viewManager = viewManager;
             _navigationDispatcher = navigationDispatcher;
@@ -29,6 +31,8 @@ namespace MugenMvvm.Ios.Presentation
         }
 
         public override NavigationType NavigationType => NavigationType.Popup;
+
+        protected override bool IsActivateSupported => false;
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
@@ -40,7 +44,8 @@ namespace MugenMvvm.Ios.Presentation
         protected override Task ActivateAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext,
             CancellationToken cancellationToken) => Task.CompletedTask;
 
-        protected override Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext, CancellationToken cancellationToken)
+        protected override async Task ShowAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext,
+            CancellationToken cancellationToken)
         {
             if (UIDevice.CurrentDevice.CheckSystemVersion(13, 0))
             {
@@ -49,13 +54,10 @@ namespace MugenMvvm.Ios.Presentation
             }
 
             if (navigationContext.NavigationMode != NavigationMode.New)
-                return Task.CompletedTask;
+                return;
 
-            var topView = NavigationDispatcher.GetTopView<UIViewController>(null, false, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
-            if (topView == null)
-                ExceptionManager.ThrowObjectNotInitialized(typeof(UIViewController), nameof(topView));
+            var topView = await NavigationDispatcher.GetTopViewAsync<UIViewController>(null, false, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
             topView.PresentViewController(view, navigationContext.GetOrDefault(NavigationMetadata.Animated), null);
-            return Task.CompletedTask;
         }
 
         protected override Task CloseAsync(IViewModelPresenterMediator mediator, UIViewController view, INavigationContext navigationContext, CancellationToken cancellationToken)

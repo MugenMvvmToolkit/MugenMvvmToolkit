@@ -1,12 +1,11 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Bindings.Interfaces.Members
 {
-    public interface IParameterInfo
+    public interface IParameterInfo : IHasName
     {
         object? UnderlyingParameter { get; }
-
-        string Name { get; }
 
         Type ParameterType { get; }
 

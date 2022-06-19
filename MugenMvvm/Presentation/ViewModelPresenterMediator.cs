@@ -152,7 +152,7 @@ namespace MugenMvvm.Presentation
                 OnViewShown(null);
         }
 
-        protected override async ValueTask<bool> ActivateViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
+        protected override async Task<bool> ActivateViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             var isAppeared = IsAppeared;
             await ViewPresenterMediator.ActivateAsync(this, view, navigationContext, cancellationToken);
@@ -176,7 +176,6 @@ namespace MugenMvvm.Presentation
                 return;
             }
 
-            ViewPresenterMediator.Initialize(this, view, navigationContext);
             if (ViewManager.IsInState(view, ViewLifecycleState.Appeared, meta))
                 IsAppeared = true;
             else if (ViewManager.IsInState(view, ViewLifecycleState.Disappeared, meta))
@@ -185,8 +184,6 @@ namespace MugenMvvm.Presentation
 
         protected override Task CloseViewAsync(TView view, INavigationContext navigationContext, CancellationToken cancellationToken) =>
             ViewPresenterMediator.CloseAsync(this, view, navigationContext, cancellationToken);
-
-        protected override void CleanupView(TView view, INavigationContext navigationContext) => ViewPresenterMediator.Cleanup(this, view, navigationContext);
 
         void IViewLifecycleListener.OnLifecycleChanged(IViewManager viewManager, ViewInfo view, ViewLifecycleState lifecycleState, object? state,
             IReadOnlyMetadataContext? metadata)

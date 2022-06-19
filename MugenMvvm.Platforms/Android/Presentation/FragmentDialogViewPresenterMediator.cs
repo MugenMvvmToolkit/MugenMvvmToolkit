@@ -7,6 +7,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Metadata;
@@ -20,13 +21,16 @@ namespace MugenMvvm.Android.Presentation
         private readonly INavigationDispatcher? _navigationDispatcher;
         private readonly IViewManager? _viewManager;
 
-        public FragmentDialogViewPresenterMediator(INavigationDispatcher? navigationDispatcher = null, IViewManager? viewManager = null)
+        public FragmentDialogViewPresenterMediator(IThreadDispatcher? threadDispatcher = null, INavigationDispatcher? navigationDispatcher = null, IViewManager? viewManager = null)
+            : base(threadDispatcher)
         {
             _navigationDispatcher = navigationDispatcher;
             _viewManager = viewManager;
         }
 
         public override NavigationType NavigationType => NavigationType.Popup;
+
+        protected override bool IsActivateSupported => false;
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
@@ -39,10 +43,15 @@ namespace MugenMvvm.Android.Presentation
             if (navigationContext.NavigationMode == NavigationMode.New)
             {
                 view.Cancelable = !navigationContext.GetOrDefault(NavigationMetadata.Modal);
-                var topView = NavigationDispatcher.GetTopView<IActivityView>(null, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault())!;
-                if (_viewManager.DefaultIfNull().IsInState(topView, ViewLifecycleState.Disappeared))
-                    await StateWatcher.WaitAsync(_viewManager, topView);
-                FragmentMugenExtensions.Show(view, topView!, null!);
+                IActivityView topView;
+                while (true)
+                {
+                    topView = await NavigationDispatcher.GetTopViewAsync<IActivityView>(null, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault());//todo review
+                    if (_viewManager.DefaultIfNull().IsInState(topView, ViewLifecycleState.Appeared) || await StateWatcher.WaitAsync(_viewManager, topView))
+                        break;
+                }
+
+                FragmentMugenExtensions.Show(view, topView, null!);
             }
         }
 
@@ -53,7 +62,7 @@ namespace MugenMvvm.Android.Presentation
             return Task.CompletedTask;
         }
 
-        private sealed class StateWatcher : TaskCompletionSource<object?>, IViewLifecycleListener
+        private sealed class StateWatcher : TaskCompletionSource<bool>, IViewLifecycleListener
         {
             private readonly object _view;
 
@@ -62,7 +71,7 @@ namespace MugenMvvm.Android.Presentation
                 _view = view;
             }
 
-            public static Task WaitAsync(IViewManager? viewManager, object view)
+            public static Task<bool> WaitAsync(IViewManager? viewManager, object view)
             {
                 var watcher = new StateWatcher(view);
                 viewManager.DefaultIfNull().AddComponent(watcher);
@@ -77,12 +86,12 @@ namespace MugenMvvm.Android.Presentation
                 if (lifecycleState.BaseState == ViewLifecycleState.Appeared)
                 {
                     viewManager.RemoveComponent(this);
-                    TrySetResult(null);
+                    TrySetResult(true);
                 }
                 else if (lifecycleState.BaseState == ViewLifecycleState.Cleared)
                 {
                     viewManager.RemoveComponent(this);
-                    TrySetCanceled();
+                    TrySetResult(false);
                 }
             }
         }

@@ -1,5 +1,7 @@
 ﻿using System.Runtime.InteropServices;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.App.Configuration
 {
@@ -24,5 +26,12 @@ namespace MugenMvvm.App.Configuration
 
         public MugenServiceConfiguration<TNewService> WithService<TNewService>(IComponentOwner<TNewService> service)
             where TNewService : class => _appConfiguration.InitializeService((TNewService) service);
+
+        public MugenServiceConfiguration<TService> RemoveComponents<T>(IReadOnlyMetadataContext? metadata = null)
+            where T : class, IComponent<TService>
+        {
+            ((IComponentOwner) Service).RemoveComponents<T>(metadata);
+            return this;
+        }
     }
 }

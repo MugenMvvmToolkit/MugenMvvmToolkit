@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -23,6 +24,12 @@ namespace MugenMvvm.Extensions
             if (result == null)
                 ExceptionManager.ThrowRequestNotSupported<IValidatorProviderComponent>(validatorProvider, targets.GetRawValue(), metadata);
             return result;
+        }
+
+        public static void Validate(this IValidator validator, string? member = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(validator, nameof(validator));
+            validator.ValidateAsync(member, default, metadata).LogException(UnhandledExceptionType.Validation);
         }
 
         public static void SetErrors(this IValidator validator, ItemOrIReadOnlyList<ValidationErrorInfo> errors, IReadOnlyMetadataContext? metadata = null)

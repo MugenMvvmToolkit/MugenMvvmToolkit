@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
-    public sealed class MetadataContext : IMetadataContext, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>
+    public sealed class MetadataContext : IMetadataContext, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>//todo check equality
     {
         private readonly Dictionary<IMetadataContextKey, object?> _dictionary;
         private IComponentCollection? _components;

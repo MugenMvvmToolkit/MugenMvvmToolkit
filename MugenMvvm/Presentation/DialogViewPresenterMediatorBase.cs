@@ -7,6 +7,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presentation;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
@@ -22,7 +23,8 @@ namespace MugenMvvm.Presentation
         private readonly INavigationDispatcher? _navigationDispatcher;
         private bool _isShowing;
 
-        protected DialogViewPresenterMediatorBase(IViewManager? viewManager, INavigationDispatcher? navigationDispatcher)
+        protected DialogViewPresenterMediatorBase(IThreadDispatcher? threadDispatcher, IViewManager? viewManager, INavigationDispatcher? navigationDispatcher)
+            : base(threadDispatcher)
         {
             _contextMap = new Dictionary<object, INavigationContext>(InternalEqualityComparer.Reference);
             _viewManager = viewManager;
@@ -94,7 +96,7 @@ namespace MugenMvvm.Presentation
         protected ActionToken AddContext(object view, INavigationContext navigationContext)
         {
             _contextMap[view] = navigationContext;
-            return ActionToken.FromDelegate((v, m) => ((Dictionary<object, INavigationContext>)m!).Remove(v!), view, _contextMap);
+            return ActionToken.FromDelegate((v, m) => ((Dictionary<object, INavigationContext>) m!).Remove(v!), view, _contextMap);
         }
 
         protected INavigationContext? GetNavigationContext(object? view)
@@ -114,7 +116,7 @@ namespace MugenMvvm.Presentation
                 if (useParentViewModelAsOwner)
                     owner = TryGetViewFromParent<TOwner>(mediator.ViewModel, navigationContext);
                 if (owner == null && includeDefault)
-                    owner = NavigationDispatcher.GetTopView<TOwner>(NavigationType, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
+                    owner = NavigationDispatcher.TryGetTopView<TOwner>(NavigationType, true, mediator.ViewModel, navigationContext.GetMetadataOrDefault());
             }
 
             return owner;

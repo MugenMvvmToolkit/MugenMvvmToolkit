@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>monoandroid10.0;xamarin.ios10;net461;net5.0</TargetFrameworks>
+    <TargetFrameworks>monoandroid10.0;xamarin.ios10;net461;net5.0;net6.0-android</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,7 +15,7 @@
     <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <PropertyGroup Condition=" $(TargetFramework.Contains('android')) ">
     <DefineConstants>NET_CORE;SPAN_API;ANDROID</DefineConstants>
     <AndroidUseIntermediateDesignerFile>false</AndroidUseIntermediateDesignerFile>
   </PropertyGroup>

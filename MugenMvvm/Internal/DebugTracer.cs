@@ -161,12 +161,12 @@ namespace MugenMvvm.Internal
         }
 
         private static object? GetPrevNavigationTarget(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
-            navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, _) =>
+            navigationDispatcher.TryGetTopNavigation(navigationContext, (entry, context, _) =>
             {
                 if (entry.NavigationType == context.NavigationType && entry.Target != null && !Equals(entry.Target, context.Target))
                     return entry.Target;
                 return null;
-            }) ?? navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, _) =>
+            }) ?? navigationDispatcher.TryGetTopNavigation(navigationContext, (entry, context, _) =>
             {
                 if (entry.Target != null && !Equals(entry.Target, context.Target))
                     return entry.Target;

@@ -72,6 +72,7 @@ namespace MugenMvvm.Ios.App
                     if (_serializer.DefaultIfNull().TryDeserialize(DeserializationFormat.AppStateBytes, bytes, ref restoredState, metadata)
                         && restoredState.TryGet(ViewModelMetadata.ViewModel, out var vm) && vm != null)
                     {
+                        metadata = metadata.WithValue(NavigationMetadata.IsRestoration, true);
                         var viewModelViewRequest = new ViewModelViewRequest(vm, viewType);
                         var view = _viewManager.DefaultIfNull().TryInitializeAsync(ViewMapping.Undefined, viewModelViewRequest, default, metadata).GetResult();
                         if (view != null)
@@ -84,6 +85,7 @@ namespace MugenMvvm.Ios.App
                 }
                 else if (viewType != null && request.RestorationIdentifier == IosInternalConstants.RootViewControllerId)
                 {
+                    metadata = metadata.WithValue(NavigationMetadata.IsRestoration, true);
                     var controller = (UIViewController?) _serviceProvider.DefaultIfNull().GetService(viewType, metadata);
                     if (controller != null && !_presenter.DefaultIfNull().TryShow(controller, default, metadata).IsEmpty)
                     {

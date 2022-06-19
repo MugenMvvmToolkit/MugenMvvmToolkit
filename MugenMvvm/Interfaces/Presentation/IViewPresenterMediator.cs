@@ -11,10 +11,6 @@ namespace MugenMvvm.Interfaces.Presentation
 
         object? TryGetViewRequest(IViewModelPresenterMediator mediator, object? view, INavigationContext navigationContext);
 
-        void Initialize(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
-
-        void Cleanup(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext);
-
         Task ActivateAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken);
 
         Task ShowAsync(IViewModelPresenterMediator mediator, object view, INavigationContext navigationContext, CancellationToken cancellationToken);

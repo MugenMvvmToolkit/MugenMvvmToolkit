@@ -498,26 +498,26 @@ namespace MugenMvvm.Extensions
 
         public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
             NotifyPropertyChangedBase source, string propertyName = nameof(ISelectedItemTracker<object>.SelectedItem), Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null,
-            Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null)
+            Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null, IEqualityComparer<T?>? selectedItemComparer = null)
             where T : class
         {
             Should.NotBeNull(source, nameof(source));
             var args = propertyName == nameof(ISelectedItemTracker<object>.SelectedItem) ? Default.SelectedItemChangedArgs : new PropertyChangedEventArgs(propertyName);
-            return configuration.TrackSelectedItem(out tracker, (args, source), (_, s, _) => s.source.OnPropertyChangedInternal(s.args), getDefault, immutableCondition, comparer);
+            return configuration.TrackSelectedItem(out tracker, (args, source), (_, s, _) => s.source.OnPropertyChangedInternal(s.args), getDefault, immutableCondition, comparer,
+                selectedItemComparer);
         }
 
         public static DecoratorsConfiguration<T> TrackSelectedItem<T>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
-            Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null, Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null)
-            where T : class =>
-            configuration.TrackSelectedItem<T, object?>(out tracker, null, null, getDefault, immutableCondition, comparer);
+            Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null, Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null,
+            IEqualityComparer<T?>? selectedItemComparer = null)
+            where T : class => configuration.TrackSelectedItem<T, object?>(out tracker, null, null, getDefault, immutableCondition, comparer, selectedItemComparer);
 
         public static DecoratorsConfiguration<T> TrackSelectedItem<T, TState>(this DecoratorsConfiguration<T> configuration, out ISelectedItemTracker<T> tracker,
             TState state = default!, Action<T?, TState, IReadOnlyMetadataContext?>? onChanged = null, Func<IReadOnlyCollection<T>, T?, T?>? getDefault = null,
-            Func<T, bool>? immutableCondition = null,
-            IEqualityComparer<T>? comparer = null)
+            Func<T, bool>? immutableCondition = null, IEqualityComparer<T>? comparer = null, IEqualityComparer<T?>? selectedItemComparer = null)
             where T : class
         {
-            var closure = new SelectedItemTracker<T, TState>(configuration.Collection, getDefault, onChanged, state);
+            var closure = new SelectedItemTracker<T, TState>(configuration.Collection, getDefault, onChanged, state, selectedItemComparer);
             var decorator = new TrackerCollectionDecorator<T, object?>(configuration.Priority, configuration.AllowNull, closure.OnAdded, closure.OnRemoved, null,
                 closure.OnEndBatchUpdate, immutableCondition, comparer);
             closure.Tracker = decorator;

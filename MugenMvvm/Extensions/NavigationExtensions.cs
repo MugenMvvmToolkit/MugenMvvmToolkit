@@ -3,9 +3,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Collections;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presentation;
@@ -72,19 +74,6 @@ namespace MugenMvvm.Extensions
             return false;
         }
 
-        public static object? GetNextNavigationTarget(this INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
-            navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
-            {
-                if (entry.NavigationType == context.NavigationType && entry.Target != null && !Equals(entry.Target, context.Target))
-                    return entry.Target;
-                return null;
-            }) ?? navigationDispatcher.GetTopNavigation(navigationContext, (entry, context, m) =>
-            {
-                if (entry.Target != null && !Equals(entry.Target, context.Target))
-                    return entry.Target;
-                return null;
-            });
-
         public static Task ClearBackStackAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, object navigationTarget,
             bool includePending = false, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null, IPresenter? presenter = null)
         {
@@ -113,14 +102,23 @@ namespace MugenMvvm.Extensions
             return callbacks.WhenAll(false, false, false, cancellationToken);
         }
 
-        public static TView? GetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
-            object? ignoreTarget = null, IReadOnlyMetadataContext? metadata = null)
-            where TView : class =>
-            navigationDispatcher.GetTopNavigation((navigationType, includePending, ignoreTarget), (entry, state, m) =>
+        public static ValueTask<TView> GetTopViewAsync<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
+            object? ignoreTarget = null, IReadOnlyMetadataContext? metadata = null) where TView : class
+            => NavigationAwaiter<TView, (NavigationType?, bool, object?, IReadOnlyMetadataContext?)>.Get(navigationDispatcher,
+                (navigationType, includePending, ignoreTarget, metadata), static (d, s) => d.TryGetTopView<TView>(s.Item1, s.Item2, s.Item3, s.Item4));
+
+        public static ValueTask<TResult> GetTopNavigationAsync<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state,
+            Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate, IReadOnlyMetadataContext? metadata = null)
+            where TResult : class => NavigationAwaiter<TResult, (TState, Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?>, IReadOnlyMetadataContext?)>.Get(
+            navigationDispatcher, (state, predicate, metadata), static (d, s) => d.TryGetTopNavigation(s.Item1, s.Item2, s.Item3));
+
+        public static TView? TryGetTopView<TView>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
+            object? ignoreTarget = null, IReadOnlyMetadataContext? metadata = null) where TView : class =>
+            navigationDispatcher.TryGetTopNavigation((navigationType, includePending, ignoreTarget), (entry, state, m) =>
             {
                 if (!state.includePending && entry.IsPending)
                     return null;
-                if (state.navigationType != null && entry.NavigationType != state.navigationType || Equals(entry.Target, state.ignoreTarget) ||
+                if ((state.navigationType != null && entry.NavigationType != state.navigationType) || Equals(entry.Target, state.ignoreTarget) ||
                     entry.Target is not IViewModelBase viewModel)
                     return null;
                 foreach (var t in MugenService.ViewManager.GetViews(viewModel, m))
@@ -132,19 +130,20 @@ namespace MugenMvvm.Extensions
                 return null;
             }, metadata);
 
-        public static T? GetTopNavigationTarget<T>(this INavigationDispatcher navigationDispatcher, NavigationType? navigationType = null, bool includePending = true,
-            IReadOnlyMetadataContext? metadata = null)
-            where T : class =>
-            navigationDispatcher.GetTopNavigation((navigationType, includePending), (entry, state, m) =>
+        public static object? TryGetNextNavigationTarget(this INavigationDispatcher navigationDispatcher, INavigationContext navigationContext) =>
+            navigationDispatcher.TryGetTopNavigation(navigationContext, (entry, context, m) =>
             {
-                if (!state.includePending && entry.IsPending)
-                    return null;
-                if ((state.navigationType == null || entry.NavigationType == state.navigationType) && entry.Target is T target)
-                    return target;
+                if (entry.NavigationType == context.NavigationType && entry.Target != null && !Equals(entry.Target, context.Target))
+                    return entry.Target;
                 return null;
-            }, metadata);
+            }) ?? navigationDispatcher.TryGetTopNavigation(navigationContext, (entry, context, m) =>
+            {
+                if (entry.Target != null && !Equals(entry.Target, context.Target))
+                    return entry.Target;
+                return null;
+            });
 
-        public static TResult? GetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state,
+        public static TResult? TryGetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state,
             Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate, IReadOnlyMetadataContext? metadata = null)
             where TResult : class
         {
@@ -254,6 +253,44 @@ namespace MugenMvvm.Extensions
             var result = new NavigationCallbackTaskListener(isSerializable, cancellationToken);
             callback.AddCallback(result);
             return result.Task.AsValueTask();
+        }
+
+        private sealed class NavigationAwaiter<T, TState> : TaskCompletionSource<T>, INavigationListener, IHasPriority where T : class
+        {
+            private readonly TState _state;
+            private readonly Func<INavigationDispatcher, TState, T?> _getView;
+
+            private NavigationAwaiter(TState state, Func<INavigationDispatcher, TState, T?> getView)
+            {
+                _state = state;
+                _getView = getView;
+            }
+
+            public int Priority => ComponentPriority.PostInitializer;
+
+            public static ValueTask<T> Get(INavigationDispatcher dispatcher, TState state, Func<INavigationDispatcher, TState, T?> getView)
+            {
+                var view = getView(dispatcher, state);
+                if (view != null)
+                    return new ValueTask<T>(view);
+                var awaiter = new NavigationAwaiter<T, TState>(state, getView);
+                dispatcher.AddComponent(awaiter);
+                return awaiter.Task.AsValueTask();
+            }
+
+            void INavigationListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+            }
+
+            void INavigationListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                var view = _getView(navigationDispatcher, _state);
+                if (view != null)
+                {
+                    navigationDispatcher.Components.Remove(this);
+                    TrySetResult(view);
+                }
+            }
         }
     }
 }
